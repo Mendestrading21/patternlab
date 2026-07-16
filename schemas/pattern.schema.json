@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PatternLab Pattern",
+  "type": "object",
+  "required": [
+    "id",
+    "slug",
+    "name",
+    "family",
+    "recognitionRules",
+    "invalidationRules",
+    "status"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "aliases": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "family": {
+      "type": "string"
+    },
+    "direction": {
+      "enum": [
+        "bullish",
+        "bearish",
+        "neutral",
+        "contextual"
+      ]
+    },
+    "recognitionRules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "invalidationRules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "commonMistakes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "examples": {
+      "type": "array"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "needs_review",
+        "approved",
+        "published",
+        "archived"
+      ]
+    }
+  }
+}

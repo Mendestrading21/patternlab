@@ -1,0 +1,29 @@
+name: Bug
+description: Signaler un dysfonctionnement PatternLab
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problème
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Étapes de reproduction
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Plateforme
+      options:
+        - iOS
+        - Android
+        - Web
+  - type: textarea
+    id: expected
+    attributes:
+      label: Résultat attendu

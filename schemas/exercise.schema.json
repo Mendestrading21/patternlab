@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PatternLab Exercise",
+  "type": "object",
+  "required": [
+    "id",
+    "type",
+    "skillId",
+    "prompt",
+    "validation",
+    "feedback"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "type": {
+      "enum": [
+        "mcq",
+        "true_false",
+        "match",
+        "order",
+        "drag_drop",
+        "select_chart_zone",
+        "draw_level",
+        "identify_pattern",
+        "find_error",
+        "scenario",
+        "numeric",
+        "timed"
+      ]
+    },
+    "skillId": {
+      "type": "string"
+    },
+    "prompt": {
+      "type": "string"
+    },
+    "validation": {
+      "type": "object"
+    },
+    "feedback": {
+      "type": "object"
+    },
+    "difficulty": {
+      "enum": [
+        "easy",
+        "medium",
+        "hard"
+      ]
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

@@ -1,56 +1,64 @@
-# Welcome to your Expo app 👋
+# PatternLab 🐂🐻
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Application mobile (iOS · Android · web) d'**apprentissage financier gamifié** : lire,
+comprendre et analyser les marchés quelques minutes par jour, avec deux mascottes —
+**Toto** (le taureau vert, optimiste) et **Bobo** (l'ours rouge, prudent).
 
-## Get started
+> PatternLab est une application éducative. **Aucun conseil en investissement, aucun
+> signal d'achat/vente, aucune promesse de gain.**
 
-1. Install dependencies
+## Stack
 
-   ```bash
-   npm install
-   ```
+Expo SDK 57 · React Native · TypeScript strict · Expo Router · Reanimated · Lottie · SVG.
+Voir les décisions dans [`docs/`](./docs) (ADR-001 à 005).
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Démarrer
 
 ```bash
-npm run reset-project
+npm install
+npm run web       # lance l'app sur le web (cible de vérification actuelle)
+npm start         # dev server (iOS / Android via Expo Go)
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Qualité
 
-### Other setup steps
+```bash
+npm run lint             # ESLint
+npm run typecheck        # TypeScript (tsc --noEmit)
+npm test                 # Jest (moteurs)
+npm run validate:content # valide content/ contre schemas/
+npm run build:web        # export web statique (dist/)
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## Architecture (P0.1)
 
-## Learn more
+```
+src/
+  app/            écrans Expo Router (splash, onboarding, (tabs), lesson/[id])
+  design-system/  tokens sémantiques + primitives UI (thème sombre premium)
+  characters/     Toto & Bobo + CharacterAnimationController (réduction d'animation)
+  engines/
+    learning/     leçons, maîtrise, répétition espacée (SM-2, testée)
+    exercise/     registry des 12 formats (mcq + true_false branchés)
+    pattern/      chart SVG reproductible + modèle de pattern
+  data/           persistance locale (AsyncStorage) + seed + contexte de progression
+  analytics/      logger d'événements (abstraction)
+  lib/            config, garde-fou d'erreurs
+content/          contenu pédagogique versionné, validé par schemas/
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+## Contenu WMB
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+WMB est une **source de contenu** (formations, glossaire, indicateurs, patterns), jamais
+une dépendance runtime. L'import est traçable et idempotent (P1). Les données personnelles,
+emails, mots de passe, Stripe et abonnements WMB **ne sont jamais importés**.
 
-## Join the community
+## Roadmap
 
-Join our community of developers creating universal apps.
+**P0** fondation + tranche verticale + parcours pilote · **P1** produit complet bêta +
+import WMB · **P2** compte, abonnements, TestFlight/Play, stores. Détail :
+[`.claude/skills/patternlab-full-launch/reference/11-roadmap.md`](./.claude/skills/patternlab-full-launch/reference/11-roadmap.md).
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## État courant
+
+Voir [`docs/PROJECT_STATUS.md`](./docs/PROJECT_STATUS.md).

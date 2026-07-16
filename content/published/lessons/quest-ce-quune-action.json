@@ -1,0 +1,23 @@
+{
+  "id": "lesson.action-definition",
+  "slug": "quest-ce-quune-action",
+  "title": "Qu’est-ce qu’une action ?",
+  "skillId": "skill.actions",
+  "objective": "Comprendre ce que représente une action et ce qu’implique d’en détenir.",
+  "difficulty": "beginner",
+  "estimatedMinutes": 4,
+  "steps": [
+    { "id": "step.1", "kind": "explain", "body": "Une action représente une petite part d’une entreprise." },
+    { "id": "step.2", "kind": "example", "body": "10 actions sur 1 000 = 1 % de l’entreprise." },
+    { "id": "step.3", "kind": "summary", "body": "Une action = une part d’entreprise." }
+  ],
+  "sources": ["WMB — Glossaire : Action"],
+  "status": "published",
+  "legacy": {
+    "legacySource": "wmb",
+    "legacyTable": "glossaryTerms",
+    "legacySlug": "action",
+    "sourceHash": "demo-p0",
+    "migrationVersion": 1
+  }
+}

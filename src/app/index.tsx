@@ -1,98 +1,61 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import { View, StyleSheet } from 'react-native';
+import { Screen, Text, Button, theme } from '@/design-system';
+import { CharacterAnimationController } from '@/characters';
+import { useProgress } from '@/data';
+import { APP, DISCLAIMER } from '@/lib/config';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+export default function Landing() {
+  const router = useRouter();
+  const { state } = useProgress();
+  const onboarded = state?.onboarded ?? false;
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+    <Screen scroll={false}>
+      <View style={styles.top}>
+        <Text variant="caption" color={theme.colors.primary} center>
+          PATTERNLAB
+        </Text>
+        <Text variant="display" center>
+          Apprends à lire{'\n'}les marchés
+        </Text>
+        <Text variant="body" color={theme.colors.textSecondary} center>
+          {APP.tagline}
+        </Text>
+      </View>
 
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+      <View style={styles.duo}>
+        <CharacterAnimationController character="toto" state="wave" size={110} />
+        <CharacterAnimationController character="bobo" state="idle" size={110} />
+      </View>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+      <View style={styles.actions}>
+        <Button
+          label={onboarded ? 'Reprendre' : 'Commencer'}
+          onPress={() => router.push(onboarded ? '/(tabs)' : '/onboarding')}
+        />
+        <Button
+          label="J’ai déjà un compte"
+          variant="ghost"
+          disabled
+          disabledReason="Comptes & connexion : prévus en P2."
+        />
+        <Text variant="caption" color={theme.colors.textMuted} center>
+          {DISCLAIMER}
+        </Text>
+      </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  top: { gap: theme.spacing.sm, marginTop: theme.spacing.xxl },
+  duo: {
     flex: 1,
-    justifyContent: 'center',
     flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+    gap: theme.spacing.lg,
   },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
-  },
+  actions: { gap: theme.spacing.md, marginBottom: theme.spacing.lg },
 });
