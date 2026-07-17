@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, ProgressBar, theme } from '@/design-system';
-import { useReducedMotion } from '@/characters';
+import { useReducedMotion, CharacterAnimationController } from '@/characters';
 import { useProgress, DEMO_SKILL } from '@/data';
 import { DISCLAIMER } from '@/lib/config';
 
@@ -13,7 +13,12 @@ export default function Profil() {
 
   return (
     <Screen>
-      <Text variant="h1">Profil 🐂🐻</Text>
+      <Text variant="h1">Profil</Text>
+
+      <View style={styles.heroDuo}>
+        <CharacterAnimationController character="toto" state="wave" size={76} />
+        <CharacterAnimationController character="bobo" state="idle" size={76} />
+      </View>
 
       <Card elevated>
         <Text variant="title">Tes statistiques</Text>
@@ -71,6 +76,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 const styles = StyleSheet.create({
+  heroDuo: { flexDirection: 'row', justifyContent: 'center', gap: theme.spacing.xl },
   stats: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.lg, marginTop: theme.spacing.sm },
   stat: { flexBasis: '40%', gap: 2 },
   masteryRow: { marginVertical: theme.spacing.sm },

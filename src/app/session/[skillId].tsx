@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, ProgressBar, FeedbackPanel, theme } from '@/design-system';
-import { CharacterScene } from '@/characters';
+import { CharacterScene, MascotScene } from '@/characters';
 import { ExercisePlayer, gradeExercise, type GradeResult } from '@/engines/exercise';
 import { getExercises, skillById, useProgress } from '@/data';
 import { analytics } from '@/analytics';
@@ -136,12 +136,16 @@ function Results({
             série mise à jour 🔥
           </Text>
         </View>
-        <CharacterScene
-          character="toto"
-          state={success ? 'celebrate-big' : 'encourage'}
-          size={72}
-          speech={success ? 'Tu progresses vite !' : 'On y retourne quand tu veux.'}
-        />
+        {success ? (
+          <MascotScene moment="celebrate" height={170} />
+        ) : (
+          <CharacterScene
+            character="toto"
+            state="encourage"
+            size={72}
+            speech="On y retourne quand tu veux."
+          />
+        )}
       </Card>
       <Button label="Retour à l’accueil" onPress={onHome} />
       <Button label="Refaire la session" variant="secondary" onPress={onRetry} />

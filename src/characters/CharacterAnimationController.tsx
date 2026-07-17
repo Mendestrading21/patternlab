@@ -9,7 +9,7 @@ import Animated, {
   withSpring,
   cancelAnimation,
 } from 'react-native-reanimated';
-import { CharacterAvatar } from './CharacterAvatar';
+import { MascotAvatar } from './MascotAvatar';
 import { useReducedMotion } from './useReducedMotion';
 import type { CharacterId, CharacterState } from './types';
 
@@ -22,11 +22,10 @@ export type CharacterAnimationControllerProps = {
 /**
  * Point d'intégration unique pour l'animation des personnages.
  *
- * ADR-005 : la technologie d'animation retenue est **Lottie** (dépendance
- * `lottie-react-native` installée). Tant que l'art Lottie de Toto/Bobo n'est pas
- * produit, ce contrôleur rend l'avatar SVG et applique des micro-animations
- * Reanimated. Brancher Lottie = remplacer <CharacterAvatar/> par le lecteur Lottie
- * ici, sans changer l'API consommée par les écrans.
+ * Rend l'avatar d'art officiel (<MascotAvatar/>, rendu 3D découpé) et applique des
+ * micro-animations Reanimated (flottement au repos, pop au changement d'état). L'API
+ * {character, state, size} est inchangée : tous les écrans en héritent automatiquement.
+ * Une bascule future vers Lottie (ADR-005) se ferait ici sans toucher les écrans.
  *
  * Respecte toujours « réduire les animations » : rendu statique si activé.
  */
@@ -70,14 +69,14 @@ export function CharacterAnimationController({
   if (reduced) {
     return (
       <View accessibilityElementsHidden={false}>
-        <CharacterAvatar character={character} state={state} size={size} />
+        <MascotAvatar character={character} state={state} size={size} />
       </View>
     );
   }
 
   return (
     <Animated.View style={animatedStyle}>
-      <CharacterAvatar character={character} state={state} size={size} />
+      <MascotAvatar character={character} state={state} size={size} />
     </Animated.View>
   );
 }

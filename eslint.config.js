@@ -4,6 +4,13 @@ const expoConfig = require('eslint-config-expo/flat');
 module.exports = [
   ...expoConfig,
   {
+    // Scripts d'outillage Node (préparation d'assets, etc.)
+    files: ['scripts/**/*.{js,mjs}'],
+    languageOptions: {
+      globals: { Buffer: 'readonly', process: 'readonly', console: 'readonly' },
+    },
+  },
+  {
     ignores: [
       'dist/**',
       '.expo/**',
