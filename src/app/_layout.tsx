@@ -25,6 +25,7 @@ export default function RootLayout() {
               <Stack.Screen name="onboarding" />
               <Stack.Screen name="(tabs)" />
               <Stack.Screen name="lesson/[id]" options={{ presentation: 'card' }} />
+              <Stack.Screen name="session/[skillId]" options={{ presentation: 'card' }} />
             </Stack>
           </ProgressProvider>
         </ErrorBoundary>

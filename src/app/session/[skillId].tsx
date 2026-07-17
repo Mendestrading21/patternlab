@@ -1,0 +1,151 @@
+import { useEffect, useRef, useState } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { View, StyleSheet } from 'react-native';
+import { Screen, Text, Card, Button, ProgressBar, FeedbackPanel, theme } from '@/design-system';
+import { CharacterScene } from '@/characters';
+import { ExercisePlayer, gradeExercise, type GradeResult } from '@/engines/exercise';
+import { DEMO_EXERCISES, useProgress } from '@/data';
+import { analytics } from '@/analytics';
+
+export default function Session() {
+  const { skillId } = useLocalSearchParams<{ skillId: string }>();
+  const router = useRouter();
+  const { recordAnswer, completeSession } = useProgress();
+
+  const exercises = DEMO_EXERCISES.filter((e) => e.skillId === skillId);
+  const list = exercises.length ? exercises : DEMO_EXERCISES;
+
+  const [index, setIndex] = useState(0);
+  const [result, setResult] = useState<GradeResult | null>(null);
+  const [correct, setCorrect] = useState(0);
+
+  const finished = index >= list.length;
+
+  if (finished) {
+    return <Results total={list.length} correct={correct} onComplete={completeSession} onHome={() => router.replace('/(tabs)')} onRetry={() => { setIndex(0); setResult(null); setCorrect(0); }} />;
+  }
+
+  const exercise = list[index];
+
+  const validate = (answer: unknown) => {
+    if (result) return;
+    const graded = gradeExercise(exercise, answer);
+    setResult(graded);
+    if (graded.correct) setCorrect((c) => c + 1);
+    recordAnswer(exercise.skillId, graded.correct ? 5 : 2);
+    analytics.track('feedback_viewed', { exerciseId: exercise.id, correct: graded.correct });
+  };
+
+  const next = () => {
+    setIndex((i) => i + 1);
+    setResult(null);
+  };
+
+  return (
+    <Screen>
+      <View style={styles.header}>
+        <Text variant="caption" color={theme.colors.textMuted}>
+          Exercice {index + 1} / {list.length}
+        </Text>
+        <ProgressBar value={index / list.length} accessibilityLabel="Progression de la session" />
+      </View>
+
+      <Card>
+        <Text variant="caption" color={theme.colors.primary}>
+          {LABELS[exercise.type] ?? 'Exercice'}
+        </Text>
+        <Text variant="title">{exercise.prompt}</Text>
+        <ExercisePlayer exercise={exercise} result={result} onValidate={validate} />
+      </Card>
+
+      {result ? (
+        <>
+          <FeedbackPanel
+            correct={result.correct}
+            message={result.correct ? result.feedback.correct : result.feedback.incorrect}
+            rule={result.feedback.rule}
+            whenItFails={result.feedback.whenItFails}
+          />
+          <CharacterScene
+            character={result.correct ? 'toto' : 'bobo'}
+            state={result.correct ? 'celebrate-small' : 'encourage'}
+            size={60}
+            speech={result.correct ? 'Bien joué !' : 'Pas grave — l’important, c’est de comprendre.'}
+          />
+          <Button label={index + 1 >= list.length ? 'Voir mon résultat' : 'Continuer'} onPress={next} />
+        </>
+      ) : null}
+    </Screen>
+  );
+}
+
+function Results({
+  total,
+  correct,
+  onComplete,
+  onHome,
+  onRetry,
+}: {
+  total: number;
+  correct: number;
+  onComplete: () => void;
+  onHome: () => void;
+  onRetry: () => void;
+}) {
+  const done = useRef(false);
+  useEffect(() => {
+    if (!done.current) {
+      done.current = true;
+      onComplete();
+      analytics.track('lesson_completed', { total, correct });
+    }
+  }, [onComplete, total, correct]);
+
+  const xp = correct * 10 + (total - correct) * 2;
+  const success = correct >= Math.ceil(total * 0.7);
+
+  return (
+    <Screen>
+      <Card elevated style={styles.results}>
+        <Text variant="display">{success ? '🎉' : '💪'}</Text>
+        <Text variant="h1" center>
+          {correct} / {total}
+        </Text>
+        <Text variant="body" color={theme.colors.textSecondary} center>
+          {success ? 'Session réussie, bravo !' : 'Bien essayé — révise et retente !'}
+        </Text>
+        <View style={styles.gains}>
+          <Text variant="title" color={theme.colors.reward}>
+            +{xp} XP
+          </Text>
+          <Text variant="caption" color={theme.colors.textMuted}>
+            série mise à jour 🔥
+          </Text>
+        </View>
+        <CharacterScene
+          character="toto"
+          state={success ? 'celebrate-big' : 'encourage'}
+          size={72}
+          speech={success ? 'Tu progresses vite !' : 'On y retourne quand tu veux.'}
+        />
+      </Card>
+      <Button label="Retour à l’accueil" onPress={onHome} />
+      <Button label="Refaire la session" variant="secondary" onPress={onRetry} />
+    </Screen>
+  );
+}
+
+const LABELS: Record<string, string> = {
+  mcq: 'Choix multiple',
+  true_false: 'Vrai ou faux',
+  numeric: 'Réponse numérique',
+  order: 'Mets dans l’ordre',
+  match: 'Associe',
+  find_error: 'Trouve l’erreur',
+};
+
+const styles = StyleSheet.create({
+  header: { gap: theme.spacing.sm },
+  results: { alignItems: 'center', gap: theme.spacing.md },
+  gains: { alignItems: 'center', gap: 2 },
+});

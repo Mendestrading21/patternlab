@@ -1,6 +1,14 @@
 import { describe, it, expect } from '@jest/globals';
 import { gradeExercise, isTypeSupported, supportedTypes } from './registry';
-import type { McqExercise, TrueFalseExercise, BaseExercise } from './types';
+import type {
+  Exercise,
+  McqExercise,
+  TrueFalseExercise,
+  NumericExercise,
+  OrderExercise,
+  MatchExercise,
+  FindErrorExercise,
+} from './types';
 
 const feedback = {
   correct: 'Bien vu.',
@@ -49,13 +57,83 @@ describe('exercise registry', () => {
   });
 
   it('lève une erreur claire pour un format non implémenté', () => {
-    const notYet: BaseExercise = {
+    // 'timed' n'est pas encore branché : on force le type pour tester le garde-fou.
+    const notYet = {
       id: 'ex.timed.1',
       type: 'timed',
       skillId: 'skill.actions',
       prompt: '…',
       feedback,
-    };
+    } as unknown as Exercise;
     expect(() => gradeExercise(notYet, 0)).toThrow(/non encore impl/);
+  });
+});
+
+describe('exercise registry — formats P0.2', () => {
+  it('supporte 6 formats', () => {
+    for (const t of ['mcq', 'true_false', 'numeric', 'order', 'match', 'find_error'] as const) {
+      expect(isTypeSupported(t)).toBe(true);
+    }
+    expect(supportedTypes().length).toBeGreaterThanOrEqual(6);
+  });
+
+  it('corrige un numeric avec tolérance', () => {
+    const ex: NumericExercise = {
+      id: 'n1',
+      type: 'numeric',
+      skillId: 's',
+      prompt: 'Combien d’actions pour 1 % de 1000 ?',
+      unit: 'actions',
+      validation: { answer: 10, tolerance: 0 },
+      feedback,
+    };
+    expect(gradeExercise(ex, 10).correct).toBe(true);
+    expect(gradeExercise(ex, 11).correct).toBe(false);
+    expect(gradeExercise({ ...ex, validation: { answer: 10, tolerance: 1 } }, 11).correct).toBe(true);
+    expect(gradeExercise(ex, 'dix').correct).toBe(false);
+  });
+
+  it('corrige un order (séquence)', () => {
+    const ex: OrderExercise = {
+      id: 'o1',
+      type: 'order',
+      skillId: 's',
+      prompt: 'Ordonne du plus petit au plus grand risque.',
+      items: ['A', 'B', 'C'],
+      validation: { correctOrder: [2, 0, 1] },
+      feedback,
+    };
+    expect(gradeExercise(ex, [2, 0, 1]).correct).toBe(true);
+    expect(gradeExercise(ex, [0, 1, 2]).correct).toBe(false);
+    expect(gradeExercise(ex, [2, 0]).correct).toBe(false);
+  });
+
+  it('corrige un match (appariement)', () => {
+    const ex: MatchExercise = {
+      id: 'm1',
+      type: 'match',
+      skillId: 's',
+      prompt: 'Associe le terme à sa définition.',
+      left: ['Action', 'Obligation'],
+      right: ['Part d’entreprise', 'Dette'],
+      validation: { matches: [0, 1] },
+      feedback,
+    };
+    expect(gradeExercise(ex, [0, 1]).correct).toBe(true);
+    expect(gradeExercise(ex, [1, 0]).correct).toBe(false);
+  });
+
+  it('corrige un find_error', () => {
+    const ex: FindErrorExercise = {
+      id: 'f1',
+      type: 'find_error',
+      skillId: 's',
+      prompt: 'Repère l’affirmation fausse.',
+      statements: ['Une action est une part d’entreprise.', 'Une action est une dette de l’entreprise.'],
+      validation: { errorIndex: 1 },
+      feedback,
+    };
+    expect(gradeExercise(ex, 1).correct).toBe(true);
+    expect(gradeExercise(ex, 0).correct).toBe(false);
   });
 });

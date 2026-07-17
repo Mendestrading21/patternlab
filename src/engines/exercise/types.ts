@@ -63,7 +63,42 @@ export interface TrueFalseExercise extends BaseExercise {
   validation: { answer: boolean };
 }
 
-export type Exercise = McqExercise | TrueFalseExercise | BaseExercise;
+export interface NumericExercise extends BaseExercise {
+  type: 'numeric';
+  unit?: string;
+  validation: { answer: number; tolerance?: number };
+}
+
+export interface OrderExercise extends BaseExercise {
+  type: 'order';
+  items: string[];
+  /** correctOrder = indices de `items` dans le bon ordre. */
+  validation: { correctOrder: number[] };
+}
+
+export interface MatchExercise extends BaseExercise {
+  type: 'match';
+  left: string[];
+  right: string[];
+  /** matches[i] = index dans `right` associé à left[i]. */
+  validation: { matches: number[] };
+}
+
+export interface FindErrorExercise extends BaseExercise {
+  type: 'find_error';
+  statements: string[];
+  /** Index de l'affirmation ERRONÉE à repérer. */
+  validation: { errorIndex: number };
+}
+
+/** Union discriminée des formats implémentés (narrowing par `type`). */
+export type Exercise =
+  | McqExercise
+  | TrueFalseExercise
+  | NumericExercise
+  | OrderExercise
+  | MatchExercise
+  | FindErrorExercise;
 
 export interface GradeResult {
   correct: boolean;

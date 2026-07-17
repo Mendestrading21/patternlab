@@ -37,7 +37,7 @@ export default function LessonScreen() {
 
   const finish = () => {
     analytics.track('lesson_completed', { lessonId: lesson.id });
-    router.push('/(tabs)/quiz');
+    router.push(`/session/${lesson.skillId}`);
   };
 
   return (
@@ -79,7 +79,7 @@ export default function LessonScreen() {
       ) : null}
 
       <View style={styles.actions}>
-        <Button label="Terminer la leçon" onPress={finish} accessibilityHint="Passer au quiz" />
+        <Button label="Terminer la leçon" onPress={finish} accessibilityHint="Passer aux exercices" />
         <Button label="Retour" variant="ghost" onPress={() => router.back()} />
       </View>
     </Screen>

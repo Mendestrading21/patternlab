@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, Chip, ProgressBar, theme } from '@/design-system';
 import { CharacterAnimationController, CharacterScene } from '@/characters';
-import { useProgress } from '@/data';
+import { useProgress, DEMO_SKILL } from '@/data';
 import { PILLARS, DISCLAIMER } from '@/lib/config';
 
 export default function Home() {
@@ -51,7 +51,7 @@ export default function Home() {
             {xpInLevel} / 100 XP vers le niveau {state.level + 1}
           </Text>
         </View>
-        <Button label="Continuer" onPress={() => router.push('/(tabs)/lecons')} />
+        <Button label="Continuer" onPress={() => router.push(`/session/${DEMO_SKILL.id}`)} />
       </Card>
 
       <Card>

@@ -9,6 +9,7 @@ interface ProgressContextValue {
   ready: boolean;
   markOnboarded: () => void;
   recordAnswer: (skillId: string, grade: Grade) => void;
+  completeSession: () => void;
   reset: () => void;
 }
 
@@ -16,6 +17,13 @@ const ProgressContext = createContext<ProgressContextValue | null>(null);
 
 function deriveLevel(totalXp: number): number {
   return Math.floor(totalXp / 100) + 1;
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** Clé de jour locale AAAA-MM-JJ. */
+function dateKey(ts: number): string {
+  return new Date(ts).toISOString().slice(0, 10);
 }
 
 export function ProgressProvider({ children }: { children: ReactNode }) {
@@ -70,6 +78,24 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const completeSession = useCallback(() => {
+    setState((prev) => {
+      if (!prev) return prev;
+      const now = Date.now();
+      const today = dateKey(now);
+      let streakDays = prev.streakDays;
+      if (prev.lastActiveDate !== today) {
+        const yesterday = dateKey(now - DAY_MS);
+        streakDays = prev.lastActiveDate === yesterday ? prev.streakDays + 1 : 1;
+      }
+      const next: ProgressState = { ...prev, streakDays, lastActiveDate: today };
+      void progressRepository.save(next);
+      analytics.track('streak_updated', { streakDays });
+      analytics.track('review_completed');
+      return next;
+    });
+  }, []);
+
   const reset = useCallback(() => {
     const fresh = defaultProgress(Date.now());
     void progressRepository.reset().then(() => progressRepository.save(fresh));
@@ -77,7 +103,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <ProgressContext.Provider value={{ state, ready, markOnboarded, recordAnswer, reset }}>
+    <ProgressContext.Provider value={{ state, ready, markOnboarded, recordAnswer, completeSession, reset }}>
       {children}
     </ProgressContext.Provider>
   );

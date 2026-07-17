@@ -102,6 +102,67 @@ export const DEMO_EXERCISES: Exercise[] = [
     },
     sources: ['WMB — Glossaire : Tendance'],
   },
+  {
+    id: 'ex.action-numeric',
+    type: 'numeric',
+    skillId: DEMO_SKILL.id,
+    prompt: 'Une entreprise est découpée en 1 000 actions. Combien d’actions représentent 1 % ?',
+    unit: 'actions',
+    validation: { answer: 10, tolerance: 0 },
+    difficulty: 'easy',
+    feedback: {
+      correct: 'Exact : 1 % de 1 000, c’est 10 actions.',
+      incorrect: '1 % de 1 000 = 10. Chaque action vaut 0,1 % de l’entreprise.',
+      rule: 'Ta part = nombre d’actions détenues ÷ nombre total d’actions.',
+    },
+  },
+  {
+    id: 'ex.regimes-order',
+    type: 'order',
+    skillId: DEMO_SKILL.id,
+    prompt: 'Ordonne ces régimes du plus baissier au plus haussier.',
+    items: ['Marché haussier (bull)', 'Marché en range', 'Marché baissier (bear)'],
+    validation: { correctOrder: [2, 1, 0] },
+    difficulty: 'medium',
+    feedback: {
+      correct: 'Bien vu : bear → range → bull, du plus baissier au plus haussier.',
+      incorrect: 'Ordre attendu : baissier (bear), puis range, puis haussier (bull).',
+      rule: 'Bear = prix qui baissent durablement ; bull = prix qui montent durablement.',
+    },
+  },
+  {
+    id: 'ex.terms-match',
+    type: 'match',
+    skillId: DEMO_SKILL.id,
+    prompt: 'Associe chaque terme à sa définition.',
+    left: ['Action', 'Obligation', 'Dividende'],
+    right: ['Part d’entreprise', 'Dette de l’entreprise', 'Part du bénéfice versée'],
+    validation: { matches: [0, 1, 2] },
+    difficulty: 'medium',
+    feedback: {
+      correct: 'Parfait : action = part, obligation = dette, dividende = bénéfice versé.',
+      incorrect: 'Rappel : une obligation est une dette (pas une part), le dividende est versé aux actionnaires.',
+      rule: 'Action ≠ obligation : l’une te rend propriétaire, l’autre créancier.',
+    },
+  },
+  {
+    id: 'ex.action-find-error',
+    type: 'find_error',
+    skillId: DEMO_SKILL.id,
+    prompt: 'Repère l’affirmation FAUSSE.',
+    statements: [
+      'Une action représente une part d’entreprise.',
+      'Le prix d’une action ne varie jamais.',
+      'Un actionnaire peut recevoir des dividendes.',
+    ],
+    validation: { errorIndex: 1 },
+    difficulty: 'easy',
+    feedback: {
+      correct: 'Exact : le prix d’une action varie en permanence selon l’offre et la demande.',
+      incorrect: 'L’erreur est « le prix ne varie jamais » : il bouge en continu.',
+      rule: 'Le prix d’une action fluctue ; il n’est jamais figé.',
+    },
+  },
 ];
 
 export const DEMO_PATTERN: Pattern = {

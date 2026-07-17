@@ -2,12 +2,26 @@
  * Registry des graders d'exercices. Ajouter un format = enregistrer un grader,
  * sans toucher au reste du moteur (extensibilité exigée par le kit).
  */
-import type { Exercise, ExerciseType, GradeResult, McqExercise, TrueFalseExercise } from './types';
+import type {
+  Exercise,
+  ExerciseType,
+  GradeResult,
+  McqExercise,
+  TrueFalseExercise,
+  NumericExercise,
+  OrderExercise,
+  MatchExercise,
+  FindErrorExercise,
+} from './types';
 
 export type Grader<E extends Exercise> = (exercise: E, answer: unknown) => GradeResult;
 
 function result(correct: boolean, exercise: Exercise): GradeResult {
   return { correct, feedback: exercise.feedback };
+}
+
+function numberArrayEquals(a: unknown, b: number[]): boolean {
+  return Array.isArray(a) && a.length === b.length && b.every((v, i) => a[i] === v);
 }
 
 const gradeMcq: Grader<McqExercise> = (exercise, answer) => {
@@ -18,9 +32,31 @@ const gradeTrueFalse: Grader<TrueFalseExercise> = (exercise, answer) => {
   return result(answer === exercise.validation.answer, exercise);
 };
 
+const gradeNumeric: Grader<NumericExercise> = (exercise, answer) => {
+  const tolerance = exercise.validation.tolerance ?? 0;
+  const ok = typeof answer === 'number' && Math.abs(answer - exercise.validation.answer) <= tolerance;
+  return result(ok, exercise);
+};
+
+const gradeOrder: Grader<OrderExercise> = (exercise, answer) => {
+  return result(numberArrayEquals(answer, exercise.validation.correctOrder), exercise);
+};
+
+const gradeMatch: Grader<MatchExercise> = (exercise, answer) => {
+  return result(numberArrayEquals(answer, exercise.validation.matches), exercise);
+};
+
+const gradeFindError: Grader<FindErrorExercise> = (exercise, answer) => {
+  return result(answer === exercise.validation.errorIndex, exercise);
+};
+
 const graders: Partial<Record<ExerciseType, Grader<Exercise>>> = {
   mcq: gradeMcq as Grader<Exercise>,
   true_false: gradeTrueFalse as Grader<Exercise>,
+  numeric: gradeNumeric as Grader<Exercise>,
+  order: gradeOrder as Grader<Exercise>,
+  match: gradeMatch as Grader<Exercise>,
+  find_error: gradeFindError as Grader<Exercise>,
 };
 
 export function isTypeSupported(type: ExerciseType): boolean {

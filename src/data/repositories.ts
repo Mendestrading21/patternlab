@@ -11,6 +11,8 @@ export interface ProgressState {
   totalXp: number;
   streakDays: number;
   coins: number;
+  /** Dernier jour d'activité (YYYY-MM-DD) pour le calcul de la série. */
+  lastActiveDate?: string;
   skills: Record<string, SkillProgress>;
   schemaVersion: number;
 }
