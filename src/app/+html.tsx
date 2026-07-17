@@ -51,4 +51,22 @@ body {
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
 }
+
+/*
+ * Sur téléphone (écran étroit) : l'app occupe tout l'écran.
+ * Sur ordinateur / grand écran : on la contraint en colonne "format
+ * téléphone" centrée, pour éviter qu'elle s'étire sur toute la largeur.
+ */
+@media (min-width: 560px) {
+  body {
+    display: flex;
+    justify-content: center;
+    background-color: #05090A;
+  }
+  #root {
+    width: 460px;
+    max-width: 100%;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 24px 70px rgba(0, 0, 0, 0.55);
+  }
+}
 `;
