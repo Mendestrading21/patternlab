@@ -4,7 +4,7 @@ import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, ProgressBar, FeedbackPanel, theme } from '@/design-system';
 import { CharacterScene, MascotFigure } from '@/characters';
 import { ExercisePlayer, gradeExercise, type GradeResult } from '@/engines/exercise';
-import { getExercises, skillById, useProgress } from '@/data';
+import { getExercises, skillById, limitCount, useProgress } from '@/data';
 import { xpForGrade } from '@/engines/learning';
 import { analytics } from '@/analytics';
 
@@ -12,12 +12,15 @@ import { analytics } from '@/analytics';
 const PASS_RATIO = 0.7;
 
 export default function Session() {
-  const { skillId } = useLocalSearchParams<{ skillId: string }>();
+  const { skillId, count } = useLocalSearchParams<{ skillId: string; count?: string }>();
   const router = useRouter();
   const { recordAnswer, completeSession } = useProgress();
 
   const resolvedId = skillId && getExercises(skillId).length ? skillId : 'skill.actions';
-  const list = getExercises(resolvedId);
+  const all = getExercises(resolvedId);
+  // `count` (facultatif) provient de la mission du jour : longueur modulée par le temps quotidien.
+  const target = count != null ? Number.parseInt(count, 10) : null;
+  const list = all.slice(0, limitCount(all.length, target));
   const skillName = skillById(resolvedId)?.name ?? 'Session';
 
   const [index, setIndex] = useState(0);

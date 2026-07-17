@@ -2,8 +2,8 @@ import { useRouter } from 'expo-router';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, Chip, ProgressBar, StateView, theme } from '@/design-system';
 import { CharacterScene, MascotFigure } from '@/characters';
-import { useProgress, SKILLS, buildDailyMission, selectDueReviews } from '@/data';
-import { PILLARS, DISCLAIMER } from '@/lib/config';
+import { useProgress, SKILLS, buildDailyMission, selectDueReviews, exercisesForMinutes, OBJECTIVES } from '@/data';
+import { DISCLAIMER } from '@/lib/config';
 
 const EXPLORE = [
   { icon: '📚', title: 'Leçons', subtitle: 'Le module « Lire un graphique ».', route: '/lecons' as const },
@@ -14,7 +14,7 @@ const EXPLORE = [
 
 export default function Home() {
   const router = useRouter();
-  const { state, ready } = useProgress();
+  const { state, ready, profile } = useProgress();
 
   if (!ready || !state) {
     return (
@@ -28,6 +28,9 @@ export default function Home() {
   const xpInLevel = state.totalXp % 100;
   const mission = buildDailyMission(state, SKILLS, now);
   const dueCount = selectDueReviews(state, SKILLS, now).length;
+  const minutes = profile?.dailyMinutes ?? 5;
+  const sessionCount = exercisesForMinutes(minutes);
+  const objectiveLabel = OBJECTIVES.find((o) => o.value === profile?.objective)?.label;
   const today = new Date(now).toISOString().slice(0, 10);
   const challenges = [
     { label: 'Termine une session aujourd’hui', done: state.lastActiveDate === today },
@@ -37,13 +40,17 @@ export default function Home() {
   const challengesDone = challenges.filter((c) => c.done).length;
 
   const startMission = () =>
-    mission.skillId ? router.push(`/session/${mission.skillId}`) : router.push('/parcours');
+    mission.skillId
+      ? router.push({ pathname: '/session/[skillId]', params: { skillId: mission.skillId, count: String(sessionCount) } })
+      : router.push('/parcours');
 
   return (
     <Screen>
       <Text variant="h1">Bonjour, apprenti ! 👋</Text>
       <Text variant="body" color={theme.colors.textSecondary}>
-        Cinq minutes suffisent. Voici ta mission du jour.
+        {objectiveLabel
+          ? `Objectif : ${objectiveLabel} · ${minutes} min aujourd’hui.`
+          : 'Cinq minutes suffisent. Voici ta mission du jour.'}
       </Text>
 
       {/* Action principale unique : la mission du jour */}
@@ -58,6 +65,12 @@ export default function Home() {
         <Text variant="body" color={theme.colors.textSecondary}>
           {mission.subtitle}
         </Text>
+        {mission.skillId ? (
+          <View style={styles.missionMeta}>
+            <Chip icon="⏱️" label={`~${minutes} min`} color={theme.colors.technical} />
+            <Chip icon="📝" label={`${sessionCount} exercice${sessionCount > 1 ? 's' : ''}`} color={theme.colors.neutral} />
+          </View>
+        ) : null}
         <View style={styles.cta}>
           <Button label={mission.ctaLabel} onPress={startMission} accessibilityHint="Démarrer la mission du jour" />
         </View>
@@ -126,19 +139,6 @@ export default function Home() {
         ))}
       </View>
 
-      <Text variant="h2">Les 4 piliers</Text>
-      <View style={styles.grid}>
-        {PILLARS.map((p) => (
-          <Card key={p.id} style={styles.pillar}>
-            <Text variant="h2">{p.emoji}</Text>
-            <Text variant="title">{p.title}</Text>
-            <Text variant="caption" color={theme.colors.textSecondary}>
-              {p.text}
-            </Text>
-          </Card>
-        ))}
-      </View>
-
       <Card>
         <Text variant="title">Conseils de Toto &amp; Bobo</Text>
         <View style={styles.advice}>
@@ -156,6 +156,7 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   missionMascot: { alignItems: 'center', marginVertical: theme.spacing.sm },
+  missionMeta: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, marginTop: theme.spacing.sm },
   cta: { marginVertical: theme.spacing.md },
   progressStrip: { gap: theme.spacing.xs },
   chips: { flexDirection: 'row', gap: theme.spacing.sm, marginBottom: theme.spacing.xs },
@@ -163,7 +164,6 @@ const styles = StyleSheet.create({
   reviewDue: { borderColor: theme.colors.warning },
   mission: { marginVertical: theme.spacing.md },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md },
-  pillar: { flexGrow: 1, flexBasis: '45%', gap: theme.spacing.xs },
   advice: { gap: theme.spacing.md, marginTop: theme.spacing.sm },
   challenges: { gap: theme.spacing.xs, marginTop: theme.spacing.sm },
   challengeRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },

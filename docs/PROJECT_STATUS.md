@@ -1,9 +1,9 @@
 # État du projet
 
 ## Date
-2026-07-17 — **LOT 3 — Onboarding personnalisé** terminé (après LOT 0 — Fiabilité,
-LOT 1 — Design System V2, LOT 2 — Navigation), skill `patternlab-product-growth`,
-sur la base des lots P0/P1 précédents.
+2026-07-17 — **LOT 4 — Accueil mission du jour** terminé (après LOT 0 — Fiabilité,
+LOT 1 — Design System V2, LOT 2 — Navigation, LOT 3 — Onboarding personnalisé),
+skill `patternlab-product-growth`, sur la base des lots P0/P1 précédents.
 
 ## Branche / commit
 Branche de travail `claude/connexion-application-1n30su`. Dépôt distant `origin`
@@ -59,6 +59,15 @@ Flux personnalisé + modèle versionné, sans régression, toutes validations ve
 - **Analytics** : `onboarding_started`, `goal_selected`, `diagnostic_completed`, `path_generated`, `onboarding_completed`.
 - Rétrocompatible (utilisateurs déjà onboarded sans profil → invite de personnalisation). Voir **ADR-009**.
 
+## LOT 4 — Accueil mission du jour (ce lot)
+Composition personnalisée, sans régression, toutes validations vertes :
+- **Le temps quotidien pilote la longueur de session** : `exercisesForMinutes` (3→3, 5→5, 10→8) + `limitCount`, testées ; l'écran de session lit `count` (facultatif, rétrocompatible) et tronque la liste.
+- **CTA principal personnalisé** : la mission route vers `/session/[skillId]?count=…` (depuis l'accueil ET la fin d'onboarding — vérifié : `?count=3` → « Exercice 1 / 3 »). Sous-titre d'accueil = objectif + temps du profil ; carte mission = `~N min` + `N exercices`.
+- **Progression compacte** (niveau, série, pièces, XP) dans la carte mission.
+- **Révision due** : pointeur compact vers l'onglet Révisions.
+- **Allègement** : suppression de la section décorative « Les 4 piliers » ; conservation des Défis, de l'Explorer (Leçons/Quiz/Glossaire/Réussites) et des Conseils Toto/Bobo.
+- Voir **ADR-010**.
+
 ## Partiel
 - Lottie : dépendance + point d'intégration prêts ; rendu figures/SVG en attendant (ADR-005).
 - Détection hors-ligne native (iOS/Android) différée (web opérationnel) — `@react-native-community/netinfo` dans un lot ultérieur.
@@ -71,12 +80,12 @@ Flux personnalisé + modèle versionné, sans régression, toutes validations ve
 - Aucun connu (voir sorties lint / typecheck / test / validate:content / build web).
 
 ## Absent (par design, lots suivants)
-- Leçons V2, exercices avancés, laboratoire graphique interactif (tracé/replay), maîtrise adaptative, import APP pilote, monétisation, analytics étendus, offline complet (lots 4→19 du skill `patternlab-product-growth`).
+- Parcours immersif, leçons V2, exercices avancés, laboratoire graphique interactif (tracé/replay), maîtrise adaptative, import APP pilote, monétisation, analytics étendus, offline complet (lots 5→19 du skill `patternlab-product-growth`).
 - Builds device iOS/Android (EAS + comptes Apple/Google).
 
 ## Prochaine priorité
-**Lot 4 — Accueil mission du jour** (composition complète : CTA principal exploitant le
-profil — objectif/temps —, révision due, progression compacte), puis Lot 5 — Parcours immersif.
+**Lot 5 — Parcours immersif** (mondes, carte, nœuds, checkpoints et révisions),
+puis Lot 6 — Leçons V2.
 
 ## Risques
 - Conteneur éphémère : commit local présent ; pousser après accord pour ne rien perdre.

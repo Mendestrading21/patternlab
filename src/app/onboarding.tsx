@@ -12,6 +12,7 @@ import {
   DAILY_OPTIONS,
   TOPICS,
   recommendStartSkill,
+  exercisesForMinutes,
   ONBOARDING_SCHEMA_VERSION,
   type Objective,
   type DeclaredLevel,
@@ -97,7 +98,10 @@ export default function Onboarding() {
       completedAt: new Date().toISOString(),
     };
     completeOnboarding(profile);
-    router.replace(`/session/${startSkillId}`);
+    router.replace({
+      pathname: '/session/[skillId]',
+      params: { skillId: startSkillId, count: String(exercisesForMinutes(minutes)) },
+    });
   };
 
   return (
