@@ -1,10 +1,16 @@
 import { useRouter } from 'expo-router';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, Chip, ProgressBar, StateView, theme } from '@/design-system';
-import { CharacterAnimationController, CharacterScene, MascotFigure } from '@/characters';
-import { useProgress, SKILLS } from '@/data';
-import { isDue } from '@/engines/learning';
+import { CharacterScene, MascotFigure } from '@/characters';
+import { useProgress, SKILLS, buildDailyMission, selectDueReviews } from '@/data';
 import { PILLARS, DISCLAIMER } from '@/lib/config';
+
+const EXPLORE = [
+  { icon: '📚', title: 'Leçons', subtitle: 'Le module « Lire un graphique ».', route: '/lecons' as const },
+  { icon: '🎯', title: 'Quiz éclair', subtitle: 'Une session d’exercices variés.', route: '/quiz' as const },
+  { icon: '📖', title: 'Glossaire', subtitle: 'Le vocabulaire des marchés.', route: '/glossaire' as const },
+  { icon: '🏅', title: 'Réussites', subtitle: 'Tes badges débloqués.', route: '/reussites' as const },
+];
 
 export default function Home() {
   const router = useRouter();
@@ -18,12 +24,10 @@ export default function Home() {
     );
   }
 
-  const xpInLevel = state.totalXp % 100;
   const now = Date.now();
-  const currentSkill = SKILLS.find((s) => !state.completedSkills.includes(s.id)) ?? SKILLS[0];
-  const dueSkills = SKILLS.filter(
-    (s) => state.completedSkills.includes(s.id) && state.skills[s.id] && isDue(state.skills[s.id].review, now),
-  );
+  const xpInLevel = state.totalXp % 100;
+  const mission = buildDailyMission(state, SKILLS, now);
+  const dueCount = selectDueReviews(state, SKILLS, now).length;
   const today = new Date(now).toISOString().slice(0, 10);
   const challenges = [
     { label: 'Termine une session aujourd’hui', done: state.lastActiveDate === today },
@@ -32,63 +36,60 @@ export default function Home() {
   ];
   const challengesDone = challenges.filter((c) => c.done).length;
 
+  const startMission = () =>
+    mission.skillId ? router.push(`/session/${mission.skillId}`) : router.push('/parcours');
+
   return (
     <Screen>
       <Text variant="h1">Bonjour, apprenti ! 👋</Text>
       <Text variant="body" color={theme.colors.textSecondary}>
-        Prêt à continuer ton parcours ?
+        Cinq minutes suffisent. Voici ta mission du jour.
       </Text>
 
-      <MascotFigure name="toto-think" gesture="idle" height={140} />
-
+      {/* Action principale unique : la mission du jour */}
       <Card elevated>
-        <View style={styles.levelRow}>
-          <View style={styles.levelInfo}>
-            <Text variant="caption" color={theme.colors.textSecondary}>
-              Ton niveau
-            </Text>
-            <Text variant="display">{state.level}</Text>
-            <View style={styles.chips}>
-              <Chip icon="🔥" label={`${state.streakDays} j`} color={theme.colors.warning} />
-              <Chip icon="🪙" label={`${state.coins}`} color={theme.colors.reward} />
-            </View>
-          </View>
-          <View style={styles.duo}>
-            <CharacterAnimationController character="toto" state="celebrate-small" size={64} />
-            <CharacterAnimationController character="bobo" state="idle" size={64} />
-          </View>
+        <Text variant="label" color={theme.colors.primaryBright}>
+          🎯 MISSION DU JOUR
+        </Text>
+        <Text variant="h2">{mission.skillName || 'Module terminé'}</Text>
+        <View style={styles.missionMascot}>
+          <MascotFigure name="toto-think" gesture="idle" height={104} />
         </View>
-        <View style={styles.xp}>
+        <Text variant="body" color={theme.colors.textSecondary}>
+          {mission.subtitle}
+        </Text>
+        <View style={styles.cta}>
+          <Button label={mission.ctaLabel} onPress={startMission} accessibilityHint="Démarrer la mission du jour" />
+        </View>
+        <View style={styles.progressStrip}>
+          <View style={styles.chips}>
+            <Chip icon="⭐" label={`Niv. ${state.level}`} color={theme.colors.primary} />
+            <Chip icon="🔥" label={`${state.streakDays} j`} color={theme.colors.warning} />
+            <Chip icon="🪙" label={`${state.coins}`} color={theme.colors.reward} />
+          </View>
           <ProgressBar value={xpInLevel / 100} accessibilityLabel={`${xpInLevel} sur 100 XP`} />
           <Text variant="caption" color={theme.colors.textMuted}>
             {xpInLevel} / 100 XP vers le niveau {state.level + 1}
           </Text>
         </View>
-        <Button
-          label={`Continuer — ${currentSkill.name}`}
-          onPress={() => router.push(`/session/${currentSkill.id}`)}
-        />
       </Card>
 
-      <Card style={dueSkills.length ? styles.reviewDue : undefined}>
-        <Text variant="title">🔁 À réviser</Text>
-        {dueSkills.length ? (
-          <>
-            <Text variant="body" color={theme.colors.textSecondary}>
-              {dueSkills.length} compétence{dueSkills.length > 1 ? 's' : ''} à consolider (répétition espacée).
+      {/* Révisions : pointeur compact vers l'onglet dédié */}
+      <Pressable accessibilityRole="button" accessibilityHint="Ouvrir les révisions" onPress={() => router.push('/revisions')}>
+        <Card style={dueCount ? styles.reviewDue : undefined}>
+          <View style={styles.row}>
+            <Text variant="title" style={styles.flex1}>
+              🔁 Révisions
             </Text>
-            <Button
-              label={`Réviser — ${dueSkills[0].name}`}
-              variant="secondary"
-              onPress={() => router.push(`/session/${dueSkills[0].id}`)}
-            />
-          </>
-        ) : (
-          <Text variant="body" color={theme.colors.textSecondary}>
-            Rien à réviser pour l’instant. Termine des compétences, elles reviendront au bon moment. ✅
+            <Text variant="title" color={dueCount ? theme.colors.warning : theme.colors.textMuted}>
+              {dueCount ? `${dueCount} due${dueCount > 1 ? 's' : ''} ›` : 'À jour ✅ ›'}
+            </Text>
+          </View>
+          <Text variant="caption" color={theme.colors.textMuted}>
+            La répétition espacée ramène chaque compétence au bon moment.
           </Text>
-        )}
-      </Card>
+        </Card>
+      </Pressable>
 
       <Card>
         <Text variant="title">🏹 Défis du jour</Text>
@@ -112,24 +113,17 @@ export default function Home() {
 
       <Text variant="h2">Explorer</Text>
       <View style={styles.grid}>
-        <Pressable style={styles.flex1} accessibilityRole="button" onPress={() => router.push('/glossaire')}>
-          <Card style={styles.explore}>
-            <Text variant="h2">📖</Text>
-            <Text variant="title">Glossaire</Text>
-            <Text variant="caption" color={theme.colors.textSecondary}>
-              Le vocabulaire des marchés.
-            </Text>
-          </Card>
-        </Pressable>
-        <Pressable style={styles.flex1} accessibilityRole="button" onPress={() => router.push('/reussites')}>
-          <Card style={styles.explore}>
-            <Text variant="h2">🏅</Text>
-            <Text variant="title">Réussites</Text>
-            <Text variant="caption" color={theme.colors.textSecondary}>
-              Tes badges débloqués.
-            </Text>
-          </Card>
-        </Pressable>
+        {EXPLORE.map((e) => (
+          <Pressable key={e.route} style={styles.flex1} accessibilityRole="button" onPress={() => router.push(e.route)}>
+            <Card style={styles.explore}>
+              <Text variant="h2">{e.icon}</Text>
+              <Text variant="title">{e.title}</Text>
+              <Text variant="caption" color={theme.colors.textSecondary}>
+                {e.subtitle}
+              </Text>
+            </Card>
+          </Pressable>
+        ))}
       </View>
 
       <Text variant="h2">Les 4 piliers</Text>
@@ -148,19 +142,8 @@ export default function Home() {
       <Card>
         <Text variant="title">Conseils de Toto &amp; Bobo</Text>
         <View style={styles.advice}>
-          <CharacterScene
-            character="toto"
-            state="explain"
-            size={64}
-            speech="La patience est ton meilleur investissement."
-          />
-          <CharacterScene
-            character="bobo"
-            state="warning"
-            size={64}
-            reversed
-            speech="Mais n’oublie pas de garder un œil sur les risques !"
-          />
+          <CharacterScene character="toto" state="explain" size={64} speech="La patience est ton meilleur investissement." />
+          <CharacterScene character="bobo" state="warning" size={64} reversed speech="Mais garde toujours un œil sur les risques !" />
         </View>
       </Card>
 
@@ -172,16 +155,16 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
-  levelRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  levelInfo: { gap: theme.spacing.xs },
-  chips: { flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.xs },
-  duo: { flexDirection: 'row', gap: theme.spacing.xs },
-  xp: { gap: theme.spacing.xs, marginVertical: theme.spacing.md },
+  missionMascot: { alignItems: 'center', marginVertical: theme.spacing.sm },
+  cta: { marginVertical: theme.spacing.md },
+  progressStrip: { gap: theme.spacing.xs },
+  chips: { flexDirection: 'row', gap: theme.spacing.sm, marginBottom: theme.spacing.xs },
+  row: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+  reviewDue: { borderColor: theme.colors.warning },
   mission: { marginVertical: theme.spacing.md },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md },
   pillar: { flexGrow: 1, flexBasis: '45%', gap: theme.spacing.xs },
   advice: { gap: theme.spacing.md, marginTop: theme.spacing.sm },
-  reviewDue: { borderColor: theme.colors.warning },
   challenges: { gap: theme.spacing.xs, marginTop: theme.spacing.sm },
   challengeRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
   flex1: { flex: 1 },

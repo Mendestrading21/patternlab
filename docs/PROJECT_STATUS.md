@@ -1,8 +1,9 @@
 # État du projet
 
 ## Date
-2026-07-17 — **LOT 1 — Design System V2** terminé (après **LOT 0 — Fiabilité**),
-skill `patternlab-product-growth`, sur la base des lots P0/P1 précédents.
+2026-07-17 — **LOT 2 — Navigation** terminé (après **LOT 0 — Fiabilité** et
+**LOT 1 — Design System V2**), skill `patternlab-product-growth`, sur la base des
+lots P0/P1 précédents.
 
 ## Branche / commit
 Branche de travail `claude/connexion-application-1n30su`. Dépôt distant `origin`
@@ -39,9 +40,19 @@ Identité **« Instrument Glass »**, sans régression, toutes validations verte
 - `useReducedMotion` centralisé dans le design system (source unique ; `@/characters` ré-exporte).
 - Voir **ADR-007**.
 
+## LOT 2 — Navigation (ce lot)
+IA cible du skill, sans régression, toutes validations vertes :
+- **Barre à 5 onglets** : Accueil · Parcours · **Laboratoire** · **Révisions** · Profil. Leçons/Quiz conservés comme routes hors barre (`href: null`), accessibles depuis l'accueil (Explorer) et les Leçons — aucun bouton mort.
+- **Laboratoire** (nouvel écran) : chandeliers déterministes, figure Double Creux avec zone de confirmation et invalidation / faux signal, débat Toto/Bobo ; tracé interactif daté du Lot 8 (bouton désactivé + raison).
+- **Révisions** (nouvel écran) : compétences dues (CTA), vue d'ensemble (maîtrise, prochaine échéance), état vide.
+- **Accueil recentré** sur une **seule action principale** (`buildDailyMission` : révision due > apprentissage > terminé) ; progression compacte ; les révisions pointent vers l'onglet dédié.
+- Dédoublonnage : l'aperçu Laboratoire quitte l'écran Leçons.
+- Tests purs `dailyMission` ; routes typées régénérées ; PWA inchangée. Voir **ADR-008**.
+
 ## Partiel
 - Lottie : dépendance + point d'intégration prêts ; rendu figures/SVG en attendant (ADR-005).
 - Détection hors-ligne native (iOS/Android) différée (web opérationnel) — `@react-native-community/netinfo` dans un lot ultérieur.
+- Laboratoire : aperçu lisible ; tracé/comparaison/replay interactifs au Lot 8.
 - Exercices : 7 formats sur 12 branchés (restent : drag_drop, select_chart_zone, draw_level, scenario, timed).
 - Contenu : ~8 leçons / ~20 exercices — à étoffer vers 30-40 leçons / 100-150 exercices.
 - `bobo-warning` : figure enregistrée dans `IMAGES` mais pas encore affichée (conservée volontairement).
@@ -50,12 +61,13 @@ Identité **« Instrument Glass »**, sans régression, toutes validations verte
 - Aucun connu (voir sorties lint / typecheck / test / validate:content / build web).
 
 ## Absent (par design, lots suivants)
-- Navigation refondue + Laboratoire, onboarding personnalisé, leçons V2, exercices avancés, laboratoire graphique interactif, maîtrise adaptative, import APP pilote, monétisation, analytics étendus, offline complet (lots 2→19 du skill `patternlab-product-growth`).
+- Onboarding personnalisé, leçons V2, exercices avancés, laboratoire graphique interactif (tracé/replay), maîtrise adaptative, import APP pilote, monétisation, analytics étendus, offline complet (lots 3→19 du skill `patternlab-product-growth`).
 - Builds device iOS/Android (EAS + comptes Apple/Google).
 
 ## Prochaine priorité
-**Lot 2 — Navigation** (Accueil, Parcours, Laboratoire, Révisions, Profil ; routes et PWA ;
-accueil centré sur une seule action — la mission du jour), puis Lot 3 — Onboarding personnalisé.
+**Lot 3 — Onboarding personnalisé** (objectif, niveau, temps quotidien, sujets, diagnostic
+facultatif, première interaction avant compte/paywall ; modèle versionné), puis Lot 4 —
+Accueil mission du jour (composition complète).
 
 ## Risques
 - Conteneur éphémère : commit local présent ; pousser après accord pour ne rien perdre.

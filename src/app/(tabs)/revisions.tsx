@@ -1,0 +1,110 @@
+import { useRouter } from 'expo-router';
+import { View, StyleSheet } from 'react-native';
+import { Screen, Text, Card, Button, ProgressBar, Chip, StateView, theme } from '@/design-system';
+import { useProgress, SKILLS, selectDueReviews } from '@/data';
+import { isDue } from '@/engines/learning';
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function nextReviewLabel(dueAt: number, now: number): string {
+  if (now >= dueAt) return 'À réviser maintenant';
+  const days = Math.ceil((dueAt - now) / DAY_MS);
+  return days <= 1 ? 'Demain' : `Dans ${days} jours`;
+}
+
+export default function Revisions() {
+  const router = useRouter();
+  const { state, ready } = useProgress();
+
+  if (!ready || !state) {
+    return (
+      <Screen>
+        <StateView variant="loading" title="On rassemble tes révisions…" />
+      </Screen>
+    );
+  }
+
+  const now = Date.now();
+  const due = selectDueReviews(state, SKILLS, now);
+  const started = SKILLS.filter((s) => state.completedSkills.includes(s.id));
+
+  return (
+    <Screen>
+      <Text variant="h1">Révisions 🔁</Text>
+      <Text variant="body" color={theme.colors.textSecondary}>
+        La répétition espacée ramène chaque compétence au bon moment pour ancrer ta mémoire.
+      </Text>
+
+      <Card elevated style={due.length ? styles.dueCard : undefined}>
+        <Text variant="title">À réviser aujourd’hui</Text>
+        {due.length ? (
+          <>
+            <Text variant="body" color={theme.colors.textSecondary}>
+              {due.length} compétence{due.length > 1 ? 's' : ''} due{due.length > 1 ? 's' : ''}.
+            </Text>
+            {due.map((s) => (
+              <Button
+                key={s.id}
+                label={`Réviser — ${s.name}`}
+                onPress={() => router.push(`/session/${s.id}`)}
+                accessibilityHint="Lancer une session de révision"
+              />
+            ))}
+          </>
+        ) : (
+          <Text variant="body" color={theme.colors.textSecondary}>
+            Rien de dû pour l’instant. ✅ Termine des compétences : elles reviendront au bon moment.
+          </Text>
+        )}
+      </Card>
+
+      <Text variant="h2">Vue d’ensemble</Text>
+      {started.length === 0 ? (
+        <StateView
+          variant="empty"
+          icon="🌱"
+          title="Aucune compétence terminée"
+          message="Commence le parcours : chaque compétence réussie entre ensuite en révision."
+        />
+      ) : (
+        started.map((s) => {
+          const sp = state.skills[s.id];
+          const mastery = sp?.mastery ?? 0;
+          const dueNow = sp ? isDue(sp.review, now) : false;
+          return (
+            <Card key={s.id}>
+              <View style={styles.row}>
+                <Text variant="title" style={styles.flex1}>
+                  {s.name}
+                </Text>
+                <Chip
+                  label={dueNow ? 'À réviser' : nextReviewLabel(sp?.review.dueAt ?? now, now)}
+                  color={dueNow ? theme.colors.warning : theme.colors.neutral}
+                />
+              </View>
+              <View style={styles.masteryRow}>
+                <ProgressBar value={mastery} accessibilityLabel={`Maîtrise ${Math.round(mastery * 100)} %`} />
+              </View>
+              <Text variant="caption" color={theme.colors.textMuted}>
+                Maîtrise : {Math.round(mastery * 100)} %
+              </Text>
+            </Card>
+          );
+        })
+      )}
+
+      <Button
+        label="Continuer le parcours"
+        variant="secondary"
+        onPress={() => router.push('/parcours')}
+      />
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  dueCard: { borderColor: theme.colors.warning },
+  row: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+  flex1: { flex: 1 },
+  masteryRow: { marginVertical: theme.spacing.sm },
+});
