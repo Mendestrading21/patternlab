@@ -3,8 +3,6 @@
  * Générés par `scripts/prepare-characters/optimize.mjs` depuis `assets/characters/source/`.
  * Metro hashe ces require() et applique le baseUrl (/patternlab) automatiquement sur le web.
  */
-import type { CharacterId, Expression } from './types';
-
 /** Figures détourées (fond transparent) — personnages posés sans cadre. */
 export type FigureName =
   | 'welcome'
@@ -54,45 +52,5 @@ export type ImageName = keyof typeof IMAGES;
 /** @deprecated conservé pour compat — utiliser IMAGES. */
 export const FIGURES = DUOS;
 
-/** Têtes rondes (avatars), par personnage. */
-const TOTO_HEADS = {
-  happy: require('../../assets/characters/heads/toto-happy.jpg'),
-  thinking: require('../../assets/characters/heads/toto-thinking.jpg'),
-  concerned: require('../../assets/characters/heads/toto-concerned.jpg'),
-  excited: require('../../assets/characters/heads/toto-excited.jpg'),
-  neutral: require('../../assets/characters/heads/toto-neutral.jpg'),
-};
-const BOBO_HEADS = {
-  happy: require('../../assets/characters/heads/bobo-happy.jpg'),
-  concerned: require('../../assets/characters/heads/bobo-concerned.jpg'),
-  sad: require('../../assets/characters/heads/bobo-sad.jpg'),
-  thinking: require('../../assets/characters/heads/bobo-thinking.jpg'),
-  neutral: require('../../assets/characters/heads/bobo-neutral.jpg'),
-};
-
-/**
- * Renvoie la tête (source image) pour un personnage + une expression.
- * Chaque expression est mappée vers une tête existante (repli sur la plus proche).
- */
-export function headSource(character: CharacterId, expr: Expression): number {
-  if (character === 'toto') {
-    const map: Record<Expression, number> = {
-      happy: TOTO_HEADS.happy,
-      excited: TOTO_HEADS.happy,
-      thinking: TOTO_HEADS.thinking,
-      concerned: TOTO_HEADS.concerned,
-      sad: TOTO_HEADS.concerned,
-      neutral: TOTO_HEADS.neutral,
-    };
-    return map[expr] ?? TOTO_HEADS.neutral;
-  }
-  const map: Record<Expression, number> = {
-    happy: BOBO_HEADS.happy,
-    excited: BOBO_HEADS.happy,
-    thinking: BOBO_HEADS.thinking,
-    concerned: BOBO_HEADS.concerned,
-    sad: BOBO_HEADS.sad,
-    neutral: BOBO_HEADS.neutral,
-  };
-  return map[expr] ?? BOBO_HEADS.neutral;
-}
+// Les avatars ronds sont désormais **vectoriels** (src/characters/vector) : nets à
+// toute taille, sans pixelisation ni débordement. Les anciennes têtes JPG sont retirées.
