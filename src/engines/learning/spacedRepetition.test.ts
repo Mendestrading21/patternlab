@@ -8,6 +8,9 @@ import {
   applyGrade,
   isMastered,
   isDue,
+  xpForGrade,
+  coinsForGrade,
+  levelForXp,
 } from './spacedRepetition';
 
 const T0 = 1_700_000_000_000; // timestamp fixe et reproductible
@@ -59,5 +62,33 @@ describe('spacedRepetition (SM-2)', () => {
     let s = initialReview(T0);
     for (let i = 0; i < 10; i++) s = scheduleNext(s, 0, T0);
     expect(s.easiness).toBeGreaterThanOrEqual(1.3);
+  });
+});
+
+describe('barème de récompense (source unique de vérité)', () => {
+  it('xpForGrade : 10 si réussi (grade ≥ 3), sinon 2', () => {
+    expect(xpForGrade(5)).toBe(10);
+    expect(xpForGrade(3)).toBe(10);
+    expect(xpForGrade(2)).toBe(2);
+    expect(xpForGrade(0)).toBe(2);
+  });
+
+  it('coinsForGrade : 5 si réussi, sinon 0', () => {
+    expect(coinsForGrade(5)).toBe(5);
+    expect(coinsForGrade(2)).toBe(0);
+  });
+
+  it('applyGrade utilise exactement xpForGrade', () => {
+    const p = initialProgress('skill.a', T0);
+    expect(applyGrade(p, 5, T0).xp).toBe(p.xp + xpForGrade(5));
+    expect(applyGrade(p, 2, T0).xp).toBe(p.xp + xpForGrade(2));
+  });
+
+  it('levelForXp : 100 XP par niveau, jamais sous 1', () => {
+    expect(levelForXp(0)).toBe(1);
+    expect(levelForXp(99)).toBe(1);
+    expect(levelForXp(100)).toBe(2);
+    expect(levelForXp(350)).toBe(4);
+    expect(levelForXp(-50)).toBe(1);
   });
 });

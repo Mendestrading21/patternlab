@@ -44,6 +44,26 @@ function clamp01(n: number): number {
   return Math.max(0, Math.min(1, n));
 }
 
+// ─── Barème de récompense (source unique de vérité) ──────────────────
+// XP et pièces découlent UNIQUEMENT de ces fonctions pures, réutilisées
+// par le moteur (applyGrade) et par la couche de progression (progressLogic).
+// Évite toute divergence entre l'XP par compétence et l'XP total affiché.
+
+/** XP gagné pour une réponse (activité). */
+export function xpForGrade(grade: Grade): number {
+  return grade >= 3 ? 10 : 2;
+}
+
+/** Pièces gagnées pour une réponse (récompense interne). */
+export function coinsForGrade(grade: Grade): number {
+  return grade >= 3 ? 5 : 0;
+}
+
+/** Niveau dérivé de l'XP total (100 XP par niveau). */
+export function levelForXp(totalXp: number): number {
+  return Math.floor(Math.max(0, totalXp) / 100) + 1;
+}
+
 /** Calcule le prochain état de révision (SM-2). */
 export function scheduleNext(state: ReviewState, grade: Grade, now: number): ReviewState {
   const nextEasiness = Math.max(
@@ -70,7 +90,7 @@ export function applyGrade(progress: SkillProgress, grade: Grade, now: number): 
   const delta = grade >= 4 ? 0.15 : grade === 3 ? 0.07 : -0.12;
   const mastery = clamp01(progress.mastery + delta);
   const confidence = clamp01(progress.confidence * 0.6 + (grade >= 3 ? 0.4 : 0));
-  const xp = progress.xp + (grade >= 3 ? 10 : 2);
+  const xp = progress.xp + xpForGrade(grade);
   return {
     ...progress,
     xp,

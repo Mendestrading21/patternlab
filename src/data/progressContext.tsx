@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
 import { progressRepository, type ProgressState } from './repositories';
 import { defaultProgress } from './seed';
-import { applyGrade, type Grade, type SkillProgress } from '../engines/learning';
+import type { Grade } from '../engines/learning';
+import * as progressLogic from './progressLogic';
 import { analytics } from '../analytics';
 
 interface ProgressContextValue {
@@ -9,22 +10,12 @@ interface ProgressContextValue {
   ready: boolean;
   markOnboarded: () => void;
   recordAnswer: (skillId: string, grade: Grade) => void;
-  completeSession: (skillId?: string) => void;
+  /** `passed` : la session est-elle réussie ? Seule une réussite débloque la compétence. */
+  completeSession: (skillId?: string, passed?: boolean) => void;
   reset: () => void;
 }
 
 const ProgressContext = createContext<ProgressContextValue | null>(null);
-
-function deriveLevel(totalXp: number): number {
-  return Math.floor(totalXp / 100) + 1;
-}
-
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-/** Clé de jour locale AAAA-MM-JJ. */
-function dateKey(ts: number): string {
-  return new Date(ts).toISOString().slice(0, 10);
-}
 
 export function ProgressProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<ProgressState | null>(null);
@@ -54,49 +45,24 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const recordAnswer = useCallback(
-    (skillId: string, grade: Grade) => {
-      setState((prev) => {
-        if (!prev) return prev;
-        const now = Date.now();
-        const current: SkillProgress =
-          prev.skills[skillId] ?? { skillId, xp: 0, mastery: 0, confidence: 0, review: { repetitions: 0, easiness: 2.5, intervalDays: 0, dueAt: now } };
-        const updated = applyGrade(current, grade, now);
-        const totalXp = prev.totalXp + (grade >= 3 ? 10 : 2);
-        const next: ProgressState = {
-          ...prev,
-          totalXp,
-          level: deriveLevel(totalXp),
-          coins: prev.coins + (grade >= 3 ? 5 : 0),
-          skills: { ...prev.skills, [skillId]: updated },
-        };
-        void progressRepository.save(next);
-        analytics.track('exercise_answered', { skillId, grade });
-        return next;
-      });
-    },
-    [],
-  );
-
-  const completeSession = useCallback((skillId?: string) => {
+  const recordAnswer = useCallback((skillId: string, grade: Grade) => {
     setState((prev) => {
       if (!prev) return prev;
-      const now = Date.now();
-      const today = dateKey(now);
-      let streakDays = prev.streakDays;
-      if (prev.lastActiveDate !== today) {
-        const yesterday = dateKey(now - DAY_MS);
-        streakDays = prev.lastActiveDate === yesterday ? prev.streakDays + 1 : 1;
-      }
-      const completedSkills =
-        skillId && !prev.completedSkills.includes(skillId)
-          ? [...prev.completedSkills, skillId]
-          : prev.completedSkills;
-      const next: ProgressState = { ...prev, streakDays, lastActiveDate: today, completedSkills };
+      const next = progressLogic.recordAnswer(prev, skillId, grade, Date.now());
       void progressRepository.save(next);
-      analytics.track('streak_updated', { streakDays });
-      if (skillId && completedSkills !== prev.completedSkills) {
-        analytics.track('path_node_unlocked', { skillId });
+      analytics.track('exercise_answered', { skillId, grade });
+      return next;
+    });
+  }, []);
+
+  const completeSession = useCallback((skillId?: string, passed = true) => {
+    setState((prev) => {
+      if (!prev) return prev;
+      const { state: next, unlockedSkillId } = progressLogic.completeSession(prev, skillId, passed, Date.now());
+      void progressRepository.save(next);
+      analytics.track('streak_updated', { streakDays: next.streakDays });
+      if (unlockedSkillId) {
+        analytics.track('path_node_unlocked', { skillId: unlockedSkillId });
       }
       return next;
     });

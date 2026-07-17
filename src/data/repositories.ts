@@ -3,7 +3,7 @@
  * P0.1 : AsyncStorage. Migration possible vers Expo SQLite plus tard sans changer les appelants (ADR-003).
  */
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { SkillProgress } from '../engines/learning';
+import { initialReview, levelForXp, type SkillProgress } from '../engines/learning';
 
 export interface ProgressState {
   onboarded: boolean;
@@ -29,14 +29,61 @@ export interface ProgressRepository {
 
 const STORAGE_KEY = 'patternlab.progress.v1';
 
+function migrateSkills(raw: unknown, now: number): Record<string, SkillProgress> {
+  if (!raw || typeof raw !== 'object') return {};
+  const out: Record<string, SkillProgress> = {};
+  for (const [id, value] of Object.entries(raw as Record<string, unknown>)) {
+    const s = (value ?? {}) as Partial<SkillProgress>;
+    const review = s.review;
+    out[id] = {
+      skillId: typeof s.skillId === 'string' ? s.skillId : id,
+      xp: typeof s.xp === 'number' && s.xp >= 0 ? s.xp : 0,
+      mastery: typeof s.mastery === 'number' ? Math.max(0, Math.min(1, s.mastery)) : 0,
+      confidence: typeof s.confidence === 'number' ? Math.max(0, Math.min(1, s.confidence)) : 0,
+      review:
+        review && typeof review.dueAt === 'number' && typeof review.easiness === 'number'
+          ? review
+          : initialReview(now),
+    };
+  }
+  return out;
+}
+
+/**
+ * Migre un état persistant vers le schéma courant SANS perte de progression.
+ * - complète les champs manquants (anciens schémas / données partielles) ;
+ * - recalcule toujours le niveau depuis l'XP total (cohérence garantie) ;
+ * - renvoie `null` seulement si les données sont irrécupérables ou proviennent
+ *   d'un schéma FUTUR inconnu (on ne sait pas rétro-migrer en toute sûreté).
+ */
+export function migrateProgress(raw: unknown, now: number): ProgressState | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const p = raw as Partial<ProgressState> & { schemaVersion?: number };
+  if (typeof p.schemaVersion === 'number' && p.schemaVersion > PROGRESS_SCHEMA_VERSION) {
+    return null;
+  }
+  const totalXp = typeof p.totalXp === 'number' && p.totalXp >= 0 ? p.totalXp : 0;
+  return {
+    onboarded: Boolean(p.onboarded),
+    totalXp,
+    level: levelForXp(totalXp),
+    streakDays: typeof p.streakDays === 'number' && p.streakDays >= 0 ? p.streakDays : 0,
+    coins: typeof p.coins === 'number' && p.coins >= 0 ? p.coins : 0,
+    lastActiveDate: typeof p.lastActiveDate === 'string' ? p.lastActiveDate : undefined,
+    completedSkills: Array.isArray(p.completedSkills)
+      ? p.completedSkills.filter((x): x is string => typeof x === 'string')
+      : [],
+    skills: migrateSkills(p.skills, now),
+    schemaVersion: PROGRESS_SCHEMA_VERSION,
+  };
+}
+
 export class AsyncStorageProgressRepository implements ProgressRepository {
   async load(): Promise<ProgressState | null> {
     try {
       const raw = await AsyncStorage.getItem(STORAGE_KEY);
       if (!raw) return null;
-      const parsed = JSON.parse(raw) as ProgressState;
-      if (parsed.schemaVersion !== PROGRESS_SCHEMA_VERSION) return null; // migration future
-      return parsed;
+      return migrateProgress(JSON.parse(raw), Date.now());
     } catch {
       return null;
     }

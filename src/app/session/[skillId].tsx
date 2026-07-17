@@ -5,7 +5,11 @@ import { Screen, Text, Card, Button, ProgressBar, FeedbackPanel, theme } from '@
 import { CharacterScene, MascotFigure } from '@/characters';
 import { ExercisePlayer, gradeExercise, type GradeResult } from '@/engines/exercise';
 import { getExercises, skillById, useProgress } from '@/data';
+import { xpForGrade } from '@/engines/learning';
 import { analytics } from '@/analytics';
+
+/** Seuil de réussite d'une session (déblocage de la compétence). */
+const PASS_RATIO = 0.7;
 
 export default function Session() {
   const { skillId } = useLocalSearchParams<{ skillId: string }>();
@@ -27,7 +31,7 @@ export default function Session() {
       <Results
         total={list.length}
         correct={correct}
-        onComplete={() => completeSession(resolvedId)}
+        onComplete={(passed) => completeSession(resolvedId, passed)}
         onHome={() => router.replace('/(tabs)')}
         onRetry={() => {
           setIndex(0);
@@ -102,21 +106,22 @@ function Results({
 }: {
   total: number;
   correct: number;
-  onComplete: () => void;
+  onComplete: (passed: boolean) => void;
   onHome: () => void;
   onRetry: () => void;
 }) {
+  const success = correct >= Math.ceil(total * PASS_RATIO);
   const done = useRef(false);
   useEffect(() => {
     if (!done.current) {
       done.current = true;
-      onComplete();
-      analytics.track('lesson_completed', { total, correct });
+      onComplete(success);
+      analytics.track('lesson_completed', { total, correct, passed: success });
     }
-  }, [onComplete, total, correct]);
+  }, [onComplete, success, total, correct]);
 
-  const xp = correct * 10 + (total - correct) * 2;
-  const success = correct >= Math.ceil(total * 0.7);
+  // Barème identique à l'XP réellement enregistré (grade 5 si correct, sinon 2).
+  const xp = correct * xpForGrade(5) + (total - correct) * xpForGrade(2);
 
   return (
     <Screen>

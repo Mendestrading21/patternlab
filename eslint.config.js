@@ -11,11 +11,21 @@ module.exports = [
     },
   },
   {
+    // Setup Jest (mock AsyncStorage) : global `jest` disponible.
+    files: ['jest.setup.js'],
+    languageOptions: {
+      globals: { jest: 'readonly', require: 'readonly' },
+    },
+  },
+  {
     ignores: [
       'dist/**',
       '.expo/**',
       'node_modules/**',
       'scripts/reset-project.js',
+      // Outillage art local piloté par Chromium (dépend de playwright-core + binaire
+      // navigateur, non installés en CI `npm ci`) : hors périmètre de lint applicatif.
+      'scripts/prepare-characters/**',
       'expo-env.d.ts',
       'babel.config.js',
     ],
