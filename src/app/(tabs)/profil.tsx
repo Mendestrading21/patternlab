@@ -1,15 +1,17 @@
 import { useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
-import { Screen, Text, Card, Button, ProgressBar, theme } from '@/design-system';
+import { Screen, Text, Card, Button, Chip, ProgressBar, theme } from '@/design-system';
 import { useReducedMotion, CharacterAnimationController } from '@/characters';
-import { useProgress, DEMO_SKILL } from '@/data';
+import { useProgress, DEMO_SKILL, OBJECTIVES, LEVELS, TOPICS } from '@/data';
 import { DISCLAIMER } from '@/lib/config';
 
 export default function Profil() {
   const router = useRouter();
-  const { state, reset } = useProgress();
+  const { state, profile, reset } = useProgress();
   const reduced = useReducedMotion();
   const mastery = state?.skills[DEMO_SKILL.id]?.mastery ?? 0;
+  const objectiveLabel = OBJECTIVES.find((o) => o.value === profile?.objective)?.label;
+  const levelLabel = LEVELS.find((l) => l.value === profile?.level)?.label;
 
   return (
     <Screen>
@@ -28,6 +30,47 @@ export default function Profil() {
           <Stat label="Pièces" value={String(state?.coins ?? 0)} />
           <Stat label="Série" value={`${state?.streakDays ?? 0} j`} />
         </View>
+      </Card>
+
+      <Card>
+        <Text variant="title">Ton profil</Text>
+        {profile ? (
+          <>
+            <View style={styles.profileRows}>
+              <ProfileRow label="Objectif" value={objectiveLabel ?? '—'} />
+              <ProfileRow label="Niveau déclaré" value={levelLabel ?? '—'} />
+              <ProfileRow label="Temps / jour" value={`${profile.dailyMinutes} min`} />
+              <ProfileRow
+                label="Diagnostic"
+                value={
+                  profile.diagnosticDone && profile.diagnosticScore != null
+                    ? `${Math.round(profile.diagnosticScore * 100)} %`
+                    : 'non réalisé'
+                }
+              />
+            </View>
+            {profile.topics.length ? (
+              <View style={styles.topicChips}>
+                {profile.topics.map((t) => (
+                  <Chip key={t} label={TOPICS.find((x) => x.value === t)?.label ?? t} color={theme.colors.neutral} />
+                ))}
+              </View>
+            ) : null}
+            <Button
+              label="Repersonnaliser mon parcours"
+              variant="secondary"
+              onPress={() => router.push('/onboarding')}
+              accessibilityHint="Refaire l’onboarding personnalisé"
+            />
+          </>
+        ) : (
+          <>
+            <Text variant="body" color={theme.colors.textSecondary}>
+              Personnalise ton parcours en quelques questions (objectif, niveau, temps, sujets).
+            </Text>
+            <Button label="Personnaliser mon parcours" onPress={() => router.push('/onboarding')} />
+          </>
+        )}
       </Card>
 
       <Card>
@@ -75,9 +118,23 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
+function ProfileRow({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={styles.profileRow}>
+      <Text variant="body" color={theme.colors.textSecondary}>
+        {label}
+      </Text>
+      <Text variant="body">{value}</Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   heroDuo: { flexDirection: 'row', justifyContent: 'center', gap: theme.spacing.xl },
   stats: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.lg, marginTop: theme.spacing.sm },
   stat: { flexBasis: '40%', gap: 2 },
   masteryRow: { marginVertical: theme.spacing.sm },
+  profileRows: { gap: theme.spacing.xs, marginVertical: theme.spacing.sm },
+  profileRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  topicChips: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, marginBottom: theme.spacing.sm },
 });

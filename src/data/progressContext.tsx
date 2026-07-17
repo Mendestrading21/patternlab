@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
-import { progressRepository, type ProgressState } from './repositories';
+import { progressRepository, onboardingRepository, type ProgressState } from './repositories';
 import { defaultProgress } from './seed';
+import type { OnboardingProfile } from './onboardingProfile';
 import type { Grade } from '../engines/learning';
 import * as progressLogic from './progressLogic';
 import { analytics } from '../analytics';
@@ -8,7 +9,11 @@ import { analytics } from '../analytics';
 interface ProgressContextValue {
   state: ProgressState | null;
   ready: boolean;
+  /** Profil d'onboarding personnalisé (null tant qu'il n'a pas été renseigné). */
+  profile: OnboardingProfile | null;
   markOnboarded: () => void;
+  /** Enregistre le profil personnalisé ET marque l'onboarding terminé. */
+  completeOnboarding: (profile: OnboardingProfile) => void;
   recordAnswer: (skillId: string, grade: Grade) => void;
   /** `passed` : la session est-elle réussie ? Seule une réussite débloque la compétence. */
   completeSession: (skillId?: string, passed?: boolean) => void;
@@ -19,16 +24,22 @@ const ProgressContext = createContext<ProgressContextValue | null>(null);
 
 export function ProgressProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<ProgressState | null>(null);
+  const [profile, setProfile] = useState<OnboardingProfile | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     let mounted = true;
     (async () => {
-      const loaded = (await progressRepository.load()) ?? defaultProgress(Date.now());
+      const [loaded, loadedProfile] = await Promise.all([
+        progressRepository.load(),
+        onboardingRepository.load(),
+      ]);
       if (!mounted) return;
-      setState(loaded);
+      const progress = loaded ?? defaultProgress(Date.now());
+      setState(progress);
+      setProfile(loadedProfile);
       setReady(true);
-      await progressRepository.save(loaded);
+      await progressRepository.save(progress);
     })();
     return () => {
       mounted = false;
@@ -42,6 +53,23 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       void progressRepository.save(next);
       analytics.track('onboarding_completed');
       return next;
+    });
+  }, []);
+
+  const completeOnboarding = useCallback((newProfile: OnboardingProfile) => {
+    void onboardingRepository.save(newProfile);
+    setProfile(newProfile);
+    setState((prev) => {
+      if (!prev) return prev;
+      const next = { ...prev, onboarded: true };
+      void progressRepository.save(next);
+      return next;
+    });
+    analytics.track('onboarding_completed', {
+      objective: newProfile.objective,
+      level: newProfile.level,
+      dailyMinutes: newProfile.dailyMinutes,
+      diagnostic: newProfile.diagnosticDone,
     });
   }, []);
 
@@ -71,11 +99,15 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   const reset = useCallback(() => {
     const fresh = defaultProgress(Date.now());
     void progressRepository.reset().then(() => progressRepository.save(fresh));
+    void onboardingRepository.reset();
     setState(fresh);
+    setProfile(null);
   }, []);
 
   return (
-    <ProgressContext.Provider value={{ state, ready, markOnboarded, recordAnswer, completeSession, reset }}>
+    <ProgressContext.Provider
+      value={{ state, ready, profile, markOnboarded, completeOnboarding, recordAnswer, completeSession, reset }}
+    >
       {children}
     </ProgressContext.Provider>
   );

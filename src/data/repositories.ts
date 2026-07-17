@@ -4,6 +4,7 @@
  */
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { initialReview, levelForXp, type SkillProgress } from '../engines/learning';
+import { migrateOnboardingProfile, type OnboardingProfile } from './onboardingProfile';
 
 export interface ProgressState {
   onboarded: boolean;
@@ -97,6 +98,37 @@ export class AsyncStorageProgressRepository implements ProgressRepository {
     await AsyncStorage.removeItem(STORAGE_KEY);
   }
 }
+
+// ─── Profil d'onboarding (modèle versionné séparé) ───────────────────
+const ONBOARDING_KEY = 'patternlab.onboarding.v1';
+
+export interface OnboardingRepository {
+  load(): Promise<OnboardingProfile | null>;
+  save(profile: OnboardingProfile): Promise<void>;
+  reset(): Promise<void>;
+}
+
+export class AsyncStorageOnboardingRepository implements OnboardingRepository {
+  async load(): Promise<OnboardingProfile | null> {
+    try {
+      const raw = await AsyncStorage.getItem(ONBOARDING_KEY);
+      if (!raw) return null;
+      return migrateOnboardingProfile(JSON.parse(raw));
+    } catch {
+      return null;
+    }
+  }
+
+  async save(profile: OnboardingProfile): Promise<void> {
+    await AsyncStorage.setItem(ONBOARDING_KEY, JSON.stringify(profile));
+  }
+
+  async reset(): Promise<void> {
+    await AsyncStorage.removeItem(ONBOARDING_KEY);
+  }
+}
+
+export const onboardingRepository: OnboardingRepository = new AsyncStorageOnboardingRepository();
 
 /** Implémentation mémoire (tests / fallback). */
 export class InMemoryProgressRepository implements ProgressRepository {

@@ -1,9 +1,9 @@
 # État du projet
 
 ## Date
-2026-07-17 — **LOT 2 — Navigation** terminé (après **LOT 0 — Fiabilité** et
-**LOT 1 — Design System V2**), skill `patternlab-product-growth`, sur la base des
-lots P0/P1 précédents.
+2026-07-17 — **LOT 3 — Onboarding personnalisé** terminé (après LOT 0 — Fiabilité,
+LOT 1 — Design System V2, LOT 2 — Navigation), skill `patternlab-product-growth`,
+sur la base des lots P0/P1 précédents.
 
 ## Branche / commit
 Branche de travail `claude/connexion-application-1n30su`. Dépôt distant `origin`
@@ -49,6 +49,16 @@ IA cible du skill, sans régression, toutes validations vertes :
 - Dédoublonnage : l'aperçu Laboratoire quitte l'écran Leçons.
 - Tests purs `dailyMission` ; routes typées régénérées ; PWA inchangée. Voir **ADR-008**.
 
+## LOT 3 — Onboarding personnalisé (ce lot)
+Flux personnalisé + modèle versionné, sans régression, toutes validations vertes :
+- **Profil versionné** `OnboardingProfile` (objectif, niveau, temps 3/5/10 min, sujets, diagnostic, compétence de départ, `schemaVersion`) + migration + repository AsyncStorage **séparé** de la progression.
+- **Flux en 7 étapes** : promesse + Toto/Bobo → objectif → niveau → temps → sujets → diagnostic éclair facultatif (3 questions, score) → récap avec **compétence de départ recommandée** ; indicateur d'étape, retour/continuer, sélections accessibles, un seul CTA par écran.
+- **Recommandation pure** `recommendStartSkill` (le niveau fixe le départ ; un sujet peut ramener plus tôt mais jamais sauter un prérequis) — testée.
+- **Première interaction avant compte/paywall** : « Commencer ma première leçon » → persiste le profil + marque l'onboarding + route vers `/session/{startSkillId}` (vérifié : `/session/skill.actions`).
+- **Profil** (onglet) affiche le résumé + « Repersonnaliser ».
+- **Analytics** : `onboarding_started`, `goal_selected`, `diagnostic_completed`, `path_generated`, `onboarding_completed`.
+- Rétrocompatible (utilisateurs déjà onboarded sans profil → invite de personnalisation). Voir **ADR-009**.
+
 ## Partiel
 - Lottie : dépendance + point d'intégration prêts ; rendu figures/SVG en attendant (ADR-005).
 - Détection hors-ligne native (iOS/Android) différée (web opérationnel) — `@react-native-community/netinfo` dans un lot ultérieur.
@@ -61,13 +71,12 @@ IA cible du skill, sans régression, toutes validations vertes :
 - Aucun connu (voir sorties lint / typecheck / test / validate:content / build web).
 
 ## Absent (par design, lots suivants)
-- Onboarding personnalisé, leçons V2, exercices avancés, laboratoire graphique interactif (tracé/replay), maîtrise adaptative, import APP pilote, monétisation, analytics étendus, offline complet (lots 3→19 du skill `patternlab-product-growth`).
+- Leçons V2, exercices avancés, laboratoire graphique interactif (tracé/replay), maîtrise adaptative, import APP pilote, monétisation, analytics étendus, offline complet (lots 4→19 du skill `patternlab-product-growth`).
 - Builds device iOS/Android (EAS + comptes Apple/Google).
 
 ## Prochaine priorité
-**Lot 3 — Onboarding personnalisé** (objectif, niveau, temps quotidien, sujets, diagnostic
-facultatif, première interaction avant compte/paywall ; modèle versionné), puis Lot 4 —
-Accueil mission du jour (composition complète).
+**Lot 4 — Accueil mission du jour** (composition complète : CTA principal exploitant le
+profil — objectif/temps —, révision due, progression compacte), puis Lot 5 — Parcours immersif.
 
 ## Risques
 - Conteneur éphémère : commit local présent ; pousser après accord pour ne rien perdre.
