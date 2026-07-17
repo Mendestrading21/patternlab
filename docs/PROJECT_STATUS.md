@@ -1,7 +1,7 @@
 # État du projet
 
 ## Date
-Lot P0.3 — Parcours pilote (structure + contenu de départ), sur P0.1/P0.2.
+Lot P1 (en cours) — Glossaire, Réussites, Défis (sur P0.1 → P0.3).
 
 ## Branche / commit
 `feature/p0-bootstrap` (base `main`). Dépôt local ; distant non créé (en attente de
@@ -18,6 +18,9 @@ décision : nom / owner / visibilité / licence).
 - **Module pilote « Lire un graphique » (P0.3)** : 4 compétences ordonnées, ~8 leçons, ~20 exercices.
 - **Parcours débloquable** : nœuds done/current/locked pilotés par la progression réelle (compétence terminée → déblocage de la suivante).
 - **Révisions (répétition espacée)** surfacées sur l'accueil : compétences « à réviser » quand dues ; « Continuer » vise la compétence courante.
+- **Glossaire (P1)** : 24 termes WMB réels, recherche + filtres par catégorie + fiches détaillées (définition / exemple).
+- **Réussites (P1)** : 8 badges dérivés de la progression (obtenus / verrouillés) avec écran dédié.
+- **Défis du jour (P1)** sur l'accueil + section « Explorer » (accès Glossaire / Réussites) — aucun bouton mort.
 - Série (streak) calculée par jour + persistée ; résultats avec XP gagné et célébration Toto/Bobo.
 - Persistance locale (AsyncStorage) : niveau, XP, pièces, série, maîtrise ; réinitialisation.
 - Analytics (logger abstrait) + garde-fou d'erreurs global.

@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { View, StyleSheet } from 'react-native';
+import { View, Pressable, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, Chip, ProgressBar, theme } from '@/design-system';
 import { CharacterAnimationController, CharacterScene } from '@/characters';
 import { useProgress, SKILLS } from '@/data';
@@ -26,6 +26,13 @@ export default function Home() {
   const dueSkills = SKILLS.filter(
     (s) => state.completedSkills.includes(s.id) && state.skills[s.id] && isDue(state.skills[s.id].review, now),
   );
+  const today = new Date(now).toISOString().slice(0, 10);
+  const challenges = [
+    { label: 'Termine une session aujourd’hui', done: state.lastActiveDate === today },
+    { label: 'Débloque une compétence', done: state.completedSkills.length >= 1 },
+    { label: 'Atteins 50 XP au total', done: state.totalXp >= 50 },
+  ];
+  const challengesDone = challenges.filter((c) => c.done).length;
 
   return (
     <Screen>
@@ -84,19 +91,46 @@ export default function Home() {
       </Card>
 
       <Card>
-        <Text variant="title">🎯 Mission du jour</Text>
-        <Text variant="body" color={theme.colors.textSecondary}>
-          Termine une leçon pour garder ta série.
-        </Text>
-        <View style={styles.mission}>
-          <ProgressBar value={0} color={theme.colors.primary} />
+        <Text variant="title">🏹 Défis du jour</Text>
+        <View style={styles.challenges}>
+          {challenges.map((c) => (
+            <View key={c.label} style={styles.challengeRow}>
+              <Text variant="body">{c.done ? '✅' : '⚪️'}</Text>
+              <Text variant="body" color={c.done ? theme.colors.textPrimary : theme.colors.textSecondary} style={styles.flex1}>
+                {c.label}
+              </Text>
+            </View>
+          ))}
         </View>
-        <Button
-          label="Voir les leçons"
-          variant="secondary"
-          onPress={() => router.push('/(tabs)/lecons')}
-        />
+        <View style={styles.mission}>
+          <ProgressBar value={challengesDone / challenges.length} color={theme.colors.reward} />
+        </View>
+        <Text variant="caption" color={theme.colors.textMuted}>
+          {challengesDone} / {challenges.length} défis relevés
+        </Text>
       </Card>
+
+      <Text variant="h2">Explorer</Text>
+      <View style={styles.grid}>
+        <Pressable style={styles.flex1} accessibilityRole="button" onPress={() => router.push('/glossaire')}>
+          <Card style={styles.explore}>
+            <Text variant="h2">📖</Text>
+            <Text variant="title">Glossaire</Text>
+            <Text variant="caption" color={theme.colors.textSecondary}>
+              Le vocabulaire des marchés.
+            </Text>
+          </Card>
+        </Pressable>
+        <Pressable style={styles.flex1} accessibilityRole="button" onPress={() => router.push('/reussites')}>
+          <Card style={styles.explore}>
+            <Text variant="h2">🏅</Text>
+            <Text variant="title">Réussites</Text>
+            <Text variant="caption" color={theme.colors.textSecondary}>
+              Tes badges débloqués.
+            </Text>
+          </Card>
+        </Pressable>
+      </View>
 
       <Text variant="h2">Les 4 piliers</Text>
       <View style={styles.grid}>
@@ -148,4 +182,8 @@ const styles = StyleSheet.create({
   pillar: { flexGrow: 1, flexBasis: '45%', gap: theme.spacing.xs },
   advice: { gap: theme.spacing.md, marginTop: theme.spacing.sm },
   reviewDue: { borderColor: theme.colors.warning },
+  challenges: { gap: theme.spacing.xs, marginTop: theme.spacing.sm },
+  challengeRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+  flex1: { flex: 1 },
+  explore: { alignItems: 'flex-start', gap: 2, minHeight: 120 },
 });

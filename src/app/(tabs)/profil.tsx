@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, ProgressBar, theme } from '@/design-system';
 import { useReducedMotion } from '@/characters';
@@ -5,6 +6,7 @@ import { useProgress, DEMO_SKILL } from '@/data';
 import { DISCLAIMER } from '@/lib/config';
 
 export default function Profil() {
+  const router = useRouter();
   const { state, reset } = useProgress();
   const reduced = useReducedMotion();
   const mastery = state?.skills[DEMO_SKILL.id]?.mastery ?? 0;
@@ -40,11 +42,13 @@ export default function Profil() {
         </Text>
       </Card>
 
+      <Button label="Mes réussites 🏅" onPress={() => router.push('/reussites')} />
+      <Button label="Glossaire 📖" variant="secondary" onPress={() => router.push('/glossaire')} />
       <Button
         label="Réglages"
         variant="ghost"
         disabled
-        disabledReason="Écran de réglages : prévu en P1."
+        disabledReason="Écran de réglages : prévu bientôt."
       />
       <Button label="Réinitialiser ma progression" variant="secondary" onPress={reset} />
 
