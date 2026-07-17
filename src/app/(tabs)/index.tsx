@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { View, Pressable, StyleSheet } from 'react-native';
-import { Screen, Text, Card, Button, Chip, ProgressBar, theme } from '@/design-system';
+import { Screen, Text, Card, Button, Chip, ProgressBar, StateView, theme } from '@/design-system';
 import { CharacterAnimationController, CharacterScene, MascotFigure } from '@/characters';
 import { useProgress, SKILLS } from '@/data';
 import { isDue } from '@/engines/learning';
@@ -13,9 +13,7 @@ export default function Home() {
   if (!ready || !state) {
     return (
       <Screen>
-        <Text variant="body" color={theme.colors.textSecondary}>
-          Chargement…
-        </Text>
+        <StateView variant="loading" title="On prépare ta mission du jour…" />
       </Screen>
     );
   }

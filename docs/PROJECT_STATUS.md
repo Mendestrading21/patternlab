@@ -1,8 +1,8 @@
 # État du projet
 
 ## Date
-2026-07-17 — **LOT 0 — Fiabilité** (skill `patternlab-product-growth`) terminé, sur la
-base des lots P0/P1 précédents.
+2026-07-17 — **LOT 1 — Design System V2** terminé (après **LOT 0 — Fiabilité**),
+skill `patternlab-product-growth`, sur la base des lots P0/P1 précédents.
 
 ## Branche / commit
 Branche de travail `claude/connexion-application-1n30su`. Dépôt distant `origin`
@@ -29,8 +29,19 @@ Corrigé, sans régression, toutes validations vertes :
 - **Tests** ajoutés : `progressLogic`, `migration`, barème de récompense (42 tests au total, dont +17). Mock Jest AsyncStorage ajouté pour tester la couche données.
 - **CI verte** rétablie : lint échouait sur l'outillage art local (`scripts/prepare-characters/*` important `playwright-core`, hors CI) — désormais exclu du lint applicatif.
 
+## LOT 1 — Design System V2 (ce lot)
+Identité **« Instrument Glass »**, sans régression, toutes validations vertes :
+- **Palette** migrée vers graphite/bleu nuit (`background #0B1119`, surfaces élevées, accents `bullish #26C281` / `bearish #F05A67` / `technical #42B7E8`) ; clés sémantiques conservées → aucun écran réécrit ; `bullish/bearish` toujours distincts de `feedbackCorrect/incorrect`.
+- **Accessibilité AA vérifiée par test** (`contrast.ts` + `contrast.test.ts`) : toutes les paires texte/surface ≥ 4.5 ; `textMuted` éclairci (`#8B99AB`).
+- **Élévation** (`theme.elevation`) : profondeur « verre » discrète sur les cartes.
+- **Primitives d'états** : `StateView` (loading/empty/error/offline/locked, un seul CTA), `Skeleton` (respecte reduced motion), `OfflineBanner` + hook `useIsOnline`. Intégrées réellement : chargement de l'accueil, garde-fou d'erreurs, bannière hors-ligne globale ; `EmptyState` délègue à `StateView`.
+- **Couleurs web** alignées (HTML `theme-color`, `global.css`, manifest PWA).
+- `useReducedMotion` centralisé dans le design system (source unique ; `@/characters` ré-exporte).
+- Voir **ADR-007**.
+
 ## Partiel
 - Lottie : dépendance + point d'intégration prêts ; rendu figures/SVG en attendant (ADR-005).
+- Détection hors-ligne native (iOS/Android) différée (web opérationnel) — `@react-native-community/netinfo` dans un lot ultérieur.
 - Exercices : 7 formats sur 12 branchés (restent : drag_drop, select_chart_zone, draw_level, scenario, timed).
 - Contenu : ~8 leçons / ~20 exercices — à étoffer vers 30-40 leçons / 100-150 exercices.
 - `bobo-warning` : figure enregistrée dans `IMAGES` mais pas encore affichée (conservée volontairement).
@@ -39,11 +50,12 @@ Corrigé, sans régression, toutes validations vertes :
 - Aucun connu (voir sorties lint / typecheck / test / validate:content / build web).
 
 ## Absent (par design, lots suivants)
-- Design System V2, navigation Laboratoire, onboarding personnalisé, leçons V2, exercices avancés, laboratoire graphique interactif, maîtrise adaptative, import APP pilote, monétisation, analytics étendus, offline complet (lots 1→19 du skill `patternlab-product-growth`).
+- Navigation refondue + Laboratoire, onboarding personnalisé, leçons V2, exercices avancés, laboratoire graphique interactif, maîtrise adaptative, import APP pilote, monétisation, analytics étendus, offline complet (lots 2→19 du skill `patternlab-product-growth`).
 - Builds device iOS/Android (EAS + comptes Apple/Google).
 
 ## Prochaine priorité
-**Lot 1 — Design System V2** (palette « Instrument Glass », tokens, composants, états loading/empty/error/offline/locked/disabled, accessibilité AA), puis Lot 2 — Navigation.
+**Lot 2 — Navigation** (Accueil, Parcours, Laboratoire, Révisions, Profil ; routes et PWA ;
+accueil centré sur une seule action — la mission du jour), puis Lot 3 — Onboarding personnalisé.
 
 ## Risques
 - Conteneur éphémère : commit local présent ; pousser après accord pour ne rien perdre.

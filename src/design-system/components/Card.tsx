@@ -12,6 +12,7 @@ export function Card({ elevated, padded = true, style, ...rest }: CardProps) {
       style={[
         styles.card,
         { backgroundColor: elevated ? theme.colors.surfaceElevated : theme.colors.surface },
+        elevated ? theme.elevation.card : null,
         padded && styles.padded,
         style,
       ]}
