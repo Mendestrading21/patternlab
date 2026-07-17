@@ -9,7 +9,7 @@ interface ProgressContextValue {
   ready: boolean;
   markOnboarded: () => void;
   recordAnswer: (skillId: string, grade: Grade) => void;
-  completeSession: () => void;
+  completeSession: (skillId?: string) => void;
   reset: () => void;
 }
 
@@ -78,7 +78,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  const completeSession = useCallback(() => {
+  const completeSession = useCallback((skillId?: string) => {
     setState((prev) => {
       if (!prev) return prev;
       const now = Date.now();
@@ -88,10 +88,16 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         const yesterday = dateKey(now - DAY_MS);
         streakDays = prev.lastActiveDate === yesterday ? prev.streakDays + 1 : 1;
       }
-      const next: ProgressState = { ...prev, streakDays, lastActiveDate: today };
+      const completedSkills =
+        skillId && !prev.completedSkills.includes(skillId)
+          ? [...prev.completedSkills, skillId]
+          : prev.completedSkills;
+      const next: ProgressState = { ...prev, streakDays, lastActiveDate: today, completedSkills };
       void progressRepository.save(next);
       analytics.track('streak_updated', { streakDays });
-      analytics.track('review_completed');
+      if (skillId && completedSkills !== prev.completedSkills) {
+        analytics.track('path_node_unlocked', { skillId });
+      }
       return next;
     });
   }, []);

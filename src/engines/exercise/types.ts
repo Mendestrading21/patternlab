@@ -91,6 +91,14 @@ export interface FindErrorExercise extends BaseExercise {
   validation: { errorIndex: number };
 }
 
+export interface IdentifyPatternExercise extends BaseExercise {
+  type: 'identify_pattern';
+  /** Seed de la série de bougies à afficher (reproductible). */
+  chartSeed: number;
+  options: string[];
+  validation: { correctIndex: number };
+}
+
 /** Union discriminée des formats implémentés (narrowing par `type`). */
 export type Exercise =
   | McqExercise
@@ -98,7 +106,8 @@ export type Exercise =
   | NumericExercise
   | OrderExercise
   | MatchExercise
-  | FindErrorExercise;
+  | FindErrorExercise
+  | IdentifyPatternExercise;
 
 export interface GradeResult {
   correct: boolean;

@@ -2,7 +2,8 @@ import { useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, Chip, ProgressBar, theme } from '@/design-system';
 import { CharacterAnimationController, CharacterScene } from '@/characters';
-import { useProgress, DEMO_SKILL } from '@/data';
+import { useProgress, SKILLS } from '@/data';
+import { isDue } from '@/engines/learning';
 import { PILLARS, DISCLAIMER } from '@/lib/config';
 
 export default function Home() {
@@ -20,6 +21,11 @@ export default function Home() {
   }
 
   const xpInLevel = state.totalXp % 100;
+  const now = Date.now();
+  const currentSkill = SKILLS.find((s) => !state.completedSkills.includes(s.id)) ?? SKILLS[0];
+  const dueSkills = SKILLS.filter(
+    (s) => state.completedSkills.includes(s.id) && state.skills[s.id] && isDue(state.skills[s.id].review, now),
+  );
 
   return (
     <Screen>
@@ -51,7 +57,30 @@ export default function Home() {
             {xpInLevel} / 100 XP vers le niveau {state.level + 1}
           </Text>
         </View>
-        <Button label="Continuer" onPress={() => router.push(`/session/${DEMO_SKILL.id}`)} />
+        <Button
+          label={`Continuer — ${currentSkill.name}`}
+          onPress={() => router.push(`/session/${currentSkill.id}`)}
+        />
+      </Card>
+
+      <Card style={dueSkills.length ? styles.reviewDue : undefined}>
+        <Text variant="title">🔁 À réviser</Text>
+        {dueSkills.length ? (
+          <>
+            <Text variant="body" color={theme.colors.textSecondary}>
+              {dueSkills.length} compétence{dueSkills.length > 1 ? 's' : ''} à consolider (répétition espacée).
+            </Text>
+            <Button
+              label={`Réviser — ${dueSkills[0].name}`}
+              variant="secondary"
+              onPress={() => router.push(`/session/${dueSkills[0].id}`)}
+            />
+          </>
+        ) : (
+          <Text variant="body" color={theme.colors.textSecondary}>
+            Rien à réviser pour l’instant. Termine des compétences, elles reviendront au bon moment. ✅
+          </Text>
+        )}
       </Card>
 
       <Card>
@@ -118,4 +147,5 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md },
   pillar: { flexGrow: 1, flexBasis: '45%', gap: theme.spacing.xs },
   advice: { gap: theme.spacing.md, marginTop: theme.spacing.sm },
+  reviewDue: { borderColor: theme.colors.warning },
 });

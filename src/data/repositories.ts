@@ -13,11 +13,13 @@ export interface ProgressState {
   coins: number;
   /** Dernier jour d'activité (YYYY-MM-DD) pour le calcul de la série. */
   lastActiveDate?: string;
+  /** Compétences terminées (au moins une session validée), pour débloquer le parcours. */
+  completedSkills: string[];
   skills: Record<string, SkillProgress>;
   schemaVersion: number;
 }
 
-export const PROGRESS_SCHEMA_VERSION = 1;
+export const PROGRESS_SCHEMA_VERSION = 2;
 
 export interface ProgressRepository {
   load(): Promise<ProgressState | null>;

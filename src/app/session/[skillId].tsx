@@ -4,7 +4,7 @@ import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, ProgressBar, FeedbackPanel, theme } from '@/design-system';
 import { CharacterScene } from '@/characters';
 import { ExercisePlayer, gradeExercise, type GradeResult } from '@/engines/exercise';
-import { DEMO_EXERCISES, useProgress } from '@/data';
+import { getExercises, skillById, useProgress } from '@/data';
 import { analytics } from '@/analytics';
 
 export default function Session() {
@@ -12,8 +12,9 @@ export default function Session() {
   const router = useRouter();
   const { recordAnswer, completeSession } = useProgress();
 
-  const exercises = DEMO_EXERCISES.filter((e) => e.skillId === skillId);
-  const list = exercises.length ? exercises : DEMO_EXERCISES;
+  const resolvedId = skillId && getExercises(skillId).length ? skillId : 'skill.actions';
+  const list = getExercises(resolvedId);
+  const skillName = skillById(resolvedId)?.name ?? 'Session';
 
   const [index, setIndex] = useState(0);
   const [result, setResult] = useState<GradeResult | null>(null);
@@ -22,7 +23,19 @@ export default function Session() {
   const finished = index >= list.length;
 
   if (finished) {
-    return <Results total={list.length} correct={correct} onComplete={completeSession} onHome={() => router.replace('/(tabs)')} onRetry={() => { setIndex(0); setResult(null); setCorrect(0); }} />;
+    return (
+      <Results
+        total={list.length}
+        correct={correct}
+        onComplete={() => completeSession(resolvedId)}
+        onHome={() => router.replace('/(tabs)')}
+        onRetry={() => {
+          setIndex(0);
+          setResult(null);
+          setCorrect(0);
+        }}
+      />
+    );
   }
 
   const exercise = list[index];
@@ -43,6 +56,7 @@ export default function Session() {
 
   return (
     <Screen>
+      <Text variant="h2">{skillName}</Text>
       <View style={styles.header}>
         <Text variant="caption" color={theme.colors.textMuted}>
           Exercice {index + 1} / {list.length}
@@ -142,6 +156,7 @@ const LABELS: Record<string, string> = {
   order: 'Mets dans l’ordre',
   match: 'Associe',
   find_error: 'Trouve l’erreur',
+  identify_pattern: 'Reconnais la figure',
 };
 
 const styles = StyleSheet.create({

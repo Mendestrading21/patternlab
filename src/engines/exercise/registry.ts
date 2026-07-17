@@ -12,6 +12,7 @@ import type {
   OrderExercise,
   MatchExercise,
   FindErrorExercise,
+  IdentifyPatternExercise,
 } from './types';
 
 export type Grader<E extends Exercise> = (exercise: E, answer: unknown) => GradeResult;
@@ -50,6 +51,10 @@ const gradeFindError: Grader<FindErrorExercise> = (exercise, answer) => {
   return result(answer === exercise.validation.errorIndex, exercise);
 };
 
+const gradeIdentifyPattern: Grader<IdentifyPatternExercise> = (exercise, answer) => {
+  return result(answer === exercise.validation.correctIndex, exercise);
+};
+
 const graders: Partial<Record<ExerciseType, Grader<Exercise>>> = {
   mcq: gradeMcq as Grader<Exercise>,
   true_false: gradeTrueFalse as Grader<Exercise>,
@@ -57,6 +62,7 @@ const graders: Partial<Record<ExerciseType, Grader<Exercise>>> = {
   order: gradeOrder as Grader<Exercise>,
   match: gradeMatch as Grader<Exercise>,
   find_error: gradeFindError as Grader<Exercise>,
+  identify_pattern: gradeIdentifyPattern as Grader<Exercise>,
 };
 
 export function isTypeSupported(type: ExerciseType): boolean {

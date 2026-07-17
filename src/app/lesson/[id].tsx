@@ -3,7 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, EmptyState, theme } from '@/design-system';
 import { CharacterScene } from '@/characters';
-import { DEMO_LESSONS } from '@/data';
+import { allLessons } from '@/data';
 import { analytics } from '@/analytics';
 
 const STEP_LABEL: Record<string, string> = {
@@ -16,7 +16,7 @@ const STEP_LABEL: Record<string, string> = {
 export default function LessonScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const lesson = DEMO_LESSONS.find((l) => l.id === id);
+  const lesson = allLessons().find((l) => l.id === id);
 
   useEffect(() => {
     if (lesson) analytics.track('lesson_started', { lessonId: lesson.id });

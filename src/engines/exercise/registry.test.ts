@@ -8,6 +8,7 @@ import type {
   OrderExercise,
   MatchExercise,
   FindErrorExercise,
+  IdentifyPatternExercise,
 } from './types';
 
 const feedback = {
@@ -135,5 +136,21 @@ describe('exercise registry — formats P0.2', () => {
     };
     expect(gradeExercise(ex, 1).correct).toBe(true);
     expect(gradeExercise(ex, 0).correct).toBe(false);
+  });
+
+  it('corrige un identify_pattern', () => {
+    const ex: IdentifyPatternExercise = {
+      id: 'ip1',
+      type: 'identify_pattern',
+      skillId: 's',
+      prompt: 'Quelle figure reconnais-tu ?',
+      chartSeed: 7,
+      options: ['Double creux', 'Tête-épaules', 'Triangle'],
+      validation: { correctIndex: 0 },
+      feedback,
+    };
+    expect(isTypeSupported('identify_pattern')).toBe(true);
+    expect(gradeExercise(ex, 0).correct).toBe(true);
+    expect(gradeExercise(ex, 2).correct).toBe(false);
   });
 });

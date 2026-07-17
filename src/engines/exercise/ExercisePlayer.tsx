@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react';
 import { View, TextInput, Pressable, StyleSheet } from 'react-native';
 import { Text, Button, AnswerOption, theme } from '../../design-system';
 import type { AnswerState } from '../../design-system';
+import { PatternChart, generateCandles } from '../pattern';
 import type {
   Exercise,
   GradeResult,
   NumericExercise,
   OrderExercise,
   MatchExercise,
+  IdentifyPatternExercise,
 } from './types';
 
 export type ExercisePlayerProps = {
@@ -32,6 +34,8 @@ export function ExercisePlayer({ exercise, result, onValidate }: ExercisePlayerP
       return <OrderPlayer exercise={exercise} locked={locked} onValidate={onValidate} />;
     case 'match':
       return <MatchPlayer exercise={exercise} locked={locked} onValidate={onValidate} />;
+    case 'identify_pattern':
+      return <IdentifyPatternPlayer exercise={exercise} locked={locked} onPick={onValidate} />;
     default:
       return (
         <Text variant="caption" color={theme.colors.textMuted}>
@@ -39,6 +43,31 @@ export function ExercisePlayer({ exercise, result, onValidate }: ExercisePlayerP
         </Text>
       );
   }
+}
+
+function IdentifyPatternPlayer({
+  exercise,
+  locked,
+  onPick,
+}: {
+  exercise: IdentifyPatternExercise;
+  locked: boolean;
+  onPick: (i: number) => void;
+}) {
+  const candles = generateCandles(exercise.chartSeed, 30);
+  return (
+    <View style={styles.stack}>
+      <View style={styles.chartWrap}>
+        <PatternChart candles={candles} width={300} height={150} />
+      </View>
+      <ChoicePlayer
+        options={exercise.options}
+        correctIndex={exercise.validation.correctIndex}
+        locked={locked}
+        onPick={onPick}
+      />
+    </View>
+  );
 }
 
 function ChoicePlayer({
@@ -237,6 +266,14 @@ function ArrowBtn({ label, disabled, onPress }: { label: string; disabled: boole
 
 const styles = StyleSheet.create({
   stack: { gap: theme.spacing.sm, marginTop: theme.spacing.md },
+  chartWrap: {
+    alignItems: 'center',
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.surfaceSunken,
+  },
   numeric: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
   input: {
     flex: 1,

@@ -11,6 +11,7 @@ const FORMAT_LABELS: Record<string, string> = {
   order: 'Mise en ordre',
   match: 'Association',
   find_error: 'Trouve l’erreur',
+  identify_pattern: 'Reconnaissance',
 };
 
 export default function Quiz() {

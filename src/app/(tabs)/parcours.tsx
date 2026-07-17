@@ -1,59 +1,62 @@
 import { useRouter } from 'expo-router';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Screen, Text, Card, theme } from '@/design-system';
-import { DEMO_LESSONS } from '@/data';
+import { SKILLS, useProgress } from '@/data';
 
 type NodeStatus = 'done' | 'current' | 'locked';
 
 export default function Parcours() {
   const router = useRouter();
+  const { state } = useProgress();
+  const completed = state?.completedSkills ?? [];
+  const firstIncomplete = SKILLS.findIndex((s) => !completed.includes(s.id));
 
-  const nodes: { id: string; title: string; status: NodeStatus }[] = [
-    { id: DEMO_LESSONS[0].id, title: DEMO_LESSONS[0].title, status: 'current' },
-    { id: DEMO_LESSONS[1].id, title: DEMO_LESSONS[1].title, status: 'locked' },
-    { id: 'node.supports', title: 'Supports & résistances', status: 'locked' },
-    { id: 'node.patterns', title: 'Premiers patterns', status: 'locked' },
-  ];
+  const statusOf = (index: number, id: string): NodeStatus => {
+    if (completed.includes(id)) return 'done';
+    if (firstIncomplete === index) return 'current';
+    return 'locked';
+  };
 
   return (
     <Screen>
       <Text variant="h1">Ton parcours 🗺️</Text>
       <Text variant="body" color={theme.colors.textSecondary}>
-        Gravis la montagne « Lire un graphique », une étape à la fois.
+        Module « Lire un graphique » — gravis la montagne, une compétence à la fois.
       </Text>
 
       <View style={styles.path}>
-        {nodes.map((node, i) => {
+        {SKILLS.map((skill, i) => {
+          const status = statusOf(i, skill.id);
           const color =
-            node.status === 'done'
+            status === 'done'
               ? theme.colors.primary
-              : node.status === 'current'
+              : status === 'current'
                 ? theme.colors.primaryBright
                 : theme.colors.textMuted;
-          const isLocked = node.status === 'locked';
+          const locked = status === 'locked';
           return (
             <Pressable
-              key={node.id}
-              disabled={isLocked}
+              key={skill.id}
+              disabled={locked}
               accessibilityRole="button"
-              accessibilityState={{ disabled: isLocked }}
-              accessibilityHint={isLocked ? 'Étape à débloquer' : 'Ouvrir cette étape'}
-              onPress={() => !isLocked && router.push(`/lesson/${node.id}`)}
+              accessibilityState={{ disabled: locked }}
+              accessibilityHint={locked ? 'Termine la compétence précédente' : 'Ouvrir cette compétence'}
+              onPress={() => !locked && router.push(`/session/${skill.id}`)}
             >
               <Card style={[styles.node, { borderColor: color }]}>
                 <View style={[styles.badge, { borderColor: color }]}>
                   <Text variant="title" color={color}>
-                    {node.status === 'locked' ? '🔒' : node.status === 'done' ? '✓' : String(i + 1)}
+                    {status === 'locked' ? '🔒' : status === 'done' ? '✓' : String(i + 1)}
                   </Text>
                 </View>
                 <View style={styles.nodeText}>
-                  <Text variant="title">{node.title}</Text>
+                  <Text variant="title">{skill.name}</Text>
                   <Text variant="caption" color={theme.colors.textMuted}>
-                    {node.status === 'current'
+                    {status === 'current'
                       ? 'Prochaine étape'
-                      : node.status === 'locked'
-                        ? 'Verrouillé — termine l’étape précédente'
-                        : 'Terminé'}
+                      : status === 'done'
+                        ? 'Terminé ✓'
+                        : 'Verrouillé — termine l’étape précédente'}
                   </Text>
                 </View>
               </Card>
@@ -61,6 +64,10 @@ export default function Parcours() {
           );
         })}
       </View>
+
+      <Text variant="caption" color={theme.colors.textMuted} center>
+        {completed.length} / {SKILLS.length} compétences terminées
+      </Text>
     </Screen>
   );
 }
