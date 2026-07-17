@@ -65,6 +65,31 @@ const CUTOUTS = [
   ['bobo-risk', F.boboRisk, null, 140, 2],
 ];
 
+// Planche de poses fournie (damier clair). Grille cols×rows.
+const PG = { file: 'poses-sheet.png', cols: 11, rows: 6, inset: 0.05 };
+// Sous-ensemble curé [col, row, nom] (repère = ligne,colonne de l'aperçu).
+const POSE_NAMES = [
+  // Toto (vert)
+  [0, 0, 'toto-point'],
+  [2, 0, 'toto-wave'],
+  [6, 0, 'toto-read'],
+  [10, 0, 'toto-grad'],
+  [3, 1, 'toto-glasses'],
+  [1, 2, 'toto-magnifier'],
+  [5, 2, 'toto-happy'],
+  [2, 4, 'toto-run'],
+  [7, 5, 'toto-flex'],
+  // Bobo (rouge)
+  [9, 0, 'bobo-think'],
+  [7, 0, 'bobo-read'],
+  [2, 1, 'bobo-laptop'],
+  [4, 1, 'bobo-arms'],
+  [8, 1, 'bobo-angry'],
+  [10, 1, 'bobo-coffee'],
+  [6, 2, 'bobo-weight'],
+  [7, 3, 'bobo-coin'],
+];
+
 function dataUrl(file) {
   return 'data:image/png;base64,' + readFileSync(`${SRC}/${file}`).toString('base64');
 }
@@ -304,6 +329,171 @@ async function run() {
     );
     save(outURL, `${PREVIEW}/heads-preview.png`);
     console.log('preview -> heads-preview.png');
+  }
+
+  // Découpe une cellule de la planche de poses + retire le damier CLAIR (blanc/gris
+  // désaturé) par flood-fill depuis les bords, garde la plus grande composante,
+  // adoucit le bord, recadre. Renvoie un PNG transparent (dataURL) ou null.
+  async function poseCell(col, row, outMax, checker) {
+    const src = dataUrl(PG.file);
+    return page.evaluate(
+      async ({ src, col, row, cols, rows, inset, outMax, checker }) => {
+        const img = new Image();
+        await new Promise((r) => { img.onload = r; img.src = src; });
+        const iw = img.naturalWidth, ih = img.naturalHeight;
+        const cw = iw / cols, ch = ih / rows;
+        const ix = cw * inset, iy = ch * inset;
+        const sx = Math.round(col * cw + ix), sy = Math.round(row * ch + iy);
+        const W = Math.round(cw - 2 * ix), H = Math.round(ch - 2 * iy);
+        const cv = document.createElement('canvas');
+        cv.width = W; cv.height = H;
+        const ctx = cv.getContext('2d', { willReadFrequently: true });
+        ctx.drawImage(img, sx, sy, W, H, 0, 0, W, H);
+        const im = ctx.getImageData(0, 0, W, H);
+        const d = im.data, N = W * H;
+        // damier = pixel CLAIR et désaturé (blanc/gris). Persos = saturés -> gardés.
+        const isBg = (i) => {
+          const r = d[i * 4], g = d[i * 4 + 1], b = d[i * 4 + 2];
+          const mn = Math.min(r, g, b), mx = Math.max(r, g, b);
+          return mn > 165 && mx - mn < 28;
+        };
+        const bgMask = new Uint8Array(N);
+        const stack = [];
+        for (let x = 0; x < W; x++) stack.push(x, (H - 1) * W + x);
+        for (let y = 0; y < H; y++) stack.push(y * W, y * W + W - 1);
+        while (stack.length) {
+          const i = stack.pop();
+          if (bgMask[i] || !isBg(i)) continue;
+          bgMask[i] = 1;
+          const x = i % W, y = (i / W) | 0;
+          if (x > 0) stack.push(i - 1);
+          if (x < W - 1) stack.push(i + 1);
+          if (y > 0) stack.push(i - W);
+          if (y < H - 1) stack.push(i + W);
+        }
+        const label = new Int32Array(N);
+        const sizes = [0];
+        let cur = 0;
+        for (let i = 0; i < N; i++) {
+          if (bgMask[i] || label[i]) continue;
+          cur++; sizes.push(0);
+          const st = [i]; label[i] = cur;
+          while (st.length) {
+            const j = st.pop(); sizes[cur]++;
+            const x = j % W, y = (j / W) | 0;
+            if (x > 0 && !bgMask[j - 1] && !label[j - 1]) { label[j - 1] = cur; st.push(j - 1); }
+            if (x < W - 1 && !bgMask[j + 1] && !label[j + 1]) { label[j + 1] = cur; st.push(j + 1); }
+            if (y > 0 && !bgMask[j - W] && !label[j - W]) { label[j - W] = cur; st.push(j - W); }
+            if (y < H - 1 && !bgMask[j + W] && !label[j + W]) { label[j + W] = cur; st.push(j + W); }
+          }
+        }
+        let largest = 0, li = 0;
+        for (let k = 1; k <= cur; k++) if (sizes[k] > largest) { largest = sizes[k]; li = k; }
+        for (let i = 0; i < N; i++) if (bgMask[i] || label[i] !== li) d[i * 4 + 3] = 0;
+        const a0 = new Uint8Array(N);
+        for (let i = 0; i < N; i++) a0[i] = d[i * 4 + 3];
+        for (let i = 0; i < N; i++) {
+          if (!a0[i]) continue;
+          const x = i % W, y = (i / W) | 0;
+          const edge = x === 0 || x === W - 1 || y === 0 || y === H - 1 ||
+            !a0[i - 1] || !a0[i + 1] || !a0[i - W] || !a0[i + W];
+          if (edge) d[i * 4 + 3] = Math.min(a0[i], 150);
+        }
+        ctx.putImageData(im, 0, 0);
+        let minx = W, miny = H, maxx = 0, maxy = 0, any = false;
+        for (let i = 0; i < N; i++) {
+          if (d[i * 4 + 3] > 12) { any = true; const x = i % W, y = (i / W) | 0;
+            if (x < minx) minx = x; if (x > maxx) maxx = x; if (y < miny) miny = y; if (y > maxy) maxy = y; }
+        }
+        if (!any) return null;
+        const pad = 6;
+        minx = Math.max(0, minx - pad); miny = Math.max(0, miny - pad);
+        maxx = Math.min(W - 1, maxx + pad); maxy = Math.min(H - 1, maxy + pad);
+        const bw = maxx - minx + 1, bh = maxy - miny + 1;
+        const scale = Math.min(1, outMax / Math.max(bw, bh));
+        const ow = Math.round(bw * scale), oh = Math.round(bh * scale);
+        const out = document.createElement('canvas');
+        out.width = ow; out.height = oh;
+        const octx = out.getContext('2d');
+        octx.imageSmoothingQuality = 'high';
+        if (checker) {
+          const s = 10;
+          for (let yy = 0; yy < oh; yy += s) for (let xx = 0; xx < ow; xx += s) {
+            octx.fillStyle = ((xx / s + yy / s) | 0) % 2 ? '#3a3f45' : '#6b7178';
+            octx.fillRect(xx, yy, s, s);
+          }
+        }
+        octx.drawImage(cv, minx, miny, bw, bh, 0, 0, ow, oh);
+        return out.toDataURL('image/png');
+      },
+      { src, col, row, cols: PG.cols, rows: PG.rows, inset: PG.inset, outMax, checker }
+    );
+  }
+
+  if (mode === 'posesgrid') {
+    const src = dataUrl(PG.file);
+    const outURL = await page.evaluate(
+      async ({ src, cols, rows }) => {
+        const img = new Image();
+        await new Promise((r) => { img.onload = r; img.src = src; });
+        const scale = 1100 / img.naturalWidth;
+        const cv = document.createElement('canvas');
+        cv.width = img.naturalWidth * scale; cv.height = img.naturalHeight * scale;
+        const ctx = cv.getContext('2d');
+        ctx.drawImage(img, 0, 0, cv.width, cv.height);
+        ctx.strokeStyle = '#00e5ff'; ctx.lineWidth = 1;
+        ctx.font = '12px sans-serif'; ctx.fillStyle = '#00e5ff';
+        for (let c = 0; c <= cols; c++) { const x = (c * cv.width) / cols; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, cv.height); ctx.stroke(); }
+        for (let r = 0; r <= rows; r++) { const y = (r * cv.height) / rows; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(cv.width, y); ctx.stroke(); }
+        for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) ctx.fillText(`${r},${c}`, (c * cv.width) / cols + 3, (r * cv.height) / rows + 13);
+        return cv.toDataURL('image/png');
+      },
+      { src, cols: PG.cols, rows: PG.rows }
+    );
+    save(outURL, `${PREVIEW}/poses-grid.png`);
+    console.log('posesgrid -> poses-grid.png');
+  }
+
+  if (mode === 'posescontact') {
+    const cells = [];
+    for (let r = 0; r < PG.rows; r++) for (let c = 0; c < PG.cols; c++) {
+      const u = await poseCell(c, r, 150, true);
+      cells.push({ r, c, u });
+    }
+    const outURL = await page.evaluate(
+      async ({ cells, cols, rows }) => {
+        const cellW = 168, cellH = 188;
+        const cv = document.createElement('canvas');
+        cv.width = cols * cellW; cv.height = rows * cellH;
+        const ctx = cv.getContext('2d');
+        ctx.fillStyle = '#0c1411'; ctx.fillRect(0, 0, cv.width, cv.height);
+        ctx.font = '13px sans-serif';
+        for (const { r, c, u } of cells) {
+          if (!u) continue;
+          const img = new Image();
+          await new Promise((res) => { img.onload = res; img.src = u; });
+          const bx = c * cellW, by = r * cellH;
+          const s = Math.min((cellW - 12) / img.width, (cellH - 26) / img.height);
+          const w = img.width * s, h = img.height * s;
+          ctx.drawImage(img, bx + (cellW - w) / 2, by + 3, w, h);
+          ctx.fillStyle = '#7cf9a0'; ctx.fillText(`${r},${c}`, bx + 6, by + cellH - 7);
+        }
+        return cv.toDataURL('image/png');
+      },
+      { cells, cols: PG.cols, rows: PG.rows }
+    );
+    save(outURL, `${PREVIEW}/poses-contact.png`);
+    console.log('posescontact -> poses-contact.png');
+  }
+
+  if (mode === 'poses') {
+    mkdirSync(`${ROOT}/poses`, { recursive: true });
+    for (const [c, r, name] of POSE_NAMES) {
+      const u = await poseCell(c, r, 420, false);
+      if (!u) { console.log('pose', name, 'EMPTY'); continue; }
+      save(u, `${ROOT}/poses/${name}.png`);
+      console.log('pose', name, '->', (Buffer.from(u.split(',')[1], 'base64').length / 1024).toFixed(0) + 'KB');
+    }
   }
 
   await b.close();

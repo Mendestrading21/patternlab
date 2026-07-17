@@ -14,7 +14,7 @@ export default function Reussites() {
         Des badges à débloquer au fil de ta progression.
       </Text>
 
-      <MascotFigure name="celebrate" height={150} />
+      <MascotFigure name="celebrate" gesture="celebrate" height={150} />
 
       <Card elevated>
         <View style={styles.summary}>

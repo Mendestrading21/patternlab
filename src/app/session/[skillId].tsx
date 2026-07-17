@@ -137,7 +137,7 @@ function Results({
           </Text>
         </View>
         {success ? (
-          <MascotFigure name="celebrate" height={170} />
+          <MascotFigure name="celebrate" gesture="celebrate" height={170} />
         ) : (
           <CharacterScene
             character="toto"

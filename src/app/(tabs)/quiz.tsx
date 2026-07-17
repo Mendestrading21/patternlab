@@ -25,7 +25,7 @@ export default function Quiz() {
         Une session de {DEMO_EXERCISES.length} exercices variés sur « {DEMO_SKILL.name} ».
       </Text>
 
-      <MascotFigure name="analyze" height={170} />
+      <MascotFigure name="toto-magnifier" gesture="idle" height={160} />
 
       <Card>
         <Text variant="title">Formats de cette session</Text>

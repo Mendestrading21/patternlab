@@ -25,7 +25,12 @@ export default function Landing() {
       </View>
 
       <View style={styles.duo}>
-        <MascotFigure name="welcome" height={280} />
+        <View style={styles.flex1}>
+          <MascotFigure name="toto-wave" gesture="wave" height={230} />
+        </View>
+        <View style={styles.flex1}>
+          <MascotFigure name="bobo-arms" gesture="idle" height={230} />
+        </View>
       </View>
 
       <View style={styles.actions}>
@@ -57,4 +62,5 @@ const styles = StyleSheet.create({
     gap: theme.spacing.lg,
   },
   actions: { gap: theme.spacing.md, marginBottom: theme.spacing.lg },
+  flex1: { flex: 1 },
 });
