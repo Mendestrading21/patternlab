@@ -67,6 +67,21 @@ const CUTOUTS = [
 
 // Planche de poses fournie (damier clair). Grille cols×rows.
 const PG = { file: 'poses-sheet.png', cols: 11, rows: 6, inset: 0.05 };
+
+// Rendus HD individuels sur damier (1 ou 2 persos par image) -> figures/*.png transparents.
+// Fichiers dans assets/characters/source/singles/ (lus via dataUrl('singles/<id>.png')).
+const SINGLES = [
+  ['01', 'bobo-clipboard'],
+  ['02', 'toto-think'],
+  ['03', 'celebrate'],
+  ['04', 'analyze'],
+  ['05', 'bobo-warning'],
+  ['06', 'toto-present'],
+  ['07', 'bobo-magnify'],
+  ['08', 'toto-read'],
+  ['09', 'bobo-wave'],
+  ['10', 'toto-wave'],
+];
 // Sous-ensemble curé [col, row, nom] (repère = ligne,colonne de l'aperçu).
 const POSE_NAMES = [
   // Toto (vert)
@@ -493,6 +508,142 @@ async function run() {
       if (!u) { console.log('pose', name, 'EMPTY'); continue; }
       save(u, `${ROOT}/poses/${name}.png`);
       console.log('pose', name, '->', (Buffer.from(u.split(',')[1], 'base64').length / 1024).toFixed(0) + 'KB');
+    }
+  }
+
+  // Rendu HD individuel : retire le damier clair de toute l'image -> PNG transparent.
+  async function singleCut(relFile, outMax, checker) {
+    const src = dataUrl(relFile);
+    return page.evaluate(
+      async ({ src, outMax, checker }) => {
+        const img = new Image();
+        await new Promise((r) => { img.onload = r; img.src = src; });
+        const W = img.naturalWidth, H = img.naturalHeight;
+        const cv = document.createElement('canvas');
+        cv.width = W; cv.height = H;
+        const ctx = cv.getContext('2d', { willReadFrequently: true });
+        ctx.drawImage(img, 0, 0, W, H);
+        const im = ctx.getImageData(0, 0, W, H);
+        const d = im.data, N = W * H;
+        const isBg = (i) => {
+          const r = d[i * 4], g = d[i * 4 + 1], b = d[i * 4 + 2];
+          const mn = Math.min(r, g, b), mx = Math.max(r, g, b);
+          return mn > 165 && mx - mn < 28;
+        };
+        const bgMask = new Uint8Array(N);
+        const stack = [];
+        for (let x = 0; x < W; x++) stack.push(x, (H - 1) * W + x);
+        for (let y = 0; y < H; y++) stack.push(y * W, y * W + W - 1);
+        while (stack.length) {
+          const i = stack.pop();
+          if (bgMask[i] || !isBg(i)) continue;
+          bgMask[i] = 1;
+          const x = i % W, y = (i / W) | 0;
+          if (x > 0) stack.push(i - 1);
+          if (x < W - 1) stack.push(i + 1);
+          if (y > 0) stack.push(i - W);
+          if (y < H - 1) stack.push(i + W);
+        }
+        // composantes : garder celles >= 12% de la plus grande (persos + gros props tenus)
+        const label = new Int32Array(N);
+        const sizes = [0];
+        let cur = 0;
+        for (let i = 0; i < N; i++) {
+          if (bgMask[i] || label[i]) continue;
+          cur++; sizes.push(0);
+          const st = [i]; label[i] = cur;
+          while (st.length) {
+            const j = st.pop(); sizes[cur]++;
+            const x = j % W, y = (j / W) | 0;
+            if (x > 0 && !bgMask[j - 1] && !label[j - 1]) { label[j - 1] = cur; st.push(j - 1); }
+            if (x < W - 1 && !bgMask[j + 1] && !label[j + 1]) { label[j + 1] = cur; st.push(j + 1); }
+            if (y > 0 && !bgMask[j - W] && !label[j - W]) { label[j - W] = cur; st.push(j - W); }
+            if (y < H - 1 && !bgMask[j + W] && !label[j + W]) { label[j + W] = cur; st.push(j + W); }
+          }
+        }
+        let largest = 0;
+        for (let k = 1; k <= cur; k++) if (sizes[k] > largest) largest = sizes[k];
+        const keep = new Set();
+        for (let k = 1; k <= cur; k++) if (sizes[k] >= largest * 0.12) keep.add(k);
+        for (let i = 0; i < N; i++) if (bgMask[i] || !keep.has(label[i])) d[i * 4 + 3] = 0;
+        // feather bord
+        const a0 = new Uint8Array(N);
+        for (let i = 0; i < N; i++) a0[i] = d[i * 4 + 3];
+        for (let i = 0; i < N; i++) {
+          if (!a0[i]) continue;
+          const x = i % W, y = (i / W) | 0;
+          const edge = x === 0 || x === W - 1 || y === 0 || y === H - 1 ||
+            !a0[i - 1] || !a0[i + 1] || !a0[i - W] || !a0[i + W];
+          if (edge) d[i * 4 + 3] = Math.min(a0[i], 150);
+        }
+        ctx.putImageData(im, 0, 0);
+        let minx = W, miny = H, maxx = 0, maxy = 0, any = false;
+        for (let i = 0; i < N; i++) {
+          if (d[i * 4 + 3] > 12) { any = true; const x = i % W, y = (i / W) | 0;
+            if (x < minx) minx = x; if (x > maxx) maxx = x; if (y < miny) miny = y; if (y > maxy) maxy = y; }
+        }
+        if (!any) return null;
+        const pad = 8;
+        minx = Math.max(0, minx - pad); miny = Math.max(0, miny - pad);
+        maxx = Math.min(W - 1, maxx + pad); maxy = Math.min(H - 1, maxy + pad);
+        const bw = maxx - minx + 1, bh = maxy - miny + 1;
+        const scale = Math.min(1, outMax / Math.max(bw, bh));
+        const ow = Math.round(bw * scale), oh = Math.round(bh * scale);
+        const out = document.createElement('canvas');
+        out.width = ow; out.height = oh;
+        const octx = out.getContext('2d');
+        octx.imageSmoothingQuality = 'high';
+        if (checker) {
+          const s = 12;
+          for (let yy = 0; yy < oh; yy += s) for (let xx = 0; xx < ow; xx += s) {
+            octx.fillStyle = ((xx / s + yy / s) | 0) % 2 ? '#3a3f45' : '#6b7178';
+            octx.fillRect(xx, yy, s, s);
+          }
+        }
+        octx.drawImage(cv, minx, miny, bw, bh, 0, 0, ow, oh);
+        return out.toDataURL('image/png');
+      },
+      { src, outMax, checker }
+    );
+  }
+
+  if (mode === 'singles' || mode === 'singlescontact') {
+    mkdirSync(`${ROOT}/figures`, { recursive: true });
+    const checker = mode === 'singlescontact';
+    const cells = [];
+    for (const [id, name] of SINGLES) {
+      const u = await singleCut(`singles/${id}.png`, checker ? 300 : 760, checker);
+      const kb = u ? (Buffer.from(u.split(',')[1], 'base64').length / 1024).toFixed(0) : '0';
+      if (checker) { cells.push({ name, u }); console.log('cut', name, kb + 'KB'); }
+      else { if (u) save(u, `${ROOT}/figures/${name}.png`); console.log('figure', name, '->', kb + 'KB'); }
+    }
+    if (checker) {
+      const outURL = await page.evaluate(
+        async ({ cells }) => {
+          const cols = 4, cw = 320, ch = 340;
+          const rows = Math.ceil(cells.length / cols);
+          const cv = document.createElement('canvas');
+          cv.width = cols * cw; cv.height = rows * ch;
+          const ctx = cv.getContext('2d');
+          ctx.fillStyle = '#0c1411'; ctx.fillRect(0, 0, cv.width, cv.height);
+          ctx.font = '16px sans-serif';
+          for (let k = 0; k < cells.length; k++) {
+            const { name, u } = cells[k];
+            if (!u) continue;
+            const img = new Image();
+            await new Promise((res) => { img.onload = res; img.src = u; });
+            const bx = (k % cols) * cw, by = ((k / cols) | 0) * ch;
+            const s = Math.min((cw - 20) / img.width, (ch - 34) / img.height);
+            const w = img.width * s, h = img.height * s;
+            ctx.drawImage(img, bx + (cw - w) / 2, by + 6, w, h);
+            ctx.fillStyle = '#7cf9a0'; ctx.fillText(name, bx + 8, by + ch - 10);
+          }
+          return cv.toDataURL('image/png');
+        },
+        { cells }
+      );
+      save(outURL, `${PREVIEW}/figures-contact.png`);
+      console.log('singlescontact -> figures-contact.png');
     }
   }
 

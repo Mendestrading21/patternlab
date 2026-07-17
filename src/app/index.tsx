@@ -29,7 +29,7 @@ export default function Landing() {
           <MascotFigure name="toto-wave" gesture="wave" height={230} />
         </View>
         <View style={styles.flex1}>
-          <MascotFigure name="bobo-arms" gesture="idle" height={230} />
+          <MascotFigure name="bobo-wave" gesture="idle" height={230} />
         </View>
       </View>
 

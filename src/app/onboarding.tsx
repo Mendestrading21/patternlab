@@ -27,7 +27,7 @@ export default function Onboarding() {
         Voici ta boucle quotidienne. Quelques minutes suffisent.
       </Text>
 
-      <MascotFigure name="study" height={190} />
+      <MascotFigure name="toto-read" height={190} />
 
       <CharacterScene
         character="toto"

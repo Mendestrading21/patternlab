@@ -25,7 +25,7 @@ export default function Parcours() {
         Module « Lire un graphique » — gravis la montagne, une compétence à la fois.
       </Text>
 
-      <MascotFigure name="present" height={150} />
+      <MascotFigure name="toto-present" height={150} />
 
       <View style={styles.path}>
         {SKILLS.map((skill, i) => {

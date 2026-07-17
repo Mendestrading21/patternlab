@@ -41,7 +41,7 @@ export default function Home() {
         Prêt à continuer ton parcours ?
       </Text>
 
-      <MascotFigure name="toto-happy" gesture="celebrate" height={140} />
+      <MascotFigure name="toto-think" gesture="idle" height={140} />
 
       <Card elevated>
         <View style={styles.levelRow}>
