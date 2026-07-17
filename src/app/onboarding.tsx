@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Button, Card, theme } from '@/design-system';
-import { CharacterScene, MascotScene } from '@/characters';
+import { CharacterScene, MascotFigure } from '@/characters';
 import { useProgress } from '@/data';
 import { analytics } from '@/analytics';
 import { PILLARS } from '@/lib/config';
@@ -27,7 +27,7 @@ export default function Onboarding() {
         Voici ta boucle quotidienne. Quelques minutes suffisent.
       </Text>
 
-      <MascotScene moment="study" height={190} />
+      <MascotFigure name="study" height={190} />
 
       <CharacterScene
         character="toto"

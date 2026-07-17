@@ -5,27 +5,29 @@
  */
 import type { CharacterId, Expression } from './types';
 
-/** Grandes illustrations de scène (panneaux). */
-export type SceneMoment =
+/** Figures détourées (fond transparent) — personnages posés sans cadre. */
+export type FigureName =
   | 'welcome'
   | 'study'
   | 'present'
   | 'analyze'
-  | 'warning'
   | 'celebrate'
-  | 'bobo-risk';
+  | 'bobo-risk'
+  | 'toto'
+  | 'bobo';
 
-export const SCENES: Record<SceneMoment, number> = {
-  welcome: require('../../assets/characters/scenes/welcome-duo.jpg'),
-  study: require('../../assets/characters/scenes/study-duo.jpg'),
-  present: require('../../assets/characters/scenes/present-toto.jpg'),
-  analyze: require('../../assets/characters/scenes/analyze-duo.jpg'),
-  warning: require('../../assets/characters/scenes/warning-duo.jpg'),
-  celebrate: require('../../assets/characters/scenes/celebrate-duo.jpg'),
-  'bobo-risk': require('../../assets/characters/scenes/bobo-risk.jpg'),
+export const FIGURES: Record<FigureName, number> = {
+  welcome: require('../../assets/characters/cutouts/welcome.png'),
+  study: require('../../assets/characters/cutouts/study.png'),
+  present: require('../../assets/characters/cutouts/present.png'),
+  analyze: require('../../assets/characters/cutouts/analyze.png'),
+  celebrate: require('../../assets/characters/cutouts/celebrate.png'),
+  'bobo-risk': require('../../assets/characters/cutouts/bobo-risk.png'),
+  toto: require('../../assets/characters/cutouts/toto.png'),
+  bobo: require('../../assets/characters/cutouts/bobo.png'),
 };
 
-/** Têtes disponibles réellement découpées, par personnage. */
+/** Têtes rondes (avatars), par personnage. */
 const TOTO_HEADS = {
   happy: require('../../assets/characters/heads/toto-happy.jpg'),
   thinking: require('../../assets/characters/heads/toto-thinking.jpg'),
@@ -43,8 +45,7 @@ const BOBO_HEADS = {
 
 /**
  * Renvoie la tête (source image) pour un personnage + une expression.
- * Chaque expression du type `Expression` est mappée vers une tête existante
- * (repli sur la plus proche, puis sur `neutral`).
+ * Chaque expression est mappée vers une tête existante (repli sur la plus proche).
  */
 export function headSource(character: CharacterId, expr: Expression): number {
   if (character === 'toto') {

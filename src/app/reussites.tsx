@@ -1,6 +1,6 @@
 import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, ProgressBar, theme } from '@/design-system';
-import { MascotScene } from '@/characters';
+import { MascotFigure } from '@/characters';
 import { BADGES, earnedBadges, useProgress } from '@/data';
 
 export default function Reussites() {
@@ -14,7 +14,7 @@ export default function Reussites() {
         Des badges à débloquer au fil de ta progression.
       </Text>
 
-      <MascotScene moment="celebrate" height={150} />
+      <MascotFigure name="celebrate" height={150} />
 
       <Card elevated>
         <View style={styles.summary}>

@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, Chip, theme } from '@/design-system';
-import { CharacterScene, MascotScene } from '@/characters';
+import { CharacterScene, MascotFigure } from '@/characters';
 import { DEMO_SKILL, DEMO_EXERCISES } from '@/data';
 
 const FORMAT_LABELS: Record<string, string> = {
@@ -25,7 +25,7 @@ export default function Quiz() {
         Une session de {DEMO_EXERCISES.length} exercices variés sur « {DEMO_SKILL.name} ».
       </Text>
 
-      <MascotScene moment="analyze" height={170} />
+      <MascotFigure name="analyze" height={170} />
 
       <Card>
         <Text variant="title">Formats de cette session</Text>

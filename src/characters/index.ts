@@ -1,7 +1,7 @@
 export { CharacterAvatar, type CharacterAvatarProps } from './CharacterAvatar';
 export { MascotAvatar, type MascotAvatarProps } from './MascotAvatar';
-export { MascotScene, type MascotSceneProps } from './MascotScene';
-export { SCENES, headSource, type SceneMoment } from './assets';
+export { MascotFigure, type MascotFigureProps } from './MascotFigure';
+export { FIGURES, headSource, type FigureName } from './assets';
 export {
   CharacterAnimationController,
   type CharacterAnimationControllerProps,

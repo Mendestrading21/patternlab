@@ -52,6 +52,19 @@ const HEADS = [
   ['bobo-neutral', F.exprSheet, 0.77, 0.66, 0.2, 0.15],
 ];
 
+// Détourages (fond transparent). cropFrac optionnel {x,y,w,h} en fractions.
+// tol = tolérance couleur du fond ; keepN = nb de composantes (persos) à garder.
+const CUTOUTS = [
+  ['toto', F.exprSheet, { x: 0.02, y: 0.02, w: 0.47, h: 0.42 }, 140, 1],
+  ['bobo', F.exprSheet, { x: 0.5, y: 0.02, w: 0.48, h: 0.42 }, 140, 1],
+  ['welcome', F.welcomeDuo, null, 140, 2],
+  ['study', F.studyDuo, null, 140, 3],
+  ['present', F.presentToto, null, 140, 3],
+  ['analyze', F.analyzeDuo, null, 140, 3],
+  ['celebrate', F.celebrateDuo, null, 140, 3],
+  ['bobo-risk', F.boboRisk, null, 140, 2],
+];
+
 function dataUrl(file) {
   return 'data:image/png;base64,' + readFileSync(`${SRC}/${file}`).toString('base64');
 }
@@ -94,6 +107,142 @@ async function run() {
   function save(dataURL, path) {
     const b64 = dataURL.split(',')[1];
     writeFileSync(path, Buffer.from(b64, 'base64'));
+  }
+
+  // Détourage : flood-fill du fond depuis les bords + on ne garde que les N plus
+  // grandes composantes (les persos) + adoucissement du bord. Renvoie un PNG transparent.
+  async function cutout(file, cropFrac, tol, keepN, outMax, checker) {
+    const src = dataUrl(file);
+    return page.evaluate(
+      async ({ src, cropFrac, tol, keepN, outMax, checker }) => {
+        const img = new Image();
+        await new Promise((res) => { img.onload = res; img.src = src; });
+        const iw = img.naturalWidth, ih = img.naturalHeight;
+        const cx = cropFrac ? Math.round(cropFrac.x * iw) : 0;
+        const cy = cropFrac ? Math.round(cropFrac.y * ih) : 0;
+        const W = cropFrac ? Math.round(cropFrac.w * iw) : iw;
+        const H = cropFrac ? Math.round(cropFrac.h * ih) : ih;
+        const cv = document.createElement('canvas');
+        cv.width = W; cv.height = H;
+        const ctx = cv.getContext('2d', { willReadFrequently: true });
+        ctx.drawImage(img, cx, cy, W, H, 0, 0, W, H);
+        const im = ctx.getImageData(0, 0, W, H);
+        const d = im.data;
+        const N = W * H;
+        // Fond = décor bleu nuit sombre. Les persos sont rouges/verts vifs — même à
+        // l'ombre, leur canal rouge OU vert domine le bleu. On considère « fond » un
+        // pixel sombre dont le bleu n'est PAS nettement dominé par le rouge ou le vert.
+        // -> le dégradé navy (toute luminance) part, les ombres rouge/verte restent.
+        // Parties sombres internes (sabots, nez) préservées car non reliées au bord.
+        // `tol` = seuil de luminance V (exclut seulement le très clair : cornes, yeux).
+        const V = tol;
+        const isBg = (i) => {
+          const r = d[i * 4], g = d[i * 4 + 1], b = d[i * 4 + 2];
+          const mx = Math.max(r, g, b);
+          return mx < V && r - b < 30 && g - b < 46;
+        };
+        // flood-fill du fond depuis les bords
+        const bgMask = new Uint8Array(N);
+        const stack = [];
+        for (let x = 0; x < W; x++) { stack.push(x, (H - 1) * W + x); }
+        for (let y = 0; y < H; y++) { stack.push(y * W, y * W + W - 1); }
+        while (stack.length) {
+          const i = stack.pop();
+          if (bgMask[i] || !isBg(i)) continue;
+          bgMask[i] = 1;
+          const x = i % W, y = (i / W) | 0;
+          if (x > 0) stack.push(i - 1);
+          if (x < W - 1) stack.push(i + 1);
+          if (y > 0) stack.push(i - W);
+          if (y < H - 1) stack.push(i + W);
+        }
+        // composantes connexes du premier plan
+        const label = new Int32Array(N);
+        const sizes = [0];
+        let cur = 0;
+        for (let i = 0; i < N; i++) {
+          if (bgMask[i] || label[i]) continue;
+          cur++; sizes.push(0);
+          const st = [i]; label[i] = cur;
+          while (st.length) {
+            const j = st.pop(); sizes[cur]++;
+            const x = j % W, y = (j / W) | 0;
+            if (x > 0 && !bgMask[j - 1] && !label[j - 1]) { label[j - 1] = cur; st.push(j - 1); }
+            if (x < W - 1 && !bgMask[j + 1] && !label[j + 1]) { label[j + 1] = cur; st.push(j + 1); }
+            if (y > 0 && !bgMask[j - W] && !label[j - W]) { label[j - W] = cur; st.push(j - W); }
+            if (y < H - 1 && !bgMask[j + W] && !label[j + W]) { label[j + W] = cur; st.push(j + W); }
+          }
+        }
+        // On garde les composantes assez grandes (persos + gros props tenus) et on
+        // supprime les petits résidus (bougies, flèches, éclats du fond). keepN sert de
+        // plafond de sécurité ; le vrai filtre est un ratio par rapport à la plus grande.
+        let largest = 0;
+        for (let k = 1; k <= cur; k++) if (sizes[k] > largest) largest = sizes[k];
+        const ranked = [...Array(cur)].map((_, k) => k + 1).sort((a, b) => sizes[b] - sizes[a]);
+        const keep = new Set();
+        for (const k of ranked) {
+          if (keep.size >= keepN) break;
+          if (sizes[k] >= largest * 0.14) keep.add(k);
+        }
+        for (let i = 0; i < N; i++) {
+          if (bgMask[i] || !keep.has(label[i])) d[i * 4 + 3] = 0;
+        }
+        // adoucir le bord (anti-halo) : alpha réduit sur les pixels de contour
+        const a0 = new Uint8Array(N);
+        for (let i = 0; i < N; i++) a0[i] = d[i * 4 + 3];
+        for (let i = 0; i < N; i++) {
+          if (!a0[i]) continue;
+          const x = i % W, y = (i / W) | 0;
+          const edge = x === 0 || x === W - 1 || y === 0 || y === H - 1 ||
+            !a0[i - 1] || !a0[i + 1] || !a0[i - W] || !a0[i + W];
+          if (edge) d[i * 4 + 3] = Math.min(a0[i], 150);
+        }
+        ctx.putImageData(im, 0, 0);
+        // recadrage à la boîte englobante opaque
+        let minx = W, miny = H, maxx = 0, maxy = 0, any = false;
+        for (let i = 0; i < N; i++) {
+          if (d[i * 4 + 3] > 12) { any = true; const x = i % W, y = (i / W) | 0;
+            if (x < minx) minx = x; if (x > maxx) maxx = x; if (y < miny) miny = y; if (y > maxy) maxy = y; }
+        }
+        if (!any) { minx = 0; miny = 0; maxx = W - 1; maxy = H - 1; }
+        const pad = 10;
+        minx = Math.max(0, minx - pad); miny = Math.max(0, miny - pad);
+        maxx = Math.min(W - 1, maxx + pad); maxy = Math.min(H - 1, maxy + pad);
+        const bw = maxx - minx + 1, bh = maxy - miny + 1;
+        const scale = Math.min(1, outMax / Math.max(bw, bh));
+        const ow = Math.round(bw * scale), oh = Math.round(bh * scale);
+        const out = document.createElement('canvas');
+        out.width = ow; out.height = oh;
+        const octx = out.getContext('2d');
+        octx.imageSmoothingQuality = 'high';
+        if (checker) {
+          const s = 16;
+          for (let yy = 0; yy < oh; yy += s) for (let xx = 0; xx < ow; xx += s) {
+            octx.fillStyle = ((xx / s + yy / s) | 0) % 2 ? '#3a3f45' : '#6b7178';
+            octx.fillRect(xx, yy, s, s);
+          }
+        }
+        octx.drawImage(cv, minx, miny, bw, bh, 0, 0, ow, oh);
+        return out.toDataURL('image/png');
+      },
+      { src, cropFrac, tol, keepN, outMax, checker }
+    );
+  }
+
+  if (mode === 'cutouts' || mode === 'cutpreview') {
+    mkdirSync(`${ROOT}/cutouts`, { recursive: true });
+    const checker = mode === 'cutpreview';
+    for (const [name, file, cropFrac, tol, keepN] of CUTOUTS) {
+      const out = await cutout(file, cropFrac, tol, keepN, 600, checker);
+      const kb = (Buffer.from(out.split(',')[1], 'base64').length / 1024).toFixed(0);
+      if (checker) {
+        save(out, `${PREVIEW}/cut-${name}.png`);
+        console.log('cutpreview', name, kb + 'KB');
+      } else {
+        save(out, `${ROOT}/cutouts/${name}.png`);
+        console.log('cutout', name, '->', kb + 'KB');
+      }
+    }
   }
 
   if (mode === 'scenes' || mode === 'all') {

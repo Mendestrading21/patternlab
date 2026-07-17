@@ -9,45 +9,44 @@ import Animated, {
   withTiming,
   cancelAnimation,
 } from 'react-native-reanimated';
-import { theme } from '../design-system/theme';
-import { SCENES, type SceneMoment } from './assets';
+import { FIGURES, type FigureName } from './assets';
 import { useReducedMotion } from './useReducedMotion';
 
-export type MascotSceneProps = {
-  moment: SceneMoment;
+export type MascotFigureProps = {
+  name: FigureName;
   height?: number;
-  rounded?: boolean;
   /** Flottement doux au repos (désactivé si réduction d'animation). */
   float?: boolean;
   accessibilityLabel?: string;
   style?: StyleProp<ViewStyle>;
 };
 
-const DEFAULT_LABEL: Record<SceneMoment, string> = {
+const DEFAULT_LABEL: Record<FigureName, string> = {
   welcome: 'Toto et Bobo te souhaitent la bienvenue',
   study: 'Toto et Bobo étudient les marchés',
-  present: 'Toto présente un graphique',
+  present: 'Toto présente un graphique à Bobo',
   analyze: 'Toto et Bobo analysent un graphique',
-  warning: 'Bobo met en garde sur les risques',
   celebrate: 'Toto et Bobo célèbrent ta réussite',
   'bobo-risk': 'Bobo surveille les risques',
+  toto: 'Toto, le taureau vert',
+  bobo: "Bobo, l'ours rouge",
 };
 
 /**
- * Grande illustration de scène (art officiel), avec apparition en fondu + zoom
- * et un flottement doux au repos. Rendu statique si « réduire les animations ».
+ * Personnage(s) **détouré(s)** (fond transparent) posé(s) directement sur l'écran —
+ * pas de cadre ni de fond. Apparition (fondu + léger zoom) et flottement doux au repos.
+ * Rendu statique si « réduire les animations ».
  */
-export function MascotScene({
-  moment,
+export function MascotFigure({
+  name,
   height = 200,
-  rounded = true,
   float = true,
   accessibilityLabel,
   style,
-}: MascotSceneProps) {
+}: MascotFigureProps) {
   const reduced = useReducedMotion();
   const opacity = useSharedValue(reduced ? 1 : 0);
-  const scale = useSharedValue(reduced ? 1 : 0.96);
+  const scale = useSharedValue(reduced ? 1 : 0.94);
   const translateY = useSharedValue(0);
 
   useEffect(() => {
@@ -61,7 +60,7 @@ export function MascotScene({
     scale.value = withTiming(1, { duration: 420 });
     if (float) {
       translateY.value = withRepeat(
-        withSequence(withTiming(-6, { duration: 1900 }), withTiming(0, { duration: 1900 })),
+        withSequence(withTiming(-7, { duration: 2000 }), withTiming(0, { duration: 2000 })),
         -1,
         true
       );
@@ -80,23 +79,14 @@ export function MascotScene({
     <Animated.View
       accessible
       accessibilityRole="image"
-      accessibilityLabel={accessibilityLabel ?? DEFAULT_LABEL[moment]}
-      style={[
-        styles.wrap,
-        { height, borderRadius: rounded ? theme.radius.lg : 0 },
-        animatedStyle,
-        style,
-      ]}
+      accessibilityLabel={accessibilityLabel ?? DEFAULT_LABEL[name]}
+      style={[styles.wrap, { height }, animatedStyle, style]}
     >
-      <Image source={SCENES[moment]} style={StyleSheet.absoluteFill} contentFit="cover" />
+      <Image source={FIGURES[name]} style={StyleSheet.absoluteFill} contentFit="contain" />
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: {
-    width: '100%',
-    overflow: 'hidden',
-    backgroundColor: theme.colors.surface,
-  },
+  wrap: { width: '100%' },
 });

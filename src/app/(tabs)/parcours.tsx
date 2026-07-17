@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Screen, Text, Card, theme } from '@/design-system';
-import { MascotScene } from '@/characters';
+import { MascotFigure } from '@/characters';
 import { SKILLS, useProgress } from '@/data';
 
 type NodeStatus = 'done' | 'current' | 'locked';
@@ -25,7 +25,7 @@ export default function Parcours() {
         Module « Lire un graphique » — gravis la montagne, une compétence à la fois.
       </Text>
 
-      <MascotScene moment="present" height={150} />
+      <MascotFigure name="present" height={150} />
 
       <View style={styles.path}>
         {SKILLS.map((skill, i) => {

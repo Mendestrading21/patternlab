@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, ProgressBar, FeedbackPanel, theme } from '@/design-system';
-import { CharacterScene, MascotScene } from '@/characters';
+import { CharacterScene, MascotFigure } from '@/characters';
 import { ExercisePlayer, gradeExercise, type GradeResult } from '@/engines/exercise';
 import { getExercises, skillById, useProgress } from '@/data';
 import { analytics } from '@/analytics';
@@ -137,7 +137,7 @@ function Results({
           </Text>
         </View>
         {success ? (
-          <MascotScene moment="celebrate" height={170} />
+          <MascotFigure name="celebrate" height={170} />
         ) : (
           <CharacterScene
             character="toto"

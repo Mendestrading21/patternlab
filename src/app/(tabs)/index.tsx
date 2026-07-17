@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, Chip, ProgressBar, theme } from '@/design-system';
-import { CharacterAnimationController, CharacterScene, MascotScene } from '@/characters';
+import { CharacterAnimationController, CharacterScene, MascotFigure } from '@/characters';
 import { useProgress, SKILLS } from '@/data';
 import { isDue } from '@/engines/learning';
 import { PILLARS, DISCLAIMER } from '@/lib/config';
@@ -41,7 +41,7 @@ export default function Home() {
         Prêt à continuer ton parcours ?
       </Text>
 
-      <MascotScene moment="welcome" height={150} />
+      <MascotFigure name="welcome" height={150} />
 
       <Card elevated>
         <View style={styles.levelRow}>

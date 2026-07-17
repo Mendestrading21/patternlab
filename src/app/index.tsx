@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Button, theme } from '@/design-system';
-import { MascotScene } from '@/characters';
+import { MascotFigure } from '@/characters';
 import { useProgress } from '@/data';
 import { APP, DISCLAIMER } from '@/lib/config';
 
@@ -25,7 +25,7 @@ export default function Landing() {
       </View>
 
       <View style={styles.duo}>
-        <MascotScene moment="welcome" height={280} />
+        <MascotFigure name="welcome" height={280} />
       </View>
 
       <View style={styles.actions}>
