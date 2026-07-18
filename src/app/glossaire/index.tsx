@@ -2,19 +2,14 @@ import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { View, TextInput, Pressable, StyleSheet } from 'react-native';
 import { Screen, Text, Card, theme } from '@/design-system';
-import { GLOSSARY_TERMS, GLOSSARY_CATEGORIES, type GlossaryCategory } from '@/data';
+import { GLOSSARY_TERMS, GLOSSARY_CATEGORIES, searchGlossary, type GlossaryCategory } from '@/data';
 
 export default function Glossaire() {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [cat, setCat] = useState<GlossaryCategory | 'all'>('all');
 
-  const q = query.trim().toLowerCase();
-  const list = GLOSSARY_TERMS.filter(
-    (t) =>
-      (cat === 'all' || t.category === cat) &&
-      (!q || `${t.term} ${t.english} ${t.summary}`.toLowerCase().includes(q)),
-  );
+  const list = searchGlossary(GLOSSARY_TERMS, query, cat);
 
   return (
     <Screen>
@@ -52,7 +47,7 @@ export default function Glossaire() {
       </View>
 
       <Text variant="caption" color={theme.colors.textMuted}>
-        {list.length} terme{list.length > 1 ? 's' : ''} · aperçu du glossaire complet (1 111+ termes)
+        {list.length} terme{list.length > 1 ? 's' : ''} sur {GLOSSARY_TERMS.length} · le vocabulaire essentiel des marchés
       </Text>
 
       {list.map((t) => {

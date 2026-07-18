@@ -1,6 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { View, Pressable, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, EmptyState, theme } from '@/design-system';
-import { GLOSSARY_TERMS, GLOSSARY_CATEGORIES } from '@/data';
+import { GLOSSARY_TERMS, GLOSSARY_CATEGORIES, skillById } from '@/data';
 
 export default function GlossaryDetail() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
@@ -17,6 +18,10 @@ export default function GlossaryDetail() {
   }
 
   const c = GLOSSARY_CATEGORIES.find((x) => x.id === term.category);
+  const relatedSkill = term.relatedSkillId ? skillById(term.relatedSkillId) : undefined;
+  const relatedTerms = (term.related ?? [])
+    .map((s) => GLOSSARY_TERMS.find((t) => t.slug === s))
+    .filter((t): t is NonNullable<typeof t> => Boolean(t));
 
   return (
     <Screen>
@@ -24,7 +29,7 @@ export default function GlossaryDetail() {
         {c?.label?.toUpperCase()}
       </Text>
       <Text variant="h1">{term.term}</Text>
-      <Text variant="body" color={theme.colors.textMuted} style={{ fontStyle: 'italic' }}>
+      <Text variant="body" color={theme.colors.textMuted} style={styles.italic}>
         {term.english}
       </Text>
 
@@ -51,7 +56,50 @@ export default function GlossaryDetail() {
         </Card>
       ) : null}
 
+      {relatedSkill ? (
+        <Button
+          label={`S’entraîner — ${relatedSkill.name}`}
+          onPress={() => router.push(`/session/${relatedSkill.id}`)}
+          accessibilityHint="Lancer une session sur la compétence liée"
+        />
+      ) : null}
+
+      {relatedTerms.length ? (
+        <Card>
+          <Text variant="label" color={theme.colors.textMuted}>
+            Termes reliés
+          </Text>
+          <View style={styles.relatedRow}>
+            {relatedTerms.map((rt) => (
+              <Pressable
+                key={rt.slug}
+                accessibilityRole="button"
+                accessibilityHint={`Ouvrir ${rt.term}`}
+                onPress={() => router.push(`/glossaire/${rt.slug}`)}
+                style={styles.relatedChip}
+              >
+                <Text variant="caption" color={theme.colors.technical}>
+                  {rt.term} ›
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </Card>
+      ) : null}
+
       <Button label="Retour au glossaire" variant="secondary" onPress={() => router.back()} />
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  italic: { fontStyle: 'italic' },
+  relatedRow: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, marginTop: theme.spacing.xs },
+  relatedChip: {
+    borderWidth: 1,
+    borderColor: theme.colors.technical,
+    borderRadius: theme.radius.pill,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
+  },
+});

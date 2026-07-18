@@ -1,7 +1,7 @@
 # État du projet
 
 ## Date
-2026-07-17 — **LOT 11 — Migration APP pilote** terminé (après LOT 0 → LOT 10),
+2026-07-18 — **LOT 12 — Glossaire enrichi** terminé (après LOT 0 → LOT 11),
 skill `patternlab-product-growth`, sur la base des lots P0/P1 précédents.
 
 ## Branche / commit
@@ -122,6 +122,15 @@ Pipeline de contenu + schéma + brouillons, sans régression, toutes validations
 - **Pilote** : 18 concepts (5 catégories) importés en `needsReview`, tracés (sourcePath/hash/importedAt), **zéro donnée personnelle** ; l'app n'importe jamais ce contenu (build-time only, APP reste une source).
 - **Revue humaine** requise avant publication. Voir **ADR-017**.
 
+## LOT 12 — Glossaire enrichi (ce lot)
+Recherche tolérante + catégories + fiches reliées, sans régression, toutes validations vertes :
+- **Recherche pure, testée, insensible aux accents/casse** `src/data/glossarySearch.ts` : `normalizeSearch` (NFD + retrait des diacritiques) et `searchGlossary` classant par pertinence (début du terme > terme > anglais > résumé, départage alphabétique) après filtre de catégorie. Vérifié en pilotant Chromium : « volatilite » (sans accent) → « Volatilité » en tête.
+- **Liens du modèle** : `GlossaryTerm` gagne `relatedSkillId?` / `related?`, maintenus dans une table séparée `GLOSSARY_LINKS` fusionnée à l'export `GLOSSARY_TERMS` (définitions lisibles, liens centralisés).
+- **Fiche reliée à la pratique** : bouton « S'entraîner — {compétence} » → `/session/{skillId}` et carte « Termes reliés » (puces navigables terme↔terme), affichés uniquement si le lien existe (zéro bouton mort), accessibles.
+- **Légende honnête** : « N termes sur M · le vocabulaire essentiel des marchés » (fin du « 1 111+ » trompeur) ; l'écran liste consomme `searchGlossary`.
+- **Intégrité par test** : chaque `related` existe et n'est pas auto-référent ; chaque `relatedSkillId` pointe vers une compétence réelle (un lien cassé casse la CI).
+- Catégories recolorées « Instrument Glass ». Voir **ADR-018**.
+
 ## Partiel
 - Lottie : dépendance + point d'intégration prêts ; rendu figures/SVG en attendant (ADR-005).
 - Import APP : pilote de 18 concepts curatés ; extraction de l'export APP réel (`02_DATA_EDUCATIVES`) + montée vers 50+ = alimenter le dossier `source/` (pipeline inchangé). Le registre V2 prépare la bascule (renderer remplaçable sans toucher aux états).
@@ -140,12 +149,13 @@ Pipeline de contenu + schéma + brouillons, sans régression, toutes validations
 - Aucun connu (voir sorties lint / typecheck / test / validate:content / build web).
 
 ## Absent (par design, lots suivants)
-- Glossaire enrichi, gamification, statistiques, monétisation, analytics étendus, offline complet, accessibilité complète, release readiness (lots 12→19 du skill `patternlab-product-growth`).
+- Gamification, statistiques, monétisation, analytics étendus, offline complet, accessibilité complète, release readiness (lots 13→19 du skill `patternlab-product-growth`).
 - Builds device iOS/Android (EAS + comptes Apple/Google).
 
 ## Prochaine priorité
-**Lot 12 — Glossaire enrichi** (intégrer les concepts importés une fois revus : recherche,
-catégories, fiches reliées aux compétences), puis Lot 13 — Gamification.
+**Lot 13 — Gamification** (progression récompensée : séries, badges/quêtes, jalons,
+boucles de rétention), puis Lot 14 — Statistiques. Brancher les 18 concepts importés
+(une fois revus) dans le glossaire enrichi reste un chantier de contenu ouvert.
 
 ## Risques
 - Conteneur éphémère : commit local présent ; pousser après accord pour ne rien perdre.
