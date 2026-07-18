@@ -24,6 +24,10 @@ const validators = Object.fromEntries(
   }),
 );
 
+const validateConcept = ajv.compile(
+  JSON.parse(readFileSync(join(root, 'schemas', 'concept.schema.json'), 'utf8')),
+);
+
 const base = join(root, 'content', 'published');
 let total = 0;
 let failed = 0;
@@ -40,6 +44,22 @@ for (const [dir, validate] of Object.entries(validators)) {
       failed += 1;
       console.error(`✗ ${dir}/${file}`);
       console.error(validate.errors);
+    }
+  }
+}
+
+// Brouillons de concepts importés (APP/WMB) — statut needsReview.
+const draftsDir = join(root, 'content', 'drafts', 'concepts');
+if (existsSync(draftsDir)) {
+  for (const file of readdirSync(draftsDir).filter((f) => f.endsWith('.json'))) {
+    total += 1;
+    const data = JSON.parse(readFileSync(join(draftsDir, file), 'utf8'));
+    if (validateConcept(data)) {
+      console.log(`✓ drafts/concepts/${file}`);
+    } else {
+      failed += 1;
+      console.error(`✗ drafts/concepts/${file}`);
+      console.error(validateConcept.errors);
     }
   }
 }

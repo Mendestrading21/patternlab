@@ -1,7 +1,7 @@
 # État du projet
 
 ## Date
-2026-07-17 — **LOT 10 — Toto/Bobo V2** terminé (après LOT 0 → LOT 9),
+2026-07-17 — **LOT 11 — Migration APP pilote** terminé (après LOT 0 → LOT 10),
 skill `patternlab-product-growth`, sur la base des lots P0/P1 précédents.
 
 ## Branche / commit
@@ -114,8 +114,17 @@ Registre d'états + fréquence contrôlée, sans régression, toutes validations
 - Nouveaux états câblés : `welcome` (onboarding), `false-signal` (labo), `review` (Révisions).
 - Voir **ADR-016**.
 
+## LOT 11 — Migration APP pilote (ce lot)
+Pipeline de contenu + schéma + brouillons, sans régression, toutes validations vertes :
+- **Cœur pur et testé** `src/content/importPipeline.ts` : hash de contenu, normalisation, classification (5 catégories), garde `hasPersonalData`, brouillon `needsReview` (origine + hash), déduplication.
+- **Runner** `scripts/import-app/index.mjs` (`npm run import:app`) : réutilise le pipeline via l'exécution TS native de Node 22 (une seule source), **idempotent** (contenu inchangé → non réécrit).
+- **Schéma** `schemas/concept.schema.json` ; `validate:content` valide aussi `content/drafts/concepts/`.
+- **Pilote** : 18 concepts (5 catégories) importés en `needsReview`, tracés (sourcePath/hash/importedAt), **zéro donnée personnelle** ; l'app n'importe jamais ce contenu (build-time only, APP reste une source).
+- **Revue humaine** requise avant publication. Voir **ADR-017**.
+
 ## Partiel
-- Lottie : dépendance + point d'intégration prêts ; rendu figures/SVG en attendant (ADR-005). Le registre V2 prépare la bascule (renderer remplaçable sans toucher aux états).
+- Lottie : dépendance + point d'intégration prêts ; rendu figures/SVG en attendant (ADR-005).
+- Import APP : pilote de 18 concepts curatés ; extraction de l'export APP réel (`02_DATA_EDUCATIVES`) + montée vers 50+ = alimenter le dossier `source/` (pipeline inchangé). Le registre V2 prépare la bascule (renderer remplaçable sans toucher aux états).
 - Adaptation intra-session (re-séquencement des exercices ratés) : à affiner ; la base errorTags + révision rapprochée est en place.
 - Labo : un scénario (support) ; zoom/pan, zone rectangulaire, volume et replay à venir (base `interactive.ts` extensible).
 - Formats restants (drag_drop, draw_level, place_invalidation, reconstruct_ohlc, candle_replay, timed_challenge, compare_setups) : à brancher progressivement (garde-fou actif).
@@ -131,13 +140,12 @@ Registre d'états + fréquence contrôlée, sans régression, toutes validations
 - Aucun connu (voir sorties lint / typecheck / test / validate:content / build web).
 
 ## Absent (par design, lots suivants)
-- Import APP pilote (pipeline WMB), monétisation, analytics étendus, offline complet, accessibilité complète, release readiness (lots 11→19 du skill `patternlab-product-growth`).
+- Glossaire enrichi, gamification, statistiques, monétisation, analytics étendus, offline complet, accessibilité complète, release readiness (lots 12→19 du skill `patternlab-product-growth`).
 - Builds device iOS/Android (EAS + comptes Apple/Google).
 
 ## Prochaine priorité
-**Lot 11 — Migration APP pilote** (pipeline inventaire → extraction → normalisation →
-déduplication → brouillons `draft`/`needsReview`, avec origine + hash, revue humaine),
-puis Lot 12 — Glossaire enrichi.
+**Lot 12 — Glossaire enrichi** (intégrer les concepts importés une fois revus : recherche,
+catégories, fiches reliées aux compétences), puis Lot 13 — Gamification.
 
 ## Risques
 - Conteneur éphémère : commit local présent ; pousser après accord pour ne rien perdre.

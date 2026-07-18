@@ -1,0 +1,22 @@
+{
+  "id": "concept.la-fomo",
+  "slug": "la-fomo",
+  "title": "La FOMO",
+  "category": "psychologie",
+  "skillId": null,
+  "difficulty": "beginner",
+  "definition": "La peur de rater (« fear of missing out ») pousse à entrer trop tard, par émotion plutôt que par plan. Un plan écrit la neutralise.",
+  "commonMistake": null,
+  "sources": [
+    "WMB — Psychologie : FOMO"
+  ],
+  "status": "needsReview",
+  "locale": "fr",
+  "disclaimer": "Contenu éducatif. Aucun conseil en investissement, aucun signal, aucune promesse de gain.",
+  "origin": {
+    "sourcePath": "scripts/import-app/source/concepts.json",
+    "sourceHash": "42ba9a52",
+    "importedAt": "2026-07-18T10:44:52.521Z",
+    "migrationVersion": 1
+  }
+}

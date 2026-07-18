@@ -49,6 +49,7 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "validate:content": "node ./scripts/validate-content/index.mjs",
+    "import:app": "node ./scripts/import-app/index.mjs",
     "build:web": "expo export --platform web"
   },
   "jest": {

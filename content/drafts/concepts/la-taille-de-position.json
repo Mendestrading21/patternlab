@@ -1,0 +1,22 @@
+{
+  "id": "concept.la-taille-de-position",
+  "slug": "la-taille-de-position",
+  "title": "La taille de position",
+  "category": "risk",
+  "skillId": null,
+  "difficulty": "beginner",
+  "definition": "La taille se déduit du risque par position et de la distance au stop : c’est le risque qui dimensionne la position, pas l’inverse.",
+  "commonMistake": null,
+  "sources": [
+    "WMB — Méthode : Taille de position"
+  ],
+  "status": "needsReview",
+  "locale": "fr",
+  "disclaimer": "Contenu éducatif. Aucun conseil en investissement, aucun signal, aucune promesse de gain.",
+  "origin": {
+    "sourcePath": "scripts/import-app/source/concepts.json",
+    "sourceHash": "ed529aad",
+    "importedAt": "2026-07-18T10:44:52.521Z",
+    "migrationVersion": 1
+  }
+}

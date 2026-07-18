@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PatternLab Concept (import APP/WMB)",
+  "type": "object",
+  "required": ["id", "slug", "title", "category", "definition", "status", "locale", "origin"],
+  "additionalProperties": true,
+  "properties": {
+    "id": { "type": "string", "pattern": "^concept\\." },
+    "slug": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "category": { "enum": ["chandeliers", "tendance", "figures", "risk", "psychologie"] },
+    "skillId": { "type": ["string", "null"] },
+    "difficulty": { "enum": ["beginner", "intermediate", "advanced"] },
+    "definition": { "type": "string", "minLength": 1 },
+    "commonMistake": { "type": ["string", "null"] },
+    "sources": { "type": "array", "items": { "type": "string" } },
+    "status": {
+      "enum": ["imported", "draft", "needsReview", "approved", "published", "archived"]
+    },
+    "locale": { "const": "fr" },
+    "disclaimer": { "type": "string" },
+    "origin": {
+      "type": "object",
+      "required": ["sourcePath", "sourceHash", "importedAt", "migrationVersion"],
+      "properties": {
+        "sourcePath": { "type": "string", "minLength": 1 },
+        "sourceHash": { "type": "string", "pattern": "^[0-9a-f]{8}$" },
+        "importedAt": { "type": "string" },
+        "migrationVersion": { "type": "integer", "minimum": 1 }
+      }
+    }
+  }
+}
