@@ -2,14 +2,17 @@ import { useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, Chip, ProgressBar, theme } from '@/design-system';
 import { useReducedMotion, CharacterAnimationController } from '@/characters';
-import { useProgress, DEMO_SKILL, OBJECTIVES, LEVELS, TOPICS } from '@/data';
+import { useProgress, DEMO_SKILL, OBJECTIVES, LEVELS, TOPICS, MASTERY_LABEL } from '@/data';
+import { masteryStatus } from '@/engines/learning';
 import { DISCLAIMER } from '@/lib/config';
 
 export default function Profil() {
   const router = useRouter();
   const { state, profile, reset } = useProgress();
   const reduced = useReducedMotion();
-  const mastery = state?.skills[DEMO_SKILL.id]?.mastery ?? 0;
+  const demoProgress = state?.skills[DEMO_SKILL.id];
+  const mastery = demoProgress?.mastery ?? 0;
+  const status = demoProgress ? masteryStatus(demoProgress) : 'new';
   const objectiveLabel = OBJECTIVES.find((o) => o.value === profile?.objective)?.label;
   const levelLabel = LEVELS.find((l) => l.value === profile?.level)?.label;
 
@@ -74,7 +77,12 @@ export default function Profil() {
       </Card>
 
       <Card>
-        <Text variant="title">{DEMO_SKILL.name}</Text>
+        <View style={styles.skillHead}>
+          <Text variant="title" style={styles.flex1}>
+            {DEMO_SKILL.name}
+          </Text>
+          <Chip label={MASTERY_LABEL[status]} color={theme.colors.primary} />
+        </View>
         <View style={styles.masteryRow}>
           <ProgressBar value={mastery} accessibilityLabel="Maîtrise" />
         </View>
@@ -134,6 +142,8 @@ const styles = StyleSheet.create({
   stats: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.lg, marginTop: theme.spacing.sm },
   stat: { flexBasis: '40%', gap: 2 },
   masteryRow: { marginVertical: theme.spacing.sm },
+  skillHead: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+  flex1: { flex: 1 },
   profileRows: { gap: theme.spacing.xs, marginVertical: theme.spacing.sm },
   profileRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   topicChips: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, marginBottom: theme.spacing.sm },

@@ -20,7 +20,7 @@ export interface ProgressState {
   schemaVersion: number;
 }
 
-export const PROGRESS_SCHEMA_VERSION = 2;
+export const PROGRESS_SCHEMA_VERSION = 3;
 
 export interface ProgressRepository {
   load(): Promise<ProgressState | null>;
@@ -36,6 +36,14 @@ function migrateSkills(raw: unknown, now: number): Record<string, SkillProgress>
   for (const [id, value] of Object.entries(raw as Record<string, unknown>)) {
     const s = (value ?? {}) as Partial<SkillProgress>;
     const review = s.review;
+    // errorTags (schéma v3) : ne garder que les entrées {string: number ≥ 0}.
+    const rawTags = s.errorTags;
+    const errorTags: Record<string, number> = {};
+    if (rawTags && typeof rawTags === 'object') {
+      for (const [tag, n] of Object.entries(rawTags as Record<string, unknown>)) {
+        if (typeof n === 'number' && Number.isFinite(n) && n > 0) errorTags[tag] = n;
+      }
+    }
     out[id] = {
       skillId: typeof s.skillId === 'string' ? s.skillId : id,
       xp: typeof s.xp === 'number' && s.xp >= 0 ? s.xp : 0,
@@ -45,6 +53,7 @@ function migrateSkills(raw: unknown, now: number): Record<string, SkillProgress>
         review && typeof review.dueAt === 'number' && typeof review.easiness === 'number'
           ? review
           : initialReview(now),
+      errorTags,
     };
   }
   return out;

@@ -1,7 +1,7 @@
 # État du projet
 
 ## Date
-2026-07-17 — **LOT 8 — Laboratoire interactif** terminé (après LOT 0 → LOT 7),
+2026-07-17 — **LOT 9 — Maîtrise adaptative** terminé (après LOT 0 → LOT 8),
 skill `patternlab-product-growth`, sur la base des lots P0/P1 précédents.
 
 ## Branche / commit
@@ -98,8 +98,17 @@ Prototype interactif + benchmark, sans régression, toutes validations vertes :
 - **Premier scénario « trace le support »** : validation avec tolérance, **correction visuelle** (ligne cible + feedback Toto/Bobo), réinitialisation. Analytics `lab_started`/`lab_completed`.
 - Voir **ADR-014**.
 
+## LOT 9 — Maîtrise adaptative (ce lot)
+Statuts + errorTags + migration v3, sans régression, toutes validations vertes :
+- **Statut de maîtrise** pur `masteryStatus` : new → learning → fragile → reviewing → strong → mastered (dérivé de mastery/confidence/rappels, jamais d'une seule réponse). Testé.
+- **errorTags** sur `SkillProgress` : sur mauvaise réponse, la session enregistre l'id de l'exercice (`recordAnswer(..., tag)`) ; `errorCount` agrège. La révision est déjà rapprochée par le moteur (échec → dueAt = now).
+- **Migration v3** (`PROGRESS_SCHEMA_VERSION = 3`) : `errorTags = {}` par défaut (v2 → v3 sans perte), assainissement des entrées. Testée.
+- **Surfaçage** : chip de statut + « X erreurs à retravailler » dans Révisions ; chip de statut dans Profil.
+- Voir **ADR-015**.
+
 ## Partiel
 - Lottie : dépendance + point d'intégration prêts ; rendu figures/SVG en attendant (ADR-005).
+- Adaptation intra-session (re-séquencement des exercices ratés) : à affiner ; la base errorTags + révision rapprochée est en place.
 - Labo : un scénario (support) ; zoom/pan, zone rectangulaire, volume et replay à venir (base `interactive.ts` extensible).
 - Formats restants (drag_drop, draw_level, place_invalidation, reconstruct_ohlc, candle_replay, timed_challenge, compare_setups) : à brancher progressivement (garde-fou actif).
 - Flashcards rendues dans la leçon ; leur surfaçage en révision autonome viendra avec un lot ultérieur.
@@ -114,12 +123,12 @@ Prototype interactif + benchmark, sans régression, toutes validations vertes :
 - Aucun connu (voir sorties lint / typecheck / test / validate:content / build web).
 
 ## Absent (par design, lots suivants)
-- Maîtrise adaptative (errorTags), import APP pilote, monétisation, analytics étendus, offline complet, accessibilité complète, release (lots 9→19 du skill `patternlab-product-growth`).
+- Toto/Bobo V2 (registre d'assets), import APP pilote, monétisation, analytics étendus, offline complet, accessibilité complète, release (lots 10→19 du skill `patternlab-product-growth`).
 - Builds device iOS/Android (EAS + comptes Apple/Google).
 
 ## Prochaine priorité
-**Lot 9 — Maîtrise adaptative** (statuts new→mastered, confidence, errorTags, adaptation
-du prochain exercice après erreur ; schemaVersion + migration), puis Lot 10 — Toto/Bobo V2.
+**Lot 10 — Toto/Bobo V2** (registre d'assets, états, fréquence contrôlée, respect du
+reduced motion), puis Lot 11 — Migration APP pilote.
 
 ## Risques
 - Conteneur éphémère : commit local présent ; pousser après accord pour ne rien perdre.

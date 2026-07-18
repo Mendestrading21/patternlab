@@ -61,6 +61,17 @@ describe('progressLogic.recordAnswer', () => {
     expect(s.totalXp).toBe(100);
     expect(s.level).toBe(2);
   });
+
+  it('enregistre un errorTag sur mauvaise réponse (pas sur bonne réponse)', () => {
+    let s = recordAnswer(base(), 'skill.a', 2, T0, 'ex.1');
+    expect(s.skills['skill.a'].errorTags).toEqual({ 'ex.1': 1 });
+    // bonne réponse : aucun errorTag ajouté
+    s = recordAnswer(s, 'skill.a', 5, T0 + 1000, 'ex.2');
+    expect(s.skills['skill.a'].errorTags).toEqual({ 'ex.1': 1 });
+    // nouvelle erreur sur le même tag → incrémente
+    s = recordAnswer(s, 'skill.a', 1, T0 + 2000, 'ex.1');
+    expect(s.skills['skill.a'].errorTags).toEqual({ 'ex.1': 2 });
+  });
 });
 
 describe('progressLogic.completeSession', () => {

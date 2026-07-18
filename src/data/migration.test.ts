@@ -52,4 +52,21 @@ describe('migrateProgress', () => {
     expect(m.totalXp).toBe(0);
     expect(m.completedSkills).toEqual(['skill.a', 'skill.b']);
   });
+
+  it('schéma v3 : errorTags par défaut {} et assainis', () => {
+    // ancien état v2 sans errorTags → {}
+    const legacy = migrateProgress(
+      { schemaVersion: 2, totalXp: 0, skills: { 'skill.a': { xp: 5, review: { dueAt: T0, easiness: 2.5 } } } },
+      T0,
+    )!;
+    expect(legacy.schemaVersion).toBe(PROGRESS_SCHEMA_VERSION);
+    expect(legacy.skills['skill.a'].errorTags).toEqual({});
+
+    // errorTags v3 : ne garde que les entiers positifs
+    const m = migrateProgress(
+      { totalXp: 0, skills: { 'skill.a': { xp: 0, review: { dueAt: T0, easiness: 2.5 }, errorTags: { ex1: 2, ex2: 0, ex3: -1, ex4: 'x' } } } },
+      T0,
+    )!;
+    expect(m.skills['skill.a'].errorTags).toEqual({ ex1: 2 });
+  });
 });

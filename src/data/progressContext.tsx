@@ -14,7 +14,7 @@ interface ProgressContextValue {
   markOnboarded: () => void;
   /** Enregistre le profil personnalisé ET marque l'onboarding terminé. */
   completeOnboarding: (profile: OnboardingProfile) => void;
-  recordAnswer: (skillId: string, grade: Grade) => void;
+  recordAnswer: (skillId: string, grade: Grade, tag?: string) => void;
   /** `passed` : la session est-elle réussie ? Seule une réussite débloque la compétence. */
   completeSession: (skillId?: string, passed?: boolean) => void;
   reset: () => void;
@@ -73,10 +73,10 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const recordAnswer = useCallback((skillId: string, grade: Grade) => {
+  const recordAnswer = useCallback((skillId: string, grade: Grade, tag?: string) => {
     setState((prev) => {
       if (!prev) return prev;
-      const next = progressLogic.recordAnswer(prev, skillId, grade, Date.now());
+      const next = progressLogic.recordAnswer(prev, skillId, grade, Date.now(), tag);
       void progressRepository.save(next);
       analytics.track('exercise_answered', { skillId, grade });
       return next;

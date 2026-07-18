@@ -11,6 +11,8 @@ import {
   xpForGrade,
   coinsForGrade,
   levelForXp,
+  masteryStatus,
+  errorCount,
 } from './spacedRepetition';
 
 const T0 = 1_700_000_000_000; // timestamp fixe et reproductible
@@ -90,5 +92,30 @@ describe('barème de récompense (source unique de vérité)', () => {
     expect(levelForXp(100)).toBe(2);
     expect(levelForXp(350)).toBe(4);
     expect(levelForXp(-50)).toBe(1);
+  });
+});
+
+describe('maîtrise adaptative', () => {
+  const sp = (over: Partial<import('./spacedRepetition').SkillProgress> = {}) => ({
+    skillId: 's',
+    xp: 0,
+    mastery: 0,
+    confidence: 0,
+    review: { repetitions: 0, easiness: 2.5, intervalDays: 0, dueAt: 0 },
+    ...over,
+  });
+
+  it('masteryStatus suit l’échelle new → mastered', () => {
+    expect(masteryStatus(sp())).toBe('new');
+    expect(masteryStatus(sp({ mastery: 0.2 }))).toBe('learning');
+    expect(masteryStatus(sp({ mastery: 0.6, confidence: 0.2 }))).toBe('fragile');
+    expect(masteryStatus(sp({ mastery: 0.6, confidence: 0.6 }))).toBe('reviewing');
+    expect(masteryStatus(sp({ mastery: 0.85, review: { repetitions: 2, easiness: 2.5, intervalDays: 6, dueAt: 0 } }))).toBe('strong');
+    expect(masteryStatus(sp({ mastery: 0.85, review: { repetitions: 3, easiness: 2.5, intervalDays: 15, dueAt: 0 } }))).toBe('mastered');
+  });
+
+  it('errorCount somme les errorTags (0 si absent)', () => {
+    expect(errorCount(sp())).toBe(0);
+    expect(errorCount(sp({ errorTags: { a: 2, b: 1 } }))).toBe(3);
   });
 });

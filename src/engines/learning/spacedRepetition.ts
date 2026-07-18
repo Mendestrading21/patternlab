@@ -30,14 +30,19 @@ export interface SkillProgress {
   /** 0 → 1. */
   confidence: number;
   review: ReviewState;
+  /** Erreurs récurrentes : tag (id d'exercice/concept) → nombre d'échecs. */
+  errorTags?: Record<string, number>;
 }
+
+/** Statut de maîtrise dérivé (échelle pédagogique). */
+export type MasteryStatus = 'new' | 'learning' | 'fragile' | 'reviewing' | 'strong' | 'mastered';
 
 export function initialReview(now: number): ReviewState {
   return { repetitions: 0, easiness: 2.5, intervalDays: 0, dueAt: now };
 }
 
 export function initialProgress(skillId: string, now: number): SkillProgress {
-  return { skillId, xp: 0, mastery: 0, confidence: 0, review: initialReview(now) };
+  return { skillId, xp: 0, mastery: 0, confidence: 0, review: initialReview(now), errorTags: {} };
 }
 
 function clamp01(n: number): number {
@@ -103,6 +108,26 @@ export function applyGrade(progress: SkillProgress, grade: Grade, now: number): 
 /** Une compétence est maîtrisée après plusieurs rappels réussis ET une mastery haute. */
 export function isMastered(progress: SkillProgress): boolean {
   return progress.review.repetitions >= 3 && progress.mastery >= 0.8;
+}
+
+/**
+ * Statut de maîtrise (dépend de plusieurs réponses/rappels, pas d'un seul).
+ * Échelle : new → learning → fragile / reviewing → strong → mastered.
+ * `fragile` = maîtrise moyenne mais confiance (stabilité) faible.
+ */
+export function masteryStatus(progress: SkillProgress): MasteryStatus {
+  if (isMastered(progress)) return 'mastered';
+  const { mastery, confidence, review } = progress;
+  if (mastery >= 0.8) return 'strong';
+  if (mastery >= 0.5) return confidence >= 0.5 ? 'reviewing' : 'fragile';
+  if (mastery > 0 || review.repetitions > 0) return 'learning';
+  return 'new';
+}
+
+/** Nombre total d'erreurs récurrentes enregistrées pour une compétence. */
+export function errorCount(progress: SkillProgress): number {
+  const tags = progress.errorTags;
+  return tags ? Object.values(tags).reduce((a, b) => a + b, 0) : 0;
 }
 
 export function isDue(state: ReviewState, now: number): boolean {

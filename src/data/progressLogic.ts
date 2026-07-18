@@ -40,9 +40,16 @@ export function recordAnswer(
   skillId: string,
   grade: Grade,
   now: number,
+  /** Tag d'erreur (id d'exercice/concept) à enregistrer si la réponse est fausse. */
+  tag?: string,
 ): ProgressState {
   const current: SkillProgress = state.skills[skillId] ?? initialProgress(skillId, now);
-  const updated = applyGrade(current, grade, now);
+  let updated = applyGrade(current, grade, now);
+  // Erreur → errorTag (concept à retravailler) + révision déjà rapprochée par le moteur.
+  if (grade < 3 && tag) {
+    const tags = updated.errorTags ?? {};
+    updated = { ...updated, errorTags: { ...tags, [tag]: (tags[tag] ?? 0) + 1 } };
+  }
   const xpDelta = updated.xp - current.xp;
   const totalXp = state.totalXp + xpDelta;
   return {

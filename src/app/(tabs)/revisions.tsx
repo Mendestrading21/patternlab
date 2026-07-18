@@ -1,8 +1,8 @@
 import { useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, ProgressBar, Chip, StateView, theme } from '@/design-system';
-import { useProgress, SKILLS, selectDueReviews } from '@/data';
-import { isDue } from '@/engines/learning';
+import { useProgress, SKILLS, selectDueReviews, MASTERY_LABEL } from '@/data';
+import { isDue, masteryStatus, errorCount, type MasteryStatus } from '@/engines/learning';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -11,6 +11,15 @@ function nextReviewLabel(dueAt: number, now: number): string {
   const days = Math.ceil((dueAt - now) / DAY_MS);
   return days <= 1 ? 'Demain' : `Dans ${days} jours`;
 }
+
+const STATUS_COLOR: Record<MasteryStatus, string> = {
+  new: theme.colors.textMuted,
+  learning: theme.colors.technical,
+  fragile: theme.colors.warning,
+  reviewing: theme.colors.technical,
+  strong: theme.colors.bullish,
+  mastered: theme.colors.primary,
+};
 
 export default function Revisions() {
   const router = useRouter();
@@ -71,23 +80,32 @@ export default function Revisions() {
           const sp = state.skills[s.id];
           const mastery = sp?.mastery ?? 0;
           const dueNow = sp ? isDue(sp.review, now) : false;
+          const status = sp ? masteryStatus(sp) : 'new';
+          const errors = sp ? errorCount(sp) : 0;
           return (
             <Card key={s.id}>
               <View style={styles.row}>
                 <Text variant="title" style={styles.flex1}>
                   {s.name}
                 </Text>
-                <Chip
-                  label={dueNow ? 'À réviser' : nextReviewLabel(sp?.review.dueAt ?? now, now)}
-                  color={dueNow ? theme.colors.warning : theme.colors.neutral}
-                />
+                <Chip label={MASTERY_LABEL[status]} color={STATUS_COLOR[status]} />
               </View>
               <View style={styles.masteryRow}>
                 <ProgressBar value={mastery} accessibilityLabel={`Maîtrise ${Math.round(mastery * 100)} %`} />
               </View>
-              <Text variant="caption" color={theme.colors.textMuted}>
-                Maîtrise : {Math.round(mastery * 100)} %
-              </Text>
+              <View style={styles.metaRow}>
+                <Text variant="caption" color={theme.colors.textMuted} style={styles.flex1}>
+                  Maîtrise : {Math.round(mastery * 100)} %
+                </Text>
+                <Text variant="caption" color={dueNow ? theme.colors.warning : theme.colors.textMuted}>
+                  {dueNow ? 'À réviser' : nextReviewLabel(sp?.review.dueAt ?? now, now)}
+                </Text>
+              </View>
+              {errors > 0 ? (
+                <Text variant="caption" color={theme.colors.bearish}>
+                  🚩 {errors} erreur{errors > 1 ? 's' : ''} à retravailler — une révision les reprogramme.
+                </Text>
+              ) : null}
             </Card>
           );
         })
@@ -105,6 +123,7 @@ export default function Revisions() {
 const styles = StyleSheet.create({
   dueCard: { borderColor: theme.colors.warning },
   row: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
   flex1: { flex: 1 },
   masteryRow: { marginVertical: theme.spacing.sm },
 });

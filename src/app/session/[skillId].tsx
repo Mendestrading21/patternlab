@@ -55,7 +55,8 @@ export default function Session() {
     const graded = gradeExercise(exercise, answer);
     setResult(graded);
     if (graded.correct) setCorrect((c) => c + 1);
-    recordAnswer(exercise.skillId, graded.correct ? 5 : 2);
+    // Erreur → errorTag = id de l'exercice (concept à retravailler ; révision rapprochée).
+    recordAnswer(exercise.skillId, graded.correct ? 5 : 2, graded.correct ? undefined : exercise.id);
     analytics.track('feedback_viewed', { exerciseId: exercise.id, correct: graded.correct });
   };
 
