@@ -14,6 +14,8 @@ export type AnalyticsEvent =
   | 'streak_updated'
   | 'path_node_unlocked'
   | 'checkpoint_completed'
+  | 'lab_started'
+  | 'lab_completed'
   | 'paywall_viewed'
   | 'subscription_started'
   | 'app_error';
@@ -33,6 +35,8 @@ export const ANALYTICS_EVENTS: AnalyticsEvent[] = [
   'streak_updated',
   'path_node_unlocked',
   'checkpoint_completed',
+  'lab_started',
+  'lab_completed',
   'paywall_viewed',
   'subscription_started',
   'app_error',

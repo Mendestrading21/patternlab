@@ -1,7 +1,7 @@
 # État du projet
 
 ## Date
-2026-07-17 — **LOT 7 — Exercices avancés** terminé (après LOT 0 → LOT 6),
+2026-07-17 — **LOT 8 — Laboratoire interactif** terminé (après LOT 0 → LOT 7),
 skill `patternlab-product-growth`, sur la base des lots P0/P1 précédents.
 
 ## Branche / commit
@@ -90,8 +90,17 @@ Deux nouveaux formats branchés (grader pur + renderer + tests), sans régressio
 - Contenu pilote : `select_chart_zone` (skill.trend), `scenario` (skill.patterns) ; libellés de format dans la session.
 - **9 formats** branchés (les formats à tracé/replay relèvent du Lot 8). Voir **ADR-013**.
 
+## LOT 8 — Laboratoire interactif (ce lot)
+Prototype interactif + benchmark, sans régression, toutes validations vertes :
+- **Benchmark moteur graphique** (react-native-svg / Skia / Canvas) → **ADR-014** : rester sur `react-native-svg` (aucune dépendance ajoutée) ; logique d'échelle **extraite en fonctions pures** → un futur Skia ne réécrira que le renderer.
+- **Cœur interactif pur** `interactive.ts` : échelle prix↔Y, support/résistance cibles, tolérance — testés.
+- **`InteractiveChart`** (SVG) : tracé d'un niveau horizontal au **tap** (souris/touch) **ou** aux flèches ↑/↓ (accessible / fallback gestes).
+- **Premier scénario « trace le support »** : validation avec tolérance, **correction visuelle** (ligne cible + feedback Toto/Bobo), réinitialisation. Analytics `lab_started`/`lab_completed`.
+- Voir **ADR-014**.
+
 ## Partiel
 - Lottie : dépendance + point d'intégration prêts ; rendu figures/SVG en attendant (ADR-005).
+- Labo : un scénario (support) ; zoom/pan, zone rectangulaire, volume et replay à venir (base `interactive.ts` extensible).
 - Formats restants (drag_drop, draw_level, place_invalidation, reconstruct_ohlc, candle_replay, timed_challenge, compare_setups) : à brancher progressivement (garde-fou actif).
 - Flashcards rendues dans la leçon ; leur surfaçage en révision autonome viendra avec un lot ultérieur.
 - Parcours : un seul monde/module pour l'instant ; l'ajout de mondes ne demandera pas de réécrire la carte (contenu piloté).
@@ -105,12 +114,12 @@ Deux nouveaux formats branchés (grader pur + renderer + tests), sans régressio
 - Aucun connu (voir sorties lint / typecheck / test / validate:content / build web).
 
 ## Absent (par design, lots suivants)
-- Laboratoire graphique interactif (tracé/replay), maîtrise adaptative, import APP pilote, monétisation, analytics étendus, offline complet (lots 8→19 du skill `patternlab-product-growth`).
+- Maîtrise adaptative (errorTags), import APP pilote, monétisation, analytics étendus, offline complet, accessibilité complète, release (lots 9→19 du skill `patternlab-product-growth`).
 - Builds device iOS/Android (EAS + comptes Apple/Google).
 
 ## Prochaine priorité
-**Lot 8 — Laboratoire interactif** (benchmark moteur graphique, ADR, prototype, tracé de
-niveaux/zones et premier scénario), puis Lot 9 — Maîtrise adaptative.
+**Lot 9 — Maîtrise adaptative** (statuts new→mastered, confidence, errorTags, adaptation
+du prochain exercice après erreur ; schemaVersion + migration), puis Lot 10 — Toto/Bobo V2.
 
 ## Risques
 - Conteneur éphémère : commit local présent ; pousser après accord pour ne rien perdre.

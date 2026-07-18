@@ -1,51 +1,130 @@
+import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, Chip, theme } from '@/design-system';
 import { CharacterScene } from '@/characters';
-import { PatternChart, generateCandles } from '@/engines/pattern';
+import {
+  InteractiveChart,
+  generateCandles,
+  priceScale,
+  supportLevel,
+  isLevelClose,
+} from '@/engines/pattern';
 import { DEMO_PATTERN } from '@/data';
+import { analytics } from '@/analytics';
 
 export default function Laboratoire() {
   const router = useRouter();
   const candles = generateCandles(2024, 30);
-  const bullish = DEMO_PATTERN.direction === 'bullish';
+  const scale = priceScale(candles, 170);
+  const target = supportLevel(candles);
+  const step = scale.range * 0.02;
+
+  const [userPrice, setUserPrice] = useState<number | null>(null);
+  const [revealed, setRevealed] = useState(false);
+
+  useEffect(() => {
+    analytics.track('lab_started', { scenario: 'trace_support' });
+  }, []);
+
+  const close = revealed && userPrice != null && isLevelClose(userPrice, target, scale.range);
+
+  const pick = (price: number) => {
+    setUserPrice(price);
+    setRevealed(false);
+  };
+  const nudge = (dir: -1 | 1) => {
+    setRevealed(false);
+    setUserPrice((p) => {
+      const base = p ?? (scale.min + scale.max) / 2;
+      return Math.max(scale.min, Math.min(scale.max, base + dir * step));
+    });
+  };
+  const validate = () => {
+    if (userPrice == null) return;
+    setRevealed(true);
+    analytics.track('lab_completed', { scenario: 'trace_support', success: isLevelClose(userPrice, target, scale.range) });
+  };
+  const reset = () => {
+    setUserPrice(null);
+    setRevealed(false);
+  };
 
   return (
     <Screen>
       <Text variant="h1">Laboratoire 🧪</Text>
       <Text variant="body" color={theme.colors.textSecondary}>
-        Observe un graphique et repère la figure. Ici, tout est un scénario pédagogique —
-        aucun conseil, aucun signal.
+        Manipule un vrai graphique. Ici, tout est un scénario pédagogique — aucun conseil,
+        aucun signal.
       </Text>
 
       <Card elevated>
         <View style={styles.chartHead}>
-          <Text variant="title">{DEMO_PATTERN.name}</Text>
-          <Chip
-            label={bullish ? 'Setup haussier' : 'Setup baissier'}
-            color={bullish ? theme.colors.bullish : theme.colors.bearish}
-          />
-        </View>
-        <Text variant="caption" color={theme.colors.textMuted}>
-          Chandeliers · données de démonstration déterministes
-        </Text>
-        <View style={styles.chart}>
-          <PatternChart candles={candles} width={320} height={170} />
+          <Text variant="title">Scénario : trace le support</Text>
+          <Chip label="niveau" color={theme.colors.technical} />
         </View>
         <Text variant="body" color={theme.colors.textSecondary}>
-          {DEMO_PATTERN.definition}
+          Le support est le plancher où les acheteurs reviennent. Touche le graphique (ou
+          les flèches) pour poser ta ligne à ce niveau, puis valide.
         </Text>
+
+        <View style={styles.chart}>
+          <InteractiveChart
+            candles={candles}
+            width={300}
+            height={170}
+            userPrice={userPrice}
+            targetPrice={revealed ? target : null}
+            disabled={revealed}
+            onPickPrice={pick}
+          />
+        </View>
+
+        <View style={styles.legendRow}>
+          {userPrice != null ? <Chip label={`Ton niveau : ${userPrice.toFixed(0)}`} color={theme.colors.technical} /> : null}
+          {revealed ? <Chip label={`Support réel : ${target.toFixed(0)}`} color={theme.colors.bullish} /> : null}
+        </View>
+
+        <View style={styles.controls}>
+          <Button label="↑ Monter" variant="secondary" fullWidth={false} disabled={revealed} onPress={() => nudge(1)} accessibilityHint="Monter le niveau" />
+          <Button label="↓ Descendre" variant="secondary" fullWidth={false} disabled={revealed} onPress={() => nudge(-1)} accessibilityHint="Descendre le niveau" />
+        </View>
+
+        {!revealed ? (
+          <Button
+            label="Valider mon tracé"
+            disabled={userPrice == null}
+            disabledReason={userPrice == null ? 'Place d’abord ta ligne sur le graphique.' : undefined}
+            onPress={validate}
+          />
+        ) : (
+          <Button label="Réessayer" variant="secondary" onPress={reset} />
+        )}
+
+        {revealed ? (
+          <CharacterScene
+            character={close ? 'toto' : 'bobo'}
+            state={close ? 'celebrate-small' : 'encourage'}
+            size={60}
+            speech={
+              close
+                ? 'Bien vu — ta ligne colle au plancher, là où la demande revient.'
+                : 'Regarde le point le plus bas : le support se pose sur ce plancher, pas au milieu.'
+            }
+          />
+        ) : null}
       </Card>
 
       <Card>
         <Text variant="label" color={theme.colors.technical}>
-          🔎 Zone de confirmation
+          🔎 À retenir
         </Text>
-        {DEMO_PATTERN.recognitionRules.map((r) => (
-          <Text key={r} variant="body" style={styles.rule}>
-            • {r}
-          </Text>
-        ))}
+        <Text variant="body" style={styles.rule}>
+          • Un support est une zone plancher, repérée par les creux les plus bas.
+        </Text>
+        <Text variant="body" style={styles.rule}>
+          • C’est un repère, pas une garantie : un support finit parfois par céder.
+        </Text>
       </Card>
 
       <Card style={styles.invalidCard}>
@@ -60,31 +139,20 @@ export default function Laboratoire() {
       </Card>
 
       <View style={styles.debate}>
-        <CharacterScene
-          character="toto"
-          state="explain"
-          size={60}
-          speech="Deux creux proches, un rebond : hypothèse haussière si la ligne de cou casse."
-        />
-        <CharacterScene
-          character="bobo"
-          state="warning"
-          size={60}
-          reversed
-          speech="Et si le prix repasse sous le second creux ? Là, la figure est invalidée."
-        />
+        <CharacterScene character="toto" state="explain" size={60} speech="Un support tient tant que les acheteurs défendent le plancher." />
+        <CharacterScene character="bobo" state="warning" size={60} reversed speech="Mais s’il casse nettement, le plancher devient un plafond." />
       </View>
 
       <Button
         label="Voir la leçon — Le double creux"
+        variant="secondary"
         onPress={() => router.push('/lesson/lesson.double-bottom')}
         accessibilityHint="Ouvrir la leçon associée"
       />
       <Button
-        label="Tracer & comparer sur le graphique"
-        variant="secondary"
+        label="Tracé de zones & replay"
         disabled
-        disabledReason="Tracé de niveaux, zones et invalidation interactifs : au Lot 8 (laboratoire complet)."
+        disabledReason="Zone rectangulaire, volume et replay interactifs : prochaines itérations du laboratoire."
       />
     </Screen>
   );
@@ -93,6 +161,8 @@ export default function Laboratoire() {
 const styles = StyleSheet.create({
   chartHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   chart: { alignItems: 'center', marginVertical: theme.spacing.md },
+  legendRow: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, marginBottom: theme.spacing.sm },
+  controls: { flexDirection: 'row', gap: theme.spacing.sm, marginBottom: theme.spacing.sm },
   rule: { marginTop: theme.spacing.xs },
   invalidCard: { borderColor: theme.colors.bearish },
   debate: { gap: theme.spacing.md },
