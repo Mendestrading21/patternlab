@@ -1,7 +1,7 @@
 # État du projet
 
 ## Date
-2026-07-18 — **LOT 16 — Analytics étendus** terminé (après LOT 0 → LOT 15),
+2026-07-18 — **LOT 17 — Offline complet** terminé (après LOT 0 → LOT 16),
 skill `patternlab-product-growth`, sur la base des lots P0/P1 précédents.
 
 ## Branche / commit
@@ -164,6 +164,13 @@ Couche typée, indépendante du fournisseur, privacy-first, sans régression, to
 - **Évènements câblés** : app_opened, glossary_searched (longueur seulement), concept_viewed, daily_mission_started, mastery_changed.
 - Vérifié en pilotant Chromium (console dev) : `glossary_searched {queryLength: 10, …}` sans le texte brut ; consentement coupé → 0 évènement diffusé. Voir **ADR-022**.
 
+## LOT 17 — Offline complet (ce lot)
+Connectivité branchable + local-first assumé, sans régression, toutes validations vertes :
+- **Connectivité branchable et testée** `src/lib/connectivity.ts` : `ConnectivityStore` (magasin observable pur, ne notifie que sur changement réel), `bindPlatformSource` (web `navigator.onLine` + événements ; natif supposé en ligne, NetInfo en drop-in sans changer les appelants), singleton + hook `useConnectivity()`. Remplace `useIsOnline` (supprimé) ; bandeau global migré.
+- **Disponibilité hors-ligne garantie et visible** `src/data/offline.ts` : `offlineCapabilities()` (pur) résume le contenu embarqué (compétences/leçons/exercices/glossaire/badges) + `contentReady`/`progressLocal`. Testé (tout le parcours dispo sans réseau). Carte « Mode hors-ligne » dans le Profil avec statut de connexion en direct.
+- **Un vrai garde-fou réseau** : sur le paywall, « Activer »/« Restaurer » désactivés hors-ligne avec raison explicite (« Connexion requise pour finaliser un achat ») — modélise le futur achat réel. Le reste de l'app reste pleinement utilisable hors-ligne (zéro bouton mort).
+- Vérifié en pilotant Chromium (offline réel via `setOffline`) : bandeau hors-ligne apparaît/disparaît, statut Profil bascule En ligne/Hors ligne, CTA d'achat gaté hors-ligne, navigation + apprentissage OK sans réseau. Voir **ADR-023**.
+
 ## Partiel
 - Gamification : quêtes du jour + jalons de série + détection de badge obtenu en place. La **célébration visuelle** (toast/modale à l'obtention) est encore réduite à l'analytics `achievement_unlocked` ; l'écran Réussites reste le lieu de constat. Quêtes hebdomadaires et coffres non couverts (base extensible).
 - Lottie : dépendance + point d'intégration prêts ; rendu figures/SVG en attendant (ADR-005).
@@ -173,7 +180,7 @@ Couche typée, indépendante du fournisseur, privacy-first, sans régression, to
 - Formats restants (drag_drop, draw_level, place_invalidation, reconstruct_ohlc, candle_replay, timed_challenge, compare_setups) : à brancher progressivement (garde-fou actif).
 - Flashcards rendues dans la leçon ; leur surfaçage en révision autonome viendra avec un lot ultérieur.
 - Parcours : un seul monde/module pour l'instant ; l'ajout de mondes ne demandera pas de réécrire la carte (contenu piloté).
-- Détection hors-ligne native (iOS/Android) différée (web opérationnel) — `@react-native-community/netinfo` dans un lot ultérieur.
+- Détection réseau : abstraction branchable en place (web opérationnel, natif supposé en ligne). La source native `@react-native-community/netinfo` reste à brancher (drop-in, sans changer les appelants). File de synchronisation vers un backend : non nécessaire (local-first, aucun backend) — l'entitlement/achat réel restera le seul point réseau.
 - Laboratoire : aperçu lisible ; tracé/comparaison/replay interactifs au Lot 8.
 - Exercices : 9 formats sur 12 branchés (restent : drag_drop, draw_level, timed — + variantes replay/OHLC).
 - Contenu : ~8 leçons / ~20 exercices — à étoffer vers 30-40 leçons / 100-150 exercices.
@@ -183,16 +190,17 @@ Couche typée, indépendante du fournisseur, privacy-first, sans régression, to
 - Aucun connu (voir sorties lint / typecheck / test / validate:content / build web).
 
 ## Absent (par design, lots suivants)
-- Offline complet, accessibilité complète, release readiness (lots 17→19 du skill `patternlab-product-growth`).
+- Accessibilité complète, release readiness (lots 18→19 du skill `patternlab-product-growth`).
 - Builds device iOS/Android (EAS + comptes Apple/Google).
 
 ## Prochaine priorité
-**Lot 17 — Offline complet** (détection réseau native iOS/Android, mise en cache du
-contenu, file d'attente de synchronisation de la progression, états hors-ligne robustes),
-puis Lot 18 — Accessibilité complète. Le branchement d'un vrai fournisseur analytics et
-d'un magasin d'app (StoreKit / Play Billing) reste conditionné à une autorisation
-explicite. Célébration visuelle des réussites, historique 30 jours, écran « journal
-analytics » (dev) et branchement des 18 concepts importés (après revue) restent ouverts.
+**Lot 18 — Accessibilité complète** (audit lecteurs d'écran, focus clavier web,
+tailles de police dynamiques, cibles tactiles, contrastes sur tous les états, alternatives
+aux gestes), puis Lot 19 — Release readiness. Le branchement de la source native NetInfo,
+d'un vrai fournisseur analytics et d'un magasin d'app (StoreKit / Play Billing) reste
+conditionné à une autorisation explicite. Célébration visuelle des réussites, historique
+30 jours, écran « journal analytics » (dev) et branchement des 18 concepts importés (après
+revue) restent ouverts.
 
 ## Risques
 - Conteneur éphémère : commit local présent ; pousser après accord pour ne rien perdre.

@@ -5,13 +5,13 @@ import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { ErrorBoundary } from '@/lib/errors';
-import { useIsOnline } from '@/lib/useIsOnline';
+import { useConnectivity } from '@/lib/connectivity';
 import { ProgressProvider } from '@/data';
 import { OfflineBanner, theme } from '@/design-system';
 
 /** Bandeau hors-ligne global, sous la barre d'état. Ne prend de place que hors ligne. */
 function OfflineGate() {
-  const online = useIsOnline();
+  const online = useConnectivity();
   if (online) return null;
   return (
     <SafeAreaView edges={['top']} style={styles.offlineSafe}>

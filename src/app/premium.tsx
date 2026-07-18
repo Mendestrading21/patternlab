@@ -12,6 +12,7 @@ import {
   planById,
   type PlanId,
 } from '@/data';
+import { useConnectivity } from '@/lib/connectivity';
 import { analytics } from '@/analytics';
 
 function priceLabel(price: number): string {
@@ -21,6 +22,7 @@ function priceLabel(price: number): string {
 export default function Premium() {
   const router = useRouter();
   const { premium, activatePremium, deactivatePremium, restorePremium } = useProgress();
+  const online = useConnectivity();
   const [selected, setSelected] = useState<PlanId>('founder');
 
   useEffect(() => {
@@ -156,6 +158,8 @@ export default function Premium() {
       <Button
         label={`Activer — ${plan?.label} (démo)`}
         variant="reward"
+        disabled={!online}
+        disabledReason="Connexion requise pour finaliser un achat."
         onPress={() => activatePremium(selected)}
         accessibilityHint="Activer Premium en simulation ; aucun achat réel"
       />
@@ -164,7 +168,13 @@ export default function Premium() {
         Les prix sont des hypothèses.
       </Text>
 
-      <Button label="Restaurer un achat" variant="secondary" onPress={restorePremium} />
+      <Button
+        label="Restaurer un achat"
+        variant="secondary"
+        disabled={!online}
+        disabledReason="Connexion requise pour restaurer un achat."
+        onPress={restorePremium}
+      />
       <Button label="Plus tard" variant="ghost" onPress={() => router.back()} />
     </Screen>
   );

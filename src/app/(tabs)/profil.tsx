@@ -2,14 +2,17 @@ import { useRouter } from 'expo-router';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, Chip, ProgressBar, theme } from '@/design-system';
 import { useReducedMotion, CharacterAnimationController } from '@/characters';
-import { useProgress, DEMO_SKILL, OBJECTIVES, LEVELS, TOPICS, MASTERY_LABEL } from '@/data';
+import { useProgress, DEMO_SKILL, OBJECTIVES, LEVELS, TOPICS, MASTERY_LABEL, offlineCapabilities } from '@/data';
 import { masteryStatus } from '@/engines/learning';
+import { useConnectivity } from '@/lib/connectivity';
 import { DISCLAIMER } from '@/lib/config';
 
 export default function Profil() {
   const router = useRouter();
   const { state, profile, premium, analyticsEnabled, setAnalyticsEnabled, reset } = useProgress();
   const reduced = useReducedMotion();
+  const online = useConnectivity();
+  const offline = offlineCapabilities();
   const demoProgress = state?.skills[DEMO_SKILL.id];
   const mastery = demoProgress?.mastery ?? 0;
   const status = demoProgress ? masteryStatus(demoProgress) : 'new';
@@ -101,6 +104,26 @@ export default function Profil() {
         <Text variant="title">Accessibilité</Text>
         <Text variant="body" color={theme.colors.textSecondary}>
           Réduction des animations : {reduced ? 'activée ✅' : 'désactivée'} (réglage système).
+        </Text>
+      </Card>
+
+      <Card>
+        <View style={styles.skillHead}>
+          <Text variant="title" style={styles.flex1}>
+            Mode hors-ligne 📶
+          </Text>
+          <Chip
+            label={online ? 'En ligne' : 'Hors ligne'}
+            color={online ? theme.colors.bullish : theme.colors.textMuted}
+          />
+        </View>
+        <Text variant="body" color={theme.colors.textSecondary}>
+          PatternLab fonctionne entièrement hors-ligne. Ta progression est enregistrée sur cet
+          appareil, sans dépendance réseau.
+        </Text>
+        <Text variant="caption" color={theme.colors.textMuted}>
+          Embarqués : {offline.skills} compétences · {offline.lessons} leçons · {offline.exercises}{' '}
+          exercices · {offline.glossaryTerms} termes du glossaire.
         </Text>
       </Card>
 
