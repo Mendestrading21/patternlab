@@ -1,7 +1,7 @@
 # État du projet
 
 ## Date
-2026-07-18 — **LOT 14 — Statistiques** terminé (après LOT 0 → LOT 13),
+2026-07-18 — **LOT 15 — Monétisation** terminé (après LOT 0 → LOT 14),
 skill `patternlab-product-growth`, sur la base des lots P0/P1 précédents.
 
 ## Branche / commit
@@ -10,7 +10,7 @@ existant (`Mendestrading21/patternlab`) ; aucune poussée ni PR sans accord expl
 
 ## Fonctionnel
 - App Expo SDK 57 (iOS/Android/web) qui démarre sur **web** (vérifiée en pilotant Chromium).
-- Navigation Expo Router : Splash → Onboarding → Tabs (Accueil, Parcours, Laboratoire, Révisions, Profil) + routes Leçon, Session, Glossaire, Réussites, Statistiques.
+- Navigation Expo Router : Splash → Onboarding → Tabs (Accueil, Parcours, Laboratoire, Révisions, Profil) + routes Leçon, Session, Glossaire, Réussites, Statistiques, Premium.
 - Design system sombre premium : tokens sémantiques + primitives (Text, Button, Card, ProgressBar, Chip, AnswerOption, FeedbackPanel, Screen, EmptyState).
 - Personnages Toto (taureau vert) & Bobo (ours rouge) : figures 3D HD détourées + avatars vectoriels, via `CharacterAnimationController` (respecte « réduire les animations »).
 - Moteurs découplés : apprentissage (répétition espacée SM-2 testée), exercices (registry, 9 formats), patterns (chart SVG reproductible).
@@ -146,6 +146,15 @@ Historique d'activité + tableau de bord, sans régression, toutes validations v
 - **Écran** `/statistiques` : vue d'ensemble, **graphique d'activité 7 jours** (barres en Views pures, sans dépendance ni animation, étiquetées pour lecteurs d'écran, aujourd'hui mis en avant), maîtrise par compétence, erreurs à retravailler → bouton **Réviser**. Accessible depuis le Profil (« Voir le détail 📊 »). Analytics `stats_viewed`.
 - Vérifié en pilotant Chromium : vue d'ensemble (niv. 2, 160 XP, 5 j, 1/4, 98 XP/7 j), barres 7 jours (aujourd'hui en vert), statuts Maîtrisé/Fragile/En cours/Nouveau, erreurs par compétence + bouton Réviser. Voir **ADR-020**.
 
+## LOT 15 — Monétisation (ce lot)
+Offre gratuit/premium + paywall + entitlement simulé, sans régression, toutes validations vertes :
+- **Modèle pur et testé** `src/data/premium.ts` : `PRICING` (Pass Fondateur 14,99 · Annuel 44,99 · Mensuel 7,99 CHF — hypothèses configurables), `PREMIUM_FEATURES` / `FREE_FEATURES`, `PremiumState {active, plan, since, demo}` avec `isPremium`/`activate`/`deactivate`/`migratePremium`. **`demo` toujours vrai** : activation simulée, jamais un achat réel, aucune donnée de paiement, aucun Stripe.
+- **Persistance séparée** `premiumRepository` (clé `patternlab.premium.v1`) chargée/enregistrée par `progressContext` ; exposé via `premium`/`activatePremium`/`deactivatePremium`/`restorePremium`.
+- **Paywall** `/premium` : premium vs gratuit, cartes d'offres sélectionnables (Pass Fondateur mis en avant), CTA **« Activer — {offre} (démo) »**, « Restaurer », « Plus tard », avertissement explicite « Simulation — aucun achat réel ». État « Tu es Premium » + « Désactiver (démo) » si actif. Zéro bouton mort.
+- **Un gate réel, non punitif** : les **statistiques détaillées** deviennent premium, la **vue d'ensemble reste gratuite** ; le gate n'apparaît qu'à l'ouverture des stats (après interaction), jamais au démarrage. Le cœur d'apprentissage reste entièrement gratuit. Entrée Premium depuis le Profil.
+- **Analytics** : `premium_gate_hit`, `paywall_viewed`, `subscription_started`, `subscription_restored`.
+- Vérifié en pilotant Chromium : stats gratuites → gate → paywall (Pass Fondateur, avertissement simulation) → « Activer » → « Tu es Premium » → stats détaillées débloquées. Voir **ADR-021**.
+
 ## Partiel
 - Gamification : quêtes du jour + jalons de série + détection de badge obtenu en place. La **célébration visuelle** (toast/modale à l'obtention) est encore réduite à l'analytics `achievement_unlocked` ; l'écran Réussites reste le lieu de constat. Quêtes hebdomadaires et coffres non couverts (base extensible).
 - Lottie : dépendance + point d'intégration prêts ; rendu figures/SVG en attendant (ADR-005).
@@ -165,14 +174,16 @@ Historique d'activité + tableau de bord, sans régression, toutes validations v
 - Aucun connu (voir sorties lint / typecheck / test / validate:content / build web).
 
 ## Absent (par design, lots suivants)
-- Monétisation, analytics étendus, offline complet, accessibilité complète, release readiness (lots 15→19 du skill `patternlab-product-growth`).
+- Analytics étendus, offline complet, accessibilité complète, release readiness (lots 16→19 du skill `patternlab-product-growth`).
 - Builds device iOS/Android (EAS + comptes Apple/Google).
 
 ## Prochaine priorité
-**Lot 15 — Monétisation** (offre gratuit/premium, paywall après démonstration de valeur,
-hypothèses de prix configurables, aucun achat réel sans accord), puis Lot 16 — Analytics
-étendus. Célébration visuelle des réussites (toast/modale), historique 30 jours et
-branchement des 18 concepts importés (après revue) restent des chantiers ouverts.
+**Lot 16 — Analytics étendus** (couche typée déjà en place ; brancher un fournisseur
+configurable, respect de la vie privée, aucun envoi de donnée financière personnelle),
+puis Lot 17 — Offline complet. Le branchement d'un vrai magasin d'app (StoreKit / Play
+Billing) reste conditionné à une autorisation explicite (aucun achat réel aujourd'hui).
+Célébration visuelle des réussites, historique 30 jours et branchement des 18 concepts
+importés (après revue) restent des chantiers ouverts.
 
 ## Risques
 - Conteneur éphémère : commit local présent ; pousser après accord pour ne rien perdre.

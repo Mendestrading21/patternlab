@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, Chip, ProgressBar, theme } from '@/design-system';
-import { useProgress, SKILLS, computeStats, MASTERY_ORDER, MASTERY_LABEL, type ActivityPoint } from '@/data';
+import { useProgress, SKILLS, computeStats, isPremium, MASTERY_ORDER, MASTERY_LABEL, type ActivityPoint } from '@/data';
 import type { MasteryStatus } from '@/engines/learning';
 import { analytics } from '@/analytics';
 
@@ -23,11 +23,17 @@ function weekdayLabel(date: string): string {
 
 export default function Statistiques() {
   const router = useRouter();
-  const { state } = useProgress();
+  const { state, premium } = useProgress();
+  const premiumActive = isPremium(premium);
 
   useEffect(() => {
     analytics.track('stats_viewed');
   }, []);
+
+  useEffect(() => {
+    // Le détail est premium : on note l'atteinte du gate pour les non-abonnés.
+    if (!premiumActive) analytics.track('premium_gate_hit', { feature: 'stats' });
+  }, [premiumActive]);
 
   const stats = state ? computeStats(state, SKILLS, Date.now()) : null;
 
@@ -61,6 +67,23 @@ export default function Statistiques() {
         </View>
       </Card>
 
+      {!premiumActive ? (
+        /* Gate premium : la vue d'ensemble reste gratuite, le détail est premium. */
+        <Card elevated style={styles.gate}>
+          <Text variant="title">🔒 Statistiques complètes</Text>
+          <Text variant="body" color={theme.colors.textSecondary}>
+            L’historique d’activité, la maîtrise par compétence et tes points faibles sont
+            réservés à Premium.
+          </Text>
+          <Button
+            label="Débloquer avec Premium ✨"
+            variant="reward"
+            onPress={() => router.push('/premium')}
+            accessibilityHint="Découvrir l’offre Premium"
+          />
+        </Card>
+      ) : (
+        <>
       {/* Activité des 7 derniers jours */}
       <Card>
         <View style={styles.row}>
@@ -135,6 +158,8 @@ export default function Statistiques() {
           </Text>
         )}
       </Card>
+        </>
+      )}
 
       <Button label="Retour au profil" variant="secondary" onPress={() => router.back()} />
     </Screen>
@@ -199,4 +224,5 @@ const styles = StyleSheet.create({
   skill: { gap: theme.spacing.xs },
   errors: { gap: theme.spacing.xs, marginVertical: theme.spacing.sm },
   errorRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+  gate: { gap: theme.spacing.sm, borderColor: theme.colors.reward },
 });

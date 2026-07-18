@@ -5,6 +5,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { initialReview, levelForXp, type SkillProgress } from '../engines/learning';
 import { migrateOnboardingProfile, type OnboardingProfile } from './onboardingProfile';
+import { emptyPremium, migratePremium, type PremiumState } from './premium';
 
 /** Registre d'activité du jour (base des quêtes ; remis à zéro chaque jour). */
 export interface DailyActivity {
@@ -200,6 +201,37 @@ export class AsyncStorageOnboardingRepository implements OnboardingRepository {
 }
 
 export const onboardingRepository: OnboardingRepository = new AsyncStorageOnboardingRepository();
+
+// ─── Entitlement Premium (démo locale, aucun achat réel) ─────────────
+const PREMIUM_KEY = 'patternlab.premium.v1';
+
+export interface PremiumRepository {
+  load(): Promise<PremiumState>;
+  save(state: PremiumState): Promise<void>;
+  reset(): Promise<void>;
+}
+
+export class AsyncStoragePremiumRepository implements PremiumRepository {
+  async load(): Promise<PremiumState> {
+    try {
+      const raw = await AsyncStorage.getItem(PREMIUM_KEY);
+      if (!raw) return emptyPremium();
+      return migratePremium(JSON.parse(raw));
+    } catch {
+      return emptyPremium();
+    }
+  }
+
+  async save(state: PremiumState): Promise<void> {
+    await AsyncStorage.setItem(PREMIUM_KEY, JSON.stringify(state));
+  }
+
+  async reset(): Promise<void> {
+    await AsyncStorage.removeItem(PREMIUM_KEY);
+  }
+}
+
+export const premiumRepository: PremiumRepository = new AsyncStoragePremiumRepository();
 
 /** Implémentation mémoire (tests / fallback). */
 export class InMemoryProgressRepository implements ProgressRepository {

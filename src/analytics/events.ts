@@ -19,8 +19,10 @@ export type AnalyticsEvent =
   | 'stats_viewed'
   | 'lab_started'
   | 'lab_completed'
+  | 'premium_gate_hit'
   | 'paywall_viewed'
   | 'subscription_started'
+  | 'subscription_restored'
   | 'app_error';
 
 export const ANALYTICS_EVENTS: AnalyticsEvent[] = [
@@ -43,7 +45,9 @@ export const ANALYTICS_EVENTS: AnalyticsEvent[] = [
   'stats_viewed',
   'lab_started',
   'lab_completed',
+  'premium_gate_hit',
   'paywall_viewed',
   'subscription_started',
+  'subscription_restored',
   'app_error',
 ];

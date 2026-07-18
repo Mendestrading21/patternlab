@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
-import { progressRepository, onboardingRepository, type ProgressState } from './repositories';
+import { progressRepository, onboardingRepository, premiumRepository, type ProgressState } from './repositories';
 import { defaultProgress } from './seed';
 import type { OnboardingProfile } from './onboardingProfile';
+import * as premium from './premium';
 import type { Grade } from '../engines/learning';
 import * as progressLogic from './progressLogic';
 import * as gamification from './gamification';
@@ -27,6 +28,14 @@ interface ProgressContextValue {
   completeSession: (skillId?: string, passed?: boolean) => void;
   /** Réclame la récompense d'une quête du jour terminée (idempotent). */
   claimQuest: (questId: string) => void;
+  /** Entitlement Premium (démo locale ; jamais un achat réel). */
+  premium: premium.PremiumState;
+  /** Active l'accès Premium (simulation locale). */
+  activatePremium: (plan: premium.PlanId) => void;
+  /** Désactive l'accès Premium (démo). */
+  deactivatePremium: () => void;
+  /** Restaure un accès Premium déjà activé localement. */
+  restorePremium: () => void;
   reset: () => void;
 }
 
@@ -35,19 +44,22 @@ const ProgressContext = createContext<ProgressContextValue | null>(null);
 export function ProgressProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<ProgressState | null>(null);
   const [profile, setProfile] = useState<OnboardingProfile | null>(null);
+  const [premiumState, setPremiumState] = useState<premium.PremiumState>(premium.emptyPremium());
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     let mounted = true;
     (async () => {
-      const [loaded, loadedProfile] = await Promise.all([
+      const [loaded, loadedProfile, loadedPremium] = await Promise.all([
         progressRepository.load(),
         onboardingRepository.load(),
+        premiumRepository.load(),
       ]);
       if (!mounted) return;
       const progress = loaded ?? defaultProgress(Date.now());
       setState(progress);
       setProfile(loadedProfile);
+      setPremiumState(loadedPremium);
       setReady(true);
       await progressRepository.save(progress);
     })();
@@ -133,17 +145,54 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const activatePremium = useCallback((plan: premium.PlanId) => {
+    // Simulation locale : aucun achat réel, aucune donnée de paiement.
+    const next = premium.activate(plan, new Date().toISOString());
+    void premiumRepository.save(next);
+    setPremiumState(next);
+    analytics.track('subscription_started', { plan, demo: true });
+  }, []);
+
+  const deactivatePremium = useCallback(() => {
+    const next = premium.deactivate();
+    void premiumRepository.save(next);
+    setPremiumState(next);
+  }, []);
+
+  const restorePremium = useCallback(() => {
+    void premiumRepository.load().then((loaded) => {
+      setPremiumState(loaded);
+      analytics.track('subscription_restored', { active: loaded.active, demo: true });
+    });
+  }, []);
+
   const reset = useCallback(() => {
     const fresh = defaultProgress(Date.now());
     void progressRepository.reset().then(() => progressRepository.save(fresh));
     void onboardingRepository.reset();
+    void premiumRepository.reset();
     setState(fresh);
     setProfile(null);
+    setPremiumState(premium.emptyPremium());
   }, []);
 
   return (
     <ProgressContext.Provider
-      value={{ state, ready, profile, markOnboarded, completeOnboarding, recordAnswer, completeSession, claimQuest, reset }}
+      value={{
+        state,
+        ready,
+        profile,
+        markOnboarded,
+        completeOnboarding,
+        recordAnswer,
+        completeSession,
+        claimQuest,
+        premium: premiumState,
+        activatePremium,
+        deactivatePremium,
+        restorePremium,
+        reset,
+      }}
     >
       {children}
     </ProgressContext.Provider>

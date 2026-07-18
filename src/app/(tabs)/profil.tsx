@@ -8,7 +8,7 @@ import { DISCLAIMER } from '@/lib/config';
 
 export default function Profil() {
   const router = useRouter();
-  const { state, profile, reset } = useProgress();
+  const { state, profile, premium, reset } = useProgress();
   const reduced = useReducedMotion();
   const demoProgress = state?.skills[DEMO_SKILL.id];
   const mastery = demoProgress?.mastery ?? 0;
@@ -102,6 +102,26 @@ export default function Profil() {
         <Text variant="body" color={theme.colors.textSecondary}>
           Réduction des animations : {reduced ? 'activée ✅' : 'désactivée'} (réglage système).
         </Text>
+      </Card>
+
+      <Card elevated>
+        <View style={styles.skillHead}>
+          <Text variant="title" style={styles.flex1}>
+            PatternLab Premium ✨
+          </Text>
+          {premium.active ? <Chip label="Actif" color={theme.colors.reward} /> : null}
+        </View>
+        <Text variant="body" color={theme.colors.textSecondary}>
+          {premium.active
+            ? 'Merci ! Tout le contenu premium est débloqué.'
+            : 'Tous les mondes, le labo complet, les statistiques détaillées et les révisions illimitées.'}
+        </Text>
+        <Button
+          label={premium.active ? 'Gérer mon accès ✨' : 'Découvrir Premium ✨'}
+          variant={premium.active ? 'secondary' : 'reward'}
+          onPress={() => router.push('/premium')}
+          accessibilityHint="Ouvrir l’offre Premium"
+        />
       </Card>
 
       <Button label="Mes réussites 🏅" onPress={() => router.push('/reussites')} />
