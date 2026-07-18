@@ -9,6 +9,8 @@ import type {
   MatchExercise,
   FindErrorExercise,
   IdentifyPatternExercise,
+  ScenarioExercise,
+  SelectChartZoneExercise,
 } from './types';
 
 const feedback = {
@@ -152,5 +154,46 @@ describe('exercise registry — formats P0.2', () => {
     expect(isTypeSupported('identify_pattern')).toBe(true);
     expect(gradeExercise(ex, 0).correct).toBe(true);
     expect(gradeExercise(ex, 2).correct).toBe(false);
+  });
+});
+
+describe('exercise registry — formats avancés (Lot 7)', () => {
+  it('supporte scenario et select_chart_zone', () => {
+    expect(isTypeSupported('scenario')).toBe(true);
+    expect(isTypeSupported('select_chart_zone')).toBe(true);
+  });
+
+  it('corrige un scenario (SI/ALORS)', () => {
+    const ex: ScenarioExercise = {
+      id: 'sc1',
+      type: 'scenario',
+      skillId: 'skill.patterns',
+      prompt: 'Que conclure ?',
+      context: 'Le prix casse la ligne de cou avec du volume.',
+      options: ['Confirmée', 'Invalidée', 'Rien'],
+      validation: { correctIndex: 0 },
+      feedback,
+    };
+    expect(gradeExercise(ex, 0).correct).toBe(true);
+    expect(gradeExercise(ex, 1).correct).toBe(false);
+  });
+
+  it('corrige un select_chart_zone', () => {
+    const ex: SelectChartZoneExercise = {
+      id: 'sz1',
+      type: 'select_chart_zone',
+      skillId: 'skill.trend',
+      prompt: 'Touche le support.',
+      chartSeed: 2024,
+      zones: ['Haute', 'Médiane', 'Basse'],
+      validation: { correctZone: 2 },
+      feedback,
+    };
+    expect(gradeExercise(ex, 2).correct).toBe(true);
+    expect(gradeExercise(ex, 0).correct).toBe(false);
+  });
+
+  it('expose au moins 9 formats branchés', () => {
+    expect(supportedTypes().length).toBeGreaterThanOrEqual(9);
   });
 });

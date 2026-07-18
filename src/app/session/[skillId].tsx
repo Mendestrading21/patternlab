@@ -172,6 +172,8 @@ const LABELS: Record<string, string> = {
   match: 'Associe',
   find_error: 'Trouve l’erreur',
   identify_pattern: 'Reconnais la figure',
+  scenario: 'Scénario',
+  select_chart_zone: 'Zone du graphique',
 };
 
 const styles = StyleSheet.create({

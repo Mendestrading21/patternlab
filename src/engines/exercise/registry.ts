@@ -13,6 +13,8 @@ import type {
   MatchExercise,
   FindErrorExercise,
   IdentifyPatternExercise,
+  ScenarioExercise,
+  SelectChartZoneExercise,
 } from './types';
 
 export type Grader<E extends Exercise> = (exercise: E, answer: unknown) => GradeResult;
@@ -55,6 +57,14 @@ const gradeIdentifyPattern: Grader<IdentifyPatternExercise> = (exercise, answer)
   return result(answer === exercise.validation.correctIndex, exercise);
 };
 
+const gradeScenario: Grader<ScenarioExercise> = (exercise, answer) => {
+  return result(answer === exercise.validation.correctIndex, exercise);
+};
+
+const gradeSelectChartZone: Grader<SelectChartZoneExercise> = (exercise, answer) => {
+  return result(answer === exercise.validation.correctZone, exercise);
+};
+
 const graders: Partial<Record<ExerciseType, Grader<Exercise>>> = {
   mcq: gradeMcq as Grader<Exercise>,
   true_false: gradeTrueFalse as Grader<Exercise>,
@@ -63,6 +73,8 @@ const graders: Partial<Record<ExerciseType, Grader<Exercise>>> = {
   match: gradeMatch as Grader<Exercise>,
   find_error: gradeFindError as Grader<Exercise>,
   identify_pattern: gradeIdentifyPattern as Grader<Exercise>,
+  scenario: gradeScenario as Grader<Exercise>,
+  select_chart_zone: gradeSelectChartZone as Grader<Exercise>,
 };
 
 export function isTypeSupported(type: ExerciseType): boolean {

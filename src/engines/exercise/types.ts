@@ -99,6 +99,25 @@ export interface IdentifyPatternExercise extends BaseExercise {
   validation: { correctIndex: number };
 }
 
+/** Scénario conditionnel (SI … / ALORS …). */
+export interface ScenarioExercise extends BaseExercise {
+  type: 'scenario';
+  /** Le « SI » : le setup/contexte à évaluer. */
+  context: string;
+  /** Les issues possibles (« ALORS »). */
+  options: string[];
+  validation: { correctIndex: number };
+}
+
+/** Sélection d'une zone du graphique (gauche→droite). */
+export interface SelectChartZoneExercise extends BaseExercise {
+  type: 'select_chart_zone';
+  chartSeed: number;
+  /** Libellés des zones, de gauche à droite (servent aussi de repère accessible). */
+  zones: string[];
+  validation: { correctZone: number };
+}
+
 /** Union discriminée des formats implémentés (narrowing par `type`). */
 export type Exercise =
   | McqExercise
@@ -107,7 +126,9 @@ export type Exercise =
   | OrderExercise
   | MatchExercise
   | FindErrorExercise
-  | IdentifyPatternExercise;
+  | IdentifyPatternExercise
+  | ScenarioExercise
+  | SelectChartZoneExercise;
 
 export interface GradeResult {
   correct: boolean;

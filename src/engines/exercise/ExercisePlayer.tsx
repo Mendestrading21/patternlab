@@ -10,6 +10,8 @@ import type {
   OrderExercise,
   MatchExercise,
   IdentifyPatternExercise,
+  ScenarioExercise,
+  SelectChartZoneExercise,
 } from './types';
 
 export type ExercisePlayerProps = {
@@ -36,6 +38,10 @@ export function ExercisePlayer({ exercise, result, onValidate }: ExercisePlayerP
       return <MatchPlayer exercise={exercise} locked={locked} onValidate={onValidate} />;
     case 'identify_pattern':
       return <IdentifyPatternPlayer exercise={exercise} locked={locked} onPick={onValidate} />;
+    case 'scenario':
+      return <ScenarioPlayer exercise={exercise} locked={locked} onPick={onValidate} />;
+    case 'select_chart_zone':
+      return <ZonePlayer exercise={exercise} locked={locked} onPick={onValidate} />;
     default:
       return (
         <Text variant="caption" color={theme.colors.textMuted}>
@@ -66,6 +72,102 @@ function IdentifyPatternPlayer({
         locked={locked}
         onPick={onPick}
       />
+    </View>
+  );
+}
+
+function ScenarioPlayer({
+  exercise,
+  locked,
+  onPick,
+}: {
+  exercise: ScenarioExercise;
+  locked: boolean;
+  onPick: (i: number) => void;
+}) {
+  return (
+    <View style={styles.stack}>
+      <View style={styles.scenario}>
+        <Text variant="label" color={theme.colors.technical}>
+          SI…
+        </Text>
+        <Text variant="body">{exercise.context}</Text>
+      </View>
+      <Text variant="label" color={theme.colors.textMuted}>
+        ALORS…
+      </Text>
+      <ChoicePlayer
+        options={exercise.options}
+        correctIndex={exercise.validation.correctIndex}
+        locked={locked}
+        onPick={onPick}
+      />
+    </View>
+  );
+}
+
+function ZonePlayer({
+  exercise,
+  locked,
+  onPick,
+}: {
+  exercise: SelectChartZoneExercise;
+  locked: boolean;
+  onPick: (i: number) => void;
+}) {
+  const [picked, setPicked] = useState<number | null>(null);
+  useEffect(() => {
+    if (!locked) setPicked(null);
+  }, [locked]);
+
+  const W = 300;
+  const H = 160;
+  const candles = generateCandles(exercise.chartSeed, 30);
+
+  const zoneColor = (i: number): string => {
+    if (!locked) return picked === i ? theme.colors.primary : theme.colors.borderStrong;
+    if (i === exercise.validation.correctZone) return theme.colors.feedbackCorrect;
+    if (i === picked) return theme.colors.feedbackIncorrect;
+    return theme.colors.borderStrong;
+  };
+
+  return (
+    <View style={styles.stack}>
+      <View style={[styles.chartWrap, styles.zoneWrap, { width: W }]}>
+        <PatternChart candles={candles} width={W} height={H} />
+        <View style={[StyleSheet.absoluteFill, styles.zoneRow]}>
+          {exercise.zones.map((z, i) => {
+            const active = picked === i || (locked && i === exercise.validation.correctZone);
+            const color = zoneColor(i);
+            return (
+              <Pressable
+                key={i}
+                disabled={locked}
+                onPress={() => {
+                  setPicked(i);
+                  onPick(i);
+                }}
+                accessibilityRole="button"
+                accessibilityState={{ selected: picked === i, disabled: locked }}
+                accessibilityLabel={`Zone ${i + 1} : ${z}`}
+                style={[
+                  styles.zone,
+                  { borderColor: color },
+                  i < exercise.zones.length - 1 ? styles.zoneDivider : null,
+                  active ? { backgroundColor: 'rgba(66,183,232,0.12)', borderWidth: 2 } : null,
+                ]}
+              >
+                <Text variant="caption" center color={color}>
+                  {z}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+      <Text variant="caption" color={theme.colors.textMuted} center>
+        Touche la zone du graphique qui répond à la question.
+      </Text>
     </View>
   );
 }
@@ -274,6 +376,26 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.border,
     backgroundColor: theme.colors.surfaceSunken,
   },
+  scenario: {
+    gap: theme.spacing.xs,
+    padding: theme.spacing.md,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.technical,
+    backgroundColor: theme.colors.surface,
+  },
+  zoneWrap: { alignSelf: 'center', overflow: 'hidden' },
+  zoneRow: { flexDirection: 'row' },
+  zone: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingBottom: theme.spacing.sm,
+    borderRadius: theme.radius.sm,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  zoneDivider: { borderRightWidth: 1, borderRightColor: theme.colors.border },
   numeric: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
   input: {
     flex: 1,
