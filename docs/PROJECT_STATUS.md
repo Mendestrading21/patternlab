@@ -1,7 +1,7 @@
 # État du projet
 
 ## Date
-2026-07-17 — **LOT 9 — Maîtrise adaptative** terminé (après LOT 0 → LOT 8),
+2026-07-17 — **LOT 10 — Toto/Bobo V2** terminé (après LOT 0 → LOT 9),
 skill `patternlab-product-growth`, sur la base des lots P0/P1 précédents.
 
 ## Branche / commit
@@ -106,8 +106,16 @@ Statuts + errorTags + migration v3, sans régression, toutes validations vertes 
 - **Surfaçage** : chip de statut + « X erreurs à retravailler » dans Révisions ; chip de statut dans Profil.
 - Voir **ADR-015**.
 
+## LOT 10 — Toto/Bobo V2 (ce lot)
+Registre d'états + fréquence contrôlée, sans régression, toutes validations vertes :
+- **Registre d'états canonique** `CHARACTER_STATES` (source unique : expression, personnage par défaut, catégorie, intensité, ton) ; `STATE_TO_EXPRESSION` **dérivé** (plus de duplication) ; `mascotFor()`. Couvre les états du skill (welcome, observe, false-signal, review, premium, debate, level-up, streak…).
+- **Intensité d'animation** pilotée par le registre (still/subtle/lively), toujours désactivée si reduced motion.
+- **Gouverneur de fréquence** `frequency.ts` (pur, testé) : `mascotPresence` → full/compact/hidden ; discret dans listes denses / réglages / interactions graphiques. Appliqué dans Révisions (mascotte compacte).
+- Nouveaux états câblés : `welcome` (onboarding), `false-signal` (labo), `review` (Révisions).
+- Voir **ADR-016**.
+
 ## Partiel
-- Lottie : dépendance + point d'intégration prêts ; rendu figures/SVG en attendant (ADR-005).
+- Lottie : dépendance + point d'intégration prêts ; rendu figures/SVG en attendant (ADR-005). Le registre V2 prépare la bascule (renderer remplaçable sans toucher aux états).
 - Adaptation intra-session (re-séquencement des exercices ratés) : à affiner ; la base errorTags + révision rapprochée est en place.
 - Labo : un scénario (support) ; zoom/pan, zone rectangulaire, volume et replay à venir (base `interactive.ts` extensible).
 - Formats restants (drag_drop, draw_level, place_invalidation, reconstruct_ohlc, candle_replay, timed_challenge, compare_setups) : à brancher progressivement (garde-fou actif).
@@ -123,12 +131,13 @@ Statuts + errorTags + migration v3, sans régression, toutes validations vertes 
 - Aucun connu (voir sorties lint / typecheck / test / validate:content / build web).
 
 ## Absent (par design, lots suivants)
-- Toto/Bobo V2 (registre d'assets), import APP pilote, monétisation, analytics étendus, offline complet, accessibilité complète, release (lots 10→19 du skill `patternlab-product-growth`).
+- Import APP pilote (pipeline WMB), monétisation, analytics étendus, offline complet, accessibilité complète, release readiness (lots 11→19 du skill `patternlab-product-growth`).
 - Builds device iOS/Android (EAS + comptes Apple/Google).
 
 ## Prochaine priorité
-**Lot 10 — Toto/Bobo V2** (registre d'assets, états, fréquence contrôlée, respect du
-reduced motion), puis Lot 11 — Migration APP pilote.
+**Lot 11 — Migration APP pilote** (pipeline inventaire → extraction → normalisation →
+déduplication → brouillons `draft`/`needsReview`, avec origine + hash, revue humaine),
+puis Lot 12 — Glossaire enrichi.
 
 ## Risques
 - Conteneur éphémère : commit local présent ; pousser après accord pour ne rien perdre.

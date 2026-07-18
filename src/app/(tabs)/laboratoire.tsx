@@ -140,7 +140,7 @@ export default function Laboratoire() {
 
       <View style={styles.debate}>
         <CharacterScene character="toto" state="explain" size={60} speech="Un support tient tant que les acheteurs défendent le plancher." />
-        <CharacterScene character="bobo" state="warning" size={60} reversed speech="Mais s’il casse nettement, le plancher devient un plafond." />
+        <CharacterScene character="bobo" state="false-signal" size={60} reversed speech="Mais s’il casse nettement, le plancher devient un plafond." />
       </View>
 
       <Button

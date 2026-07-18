@@ -9,10 +9,18 @@ export {
 } from './CharacterAnimationController';
 export { CharacterScene, type CharacterSceneProps } from './CharacterScene';
 export { useReducedMotion } from './useReducedMotion';
+export { type CharacterId, type CharacterState, type Expression, CHARACTER_NAME } from './types';
 export {
-  type CharacterId,
-  type CharacterState,
-  type Expression,
-  CHARACTER_NAME,
   STATE_TO_EXPRESSION,
-} from './types';
+  CHARACTER_STATES,
+  mascotFor,
+  type CharacterStateSpec,
+  type StateCategory,
+  type Intensity,
+} from './states';
+export {
+  mascotPresence,
+  shouldShowMascot,
+  type MascotContext,
+  type MascotPresence,
+} from './frequency';

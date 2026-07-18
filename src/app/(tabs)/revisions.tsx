@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, ProgressBar, Chip, StateView, theme } from '@/design-system';
+import { CharacterScene, mascotPresence } from '@/characters';
 import { useProgress, SKILLS, selectDueReviews, MASTERY_LABEL } from '@/data';
 import { isDue, masteryStatus, errorCount, type MasteryStatus } from '@/engines/learning';
 
@@ -43,6 +44,11 @@ export default function Revisions() {
       <Text variant="body" color={theme.colors.textSecondary}>
         La répétition espacée ramène chaque compétence au bon moment pour ancrer ta mémoire.
       </Text>
+
+      {/* Écran dense (liste) → présence compacte : une seule mascotte discrète (gouverneur de fréquence). */}
+      {mascotPresence('review') === 'compact' ? (
+        <CharacterScene character="bobo" state="review" size={54} showName={false} speech="On consolide ce qui compte, au bon moment." />
+      ) : null}
 
       <Card elevated style={due.length ? styles.dueCard : undefined}>
         <Text variant="title">À réviser aujourd’hui</Text>

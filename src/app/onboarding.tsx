@@ -121,7 +121,7 @@ export default function Onboarding() {
             parcours en quelques questions — aucun compte requis.
           </Text>
           <MascotFigure name="toto-read" height={170} />
-          <CharacterScene character="toto" state="explain" size={60} speech="Moi c’est Toto : je formule des hypothèses haussières." />
+          <CharacterScene character="toto" state="welcome" size={60} speech="Moi c’est Toto : je formule des hypothèses haussières." />
           <CharacterScene character="bobo" state="warning" size={60} reversed speech="Et moi Bobo : je traque le risque et le faux signal." />
         </View>
       )}
