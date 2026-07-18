@@ -62,6 +62,29 @@ describe('migrateProgress', () => {
     expect(m.claimedStreakMilestones).toEqual([]);
   });
 
+  it('schéma v5 : historique par défaut [] et assaini', () => {
+    // état v4 sans historique → []
+    const v4 = migrateProgress({ schemaVersion: 4, totalXp: 0 }, T0)!;
+    expect(v4.history).toEqual([]);
+    // historique assaini : instantanés datés valides seulement, nombres bornés
+    const m = migrateProgress(
+      {
+        totalXp: 0,
+        history: [
+          { date: '2026-07-10', sessions: 1, correct: 3, xp: 20 },
+          { date: '', sessions: 1, xp: 5 }, // date vide → écarté
+          { sessions: 2 }, // sans date → écarté
+          { date: '2026-07-11', sessions: -1, correct: 'x', xp: 12 }, // nombres assainis
+        ],
+      },
+      T0,
+    )!;
+    expect(m.history).toEqual([
+      { date: '2026-07-10', sessions: 1, correct: 3, xp: 20 },
+      { date: '2026-07-11', sessions: 0, correct: 0, xp: 12 },
+    ]);
+  });
+
   it('schéma v4 : assainit un registre du jour corrompu et les listes', () => {
     const m = migrateProgress(
       {

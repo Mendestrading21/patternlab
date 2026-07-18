@@ -33,6 +33,12 @@ export default function Profil() {
           <Stat label="Pièces" value={String(state?.coins ?? 0)} />
           <Stat label="Série" value={`${state?.streakDays ?? 0} j`} />
         </View>
+        <Button
+          label="Voir le détail 📊"
+          variant="secondary"
+          onPress={() => router.push('/statistiques')}
+          accessibilityHint="Ouvrir le tableau de statistiques détaillé"
+        />
       </Card>
 
       <Card>

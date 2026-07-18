@@ -15,6 +15,9 @@
 import { BADGES, earnedBadges, type Badge } from './badges';
 import type { DailyActivity, ProgressState } from './repositories';
 
+/** Nombre maximal de jours d'activité conservés dans l'historique. */
+export const HISTORY_LIMIT = 60;
+
 /** Clé de jour locale AAAA-MM-JJ (base du registre quotidien). */
 export function dayKey(ts: number): string {
   return new Date(ts).toISOString().slice(0, 10);
@@ -31,12 +34,25 @@ export function todayActivity(state: ProgressState, now: number): DailyActivity 
   return d && d.date === today ? d : { date: today, sessions: 0, correct: 0, xp: 0 };
 }
 
-/** Bascule le registre (et les quêtes réclamées) sur le jour courant si nécessaire. Pur. */
+/**
+ * Bascule le registre (et les quêtes réclamées) sur le jour courant si nécessaire,
+ * en **archivant** le jour précédent dans l'historique (base des statistiques). Pur.
+ */
 function rolled(state: ProgressState, now: number): ProgressState {
   const today = dayKey(now);
   if (state.daily && state.daily.date === today) return state;
+  const prev = state.daily;
+  let history = state.history ?? [];
+  // Archive le jour écoulé s'il a une date réelle et une activité (évite les jours vides).
+  if (prev && prev.date && (prev.xp > 0 || prev.sessions > 0 || prev.correct > 0)) {
+    history = [
+      ...history.filter((h) => h.date !== prev.date),
+      { date: prev.date, sessions: prev.sessions, correct: prev.correct, xp: prev.xp },
+    ].slice(-HISTORY_LIMIT);
+  }
   return {
     ...state,
+    history,
     daily: { date: today, sessions: 0, correct: 0, xp: 0 },
     claimedQuestIds: [],
   };

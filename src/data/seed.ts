@@ -277,6 +277,7 @@ export function defaultProgress(now: number): ProgressState {
     daily: { date: '', sessions: 0, correct: 0, xp: 0 },
     claimedQuestIds: [],
     claimedStreakMilestones: [],
+    history: [],
     schemaVersion: PROGRESS_SCHEMA_VERSION,
   };
 }

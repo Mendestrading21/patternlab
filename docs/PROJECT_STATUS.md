@@ -1,7 +1,7 @@
 # État du projet
 
 ## Date
-2026-07-18 — **LOT 13 — Gamification** terminé (après LOT 0 → LOT 12),
+2026-07-18 — **LOT 14 — Statistiques** terminé (après LOT 0 → LOT 13),
 skill `patternlab-product-growth`, sur la base des lots P0/P1 précédents.
 
 ## Branche / commit
@@ -10,7 +10,7 @@ existant (`Mendestrading21/patternlab`) ; aucune poussée ni PR sans accord expl
 
 ## Fonctionnel
 - App Expo SDK 57 (iOS/Android/web) qui démarre sur **web** (vérifiée en pilotant Chromium).
-- Navigation Expo Router : Splash → Onboarding → Tabs (Accueil, Parcours, Leçons, Quiz, Profil) + routes Leçon, Session, Glossaire, Réussites.
+- Navigation Expo Router : Splash → Onboarding → Tabs (Accueil, Parcours, Laboratoire, Révisions, Profil) + routes Leçon, Session, Glossaire, Réussites, Statistiques.
 - Design system sombre premium : tokens sémantiques + primitives (Text, Button, Card, ProgressBar, Chip, AnswerOption, FeedbackPanel, Screen, EmptyState).
 - Personnages Toto (taureau vert) & Bobo (ours rouge) : figures 3D HD détourées + avatars vectoriels, via `CharacterAnimationController` (respecte « réduire les animations »).
 - Moteurs découplés : apprentissage (répétition espacée SM-2 testée), exercices (registry, 9 formats), patterns (chart SVG reproductible).
@@ -139,6 +139,13 @@ Quêtes du jour rémunérées + jalons de série + réussites, sans régression,
 - **UI honnête, zéro bouton mort** : l'accueil remplace les faux « Défis » par les vraies quêtes (progression + bouton **Réclamer +N 🪙** actif seulement si terminé) ; l'écran Réussites gagne une carte **Série** (jalon suivant + récompense). Aucune mécanique manipulatrice (pas de vie punitive, pas de casino, pas de pari).
 - Vérifié en pilotant Chromium : réclamation d'une quête → pièces 20 → 25 et « Réclamé ✓ » ; carte Série « encore 3 jours jusqu'au jalon 7 · +15 🪙 ». Voir **ADR-019**.
 
+## LOT 14 — Statistiques (ce lot)
+Historique d'activité + tableau de bord, sans régression, toutes validations vertes :
+- **Historique d'activité** (schéma **v5**) : `history: DailySnapshot[]` ; le basculement de jour (`rolled`) archive le registre écoulé (dédupliqué par date, borné à 60 jours). Migration non destructive (défauts + assainissement), aucune perte de progression.
+- **Moteur pur et testé** `src/data/stats.ts` : `computeStats` agrège vue d'ensemble, maîtrise par compétence + répartition des statuts, erreurs récurrentes (agrégées et rattachées à la compétence), et série d'activité N jours (historique + jour courant, avec `windowXp`/`activeDays`/`peakXp`). Aucune donnée inventée.
+- **Écran** `/statistiques` : vue d'ensemble, **graphique d'activité 7 jours** (barres en Views pures, sans dépendance ni animation, étiquetées pour lecteurs d'écran, aujourd'hui mis en avant), maîtrise par compétence, erreurs à retravailler → bouton **Réviser**. Accessible depuis le Profil (« Voir le détail 📊 »). Analytics `stats_viewed`.
+- Vérifié en pilotant Chromium : vue d'ensemble (niv. 2, 160 XP, 5 j, 1/4, 98 XP/7 j), barres 7 jours (aujourd'hui en vert), statuts Maîtrisé/Fragile/En cours/Nouveau, erreurs par compétence + bouton Réviser. Voir **ADR-020**.
+
 ## Partiel
 - Gamification : quêtes du jour + jalons de série + détection de badge obtenu en place. La **célébration visuelle** (toast/modale à l'obtention) est encore réduite à l'analytics `achievement_unlocked` ; l'écran Réussites reste le lieu de constat. Quêtes hebdomadaires et coffres non couverts (base extensible).
 - Lottie : dépendance + point d'intégration prêts ; rendu figures/SVG en attendant (ADR-005).
@@ -158,14 +165,14 @@ Quêtes du jour rémunérées + jalons de série + réussites, sans régression,
 - Aucun connu (voir sorties lint / typecheck / test / validate:content / build web).
 
 ## Absent (par design, lots suivants)
-- Statistiques, monétisation, analytics étendus, offline complet, accessibilité complète, release readiness (lots 14→19 du skill `patternlab-product-growth`).
+- Monétisation, analytics étendus, offline complet, accessibilité complète, release readiness (lots 15→19 du skill `patternlab-product-growth`).
 - Builds device iOS/Android (EAS + comptes Apple/Google).
 
 ## Prochaine priorité
-**Lot 14 — Statistiques** (tableau de progression : maîtrise par compétence, régularité,
-erreurs récurrentes, historique), puis Lot 15 — Monétisation. Célébration visuelle des
-réussites (toast/modale) et branchement des 18 concepts importés (après revue) restent
-des chantiers ouverts.
+**Lot 15 — Monétisation** (offre gratuit/premium, paywall après démonstration de valeur,
+hypothèses de prix configurables, aucun achat réel sans accord), puis Lot 16 — Analytics
+étendus. Célébration visuelle des réussites (toast/modale), historique 30 jours et
+branchement des 18 concepts importés (après revue) restent des chantiers ouverts.
 
 ## Risques
 - Conteneur éphémère : commit local présent ; pousser après accord pour ne rien perdre.

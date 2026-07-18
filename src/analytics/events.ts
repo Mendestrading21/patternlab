@@ -16,6 +16,7 @@ export type AnalyticsEvent =
   | 'checkpoint_completed'
   | 'quest_completed'
   | 'achievement_unlocked'
+  | 'stats_viewed'
   | 'lab_started'
   | 'lab_completed'
   | 'paywall_viewed'
@@ -39,6 +40,7 @@ export const ANALYTICS_EVENTS: AnalyticsEvent[] = [
   'checkpoint_completed',
   'quest_completed',
   'achievement_unlocked',
+  'stats_viewed',
   'lab_started',
   'lab_completed',
   'paywall_viewed',

@@ -48,6 +48,19 @@ describe('registre du jour', () => {
     const s = recordSessionActivity(fresh(), T0);
     expect(s.daily.sessions).toBe(1);
   });
+
+  it('archive le jour écoulé dans l’historique lors du basculement', () => {
+    const stale = fresh({ daily: { date: dayKey(T0 - DAY), sessions: 2, correct: 4, xp: 25 } });
+    const s = recordActivity(stale, { xpGained: 10, correct: true }, T0);
+    expect(s.history).toEqual([{ date: dayKey(T0 - DAY), sessions: 2, correct: 4, xp: 25 }]);
+    expect(s.daily).toEqual({ date: dayKey(T0), sessions: 0, correct: 1, xp: 10 });
+  });
+
+  it('n’archive pas un jour écoulé sans activité', () => {
+    const stale = fresh({ daily: { date: dayKey(T0 - DAY), sessions: 0, correct: 0, xp: 0 } });
+    const s = recordSessionActivity(stale, T0);
+    expect(s.history).toEqual([]);
+  });
 });
 
 describe('quêtes du jour', () => {

@@ -15,6 +15,14 @@ export interface DailyActivity {
   xp: number;
 }
 
+/** Instantané d'un jour d'activité archivé (base de l'historique des statistiques). */
+export interface DailySnapshot {
+  date: string;
+  sessions: number;
+  correct: number;
+  xp: number;
+}
+
 export interface ProgressState {
   onboarded: boolean;
   level: number;
@@ -32,10 +40,12 @@ export interface ProgressState {
   claimedQuestIds: string[];
   /** Jalons de série déjà récompensés (schéma v4 ; jamais deux fois). */
   claimedStreakMilestones: number[];
+  /** Historique des jours d'activité archivés (schéma v5) — base des statistiques. */
+  history: DailySnapshot[];
   schemaVersion: number;
 }
 
-export const PROGRESS_SCHEMA_VERSION = 4;
+export const PROGRESS_SCHEMA_VERSION = 5;
 
 export interface ProgressRepository {
   load(): Promise<ProgressState | null>;
@@ -106,8 +116,24 @@ export function migrateProgress(raw: unknown, now: number): ProgressState | null
     claimedStreakMilestones: Array.isArray(p.claimedStreakMilestones)
       ? p.claimedStreakMilestones.filter((x): x is number => typeof x === 'number' && Number.isFinite(x))
       : [],
+    history: migrateHistory(p.history),
     schemaVersion: PROGRESS_SCHEMA_VERSION,
   };
+}
+
+/** Assainit l'historique (schéma v5) ; ne garde que des instantanés datés valides. */
+function migrateHistory(raw: unknown): DailySnapshot[] {
+  if (!Array.isArray(raw)) return [];
+  const num = (n: unknown) => (typeof n === 'number' && Number.isFinite(n) && n >= 0 ? n : 0);
+  return raw
+    .filter((h): h is Record<string, unknown> => Boolean(h) && typeof h === 'object')
+    .filter((h) => typeof h.date === 'string' && (h.date as string).length > 0)
+    .map((h) => ({
+      date: h.date as string,
+      sessions: num(h.sessions),
+      correct: num(h.correct),
+      xp: num(h.xp),
+    }));
 }
 
 /** Assainit le registre du jour (schéma v4) ; défaut vide si absent/corrompu. */

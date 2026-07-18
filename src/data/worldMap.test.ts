@@ -20,7 +20,7 @@ function base(overrides: Partial<ProgressState> = {}): ProgressState {
   return {
     onboarded: true, level: 1, totalXp: 0, streakDays: 0, coins: 0,
     completedSkills: [], skills: {},
-    daily: { date: '', sessions: 0, correct: 0, xp: 0 }, claimedQuestIds: [], claimedStreakMilestones: [],
+    daily: { date: '', sessions: 0, correct: 0, xp: 0 }, claimedQuestIds: [], claimedStreakMilestones: [], history: [],
     schemaVersion: PROGRESS_SCHEMA_VERSION, ...overrides,
   };
 }
