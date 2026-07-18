@@ -27,12 +27,36 @@ export interface LegacyMeta {
   humanReviewStatus?: 'pending' | 'approved' | 'rejected';
 }
 
-export type LessonStepKind = 'explain' | 'example' | 'interaction' | 'summary';
+/**
+ * Types de steps d'une leçon V2 (réf. skill : « Leçon V2 »).
+ * Anciens contenus (explain/example/interaction/summary) restent valides.
+ */
+export type LessonStepKind =
+  | 'intro' // hook d'ouverture
+  | 'explain'
+  | 'observe' // observation guidée
+  | 'example'
+  | 'chart' // graphique déterministe
+  | 'interaction'
+  | 'warning'
+  | 'falseSignal' // faux signal / limite
+  | 'summary'
+  | 'flashcard';
+
+export interface Flashcard {
+  front: string;
+  back: string;
+}
 
 export interface LessonStep {
   id: string;
   kind: LessonStepKind;
-  body: string;
+  /** Texte du step (optionnel : un 'chart' ou une 'flashcard' peut s'en passer). */
+  body?: string;
+  /** Pour kind 'chart' : graine du graphique reproductible. */
+  chartSeed?: number;
+  /** Pour kind 'flashcard'. */
+  flashcard?: Flashcard;
 }
 
 export interface Lesson {

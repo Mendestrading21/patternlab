@@ -6,4 +6,5 @@ export * from './dailyMission';
 export * from './onboardingProfile';
 export * from './sessionPlan';
 export * from './worldMap';
+export * from './lessonContent';
 export { ProgressProvider, useProgress } from './progressContext';

@@ -21,3 +21,4 @@ export { Skeleton, type SkeletonProps } from './components/Skeleton';
 export { OfflineBanner, type OfflineBannerProps } from './components/OfflineBanner';
 export { AnswerOption, type AnswerOptionProps, type AnswerState } from './components/AnswerOption';
 export { FeedbackPanel, type FeedbackPanelProps } from './components/FeedbackPanel';
+export { Flashcard, type FlashcardProps } from './components/Flashcard';

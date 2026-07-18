@@ -1,9 +1,9 @@
 # État du projet
 
 ## Date
-2026-07-17 — **LOT 5 — Parcours immersif** terminé (après LOT 0 — Fiabilité,
-LOT 1 — Design System V2, LOT 2 — Navigation, LOT 3 — Onboarding personnalisé,
-LOT 4 — Accueil mission du jour), skill `patternlab-product-growth`, sur la base des
+2026-07-17 — **LOT 6 — Leçons V2** terminé (après LOT 0 — Fiabilité, LOT 1 — Design
+System V2, LOT 2 — Navigation, LOT 3 — Onboarding personnalisé, LOT 4 — Accueil mission
+du jour, LOT 5 — Parcours immersif), skill `patternlab-product-growth`, sur la base des
 lots P0/P1 précédents.
 
 ## Branche / commit
@@ -76,8 +76,18 @@ Carte à nœuds + checkpoint, sans régression, toutes validations vertes :
 - **UI immersive** (`parcours.tsx`) : en-tête de monde (« Monde 1 · Fondations »), mascotte, barre de progression, **trail** relié par un connecteur vertical, badges statués, révisions dues surlignées, nœud checkpoint distinct ; accessibilité (rôles/états/hints) + état loading.
 - Voir **ADR-011**.
 
+## LOT 6 — Leçons V2 (ce lot)
+Steps enrichis + flashcards, sans régression, toutes validations vertes :
+- **Modèle de step étendu** (rétrocompatible) : `intro` (hook), `observe`, `chart`, `warning`, `falseSignal`, `flashcard` en plus des existants ; `body` optionnel ; `chartSeed` + `flashcard {front, back}`. Schéma JSON inchangé (permissif sur `kind`).
+- **Contenu enrichi** : leçons pilotes (action, bougie, double creux) en V2 — hook → observation → **graphique** (PatternChart déterministe) → **faux signal** → résumé → **flashcard**.
+- **Composant `Flashcard`** (design system) : réponse révélée au toucher, sans animation (reduced-motion safe), accessible.
+- **Écran leçon** : rendu par kind (accents dédiés : faux signal bearish, résumé primaire, warning ambre) ; chips durée/difficulté.
+- **Helper pur `lessonContent`** (`flashcardsForSkill` / `allFlashcards`), testé — brique réutilisable pour les révisions.
+- Voir **ADR-012**.
+
 ## Partiel
 - Lottie : dépendance + point d'intégration prêts ; rendu figures/SVG en attendant (ADR-005).
+- Flashcards rendues dans la leçon ; leur surfaçage en révision autonome viendra avec un lot ultérieur.
 - Parcours : un seul monde/module pour l'instant ; l'ajout de mondes ne demandera pas de réécrire la carte (contenu piloté).
 - Détection hors-ligne native (iOS/Android) différée (web opérationnel) — `@react-native-community/netinfo` dans un lot ultérieur.
 - Laboratoire : aperçu lisible ; tracé/comparaison/replay interactifs au Lot 8.
@@ -89,12 +99,12 @@ Carte à nœuds + checkpoint, sans régression, toutes validations vertes :
 - Aucun connu (voir sorties lint / typecheck / test / validate:content / build web).
 
 ## Absent (par design, lots suivants)
-- Leçons V2, exercices avancés, laboratoire graphique interactif (tracé/replay), maîtrise adaptative, import APP pilote, monétisation, analytics étendus, offline complet (lots 6→19 du skill `patternlab-product-growth`).
+- Exercices avancés, laboratoire graphique interactif (tracé/replay), maîtrise adaptative, import APP pilote, monétisation, analytics étendus, offline complet (lots 7→19 du skill `patternlab-product-growth`).
 - Builds device iOS/Android (EAS + comptes Apple/Google).
 
 ## Prochaine priorité
-**Lot 6 — Leçons V2** (steps enrichis : hook, observation, interaction, faux signaux,
-flashcards), puis Lot 7 — Exercices avancés.
+**Lot 7 — Exercices avancés** (nouveaux formats : drag_drop, select_chart_zone,
+draw_level, scenario, timed…), puis Lot 8 — Laboratoire interactif.
 
 ## Risques
 - Conteneur éphémère : commit local présent ; pousser après accord pour ne rien perdre.
