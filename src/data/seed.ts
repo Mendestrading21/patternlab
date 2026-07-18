@@ -202,14 +202,27 @@ const EXERCISES: Record<string, Exercise[]> = {
   ],
 };
 
+// ─── Checkpoint (revue mixte du module) ──────────────────────────────
+// Nœud de fin de module : réunit quelques exercices de chaque compétence.
+// Les exercices gardent leur skillId réel → répondre met à jour la maîtrise réelle.
+export const CHECKPOINT_ID = 'checkpoint.read-chart';
+export const CHECKPOINT_TITLE = 'Revue — Lire un graphique';
+export function isCheckpoint(id: string): boolean {
+  return id === CHECKPOINT_ID;
+}
+
 // ─── Helpers de contenu ──────────────────────────────────────────────
 export function getLessons(skillId: string): Lesson[] {
   return LESSONS[skillId] ?? [];
 }
 export function getExercises(skillId: string): Exercise[] {
+  if (skillId === CHECKPOINT_ID) {
+    return SKILLS.flatMap((s) => (EXERCISES[s.id] ?? []).slice(0, 2));
+  }
   return EXERCISES[skillId] ?? [];
 }
 export function skillById(id: string): Skill | undefined {
+  if (id === CHECKPOINT_ID) return { id: CHECKPOINT_ID, name: CHECKPOINT_TITLE };
   return SKILLS.find((s) => s.id === id);
 }
 export function allLessons(): Lesson[] {

@@ -13,6 +13,7 @@ export type AnalyticsEvent =
   | 'review_completed'
   | 'streak_updated'
   | 'path_node_unlocked'
+  | 'checkpoint_completed'
   | 'paywall_viewed'
   | 'subscription_started'
   | 'app_error';
@@ -31,6 +32,7 @@ export const ANALYTICS_EVENTS: AnalyticsEvent[] = [
   'review_completed',
   'streak_updated',
   'path_node_unlocked',
+  'checkpoint_completed',
   'paywall_viewed',
   'subscription_started',
   'app_error',

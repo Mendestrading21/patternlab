@@ -1,9 +1,10 @@
 # État du projet
 
 ## Date
-2026-07-17 — **LOT 4 — Accueil mission du jour** terminé (après LOT 0 — Fiabilité,
-LOT 1 — Design System V2, LOT 2 — Navigation, LOT 3 — Onboarding personnalisé),
-skill `patternlab-product-growth`, sur la base des lots P0/P1 précédents.
+2026-07-17 — **LOT 5 — Parcours immersif** terminé (après LOT 0 — Fiabilité,
+LOT 1 — Design System V2, LOT 2 — Navigation, LOT 3 — Onboarding personnalisé,
+LOT 4 — Accueil mission du jour), skill `patternlab-product-growth`, sur la base des
+lots P0/P1 précédents.
 
 ## Branche / commit
 Branche de travail `claude/connexion-application-1n30su`. Dépôt distant `origin`
@@ -68,8 +69,16 @@ Composition personnalisée, sans régression, toutes validations vertes :
 - **Allègement** : suppression de la section décorative « Les 4 piliers » ; conservation des Défis, de l'Explorer (Leçons/Quiz/Glossaire/Réussites) et des Conseils Toto/Bobo.
 - Voir **ADR-010**.
 
+## LOT 5 — Parcours immersif (ce lot)
+Carte à nœuds + checkpoint, sans régression, toutes validations vertes :
+- **Carte pure** `buildWorldMap` : nœuds (compétences + **checkpoint** de fin de module) avec statuts done / current / **due** / locked ; checkpoint verrouillé tant que les 4 compétences ne sont pas terminées. Testée.
+- **Checkpoint = revue mixte** : `getExercises('checkpoint.read-chart')` agrège des exercices de chaque compétence (skillId réel conservé → maîtrise réelle mise à jour) ; `skillById` donne un titre dédié ; lecteur de session **inchangé** ; événement `checkpoint_completed`.
+- **UI immersive** (`parcours.tsx`) : en-tête de monde (« Monde 1 · Fondations »), mascotte, barre de progression, **trail** relié par un connecteur vertical, badges statués, révisions dues surlignées, nœud checkpoint distinct ; accessibilité (rôles/états/hints) + état loading.
+- Voir **ADR-011**.
+
 ## Partiel
 - Lottie : dépendance + point d'intégration prêts ; rendu figures/SVG en attendant (ADR-005).
+- Parcours : un seul monde/module pour l'instant ; l'ajout de mondes ne demandera pas de réécrire la carte (contenu piloté).
 - Détection hors-ligne native (iOS/Android) différée (web opérationnel) — `@react-native-community/netinfo` dans un lot ultérieur.
 - Laboratoire : aperçu lisible ; tracé/comparaison/replay interactifs au Lot 8.
 - Exercices : 7 formats sur 12 branchés (restent : drag_drop, select_chart_zone, draw_level, scenario, timed).
@@ -80,12 +89,12 @@ Composition personnalisée, sans régression, toutes validations vertes :
 - Aucun connu (voir sorties lint / typecheck / test / validate:content / build web).
 
 ## Absent (par design, lots suivants)
-- Parcours immersif, leçons V2, exercices avancés, laboratoire graphique interactif (tracé/replay), maîtrise adaptative, import APP pilote, monétisation, analytics étendus, offline complet (lots 5→19 du skill `patternlab-product-growth`).
+- Leçons V2, exercices avancés, laboratoire graphique interactif (tracé/replay), maîtrise adaptative, import APP pilote, monétisation, analytics étendus, offline complet (lots 6→19 du skill `patternlab-product-growth`).
 - Builds device iOS/Android (EAS + comptes Apple/Google).
 
 ## Prochaine priorité
-**Lot 5 — Parcours immersif** (mondes, carte, nœuds, checkpoints et révisions),
-puis Lot 6 — Leçons V2.
+**Lot 6 — Leçons V2** (steps enrichis : hook, observation, interaction, faux signaux,
+flashcards), puis Lot 7 — Exercices avancés.
 
 ## Risques
 - Conteneur éphémère : commit local présent ; pousser après accord pour ne rien perdre.

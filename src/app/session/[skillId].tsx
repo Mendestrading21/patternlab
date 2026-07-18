@@ -4,7 +4,7 @@ import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, ProgressBar, FeedbackPanel, theme } from '@/design-system';
 import { CharacterScene, MascotFigure } from '@/characters';
 import { ExercisePlayer, gradeExercise, type GradeResult } from '@/engines/exercise';
-import { getExercises, skillById, limitCount, useProgress } from '@/data';
+import { getExercises, skillById, limitCount, isCheckpoint, useProgress } from '@/data';
 import { xpForGrade } from '@/engines/learning';
 import { analytics } from '@/analytics';
 
@@ -34,7 +34,10 @@ export default function Session() {
       <Results
         total={list.length}
         correct={correct}
-        onComplete={(passed) => completeSession(resolvedId, passed)}
+        onComplete={(passed) => {
+          completeSession(resolvedId, passed);
+          if (isCheckpoint(resolvedId)) analytics.track('checkpoint_completed', { passed });
+        }}
         onHome={() => router.replace('/(tabs)')}
         onRetry={() => {
           setIndex(0);
