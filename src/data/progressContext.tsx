@@ -4,7 +4,15 @@ import { defaultProgress } from './seed';
 import type { OnboardingProfile } from './onboardingProfile';
 import type { Grade } from '../engines/learning';
 import * as progressLogic from './progressLogic';
+import * as gamification from './gamification';
 import { analytics } from '../analytics';
+
+/** Émet `achievement_unlocked` pour chaque badge nouvellement obtenu. */
+function announceBadges(prev: ProgressState, next: ProgressState) {
+  for (const badge of gamification.newlyEarnedBadges(prev, next)) {
+    analytics.track('achievement_unlocked', { badgeId: badge.id });
+  }
+}
 
 interface ProgressContextValue {
   state: ProgressState | null;
@@ -17,6 +25,8 @@ interface ProgressContextValue {
   recordAnswer: (skillId: string, grade: Grade, tag?: string) => void;
   /** `passed` : la session est-elle réussie ? Seule une réussite débloque la compétence. */
   completeSession: (skillId?: string, passed?: boolean) => void;
+  /** Réclame la récompense d'une quête du jour terminée (idempotent). */
+  claimQuest: (questId: string) => void;
   reset: () => void;
 }
 
@@ -76,9 +86,17 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   const recordAnswer = useCallback((skillId: string, grade: Grade, tag?: string) => {
     setState((prev) => {
       if (!prev) return prev;
-      const next = progressLogic.recordAnswer(prev, skillId, grade, Date.now(), tag);
+      const now = Date.now();
+      const graded = progressLogic.recordAnswer(prev, skillId, grade, now, tag);
+      // Registre du jour (quêtes) : XP réellement gagné + réponse juste.
+      const next = gamification.recordActivity(
+        graded,
+        { xpGained: graded.totalXp - prev.totalXp, correct: grade >= 3 },
+        now,
+      );
       void progressRepository.save(next);
       analytics.track('exercise_answered', { skillId, grade });
+      announceBadges(prev, next);
       return next;
     });
   }, []);
@@ -86,12 +104,31 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   const completeSession = useCallback((skillId?: string, passed = true) => {
     setState((prev) => {
       if (!prev) return prev;
-      const { state: next, unlockedSkillId } = progressLogic.completeSession(prev, skillId, passed, Date.now());
+      const now = Date.now();
+      const { state: completed, unlockedSkillId } = progressLogic.completeSession(prev, skillId, passed, now);
+      // Compte la session du jour (quêtes), puis récompense les jalons de série franchis.
+      const withSession = gamification.recordSessionActivity(completed, now);
+      const { state: next, crossed, reward } = gamification.applyStreakMilestones(withSession);
       void progressRepository.save(next);
       analytics.track('streak_updated', { streakDays: next.streakDays });
       if (unlockedSkillId) {
         analytics.track('path_node_unlocked', { skillId: unlockedSkillId });
       }
+      for (const milestone of crossed) {
+        analytics.track('achievement_unlocked', { streakMilestone: milestone, reward });
+      }
+      announceBadges(prev, next);
+      return next;
+    });
+  }, []);
+
+  const claimQuest = useCallback((questId: string) => {
+    setState((prev) => {
+      if (!prev) return prev;
+      const { state: next, claimed, reward } = gamification.claimQuest(prev, questId, Date.now());
+      if (!claimed) return prev;
+      void progressRepository.save(next);
+      analytics.track('quest_completed', { questId, reward });
       return next;
     });
   }, []);
@@ -106,7 +143,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
 
   return (
     <ProgressContext.Provider
-      value={{ state, ready, profile, markOnboarded, completeOnboarding, recordAnswer, completeSession, reset }}
+      value={{ state, ready, profile, markOnboarded, completeOnboarding, recordAnswer, completeSession, claimQuest, reset }}
     >
       {children}
     </ProgressContext.Provider>

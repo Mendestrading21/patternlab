@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, Chip, ProgressBar, StateView, theme } from '@/design-system';
 import { CharacterScene, MascotFigure } from '@/characters';
-import { useProgress, SKILLS, buildDailyMission, selectDueReviews, exercisesForMinutes, OBJECTIVES } from '@/data';
+import { useProgress, SKILLS, buildDailyMission, selectDueReviews, exercisesForMinutes, buildDailyQuests, OBJECTIVES } from '@/data';
 import { DISCLAIMER } from '@/lib/config';
 
 const EXPLORE = [
@@ -14,7 +14,7 @@ const EXPLORE = [
 
 export default function Home() {
   const router = useRouter();
-  const { state, ready, profile } = useProgress();
+  const { state, ready, profile, claimQuest } = useProgress();
 
   if (!ready || !state) {
     return (
@@ -31,13 +31,8 @@ export default function Home() {
   const minutes = profile?.dailyMinutes ?? 5;
   const sessionCount = exercisesForMinutes(minutes);
   const objectiveLabel = OBJECTIVES.find((o) => o.value === profile?.objective)?.label;
-  const today = new Date(now).toISOString().slice(0, 10);
-  const challenges = [
-    { label: 'Termine une session aujourd’hui', done: state.lastActiveDate === today },
-    { label: 'Débloque une compétence', done: state.completedSkills.length >= 1 },
-    { label: 'Atteins 50 XP au total', done: state.totalXp >= 50 },
-  ];
-  const challengesDone = challenges.filter((c) => c.done).length;
+  const quests = buildDailyQuests(state, now);
+  const questsDone = quests.filter((q) => q.done).length;
 
   const startMission = () =>
     mission.skillId
@@ -105,22 +100,48 @@ export default function Home() {
       </Pressable>
 
       <Card>
-        <Text variant="title">🏹 Défis du jour</Text>
-        <View style={styles.challenges}>
-          {challenges.map((c) => (
-            <View key={c.label} style={styles.challengeRow}>
-              <Text variant="body">{c.done ? '✅' : '⚪️'}</Text>
-              <Text variant="body" color={c.done ? theme.colors.textPrimary : theme.colors.textSecondary} style={styles.flex1}>
-                {c.label}
-              </Text>
+        <View style={styles.row}>
+          <Text variant="title" style={styles.flex1}>
+            🏹 Quêtes du jour
+          </Text>
+          <Text variant="caption" color={theme.colors.textMuted}>
+            {questsDone} / {quests.length}
+          </Text>
+        </View>
+        <View style={styles.quests}>
+          {quests.map((q) => (
+            <View key={q.id} style={styles.quest}>
+              <View style={styles.questHead}>
+                <Text variant="body" style={styles.flex1}>
+                  {q.icon} {q.label}
+                </Text>
+                {q.claimable ? (
+                  <Button
+                    label={`Réclamer +${q.reward} 🪙`}
+                    variant="reward"
+                    fullWidth={false}
+                    onPress={() => claimQuest(q.id)}
+                    accessibilityHint={`Réclamer la récompense : ${q.reward} pièces`}
+                  />
+                ) : (
+                  <Text
+                    variant="caption"
+                    color={q.claimed ? theme.colors.primary : theme.colors.textMuted}
+                  >
+                    {q.claimed ? 'Réclamé ✓' : `${q.progress}/${q.target}`}
+                  </Text>
+                )}
+              </View>
+              <ProgressBar
+                value={q.target ? q.progress / q.target : 0}
+                color={q.done ? theme.colors.primary : theme.colors.reward}
+                accessibilityLabel={`${q.label} : ${q.progress} sur ${q.target}`}
+              />
             </View>
           ))}
         </View>
-        <View style={styles.mission}>
-          <ProgressBar value={challengesDone / challenges.length} color={theme.colors.reward} />
-        </View>
         <Text variant="caption" color={theme.colors.textMuted}>
-          {challengesDone} / {challenges.length} défis relevés
+          Les quêtes se renouvellent chaque jour. Les pièces récompensent ta régularité, jamais un pari.
         </Text>
       </Card>
 
@@ -162,11 +183,11 @@ const styles = StyleSheet.create({
   chips: { flexDirection: 'row', gap: theme.spacing.sm, marginBottom: theme.spacing.xs },
   row: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
   reviewDue: { borderColor: theme.colors.warning },
-  mission: { marginVertical: theme.spacing.md },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md },
   advice: { gap: theme.spacing.md, marginTop: theme.spacing.sm },
-  challenges: { gap: theme.spacing.xs, marginTop: theme.spacing.sm },
-  challengeRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+  quests: { gap: theme.spacing.md, marginVertical: theme.spacing.sm },
+  quest: { gap: theme.spacing.xs },
+  questHead: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm, minHeight: 32 },
   flex1: { flex: 1 },
   explore: { alignItems: 'flex-start', gap: 2, minHeight: 120 },
 });

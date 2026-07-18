@@ -1,11 +1,16 @@
 import { View, StyleSheet } from 'react-native';
-import { Screen, Text, Card, ProgressBar, theme } from '@/design-system';
+import { Screen, Text, Card, Chip, ProgressBar, theme } from '@/design-system';
 import { MascotFigure } from '@/characters';
-import { BADGES, earnedBadges, useProgress } from '@/data';
+import { BADGES, earnedBadges, streakInfo, STREAK_MILESTONE_REWARD, useProgress } from '@/data';
 
 export default function Reussites() {
   const { state } = useProgress();
   const earned = earnedBadges(state);
+  const streak = streakInfo(state?.streakDays ?? 0);
+  // Progression vers le prochain jalon depuis le jalon précédent atteint.
+  const prevMilestone = streak.reachedMilestones.at(-1) ?? 0;
+  const span = streak.next ? streak.next - prevMilestone : 1;
+  const streakProgress = streak.next ? (streak.current - prevMilestone) / span : 1;
 
   return (
     <Screen>
@@ -15,6 +20,19 @@ export default function Reussites() {
       </Text>
 
       <MascotFigure name="celebrate" gesture="celebrate" height={150} />
+
+      <Card elevated>
+        <View style={styles.summary}>
+          <Text variant="title">🔥 Série</Text>
+          <Chip icon="🔥" label={`${streak.current} jour${streak.current > 1 ? 's' : ''}`} color={theme.colors.warning} />
+        </View>
+        <ProgressBar value={streakProgress} color={theme.colors.warning} accessibilityLabel="Progression vers le prochain jalon de série" />
+        <Text variant="caption" color={theme.colors.textMuted}>
+          {streak.next
+            ? `Encore ${streak.toGo} jour${streak.toGo > 1 ? 's' : ''} jusqu’au jalon ${streak.next} · +${STREAK_MILESTONE_REWARD} 🪙`
+            : `Tous les jalons de série sont atteints. Bravo pour ta constance !`}
+        </Text>
+      </Card>
 
       <Card elevated>
         <View style={styles.summary}>

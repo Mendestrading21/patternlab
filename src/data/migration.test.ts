@@ -53,6 +53,30 @@ describe('migrateProgress', () => {
     expect(m.completedSkills).toEqual(['skill.a', 'skill.b']);
   });
 
+  it('schéma v4 : registre du jour + quêtes/jalons par défaut', () => {
+    // état v3 (sans daily/claimedQuestIds/claimedStreakMilestones) → défauts sûrs
+    const m = migrateProgress({ schemaVersion: 3, totalXp: 40, streakDays: 2 }, T0)!;
+    expect(m.schemaVersion).toBe(PROGRESS_SCHEMA_VERSION);
+    expect(m.daily).toEqual({ date: '', sessions: 0, correct: 0, xp: 0 });
+    expect(m.claimedQuestIds).toEqual([]);
+    expect(m.claimedStreakMilestones).toEqual([]);
+  });
+
+  it('schéma v4 : assainit un registre du jour corrompu et les listes', () => {
+    const m = migrateProgress(
+      {
+        totalXp: 0,
+        daily: { date: 5, sessions: -3, correct: 'x', xp: 12 },
+        claimedQuestIds: ['quest.session', 7, null],
+        claimedStreakMilestones: [3, 'x', 7],
+      },
+      T0,
+    )!;
+    expect(m.daily).toEqual({ date: '', sessions: 0, correct: 0, xp: 12 });
+    expect(m.claimedQuestIds).toEqual(['quest.session']);
+    expect(m.claimedStreakMilestones).toEqual([3, 7]);
+  });
+
   it('schéma v3 : errorTags par défaut {} et assainis', () => {
     // ancien état v2 sans errorTags → {}
     const legacy = migrateProgress(

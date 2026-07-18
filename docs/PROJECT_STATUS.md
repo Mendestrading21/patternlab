@@ -1,7 +1,7 @@
 # État du projet
 
 ## Date
-2026-07-18 — **LOT 12 — Glossaire enrichi** terminé (après LOT 0 → LOT 11),
+2026-07-18 — **LOT 13 — Gamification** terminé (après LOT 0 → LOT 12),
 skill `patternlab-product-growth`, sur la base des lots P0/P1 précédents.
 
 ## Branche / commit
@@ -131,7 +131,16 @@ Recherche tolérante + catégories + fiches reliées, sans régression, toutes v
 - **Intégrité par test** : chaque `related` existe et n'est pas auto-référent ; chaque `relatedSkillId` pointe vers une compétence réelle (un lien cassé casse la CI).
 - Catégories recolorées « Instrument Glass ». Voir **ADR-018**.
 
+## LOT 13 — Gamification (ce lot)
+Quêtes du jour rémunérées + jalons de série + réussites, sans régression, toutes validations vertes :
+- **Registre d'activité du jour** (schéma **v4**) : `daily {date, sessions, correct, xp}` remis à zéro chaque jour ; migration non destructive (défauts sûrs + assainissement), aucune perte de progression.
+- **Moteur pur et testé** `src/data/gamification.ts` : `buildDailyQuests` (3 quêtes stables adossées au registre réel), `claimQuest` (récompense en pièces, **idempotent** par jour), `streakInfo`/`applyStreakMilestones` (paliers 3/7/14/30/60/100, +15 🪙 une seule fois), `newlyEarnedBadges` (détection de badge obtenu).
+- **Câblage** (`progressContext`) : chaque réponse nourrit le registre (XP réel + bonne réponse) ; chaque session est comptée et crédite les jalons franchis ; `claimQuest` exposé. Analytics ajoutés : `quest_completed`, `achievement_unlocked`.
+- **UI honnête, zéro bouton mort** : l'accueil remplace les faux « Défis » par les vraies quêtes (progression + bouton **Réclamer +N 🪙** actif seulement si terminé) ; l'écran Réussites gagne une carte **Série** (jalon suivant + récompense). Aucune mécanique manipulatrice (pas de vie punitive, pas de casino, pas de pari).
+- Vérifié en pilotant Chromium : réclamation d'une quête → pièces 20 → 25 et « Réclamé ✓ » ; carte Série « encore 3 jours jusqu'au jalon 7 · +15 🪙 ». Voir **ADR-019**.
+
 ## Partiel
+- Gamification : quêtes du jour + jalons de série + détection de badge obtenu en place. La **célébration visuelle** (toast/modale à l'obtention) est encore réduite à l'analytics `achievement_unlocked` ; l'écran Réussites reste le lieu de constat. Quêtes hebdomadaires et coffres non couverts (base extensible).
 - Lottie : dépendance + point d'intégration prêts ; rendu figures/SVG en attendant (ADR-005).
 - Import APP : pilote de 18 concepts curatés ; extraction de l'export APP réel (`02_DATA_EDUCATIVES`) + montée vers 50+ = alimenter le dossier `source/` (pipeline inchangé). Le registre V2 prépare la bascule (renderer remplaçable sans toucher aux états).
 - Adaptation intra-session (re-séquencement des exercices ratés) : à affiner ; la base errorTags + révision rapprochée est en place.
@@ -149,13 +158,14 @@ Recherche tolérante + catégories + fiches reliées, sans régression, toutes v
 - Aucun connu (voir sorties lint / typecheck / test / validate:content / build web).
 
 ## Absent (par design, lots suivants)
-- Gamification, statistiques, monétisation, analytics étendus, offline complet, accessibilité complète, release readiness (lots 13→19 du skill `patternlab-product-growth`).
+- Statistiques, monétisation, analytics étendus, offline complet, accessibilité complète, release readiness (lots 14→19 du skill `patternlab-product-growth`).
 - Builds device iOS/Android (EAS + comptes Apple/Google).
 
 ## Prochaine priorité
-**Lot 13 — Gamification** (progression récompensée : séries, badges/quêtes, jalons,
-boucles de rétention), puis Lot 14 — Statistiques. Brancher les 18 concepts importés
-(une fois revus) dans le glossaire enrichi reste un chantier de contenu ouvert.
+**Lot 14 — Statistiques** (tableau de progression : maîtrise par compétence, régularité,
+erreurs récurrentes, historique), puis Lot 15 — Monétisation. Célébration visuelle des
+réussites (toast/modale) et branchement des 18 concepts importés (après revue) restent
+des chantiers ouverts.
 
 ## Risques
 - Conteneur éphémère : commit local présent ; pousser après accord pour ne rien perdre.

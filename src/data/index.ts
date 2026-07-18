@@ -3,6 +3,7 @@ export * from './seed';
 export * from './glossary';
 export * from './glossarySearch';
 export * from './badges';
+export * from './gamification';
 export * from './dailyMission';
 export * from './onboardingProfile';
 export * from './sessionPlan';

@@ -6,6 +6,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { initialReview, levelForXp, type SkillProgress } from '../engines/learning';
 import { migrateOnboardingProfile, type OnboardingProfile } from './onboardingProfile';
 
+/** Registre d'activité du jour (base des quêtes ; remis à zéro chaque jour). */
+export interface DailyActivity {
+  /** Jour du registre (YYYY-MM-DD) ; '' = jamais actif. */
+  date: string;
+  sessions: number;
+  correct: number;
+  xp: number;
+}
+
 export interface ProgressState {
   onboarded: boolean;
   level: number;
@@ -17,10 +26,16 @@ export interface ProgressState {
   /** Compétences terminées (au moins une session validée), pour débloquer le parcours. */
   completedSkills: string[];
   skills: Record<string, SkillProgress>;
+  /** Activité du jour (schéma v4) — alimente les quêtes quotidiennes. */
+  daily: DailyActivity;
+  /** Ids de quêtes du jour déjà récompensées (schéma v4 ; réinitialisé chaque jour). */
+  claimedQuestIds: string[];
+  /** Jalons de série déjà récompensés (schéma v4 ; jamais deux fois). */
+  claimedStreakMilestones: number[];
   schemaVersion: number;
 }
 
-export const PROGRESS_SCHEMA_VERSION = 3;
+export const PROGRESS_SCHEMA_VERSION = 4;
 
 export interface ProgressRepository {
   load(): Promise<ProgressState | null>;
@@ -84,7 +99,28 @@ export function migrateProgress(raw: unknown, now: number): ProgressState | null
       ? p.completedSkills.filter((x): x is string => typeof x === 'string')
       : [],
     skills: migrateSkills(p.skills, now),
+    daily: migrateDaily(p.daily),
+    claimedQuestIds: Array.isArray(p.claimedQuestIds)
+      ? p.claimedQuestIds.filter((x): x is string => typeof x === 'string')
+      : [],
+    claimedStreakMilestones: Array.isArray(p.claimedStreakMilestones)
+      ? p.claimedStreakMilestones.filter((x): x is number => typeof x === 'number' && Number.isFinite(x))
+      : [],
     schemaVersion: PROGRESS_SCHEMA_VERSION,
+  };
+}
+
+/** Assainit le registre du jour (schéma v4) ; défaut vide si absent/corrompu. */
+function migrateDaily(raw: unknown): DailyActivity {
+  const empty: DailyActivity = { date: '', sessions: 0, correct: 0, xp: 0 };
+  if (!raw || typeof raw !== 'object') return empty;
+  const d = raw as Partial<DailyActivity>;
+  const num = (n: unknown) => (typeof n === 'number' && Number.isFinite(n) && n >= 0 ? n : 0);
+  return {
+    date: typeof d.date === 'string' ? d.date : '',
+    sessions: num(d.sessions),
+    correct: num(d.correct),
+    xp: num(d.xp),
   };
 }
 

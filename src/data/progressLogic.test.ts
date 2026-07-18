@@ -16,6 +16,9 @@ function base(overrides: Partial<ProgressState> = {}): ProgressState {
     lastActiveDate: undefined,
     completedSkills: [],
     skills: {},
+    daily: { date: '', sessions: 0, correct: 0, xp: 0 },
+    claimedQuestIds: [],
+    claimedStreakMilestones: [],
     schemaVersion: PROGRESS_SCHEMA_VERSION,
     ...overrides,
   };

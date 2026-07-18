@@ -19,7 +19,9 @@ function review(dueAt: number) {
 function base(overrides: Partial<ProgressState> = {}): ProgressState {
   return {
     onboarded: true, level: 1, totalXp: 0, streakDays: 0, coins: 0,
-    completedSkills: [], skills: {}, schemaVersion: PROGRESS_SCHEMA_VERSION, ...overrides,
+    completedSkills: [], skills: {},
+    daily: { date: '', sessions: 0, correct: 0, xp: 0 }, claimedQuestIds: [], claimedStreakMilestones: [],
+    schemaVersion: PROGRESS_SCHEMA_VERSION, ...overrides,
   };
 }
 
