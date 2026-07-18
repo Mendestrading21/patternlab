@@ -1,12 +1,18 @@
+import { useEffect } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, EmptyState, theme } from '@/design-system';
 import { GLOSSARY_TERMS, GLOSSARY_CATEGORIES, skillById } from '@/data';
+import { analytics } from '@/analytics';
 
 export default function GlossaryDetail() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const router = useRouter();
   const term = GLOSSARY_TERMS.find((t) => t.slug === slug);
+
+  useEffect(() => {
+    if (term) analytics.track('concept_viewed', { category: term.category, hasRelatedSkill: Boolean(term.relatedSkillId) });
+  }, [term]);
 
   if (!term) {
     return (

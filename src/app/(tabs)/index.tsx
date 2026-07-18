@@ -3,6 +3,7 @@ import { View, Pressable, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, Chip, ProgressBar, StateView, theme } from '@/design-system';
 import { CharacterScene, MascotFigure } from '@/characters';
 import { useProgress, SKILLS, buildDailyMission, selectDueReviews, exercisesForMinutes, buildDailyQuests, OBJECTIVES } from '@/data';
+import { analytics } from '@/analytics';
 import { DISCLAIMER } from '@/lib/config';
 
 const EXPLORE = [
@@ -34,10 +35,14 @@ export default function Home() {
   const quests = buildDailyQuests(state, now);
   const questsDone = quests.filter((q) => q.done).length;
 
-  const startMission = () =>
-    mission.skillId
-      ? router.push({ pathname: '/session/[skillId]', params: { skillId: mission.skillId, count: String(sessionCount) } })
-      : router.push('/parcours');
+  const startMission = () => {
+    if (mission.skillId) {
+      analytics.track('daily_mission_started', { skillId: mission.skillId, count: sessionCount });
+      router.push({ pathname: '/session/[skillId]', params: { skillId: mission.skillId, count: String(sessionCount) } });
+    } else {
+      router.push('/parcours');
+    }
+  };
 
   return (
     <Screen>

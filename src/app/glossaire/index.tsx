@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { View, TextInput, Pressable, StyleSheet } from 'react-native';
 import { Screen, Text, Card, theme } from '@/design-system';
 import { GLOSSARY_TERMS, GLOSSARY_CATEGORIES, searchGlossary, type GlossaryCategory } from '@/data';
+import { analytics } from '@/analytics';
 
 export default function Glossaire() {
   const router = useRouter();
@@ -22,6 +23,10 @@ export default function Glossaire() {
         style={styles.search}
         value={query}
         onChangeText={setQuery}
+        onSubmitEditing={() =>
+          // Vie privée : on n'envoie que la longueur de la requête, jamais le texte.
+          analytics.track('glossary_searched', { queryLength: query.trim().length, category: cat, results: list.length })
+        }
         placeholder="Rechercher un terme…"
         placeholderTextColor={theme.colors.textMuted}
         accessibilityLabel="Rechercher un terme"

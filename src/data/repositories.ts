@@ -233,6 +233,39 @@ export class AsyncStoragePremiumRepository implements PremiumRepository {
 
 export const premiumRepository: PremiumRepository = new AsyncStoragePremiumRepository();
 
+// ─── Consentement analytics (opt-out, respect de la vie privée) ──────
+const CONSENT_KEY = 'patternlab.consent.v1';
+
+export interface ConsentRepository {
+  /** Consentement au suivi d'usage (true par défaut ; opt-out). */
+  load(): Promise<boolean>;
+  save(enabled: boolean): Promise<void>;
+  reset(): Promise<void>;
+}
+
+export class AsyncStorageConsentRepository implements ConsentRepository {
+  async load(): Promise<boolean> {
+    try {
+      const raw = await AsyncStorage.getItem(CONSENT_KEY);
+      if (!raw) return true;
+      const parsed = JSON.parse(raw) as { analytics?: unknown };
+      return typeof parsed?.analytics === 'boolean' ? parsed.analytics : true;
+    } catch {
+      return true;
+    }
+  }
+
+  async save(enabled: boolean): Promise<void> {
+    await AsyncStorage.setItem(CONSENT_KEY, JSON.stringify({ analytics: enabled }));
+  }
+
+  async reset(): Promise<void> {
+    await AsyncStorage.removeItem(CONSENT_KEY);
+  }
+}
+
+export const consentRepository: ConsentRepository = new AsyncStorageConsentRepository();
+
 /** Implémentation mémoire (tests / fallback). */
 export class InMemoryProgressRepository implements ProgressRepository {
   private state: ProgressState | null = null;

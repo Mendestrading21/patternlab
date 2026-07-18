@@ -1,9 +1,15 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
-import { progressRepository, onboardingRepository, premiumRepository, type ProgressState } from './repositories';
+import {
+  progressRepository,
+  onboardingRepository,
+  premiumRepository,
+  consentRepository,
+  type ProgressState,
+} from './repositories';
 import { defaultProgress } from './seed';
 import type { OnboardingProfile } from './onboardingProfile';
 import * as premium from './premium';
-import type { Grade } from '../engines/learning';
+import { masteryStatus, type Grade } from '../engines/learning';
 import * as progressLogic from './progressLogic';
 import * as gamification from './gamification';
 import { analytics } from '../analytics';
@@ -36,6 +42,9 @@ interface ProgressContextValue {
   deactivatePremium: () => void;
   /** Restaure un accès Premium déjà activé localement. */
   restorePremium: () => void;
+  /** Consentement au suivi d'usage (opt-out ; true par défaut). */
+  analyticsEnabled: boolean;
+  setAnalyticsEnabled: (enabled: boolean) => void;
   reset: () => void;
 }
 
@@ -45,23 +54,29 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<ProgressState | null>(null);
   const [profile, setProfile] = useState<OnboardingProfile | null>(null);
   const [premiumState, setPremiumState] = useState<premium.PremiumState>(premium.emptyPremium());
+  const [analyticsEnabled, setAnalyticsEnabledState] = useState(true);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     let mounted = true;
     (async () => {
-      const [loaded, loadedProfile, loadedPremium] = await Promise.all([
+      const [loaded, loadedProfile, loadedPremium, consent] = await Promise.all([
         progressRepository.load(),
         onboardingRepository.load(),
         premiumRepository.load(),
+        consentRepository.load(),
       ]);
       if (!mounted) return;
       const progress = loaded ?? defaultProgress(Date.now());
+      // Applique le consentement AVANT toute émission d'évènement.
+      analytics.setConsent(consent);
+      setAnalyticsEnabledState(consent);
       setState(progress);
       setProfile(loadedProfile);
       setPremiumState(loadedPremium);
       setReady(true);
       await progressRepository.save(progress);
+      analytics.track('app_opened');
     })();
     return () => {
       mounted = false;
@@ -108,6 +123,16 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       );
       void progressRepository.save(next);
       analytics.track('exercise_answered', { skillId, grade });
+      // mastery_changed : statut de maîtrise franchit un palier (jamais sur une seule réponse en soi).
+      const before = prev.skills[skillId];
+      const after = next.skills[skillId];
+      if (after) {
+        const prevStatus = before ? masteryStatus(before) : 'new';
+        const nextStatus = masteryStatus(after);
+        if (prevStatus !== nextStatus) {
+          analytics.track('mastery_changed', { skillId, status: nextStatus });
+        }
+      }
       announceBadges(prev, next);
       return next;
     });
@@ -166,6 +191,12 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const setAnalyticsEnabled = useCallback((enabled: boolean) => {
+    analytics.setConsent(enabled);
+    setAnalyticsEnabledState(enabled);
+    void consentRepository.save(enabled);
+  }, []);
+
   const reset = useCallback(() => {
     const fresh = defaultProgress(Date.now());
     void progressRepository.reset().then(() => progressRepository.save(fresh));
@@ -175,6 +206,9 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     setProfile(null);
     setPremiumState(premium.emptyPremium());
   }, []);
+
+  // Le consentement analytics n'est PAS réinitialisé par « Réinitialiser ma progression » :
+  // c'est un choix de vie privée, distinct de la progression d'apprentissage.
 
   return (
     <ProgressContext.Provider
@@ -191,6 +225,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         activatePremium,
         deactivatePremium,
         restorePremium,
+        analyticsEnabled,
+        setAnalyticsEnabled,
         reset,
       }}
     >

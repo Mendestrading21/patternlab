@@ -1,7 +1,7 @@
 # État du projet
 
 ## Date
-2026-07-18 — **LOT 15 — Monétisation** terminé (après LOT 0 → LOT 14),
+2026-07-18 — **LOT 16 — Analytics étendus** terminé (après LOT 0 → LOT 15),
 skill `patternlab-product-growth`, sur la base des lots P0/P1 précédents.
 
 ## Branche / commit
@@ -155,6 +155,15 @@ Offre gratuit/premium + paywall + entitlement simulé, sans régression, toutes 
 - **Analytics** : `premium_gate_hit`, `paywall_viewed`, `subscription_started`, `subscription_restored`.
 - Vérifié en pilotant Chromium : stats gratuites → gate → paywall (Pass Fondateur, avertissement simulation) → « Activer » → « Tu es Premium » → stats détaillées débloquées. Voir **ADR-021**.
 
+## LOT 16 — Analytics étendus (ce lot)
+Couche typée, indépendante du fournisseur, privacy-first, sans régression, toutes validations vertes :
+- **Taxonomie complétée** `src/analytics/events.ts` : liste essentielle du skill (app_opened, daily_mission_*, interaction_*, hint_requested, false_signal_identified, mastery_changed, glossary_searched, concept_viewed, favorite_added, subscription_expired…). `EVENT_CATEGORIES` source unique (lifecycle/onboarding/learning/engagement/monetization) ; test d'exhaustivité.
+- **Confidentialité pure et testée** `src/analytics/privacy.ts` : `sanitizeProps` retire les clés PII/financières (email, iban, card, stripe, balance, montant, compte, broker, position…), rédige les e-mails, borne chaînes (120) et nombre de propriétés (24). Appliquée à **chaque** évènement. `glossary_searched` n'émet que `queryLength`, jamais le texte.
+- **Dispatcher indépendant du fournisseur** `src/analytics/analytics.ts` : pipeline consentement → assainissement → diffusion vers des puits enregistrables (`ConsoleSink` dev, `MemorySink` borné). Un puits qui échoue n'interrompt jamais l'app. Brancher un fournisseur = un puits de plus.
+- **Consentement opt-out persistant** `consentRepository` (`patternlab.consent.v1`, true par défaut) appliqué **avant** toute émission ; bascule dans le Profil (carte Confidentialité, `role=switch`). Non réinitialisé par « Réinitialiser ma progression ».
+- **Évènements câblés** : app_opened, glossary_searched (longueur seulement), concept_viewed, daily_mission_started, mastery_changed.
+- Vérifié en pilotant Chromium (console dev) : `glossary_searched {queryLength: 10, …}` sans le texte brut ; consentement coupé → 0 évènement diffusé. Voir **ADR-022**.
+
 ## Partiel
 - Gamification : quêtes du jour + jalons de série + détection de badge obtenu en place. La **célébration visuelle** (toast/modale à l'obtention) est encore réduite à l'analytics `achievement_unlocked` ; l'écran Réussites reste le lieu de constat. Quêtes hebdomadaires et coffres non couverts (base extensible).
 - Lottie : dépendance + point d'intégration prêts ; rendu figures/SVG en attendant (ADR-005).
@@ -174,16 +183,16 @@ Offre gratuit/premium + paywall + entitlement simulé, sans régression, toutes 
 - Aucun connu (voir sorties lint / typecheck / test / validate:content / build web).
 
 ## Absent (par design, lots suivants)
-- Analytics étendus, offline complet, accessibilité complète, release readiness (lots 16→19 du skill `patternlab-product-growth`).
+- Offline complet, accessibilité complète, release readiness (lots 17→19 du skill `patternlab-product-growth`).
 - Builds device iOS/Android (EAS + comptes Apple/Google).
 
 ## Prochaine priorité
-**Lot 16 — Analytics étendus** (couche typée déjà en place ; brancher un fournisseur
-configurable, respect de la vie privée, aucun envoi de donnée financière personnelle),
-puis Lot 17 — Offline complet. Le branchement d'un vrai magasin d'app (StoreKit / Play
-Billing) reste conditionné à une autorisation explicite (aucun achat réel aujourd'hui).
-Célébration visuelle des réussites, historique 30 jours et branchement des 18 concepts
-importés (après revue) restent des chantiers ouverts.
+**Lot 17 — Offline complet** (détection réseau native iOS/Android, mise en cache du
+contenu, file d'attente de synchronisation de la progression, états hors-ligne robustes),
+puis Lot 18 — Accessibilité complète. Le branchement d'un vrai fournisseur analytics et
+d'un magasin d'app (StoreKit / Play Billing) reste conditionné à une autorisation
+explicite. Célébration visuelle des réussites, historique 30 jours, écran « journal
+analytics » (dev) et branchement des 18 concepts importés (après revue) restent ouverts.
 
 ## Risques
 - Conteneur éphémère : commit local présent ; pousser après accord pour ne rien perdre.

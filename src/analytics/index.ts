@@ -1,2 +1,5 @@
 export * from './events';
-export * from './logger';
+export * from './types';
+export * from './privacy';
+export * from './sinks';
+export * from './analytics';

@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { View, StyleSheet } from 'react-native';
+import { View, Pressable, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, Chip, ProgressBar, theme } from '@/design-system';
 import { useReducedMotion, CharacterAnimationController } from '@/characters';
 import { useProgress, DEMO_SKILL, OBJECTIVES, LEVELS, TOPICS, MASTERY_LABEL } from '@/data';
@@ -8,7 +8,7 @@ import { DISCLAIMER } from '@/lib/config';
 
 export default function Profil() {
   const router = useRouter();
-  const { state, profile, premium, reset } = useProgress();
+  const { state, profile, premium, analyticsEnabled, setAnalyticsEnabled, reset } = useProgress();
   const reduced = useReducedMotion();
   const demoProgress = state?.skills[DEMO_SKILL.id];
   const mastery = demoProgress?.mastery ?? 0;
@@ -104,6 +104,30 @@ export default function Profil() {
         </Text>
       </Card>
 
+      <Card>
+        <Text variant="title">Confidentialité</Text>
+        <Text variant="body" color={theme.colors.textSecondary}>
+          Suivi d’usage anonyme pour améliorer l’app. Aucune donnée personnelle ni financière n’est
+          collectée. Tu peux le désactiver à tout moment.
+        </Text>
+        <Pressable
+          accessibilityRole="switch"
+          accessibilityState={{ checked: analyticsEnabled }}
+          accessibilityHint="Activer ou désactiver le suivi d’usage anonyme"
+          onPress={() => setAnalyticsEnabled(!analyticsEnabled)}
+          style={styles.toggle}
+        >
+          <Text variant="body" style={styles.flex1}>
+            Suivi d’usage anonyme
+          </Text>
+          <View style={[styles.pill, analyticsEnabled ? styles.pillOn : styles.pillOff]}>
+            <Text variant="label" color={analyticsEnabled ? theme.colors.onPrimary : theme.colors.textSecondary}>
+              {analyticsEnabled ? 'Activé' : 'Désactivé'}
+            </Text>
+          </View>
+        </Pressable>
+      </Card>
+
       <Card elevated>
         <View style={styles.skillHead}>
           <Text variant="title" style={styles.flex1}>
@@ -173,4 +197,8 @@ const styles = StyleSheet.create({
   profileRows: { gap: theme.spacing.xs, marginVertical: theme.spacing.sm },
   profileRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   topicChips: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, marginBottom: theme.spacing.sm },
+  toggle: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm, marginTop: theme.spacing.sm, minHeight: 44 },
+  pill: { paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.xs, borderRadius: theme.radius.pill, borderWidth: 1 },
+  pillOn: { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
+  pillOff: { backgroundColor: 'transparent', borderColor: theme.colors.borderStrong },
 });
