@@ -1,13 +1,16 @@
-import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useMemo, type ReactNode } from 'react';
 import {
   progressRepository,
   onboardingRepository,
   premiumRepository,
   consentRepository,
+  glossaryPrefsRepository,
+  type GlossaryPrefs,
   type ProgressState,
 } from './repositories';
 import { defaultProgress } from './seed';
 import type { OnboardingProfile } from './onboardingProfile';
+import { toggleInSet, pushRecent } from './favorites';
 import * as premium from './premium';
 import { masteryStatus, type Grade } from '../engines/learning';
 import * as progressLogic from './progressLogic';
@@ -45,6 +48,11 @@ interface ProgressContextValue {
   /** Consentement au suivi d'usage (opt-out ; true par défaut). */
   analyticsEnabled: boolean;
   setAnalyticsEnabled: (enabled: boolean) => void;
+  /** Glossaire premium : favoris (slugs) et récemment vus. */
+  favorites: ReadonlySet<string>;
+  recentSlugs: string[];
+  toggleFavorite: (slug: string) => void;
+  markRecentlyViewed: (slug: string) => void;
   reset: () => void;
 }
 
@@ -55,16 +63,18 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<OnboardingProfile | null>(null);
   const [premiumState, setPremiumState] = useState<premium.PremiumState>(premium.emptyPremium());
   const [analyticsEnabled, setAnalyticsEnabledState] = useState(true);
+  const [glossaryPrefs, setGlossaryPrefs] = useState<GlossaryPrefs>({ favorites: [], recent: [] });
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     let mounted = true;
     (async () => {
-      const [loaded, loadedProfile, loadedPremium, consent] = await Promise.all([
+      const [loaded, loadedProfile, loadedPremium, consent, prefs] = await Promise.all([
         progressRepository.load(),
         onboardingRepository.load(),
         premiumRepository.load(),
         consentRepository.load(),
+        glossaryPrefsRepository.load(),
       ]);
       if (!mounted) return;
       const progress = loaded ?? defaultProgress(Date.now());
@@ -74,6 +84,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       setState(progress);
       setProfile(loadedProfile);
       setPremiumState(loadedPremium);
+      setGlossaryPrefs(prefs);
       setReady(true);
       await progressRepository.save(progress);
       analytics.track('app_opened');
@@ -81,6 +92,27 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     return () => {
       mounted = false;
     };
+  }, []);
+
+  const favorites = useMemo(() => new Set(glossaryPrefs.favorites), [glossaryPrefs.favorites]);
+
+  const toggleFavorite = useCallback((slug: string) => {
+    setGlossaryPrefs((prev) => {
+      const favorites = [...toggleInSet(new Set(prev.favorites), slug)];
+      const next = { ...prev, favorites };
+      void glossaryPrefsRepository.save(next);
+      analytics.track('favorite_added', { added: favorites.includes(slug) });
+      return next;
+    });
+  }, []);
+
+  const markRecentlyViewed = useCallback((slug: string) => {
+    setGlossaryPrefs((prev) => {
+      if (prev.recent[0] === slug) return prev;
+      const next = { ...prev, recent: pushRecent(prev.recent, slug) };
+      void glossaryPrefsRepository.save(next);
+      return next;
+    });
   }, []);
 
   const markOnboarded = useCallback(() => {
@@ -202,9 +234,11 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     void progressRepository.reset().then(() => progressRepository.save(fresh));
     void onboardingRepository.reset();
     void premiumRepository.reset();
+    void glossaryPrefsRepository.reset();
     setState(fresh);
     setProfile(null);
     setPremiumState(premium.emptyPremium());
+    setGlossaryPrefs({ favorites: [], recent: [] });
   }, []);
 
   // Le consentement analytics n'est PAS réinitialisé par « Réinitialiser ma progression » :
@@ -227,6 +261,10 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         restorePremium,
         analyticsEnabled,
         setAnalyticsEnabled,
+        favorites,
+        recentSlugs: glossaryPrefs.recent,
+        toggleFavorite,
+        markRecentlyViewed,
         reset,
       }}
     >

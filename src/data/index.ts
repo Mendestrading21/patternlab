@@ -9,6 +9,8 @@ export * from './premium';
 export * from './offline';
 export * from './learningConcept';
 export * from './learningContent';
+export * from './favorites';
+export * from './glossaryUnified';
 export * from './dailyMission';
 export * from './onboardingProfile';
 export * from './sessionPlan';

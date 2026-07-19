@@ -266,6 +266,46 @@ export class AsyncStorageConsentRepository implements ConsentRepository {
 
 export const consentRepository: ConsentRepository = new AsyncStorageConsentRepository();
 
+// ─── Préférences du glossaire (favoris, récemment vus) ───────────────
+const GLOSSARY_PREFS_KEY = 'patternlab.glossaryprefs.v1';
+
+export interface GlossaryPrefs {
+  favorites: string[];
+  recent: string[];
+}
+
+export interface GlossaryPrefsRepository {
+  load(): Promise<GlossaryPrefs>;
+  save(prefs: GlossaryPrefs): Promise<void>;
+  reset(): Promise<void>;
+}
+
+export class AsyncStorageGlossaryPrefsRepository implements GlossaryPrefsRepository {
+  async load(): Promise<GlossaryPrefs> {
+    const empty: GlossaryPrefs = { favorites: [], recent: [] };
+    try {
+      const raw = await AsyncStorage.getItem(GLOSSARY_PREFS_KEY);
+      if (!raw) return empty;
+      const p = JSON.parse(raw) as Partial<GlossaryPrefs>;
+      const strings = (v: unknown) =>
+        Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [];
+      return { favorites: strings(p.favorites), recent: strings(p.recent) };
+    } catch {
+      return empty;
+    }
+  }
+
+  async save(prefs: GlossaryPrefs): Promise<void> {
+    await AsyncStorage.setItem(GLOSSARY_PREFS_KEY, JSON.stringify(prefs));
+  }
+
+  async reset(): Promise<void> {
+    await AsyncStorage.removeItem(GLOSSARY_PREFS_KEY);
+  }
+}
+
+export const glossaryPrefsRepository: GlossaryPrefsRepository = new AsyncStorageGlossaryPrefsRepository();
+
 /** Implémentation mémoire (tests / fallback). */
 export class InMemoryProgressRepository implements ProgressRepository {
   private state: ProgressState | null = null;

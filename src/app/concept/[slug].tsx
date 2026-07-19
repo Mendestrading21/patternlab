@@ -1,13 +1,14 @@
 import { useEffect } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View, Pressable, StyleSheet } from 'react-native';
-import { Screen, Text, Card, Button, Chip, EmptyState, theme } from '@/design-system';
+import { Screen, Text, Card, Button, Chip, EmptyState, theme, hitSlopFor } from '@/design-system';
 import {
   V5_CONCEPTS,
   conceptBySlug,
   relatedConcepts,
   worldById,
   categoryById,
+  useProgress,
 } from '@/data';
 import { VisualCard } from '@/engines/visual';
 import { analytics } from '@/analytics';
@@ -15,11 +16,16 @@ import { analytics } from '@/analytics';
 export default function ConceptFiche() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const router = useRouter();
+  const { favorites, toggleFavorite, markRecentlyViewed } = useProgress();
   const concept = conceptBySlug(V5_CONCEPTS, slug ?? '');
+  const fav = concept ? favorites.has(concept.slug) : false;
 
   useEffect(() => {
-    if (concept) analytics.track('concept_viewed', { categoryId: concept.categoryId, hasVisual: Boolean(concept.visualSpec) });
-  }, [concept]);
+    if (concept) {
+      analytics.track('concept_viewed', { categoryId: concept.categoryId, hasVisual: Boolean(concept.visualSpec) });
+      markRecentlyViewed(concept.slug);
+    }
+  }, [concept, markRecentlyViewed]);
 
   if (!concept) {
     return (
@@ -44,7 +50,22 @@ export default function ConceptFiche() {
       <Text variant="caption" color={theme.colors.technical}>
         {world?.title?.toUpperCase()} · {category?.label}
       </Text>
-      <Text variant="h1">{concept.title}</Text>
+      <View style={styles.headRow}>
+        <Text variant="h1" style={styles.flex1}>
+          {concept.title}
+        </Text>
+        <Pressable
+          onPress={() => toggleFavorite(concept.slug)}
+          hitSlop={hitSlopFor(28)}
+          accessibilityRole="button"
+          accessibilityLabel={fav ? `Retirer ${concept.title} des favoris` : `Ajouter ${concept.title} aux favoris`}
+          accessibilityState={{ selected: fav }}
+        >
+          <Text variant="h1" color={fav ? theme.colors.reward : theme.colors.textMuted}>
+            {fav ? '★' : '☆'}
+          </Text>
+        </Pressable>
+      </View>
       <View style={styles.metaRow}>
         <Chip label={`Difficulté ${concept.difficulty}/5`} color={theme.colors.neutral} />
         {concept.aliases[0] ? <Chip label={concept.aliases[0]} color={theme.colors.textMuted} /> : null}
@@ -154,6 +175,8 @@ export default function ConceptFiche() {
 }
 
 const styles = StyleSheet.create({
+  headRow: { flexDirection: 'row', alignItems: 'flex-start', gap: theme.spacing.sm },
+  flex1: { flex: 1 },
   metaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
   list: { gap: theme.spacing.xs, marginTop: theme.spacing.xs },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, marginTop: theme.spacing.xs },

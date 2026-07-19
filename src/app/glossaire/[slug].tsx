@@ -2,17 +2,22 @@ import { useEffect } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, EmptyState, theme, hitSlopFor } from '@/design-system';
-import { GLOSSARY_TERMS, GLOSSARY_CATEGORIES, skillById } from '@/data';
+import { GLOSSARY_TERMS, GLOSSARY_CATEGORIES, skillById, useProgress } from '@/data';
 import { analytics } from '@/analytics';
 
 export default function GlossaryDetail() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const router = useRouter();
+  const { favorites, toggleFavorite, markRecentlyViewed } = useProgress();
   const term = GLOSSARY_TERMS.find((t) => t.slug === slug);
+  const fav = term ? favorites.has(term.slug) : false;
 
   useEffect(() => {
-    if (term) analytics.track('concept_viewed', { category: term.category, hasRelatedSkill: Boolean(term.relatedSkillId) });
-  }, [term]);
+    if (term) {
+      analytics.track('concept_viewed', { category: term.category, hasRelatedSkill: Boolean(term.relatedSkillId) });
+      markRecentlyViewed(term.slug);
+    }
+  }, [term, markRecentlyViewed]);
 
   if (!term) {
     return (
@@ -31,13 +36,28 @@ export default function GlossaryDetail() {
 
   return (
     <Screen>
-      <Text variant="caption" color={c?.color}>
-        {c?.label?.toUpperCase()}
-      </Text>
-      <Text variant="h1">{term.term}</Text>
-      <Text variant="body" color={theme.colors.textMuted} style={styles.italic}>
-        {term.english}
-      </Text>
+      <View style={styles.headRow}>
+        <View style={styles.flex1}>
+          <Text variant="caption" color={c?.color}>
+            {c?.label?.toUpperCase()}
+          </Text>
+          <Text variant="h1">{term.term}</Text>
+          <Text variant="body" color={theme.colors.textMuted} style={styles.italic}>
+            {term.english}
+          </Text>
+        </View>
+        <Pressable
+          onPress={() => toggleFavorite(term.slug)}
+          hitSlop={hitSlopFor(28)}
+          accessibilityRole="button"
+          accessibilityLabel={fav ? `Retirer ${term.term} des favoris` : `Ajouter ${term.term} aux favoris`}
+          accessibilityState={{ selected: fav }}
+        >
+          <Text variant="h1" color={fav ? theme.colors.reward : theme.colors.textMuted}>
+            {fav ? '★' : '☆'}
+          </Text>
+        </Pressable>
+      </View>
 
       <Card elevated>
         <Text variant="label" color={theme.colors.textMuted}>
@@ -101,6 +121,8 @@ export default function GlossaryDetail() {
 
 const styles = StyleSheet.create({
   italic: { fontStyle: 'italic' },
+  headRow: { flexDirection: 'row', alignItems: 'flex-start', gap: theme.spacing.sm },
+  flex1: { flex: 1 },
   relatedRow: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, marginTop: theme.spacing.xs },
   relatedChip: {
     borderWidth: 1,
