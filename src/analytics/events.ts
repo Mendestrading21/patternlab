@@ -35,6 +35,7 @@ export type AnalyticsEvent =
   | 'glossary_searched'
   | 'concept_viewed'
   | 'favorite_added'
+  | 'world_opened'
   // monétisation
   | 'premium_gate_hit'
   | 'paywall_viewed'
@@ -82,6 +83,7 @@ export const EVENT_CATEGORIES: Record<AnalyticsEvent, AnalyticsCategory> = {
   glossary_searched: 'engagement',
   concept_viewed: 'engagement',
   favorite_added: 'engagement',
+  world_opened: 'engagement',
   premium_gate_hit: 'monetization',
   paywall_viewed: 'monetization',
   subscription_started: 'monetization',
