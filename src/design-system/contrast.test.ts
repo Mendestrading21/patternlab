@@ -40,6 +40,7 @@ describe('accessibilité de la palette Instrument Glass (AA ≥ 4.5)', () => {
   it('les textes « on-couleur » des boutons sont lisibles', () => {
     expect(contrastRatio(colors.onPrimary, colors.primary)).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
     expect(contrastRatio(colors.onReward, colors.reward)).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
+    expect(contrastRatio(colors.onAdvanced, colors.advanced)).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
   });
 });
 
@@ -57,7 +58,7 @@ const ALL_SURFACES = [
 
 // Couleurs d'accent utilisées comme TEXTE/icône coloré (puces, statuts, légendes) —
 // elles apparaissent sur les surfaces de carte/écran (background/surface/surfaceElevated).
-const ACCENT_TEXT = ['primary', 'primaryBright', 'technical', 'warning', 'reward', 'neutral', 'bullish', 'bearish'] as const;
+const ACCENT_TEXT = ['primary', 'primaryBright', 'technical', 'warning', 'reward', 'neutral', 'advanced', 'bullish', 'bearish'] as const;
 const CARD_SURFACES = ['background', 'surface', 'surfaceElevated'] as const;
 
 describe('AA exhaustif — couleurs de texte neutres sur toutes les surfaces', () => {

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View, Pressable, StyleSheet } from 'react-native';
-import { Screen, Text, Card, Button, EmptyState, theme, hitSlopFor } from '@/design-system';
+import { Screen, Text, Card, Button, EmptyState, FavoriteButton, theme, hitSlopFor } from '@/design-system';
 import { GLOSSARY_TERMS, GLOSSARY_CATEGORIES, skillById, useProgress } from '@/data';
 import { analytics } from '@/analytics';
 
@@ -46,17 +46,7 @@ export default function GlossaryDetail() {
             {term.english}
           </Text>
         </View>
-        <Pressable
-          onPress={() => toggleFavorite(term.slug)}
-          hitSlop={hitSlopFor(28)}
-          accessibilityRole="button"
-          accessibilityLabel={fav ? `Retirer ${term.term} des favoris` : `Ajouter ${term.term} aux favoris`}
-          accessibilityState={{ selected: fav }}
-        >
-          <Text variant="h1" color={fav ? theme.colors.reward : theme.colors.textMuted}>
-            {fav ? '★' : '☆'}
-          </Text>
-        </Pressable>
+        <FavoriteButton active={fav} onToggle={() => toggleFavorite(term.slug)} label={term.term} size="lg" />
       </View>
 
       <Card elevated>

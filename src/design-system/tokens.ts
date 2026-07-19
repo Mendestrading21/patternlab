@@ -14,8 +14,8 @@
  */
 
 export const palette = {
-  // Surfaces mates (bleu nuit / graphite)
-  backgroundDeep: '#080C12',
+  // Surfaces mates (bleu nuit / graphite) — V5 : fond profond aligné #070B11
+  backgroundDeep: '#070B11',
   bg: '#0B1119',
   surface: '#111A24',
   surfaceElevated: '#172331',
@@ -26,6 +26,9 @@ export const palette = {
   borderSubtle: '#253343',
   borderStrong: '#364A60',
   hairline: 'rgba(244, 247, 250, 0.06)',
+  // Verre sombre contrôlé (≈ 20 % de l'identité V5) : voile translucide + liseré clair.
+  glass: 'rgba(23, 35, 49, 0.72)',
+  glassBorder: 'rgba(244, 247, 250, 0.12)',
 
   // Texte (textMuted éclairci vs la palette indicative pour tenir l'AA sur surfaces élevées)
   textPrimary: '#F4F7FA',
@@ -42,11 +45,14 @@ export const palette = {
   amber: '#F3B94E',
   gold: '#E8B94F',
   neutral: '#8292A6',
+  // Concepts avancés (V5) : violet distinct des sémantiques financière/pédagogique.
+  advanced: '#9B7CF6',
 
   white: '#FFFFFF',
   black: '#000000',
   onGreen: '#06210F',
   onGold: '#2A1E05',
+  onAdvanced: '#1A1030',
 } as const;
 
 export const colors = {
@@ -60,6 +66,8 @@ export const colors = {
   borderSubtle: palette.borderSubtle,
   borderStrong: palette.borderStrong,
   hairline: palette.hairline,
+  glass: palette.glass,
+  glassBorder: palette.glassBorder,
 
   textPrimary: palette.textPrimary,
   textSecondary: palette.textSecondary,
@@ -76,6 +84,8 @@ export const colors = {
   technical: palette.technical,
   reward: palette.gold,
   neutral: palette.neutral,
+  /** Concepts avancés (difficulté 4–5, familles expertes) — jamais une direction financière. */
+  advanced: palette.advanced,
 
   // Financial semantics (chart direction) — NOT to be reused as correct/incorrect
   bullish: palette.green,
@@ -87,6 +97,7 @@ export const colors = {
 
   onPrimary: palette.onGreen,
   onReward: palette.onGold,
+  onAdvanced: palette.onAdvanced,
 } as const;
 
 export const spacing = {

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View, Pressable, StyleSheet } from 'react-native';
-import { Screen, Text, Card, Button, Chip, EmptyState, theme, hitSlopFor } from '@/design-system';
+import { Screen, Text, Card, GlassCard, Button, Chip, EmptyState, FavoriteButton, difficultyTone, theme } from '@/design-system';
 import {
   V5_CONCEPTS,
   conceptBySlug,
@@ -38,6 +38,7 @@ export default function ConceptFiche() {
 
   const world = worldById(concept.worldId);
   const category = categoryById(concept.categoryId);
+  const tone = difficultyTone(concept.difficulty);
   const related = relatedConcepts(V5_CONCEPTS, concept);
   const scenarios = [
     { label: 'Scénario haussier', data: concept.bullishScenario, color: theme.colors.bullish },
@@ -54,31 +55,21 @@ export default function ConceptFiche() {
         <Text variant="h1" style={styles.flex1}>
           {concept.title}
         </Text>
-        <Pressable
-          onPress={() => toggleFavorite(concept.slug)}
-          hitSlop={hitSlopFor(28)}
-          accessibilityRole="button"
-          accessibilityLabel={fav ? `Retirer ${concept.title} des favoris` : `Ajouter ${concept.title} aux favoris`}
-          accessibilityState={{ selected: fav }}
-        >
-          <Text variant="h1" color={fav ? theme.colors.reward : theme.colors.textMuted}>
-            {fav ? '★' : '☆'}
-          </Text>
-        </Pressable>
+        <FavoriteButton active={fav} onToggle={() => toggleFavorite(concept.slug)} label={concept.title} size="lg" />
       </View>
       <View style={styles.metaRow}>
-        <Chip label={`Difficulté ${concept.difficulty}/5`} color={theme.colors.neutral} />
+        <Chip label={`${tone.label} · ${concept.difficulty}/5`} color={tone.color} />
         {concept.aliases[0] ? <Chip label={concept.aliases[0]} color={theme.colors.textMuted} /> : null}
       </View>
 
       {concept.visualSpec ? <VisualCard spec={concept.visualSpec} title="Visuel" /> : null}
 
-      <Card elevated>
+      <GlassCard>
         <Text variant="label" color={theme.colors.textMuted}>
           En bref
         </Text>
         <Text variant="body">{concept.definitionShort}</Text>
-      </Card>
+      </GlassCard>
 
       <Card>
         <Text variant="label" color={theme.colors.textMuted}>

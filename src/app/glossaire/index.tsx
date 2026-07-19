@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { View, TextInput, Pressable, StyleSheet } from 'react-native';
-import { Screen, Text, Card, theme, hitSlopFor } from '@/design-system';
+import { Screen, Text, Card, SegmentedControl, FavoriteButton, theme, hitSlopFor, type SegmentOption } from '@/design-system';
 import {
   UNIFIED_GLOSSARY,
   GLOSSARY_CATEGORIES,
@@ -14,11 +14,6 @@ import {
 import { analytics } from '@/analytics';
 
 type ViewMode = 'all' | 'favorites' | 'recent';
-const VIEWS: { id: ViewMode; label: string }[] = [
-  { id: 'all', label: 'Tout' },
-  { id: 'favorites', label: '★ Favoris' },
-  { id: 'recent', label: 'Récents' },
-];
 
 export default function Glossaire() {
   const router = useRouter();
@@ -40,6 +35,12 @@ export default function Glossaire() {
   const open = (t: GlossaryTerm) =>
     router.push(hasConceptFiche(t.slug) ? `/concept/${t.slug}` : `/glossaire/${t.slug}`);
 
+  const views: SegmentOption<ViewMode>[] = [
+    { id: 'all', label: 'Tout' },
+    { id: 'favorites', label: '★ Favoris', badge: favorites.size },
+    { id: 'recent', label: 'Récents', badge: recentSlugs.length },
+  ];
+
   return (
     <Screen>
       <Text variant="h1">Glossaire 📖</Text>
@@ -59,25 +60,7 @@ export default function Glossaire() {
         accessibilityLabel="Rechercher un terme"
       />
 
-      <View style={styles.views}>
-        {VIEWS.map((v) => {
-          const active = view === v.id;
-          return (
-            <Pressable
-              key={v.id}
-              onPress={() => setView(v.id)}
-              accessibilityRole="button"
-              accessibilityState={{ selected: active }}
-              hitSlop={hitSlopFor(32)}
-              style={[styles.viewTab, active && styles.viewTabActive]}
-            >
-              <Text variant="label" color={active ? theme.colors.onPrimary : theme.colors.textSecondary}>
-                {v.label}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+      <SegmentedControl options={views} value={view} onChange={setView} accessibilityLabel="Filtrer le glossaire" />
 
       <View style={styles.chips}>
         {GLOSSARY_CATEGORIES.map((c) => {
@@ -129,17 +112,7 @@ export default function Glossaire() {
                 </Text>
               </Pressable>
               <View style={styles.side}>
-                <Pressable
-                  onPress={() => toggleFavorite(t.slug)}
-                  hitSlop={hitSlopFor(28)}
-                  accessibilityRole="button"
-                  accessibilityLabel={fav ? `Retirer ${t.term} des favoris` : `Ajouter ${t.term} aux favoris`}
-                  accessibilityState={{ selected: fav }}
-                >
-                  <Text variant="h2" color={fav ? theme.colors.reward : theme.colors.textMuted}>
-                    {fav ? '★' : '☆'}
-                  </Text>
-                </Pressable>
+                <FavoriteButton active={fav} onToggle={() => toggleFavorite(t.slug)} label={t.term} />
                 <View style={[styles.tag, { borderColor: c?.color ?? theme.colors.border }]}>
                   <Text variant="caption" color={c?.color}>
                     {c?.label}
@@ -174,15 +147,6 @@ const styles = StyleSheet.create({
     color: theme.colors.textPrimary,
     fontSize: 16,
   },
-  views: { flexDirection: 'row', gap: theme.spacing.xs },
-  viewTab: {
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.xs,
-    borderRadius: theme.radius.pill,
-    borderWidth: 1,
-    borderColor: theme.colors.borderStrong,
-  },
-  viewTabActive: { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs },
   chip: {
     paddingHorizontal: theme.spacing.md,
