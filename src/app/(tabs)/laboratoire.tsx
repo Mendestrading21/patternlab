@@ -5,10 +5,17 @@ import { Screen, Text, Card, Button, Chip, theme } from '@/design-system';
 import { CharacterScene } from '@/characters';
 import {
   InteractiveChart,
+  MarketReplayChart,
   generateCandles,
   priceScale,
   supportLevel,
   isLevelClose,
+  initReplay,
+  stepReplay,
+  revealAll,
+  resetReplay,
+  replayAtEnd,
+  replayAtStart,
 } from '@/engines/pattern';
 import { VisualCard } from '@/engines/visual';
 import { DEMO_PATTERN, V5_CONCEPTS, type VisualSpec } from '@/data';
@@ -36,9 +43,26 @@ export default function Laboratoire() {
   const [userPrice, setUserPrice] = useState<number | null>(null);
   const [revealed, setRevealed] = useState(false);
 
+  // Scénario 2 — replay bougie par bougie + volume (participation).
+  const replayCandles = generateCandles(777, 24);
+  const [replay, setReplay] = useState(() => initReplay(replayCandles.length, 6));
+  const [replayDone, setReplayDone] = useState(false);
+
   useEffect(() => {
     analytics.track('lab_started', { scenario: 'trace_support' });
+    analytics.track('lab_started', { scenario: 'volume_replay' });
   }, []);
+
+  const markReplayDone = (next: ReturnType<typeof initReplay>) => {
+    if (replayAtEnd(next) && !replayDone) {
+      setReplayDone(true);
+      analytics.track('lab_completed', { scenario: 'volume_replay', success: true });
+    }
+  };
+  const replayNext = () => setReplay((s) => { const n = stepReplay(s, 1); markReplayDone(n); return n; });
+  const replayPrev = () => setReplay((s) => stepReplay(s, -1));
+  const replayAll = () => setReplay((s) => { const n = revealAll(s); markReplayDone(n); return n; });
+  const replayReset = () => setReplay((s) => resetReplay(s));
 
   const close = revealed && userPrice != null && isLevelClose(userPrice, target, scale.range);
 
@@ -156,6 +180,42 @@ export default function Laboratoire() {
         <CharacterScene character="bobo" state="false-signal" size={60} reversed speech="Mais s’il casse nettement, le plancher devient un plafond." />
       </View>
 
+      <Card elevated>
+        <View style={styles.chartHead}>
+          <Text variant="title">Observe la participation (replay)</Text>
+          <Chip label="volume" color={theme.colors.technical} />
+        </View>
+        <Text variant="body" color={theme.colors.textSecondary}>
+          Déroule la séquence bougie par bougie. Le panneau du bas montre le volume — la
+          participation qui accompagne (ou non) le mouvement.
+        </Text>
+
+        <View style={styles.chart}>
+          <MarketReplayChart candles={replayCandles} visibleCount={replay.visible} width={300} height={170} />
+        </View>
+
+        <View style={styles.legendRow}>
+          <Chip label={`Bougie ${replay.visible} / ${replay.total}`} color={theme.colors.technical} />
+          {replayAtEnd(replay) ? <Chip label="Séquence complète" color={theme.colors.bullish} /> : null}
+        </View>
+
+        <View style={styles.controls}>
+          <Button label="⏮ Début" variant="secondary" fullWidth={false} disabled={replayAtStart(replay)} onPress={replayReset} accessibilityHint="Revenir à la première bougie" />
+          <Button label="◀ Préc." variant="secondary" fullWidth={false} disabled={replayAtStart(replay)} onPress={replayPrev} accessibilityHint="Bougie précédente" />
+          <Button label="Suiv. ▶" variant="secondary" fullWidth={false} disabled={replayAtEnd(replay)} onPress={replayNext} accessibilityHint="Bougie suivante" />
+        </View>
+        {!replayAtEnd(replay) ? (
+          <Button label="Tout révéler ⏭" onPress={replayAll} accessibilityHint="Révéler toute la séquence" />
+        ) : (
+          <CharacterScene
+            character="toto"
+            state="explain"
+            size={60}
+            speech="Regarde où le volume gonfle : une poussée soutenue par la participation est plus crédible qu’un mouvement sans volume."
+          />
+        )}
+      </Card>
+
       <Text variant="h2">Visuels V5 (aperçu)</Text>
       <Text variant="body" color={theme.colors.textSecondary}>
         Des schémas originaux, générés en code et accessibles. Ouvre une fiche pour voir le visuel en contexte.
@@ -190,9 +250,9 @@ export default function Laboratoire() {
         accessibilityHint="Ouvrir la leçon associée"
       />
       <Button
-        label="Tracé de zones & replay"
+        label="Zones, lignes de tendance & annotations"
         disabled
-        disabledReason="Zone rectangulaire, volume et replay interactifs : prochaines itérations du laboratoire."
+        disabledReason="Sélection de zone rectangulaire, ligne de tendance et annotations : prochaines itérations du moteur de graphiques (voir ADR-030)."
       />
     </Screen>
   );
