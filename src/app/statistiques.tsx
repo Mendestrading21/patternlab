@@ -67,6 +67,19 @@ export default function Statistiques() {
         </View>
       </Card>
 
+      {/* Exploration — compréhension V5 (jamais des gains ni de la vitesse) */}
+      <Card>
+        <Text variant="title">Exploration</Text>
+        <View style={styles.overview}>
+          <Overview label="Concepts explorés" value={String(stats.exploration.conceptsExplored)} />
+          <Overview label="Mondes explorés" value={String(stats.exploration.worldsExplored)} />
+          <Overview label="Faux signaux repérés" value={String(stats.exploration.falseSignalsSpotted)} />
+        </View>
+        <Text variant="caption" color={theme.colors.textMuted}>
+          La compréhension et la diversité priment sur la vitesse.
+        </Text>
+      </Card>
+
       {!premiumActive ? (
         /* Gate premium : la vue d'ensemble reste gratuite, le détail est premium. */
         <Card elevated style={styles.gate}>

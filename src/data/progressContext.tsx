@@ -11,6 +11,7 @@ import {
 import { defaultProgress } from './seed';
 import type { OnboardingProfile } from './onboardingProfile';
 import { toggleInSet, pushRecent } from './favorites';
+import { addConceptExplored, addFalseSignalSpotted } from './learningStats';
 import * as premium from './premium';
 import { masteryStatus, type Grade } from '../engines/learning';
 import * as progressLogic from './progressLogic';
@@ -53,6 +54,10 @@ interface ProgressContextValue {
   recentSlugs: string[];
   toggleFavorite: (slug: string) => void;
   markRecentlyViewed: (slug: string) => void;
+  /** Réussites V5 « compréhension » : marque un concept (et son monde) exploré. */
+  markConceptExplored: (slug: string, worldId?: string) => void;
+  /** Réussites V5 : enregistre un faux signal / une invalidation correctement repérés. */
+  recordFalseSignal: () => void;
   reset: () => void;
 }
 
@@ -111,6 +116,28 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       if (prev.recent[0] === slug) return prev;
       const next = { ...prev, recent: pushRecent(prev.recent, slug) };
       void glossaryPrefsRepository.save(next);
+      return next;
+    });
+  }, []);
+
+  const markConceptExplored = useCallback((slug: string, worldId?: string) => {
+    setState((prev) => {
+      if (!prev) return prev;
+      const next = addConceptExplored(prev, slug, worldId);
+      if (next === prev) return prev;
+      void progressRepository.save(next);
+      announceBadges(prev, next);
+      return next;
+    });
+  }, []);
+
+  const recordFalseSignal = useCallback(() => {
+    setState((prev) => {
+      if (!prev) return prev;
+      const next = addFalseSignalSpotted(prev);
+      void progressRepository.save(next);
+      analytics.track('false_signal_identified', { total: next.learning?.falseSignalsSpotted ?? 0 });
+      announceBadges(prev, next);
       return next;
     });
   }, []);
@@ -265,6 +292,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         recentSlugs: glossaryPrefs.recent,
         toggleFavorite,
         markRecentlyViewed,
+        markConceptExplored,
+        recordFalseSignal,
         reset,
       }}
     >

@@ -21,6 +21,18 @@ function fresh(overrides: Partial<ProgressState> = {}): ProgressState {
   return { ...defaultProgress(T0), ...overrides };
 }
 
+describe('computeStats — exploration (compréhension V5)', () => {
+  it('reporte les compteurs d’exploration', () => {
+    const s = fresh({ learning: { conceptsExplored: ['a', 'b', 'c'], worldsExplored: ['world.candles', 'world.structure'], falseSignalsSpotted: 4 } });
+    const stats = computeStats(s, SKILLS, T0);
+    expect(stats.exploration).toEqual({ conceptsExplored: 3, worldsExplored: 2, falseSignalsSpotted: 4 });
+  });
+  it('défaut à zéro si learning absent', () => {
+    const stats = computeStats(fresh({ learning: undefined }), SKILLS, T0);
+    expect(stats.exploration).toEqual({ conceptsExplored: 0, worldsExplored: 0, falseSignalsSpotted: 0 });
+  });
+});
+
 describe('computeStats — vue d’ensemble & maîtrise', () => {
   it('reporte l’état global et compte les compétences', () => {
     const s = fresh({ totalXp: 250, level: 3, coins: 40, streakDays: 5, completedSkills: ['a'] });

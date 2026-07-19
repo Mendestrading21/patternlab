@@ -46,33 +46,45 @@ export default function Reussites() {
         <ProgressBar value={earned.size / BADGES.length} color={theme.colors.reward} accessibilityLabel="Badges obtenus" />
       </Card>
 
-      <View style={styles.grid}>
-        {BADGES.map((b) => {
-          const has = earned.has(b.id);
-          return (
-            <Card key={b.id} style={[styles.badge, !has && styles.locked]}>
-              <Text variant="display" center>
-                {has ? b.emoji : '🔒'}
-              </Text>
-              <Text variant="title" center>
-                {b.name}
-              </Text>
-              <Text variant="caption" color={theme.colors.textMuted} center>
-                {b.description}
-              </Text>
-              <Text variant="caption" color={has ? theme.colors.primary : theme.colors.textMuted} center>
-                {has ? 'Obtenu ✓' : 'À débloquer'}
-              </Text>
-            </Card>
-          );
-        })}
-      </View>
+      <Text variant="h2" style={styles.sectionTitle}>
+        Progression
+      </Text>
+      <View style={styles.grid}>{BADGES.filter((b) => b.family !== 'understanding').map(renderBadge)}</View>
+
+      <Text variant="h2" style={styles.sectionTitle}>
+        Compréhension
+      </Text>
+      <Text variant="caption" color={theme.colors.textMuted}>
+        Des badges qui récompensent le savoir, la diversité et le repérage des faux signaux — jamais des gains ni la vitesse.
+      </Text>
+      <View style={styles.grid}>{BADGES.filter((b) => b.family === 'understanding').map(renderBadge)}</View>
     </Screen>
   );
+
+  function renderBadge(b: (typeof BADGES)[number]) {
+    const has = earned.has(b.id);
+    return (
+      <Card key={b.id} style={[styles.badge, !has && styles.locked]}>
+        <Text variant="display" center>
+          {has ? b.emoji : '🔒'}
+        </Text>
+        <Text variant="title" center>
+          {b.name}
+        </Text>
+        <Text variant="caption" color={theme.colors.textMuted} center>
+          {b.description}
+        </Text>
+        <Text variant="caption" color={has ? theme.colors.primary : theme.colors.textMuted} center>
+          {has ? 'Obtenu ✓' : 'À débloquer'}
+        </Text>
+      </Card>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
   summary: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: theme.spacing.sm },
+  sectionTitle: { marginTop: theme.spacing.sm },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md },
   badge: { flexGrow: 1, flexBasis: '44%', alignItems: 'center', gap: theme.spacing.xs },
   locked: { opacity: 0.55 },

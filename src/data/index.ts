@@ -11,6 +11,7 @@ export * from './learningConcept';
 export * from './learningContent';
 export * from './favorites';
 export * from './glossaryUnified';
+export * from './learningStats';
 export * from './dailyMission';
 export * from './onboardingProfile';
 export * from './sessionPlan';

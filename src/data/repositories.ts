@@ -24,6 +24,24 @@ export interface DailySnapshot {
   xp: number;
 }
 
+/**
+ * Statistiques d'apprentissage cumulatives (schéma v6) — base des réussites V5 « compréhension ».
+ * Récompensent la compréhension, la diversité et le repérage des faux signaux (jamais des gains ni
+ * de la vitesse). Aucune donnée personnelle : uniquement des compteurs de progression locale.
+ */
+export interface LearningStats {
+  /** Slugs de concepts distincts consultés (cumulatif). */
+  conceptsExplored: string[];
+  /** Ids de mondes distincts explorés (cumulatif). */
+  worldsExplored: string[];
+  /** Faux signaux / invalidations correctement repérés (cumulatif). */
+  falseSignalsSpotted: number;
+}
+
+export function emptyLearning(): LearningStats {
+  return { conceptsExplored: [], worldsExplored: [], falseSignalsSpotted: 0 };
+}
+
 export interface ProgressState {
   onboarded: boolean;
   level: number;
@@ -43,10 +61,12 @@ export interface ProgressState {
   claimedStreakMilestones: number[];
   /** Historique des jours d'activité archivés (schéma v5) — base des statistiques. */
   history: DailySnapshot[];
+  /** Compteurs d'apprentissage cumulatifs (schéma v6) — réussites « compréhension » V5. */
+  learning?: LearningStats;
   schemaVersion: number;
 }
 
-export const PROGRESS_SCHEMA_VERSION = 5;
+export const PROGRESS_SCHEMA_VERSION = 6;
 
 export interface ProgressRepository {
   load(): Promise<ProgressState | null>;
@@ -118,7 +138,23 @@ export function migrateProgress(raw: unknown, now: number): ProgressState | null
       ? p.claimedStreakMilestones.filter((x): x is number => typeof x === 'number' && Number.isFinite(x))
       : [],
     history: migrateHistory(p.history),
+    learning: migrateLearning(p.learning),
     schemaVersion: PROGRESS_SCHEMA_VERSION,
+  };
+}
+
+/** Assainit les compteurs d'apprentissage (schéma v6) ; défaut vide, chaînes/nombres valides. */
+function migrateLearning(raw: unknown): LearningStats {
+  const empty = emptyLearning();
+  if (!raw || typeof raw !== 'object') return empty;
+  const l = raw as Partial<LearningStats>;
+  const strings = (v: unknown) =>
+    Array.isArray(v) ? [...new Set(v.filter((x): x is string => typeof x === 'string'))] : [];
+  const count = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) && v >= 0 ? Math.floor(v) : 0);
+  return {
+    conceptsExplored: strings(l.conceptsExplored),
+    worldsExplored: strings(l.worldsExplored),
+    falseSignalsSpotted: count(l.falseSignalsSpotted),
   };
 }
 

@@ -16,16 +16,22 @@ import { analytics } from '@/analytics';
 export default function ConceptFiche() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const router = useRouter();
-  const { favorites, toggleFavorite, markRecentlyViewed } = useProgress();
+  const { favorites, toggleFavorite, markRecentlyViewed, markConceptExplored, ready } = useProgress();
   const concept = conceptBySlug(V5_CONCEPTS, slug ?? '');
   const fav = concept ? favorites.has(concept.slug) : false;
 
   useEffect(() => {
-    if (concept) {
-      analytics.track('concept_viewed', { categoryId: concept.categoryId, hasVisual: Boolean(concept.visualSpec) });
+    if (concept) analytics.track('concept_viewed', { categoryId: concept.categoryId, hasVisual: Boolean(concept.visualSpec) });
+  }, [concept]);
+
+  // La progression se charge de façon asynchrone : on n'enregistre l'exploration
+  // qu'une fois `ready` (sinon l'état est encore null et le marquage est perdu).
+  useEffect(() => {
+    if (ready && concept) {
       markRecentlyViewed(concept.slug);
+      markConceptExplored(concept.slug, concept.worldId);
     }
-  }, [concept, markRecentlyViewed]);
+  }, [ready, concept, markRecentlyViewed, markConceptExplored]);
 
   if (!concept) {
     return (

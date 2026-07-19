@@ -85,6 +85,29 @@ describe('migrateProgress', () => {
     ]);
   });
 
+  it('schéma v6 : compteurs d’apprentissage par défaut et assainis', () => {
+    // état v5 sans learning → défaut vide
+    const v5 = migrateProgress({ schemaVersion: 5, totalXp: 0 }, T0)!;
+    expect(v5.learning).toEqual({ conceptsExplored: [], worldsExplored: [], falseSignalsSpotted: 0 });
+    // learning assaini : chaînes dédupliquées, compteur borné
+    const m = migrateProgress(
+      {
+        totalXp: 0,
+        learning: {
+          conceptsExplored: ['marteau', 'marteau', 'doji', 42],
+          worldsExplored: ['world.candles', 'world.candles'],
+          falseSignalsSpotted: -3,
+        },
+      },
+      T0,
+    )!;
+    expect(m.learning).toEqual({
+      conceptsExplored: ['marteau', 'doji'],
+      worldsExplored: ['world.candles'],
+      falseSignalsSpotted: 0,
+    });
+  });
+
   it('schéma v4 : assainit un registre du jour corrompu et les listes', () => {
     const m = migrateProgress(
       {

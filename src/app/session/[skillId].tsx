@@ -4,7 +4,7 @@ import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, ProgressBar, FeedbackPanel, theme } from '@/design-system';
 import { CharacterScene, MascotFigure } from '@/characters';
 import { ExercisePlayer, gradeExercise, type GradeResult } from '@/engines/exercise';
-import { getExercises, skillById, limitCount, isCheckpoint, useProgress } from '@/data';
+import { getExercises, skillById, limitCount, isCheckpoint, isFalseSignalExercise, useProgress } from '@/data';
 import { xpForGrade } from '@/engines/learning';
 import { analytics } from '@/analytics';
 
@@ -14,7 +14,7 @@ const PASS_RATIO = 0.7;
 export default function Session() {
   const { skillId, count } = useLocalSearchParams<{ skillId: string; count?: string }>();
   const router = useRouter();
-  const { recordAnswer, completeSession } = useProgress();
+  const { recordAnswer, completeSession, recordFalseSignal } = useProgress();
 
   const resolvedId = skillId && getExercises(skillId).length ? skillId : 'skill.actions';
   const all = getExercises(resolvedId);
@@ -57,6 +57,8 @@ export default function Session() {
     if (graded.correct) setCorrect((c) => c + 1);
     // Erreur → errorTag = id de l'exercice (concept à retravailler ; révision rapprochée).
     recordAnswer(exercise.skillId, graded.correct ? 5 : 2, graded.correct ? undefined : exercise.id);
+    // Réussite « compréhension » V5 : un faux signal / une invalidation correctement repéré.
+    if (graded.correct && isFalseSignalExercise(exercise.type)) recordFalseSignal();
     analytics.track('feedback_viewed', { exerciseId: exercise.id, correct: graded.correct });
   };
 

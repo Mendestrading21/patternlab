@@ -7,7 +7,7 @@ import { initialProgress } from '../engines/learning';
 import type { Exercise } from '../engines/exercise';
 import type { Pattern } from '../engines/pattern';
 import { generateCandles, supportLevel, resistanceLevel } from '../engines/pattern';
-import { PROGRESS_SCHEMA_VERSION, type ProgressState } from './repositories';
+import { PROGRESS_SCHEMA_VERSION, emptyLearning, type ProgressState } from './repositories';
 
 export interface ContentModule {
   id: string;
@@ -360,6 +360,7 @@ export function defaultProgress(now: number): ProgressState {
     claimedQuestIds: [],
     claimedStreakMilestones: [],
     history: [],
+    learning: emptyLearning(),
     schemaVersion: PROGRESS_SCHEMA_VERSION,
   };
 }

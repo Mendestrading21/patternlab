@@ -8,16 +8,20 @@ import { analytics } from '@/analytics';
 export default function GlossaryDetail() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const router = useRouter();
-  const { favorites, toggleFavorite, markRecentlyViewed } = useProgress();
+  const { favorites, toggleFavorite, markRecentlyViewed, markConceptExplored, ready } = useProgress();
   const term = GLOSSARY_TERMS.find((t) => t.slug === slug);
   const fav = term ? favorites.has(term.slug) : false;
 
   useEffect(() => {
-    if (term) {
-      analytics.track('concept_viewed', { category: term.category, hasRelatedSkill: Boolean(term.relatedSkillId) });
+    if (term) analytics.track('concept_viewed', { category: term.category, hasRelatedSkill: Boolean(term.relatedSkillId) });
+  }, [term]);
+
+  useEffect(() => {
+    if (ready && term) {
       markRecentlyViewed(term.slug);
+      markConceptExplored(term.slug);
     }
-  }, [term, markRecentlyViewed]);
+  }, [ready, term, markRecentlyViewed, markConceptExplored]);
 
   if (!term) {
     return (

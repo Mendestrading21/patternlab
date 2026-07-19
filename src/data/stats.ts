@@ -11,6 +11,7 @@
 import { masteryStatus, errorCount, type MasteryStatus, type Skill } from '../engines/learning';
 import type { ProgressState } from './repositories';
 import { dayKey, todayActivity } from './gamification';
+import { learningOf } from './learningStats';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -57,6 +58,8 @@ export interface Stats {
   activeDays: number;
   windowXp: number;
   peakXp: number;
+  /** Exploration cumulative (réussites « compréhension » V5). */
+  exploration: { conceptsExplored: number; worldsExplored: number; falseSignalsSpotted: number };
 }
 
 export function computeStats(
@@ -130,6 +133,13 @@ export function computeStats(
   const activeDays = activity.filter((a) => a.xp > 0 || a.sessions > 0).length;
   const peakXp = activity.reduce((max, a) => Math.max(max, a.xp), 0);
 
+  const l = learningOf(state);
+  const exploration = {
+    conceptsExplored: l.conceptsExplored.length,
+    worldsExplored: l.worldsExplored.length,
+    falseSignalsSpotted: l.falseSignalsSpotted,
+  };
+
   return {
     level: state.level,
     totalXp: state.totalXp,
@@ -145,5 +155,6 @@ export function computeStats(
     activeDays,
     windowXp,
     peakXp,
+    exploration,
   };
 }
