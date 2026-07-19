@@ -175,6 +175,9 @@ const LABELS: Record<string, string> = {
   identify_pattern: 'Reconnais la figure',
   scenario: 'Scénario',
   select_chart_zone: 'Zone du graphique',
+  place_invalidation: 'Place l’invalidation',
+  label_chart: 'Étiquette le graphique',
+  sequence_market_structure: 'Ordonne la structure',
 };
 
 const styles = StyleSheet.create({

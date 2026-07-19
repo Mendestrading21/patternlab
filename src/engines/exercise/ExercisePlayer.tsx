@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { View, TextInput, Pressable, StyleSheet } from 'react-native';
+import Svg, { Line, Rect, Polygon } from 'react-native-svg';
 import { Text, Button, AnswerOption, theme } from '../../design-system';
 import type { AnswerState } from '../../design-system';
-import { PatternChart, generateCandles } from '../pattern';
+import { PatternChart, InteractiveChart, generateCandles, priceScale } from '../pattern';
 import type {
   Exercise,
   GradeResult,
@@ -12,6 +13,9 @@ import type {
   IdentifyPatternExercise,
   ScenarioExercise,
   SelectChartZoneExercise,
+  PlaceInvalidationExercise,
+  LabelChartExercise,
+  SequenceMarketStructureExercise,
 } from './types';
 
 export type ExercisePlayerProps = {
@@ -42,6 +46,12 @@ export function ExercisePlayer({ exercise, result, onValidate }: ExercisePlayerP
       return <ScenarioPlayer exercise={exercise} locked={locked} onPick={onValidate} />;
     case 'select_chart_zone':
       return <ZonePlayer exercise={exercise} locked={locked} onPick={onValidate} />;
+    case 'place_invalidation':
+      return <PlaceInvalidationPlayer exercise={exercise} locked={locked} onValidate={onValidate} />;
+    case 'label_chart':
+      return <LabelChartPlayer exercise={exercise} locked={locked} onPick={onValidate} />;
+    case 'sequence_market_structure':
+      return <SequencePlayer exercise={exercise} locked={locked} onValidate={onValidate} />;
     default:
       return (
         <Text variant="caption" color={theme.colors.textMuted}>
@@ -172,6 +182,182 @@ function ZonePlayer({
   );
 }
 
+function PlaceInvalidationPlayer({
+  exercise,
+  locked,
+  onValidate,
+}: {
+  exercise: PlaceInvalidationExercise;
+  locked: boolean;
+  onValidate: (answer: unknown) => void;
+}) {
+  const W = 300;
+  const H = 170;
+  const candles = generateCandles(exercise.chartSeed, 30);
+  const scale = priceScale(candles, H);
+  const step = scale.range * 0.02;
+  const [userPrice, setUserPrice] = useState<number | null>(null);
+  useEffect(() => {
+    if (!locked) setUserPrice(null);
+  }, [locked]);
+
+  const nudge = (dir: -1 | 1) =>
+    setUserPrice((p) => {
+      const base = p ?? (scale.min + scale.max) / 2;
+      return Math.max(scale.min, Math.min(scale.max, base + dir * step));
+    });
+
+  return (
+    <View style={styles.stack}>
+      <View style={styles.chartWrap}>
+        <InteractiveChart
+          candles={candles}
+          width={W}
+          height={H}
+          userPrice={userPrice}
+          targetPrice={locked ? exercise.validation.targetPrice : null}
+          disabled={locked}
+          onPickPrice={(price) => setUserPrice(price)}
+        />
+      </View>
+      {exercise.hint ? (
+        <Text variant="caption" color={theme.colors.textMuted} center>
+          Indice : {exercise.hint}
+        </Text>
+      ) : null}
+      <View style={styles.rowCenter}>
+        <ArrowBtn label="↑" disabled={locked} onPress={() => nudge(1)} />
+        <ArrowBtn label="↓" disabled={locked} onPress={() => nudge(-1)} />
+        {userPrice != null ? (
+          <Text variant="caption" color={theme.colors.technical}>
+            Ton niveau : {userPrice.toFixed(0)}
+          </Text>
+        ) : null}
+      </View>
+      <Button
+        label="Valider mon niveau"
+        disabled={locked || userPrice == null}
+        disabledReason={locked ? undefined : 'Place ta ligne sur le graphique.'}
+        onPress={() => userPrice != null && onValidate(userPrice)}
+      />
+    </View>
+  );
+}
+
+function LabelChartPlayer({
+  exercise,
+  locked,
+  onPick,
+}: {
+  exercise: LabelChartExercise;
+  locked: boolean;
+  onPick: (i: number) => void;
+}) {
+  const W = 300;
+  const H = 160;
+  const candles = generateCandles(exercise.chartSeed, 30);
+  const scale = priceScale(candles, H);
+  const y = scale.priceToY;
+  const n = candles.length;
+  const slot = W / n;
+  const bodyW = Math.max(2, slot * 0.6);
+  const mi = Math.max(0, Math.min(n - 1, exercise.markerIndex));
+  const cx = mi * slot + slot / 2;
+  const markerY = y(candles[mi].h) - 10;
+
+  return (
+    <View style={styles.stack}>
+      <View style={styles.chartWrap}>
+        <Svg width={W} height={H} accessibilityLabel={`Graphique en chandeliers ; un repère marque la bougie numéro ${mi + 1}.`}>
+          {candles.map((c, i) => {
+            const x = i * slot + slot / 2;
+            const up = c.c >= c.o;
+            const stroke = up ? theme.colors.bullish : theme.colors.bearish;
+            return <Line key={`w-${i}`} x1={x} y1={y(c.h)} x2={x} y2={y(c.l)} stroke={stroke} strokeWidth={1.2} opacity={i === mi ? 1 : 0.5} />;
+          })}
+          {candles.map((c, i) => {
+            const x = i * slot + slot / 2;
+            const up = c.c >= c.o;
+            const stroke = up ? theme.colors.bullish : theme.colors.bearish;
+            const top = y(Math.max(c.o, c.c));
+            const h = Math.max(1.5, Math.abs(y(c.o) - y(c.c)));
+            return <Rect key={`b-${i}`} x={x - bodyW / 2} y={top} width={bodyW} height={h} fill={stroke} opacity={i === mi ? 1 : 0.5} rx={1} />;
+          })}
+          {/* Repère au-dessus de la bougie marquée (jamais porté par la seule couleur : forme + label) */}
+          <Polygon points={`${cx - 5},${markerY} ${cx + 5},${markerY} ${cx},${markerY + 9}`} fill={theme.colors.reward} />
+        </Svg>
+      </View>
+      <Text variant="caption" color={theme.colors.textMuted} center>
+        Que représente l’élément marqué (▲) ?
+      </Text>
+      <ChoicePlayer options={exercise.options} correctIndex={exercise.validation.correctIndex} locked={locked} onPick={onPick} />
+    </View>
+  );
+}
+
+function SequencePlayer({
+  exercise,
+  locked,
+  onValidate,
+}: {
+  exercise: SequenceMarketStructureExercise;
+  locked: boolean;
+  onValidate: (answer: unknown) => void;
+}) {
+  return (
+    <View style={styles.stack}>
+      {exercise.chartSeed != null ? (
+        <View style={styles.chartWrap}>
+          <PatternChart candles={generateCandles(exercise.chartSeed, 30)} width={300} height={140} />
+        </View>
+      ) : null}
+      <ReorderList items={exercise.steps} locked={locked} validateLabel="Valider la séquence" onValidate={onValidate} />
+    </View>
+  );
+}
+
+function ReorderList({
+  items,
+  locked,
+  validateLabel,
+  onValidate,
+}: {
+  items: string[];
+  locked: boolean;
+  validateLabel: string;
+  onValidate: (order: number[]) => void;
+}) {
+  const [order, setOrder] = useState<number[]>(items.map((_, i) => i));
+  useEffect(() => {
+    if (!locked) setOrder(items.map((_, i) => i));
+  }, [locked, items]);
+
+  const move = (pos: number, dir: -1 | 1) => {
+    const next = pos + dir;
+    if (next < 0 || next >= order.length) return;
+    const copy = [...order];
+    [copy[pos], copy[next]] = [copy[next], copy[pos]];
+    setOrder(copy);
+  };
+
+  return (
+    <>
+      {order.map((itemIndex, pos) => (
+        <View key={itemIndex} style={styles.orderRow}>
+          <Text variant="body" style={styles.orderLabel}>
+            {pos + 1}. {items[itemIndex]}
+          </Text>
+          <View style={styles.orderBtns}>
+            <ArrowBtn label="↑" disabled={locked || pos === 0} onPress={() => move(pos, -1)} />
+            <ArrowBtn label="↓" disabled={locked || pos === order.length - 1} onPress={() => move(pos, 1)} />
+          </View>
+        </View>
+      ))}
+      <Button label={validateLabel} disabled={locked} onPress={() => onValidate(order)} />
+    </>
+  );
+}
+
 function ChoicePlayer({
   options,
   correctIndex,
@@ -266,33 +452,9 @@ function OrderPlayer({
   locked: boolean;
   onValidate: (answer: unknown) => void;
 }) {
-  const [order, setOrder] = useState<number[]>(exercise.items.map((_, i) => i));
-  useEffect(() => {
-    if (!locked) setOrder(exercise.items.map((_, i) => i));
-  }, [locked, exercise.items]);
-
-  const move = (pos: number, dir: -1 | 1) => {
-    const next = pos + dir;
-    if (next < 0 || next >= order.length) return;
-    const copy = [...order];
-    [copy[pos], copy[next]] = [copy[next], copy[pos]];
-    setOrder(copy);
-  };
-
   return (
     <View style={styles.stack}>
-      {order.map((itemIndex, pos) => (
-        <View key={itemIndex} style={styles.orderRow}>
-          <Text variant="body" style={styles.orderLabel}>
-            {pos + 1}. {exercise.items[itemIndex]}
-          </Text>
-          <View style={styles.orderBtns}>
-            <ArrowBtn label="↑" disabled={locked || pos === 0} onPress={() => move(pos, -1)} />
-            <ArrowBtn label="↓" disabled={locked || pos === order.length - 1} onPress={() => move(pos, 1)} />
-          </View>
-        </View>
-      ))}
-      <Button label="Valider l’ordre" disabled={locked} onPress={() => onValidate(order)} />
+      <ReorderList items={exercise.items} locked={locked} validateLabel="Valider l’ordre" onValidate={onValidate} />
     </View>
   );
 }
@@ -368,6 +530,7 @@ function ArrowBtn({ label, disabled, onPress }: { label: string; disabled: boole
 
 const styles = StyleSheet.create({
   stack: { gap: theme.spacing.sm, marginTop: theme.spacing.md },
+  rowCenter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: theme.spacing.sm },
   chartWrap: {
     alignItems: 'center',
     paddingVertical: theme.spacing.sm,

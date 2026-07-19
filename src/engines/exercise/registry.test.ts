@@ -11,6 +11,9 @@ import type {
   IdentifyPatternExercise,
   ScenarioExercise,
   SelectChartZoneExercise,
+  PlaceInvalidationExercise,
+  LabelChartExercise,
+  SequenceMarketStructureExercise,
 } from './types';
 
 const feedback = {
@@ -195,5 +198,61 @@ describe('exercise registry — formats avancés (Lot 7)', () => {
 
   it('expose au moins 9 formats branchés', () => {
     expect(supportedTypes().length).toBeGreaterThanOrEqual(9);
+  });
+});
+
+describe('exercise registry — formats graphiques (Lot 6)', () => {
+  it('supporte les 3 nouveaux formats graphiques', () => {
+    for (const t of ['place_invalidation', 'label_chart', 'sequence_market_structure'] as const) {
+      expect(isTypeSupported(t)).toBe(true);
+    }
+    expect(supportedTypes().length).toBeGreaterThanOrEqual(12);
+  });
+
+  it('corrige un place_invalidation (tolérance absolue)', () => {
+    const ex: PlaceInvalidationExercise = {
+      id: 'pi1',
+      type: 'place_invalidation',
+      skillId: 'skill.patterns',
+      prompt: 'Place l’invalidation.',
+      chartSeed: 909,
+      validation: { targetPrice: 20, tolerance: 2 },
+      feedback,
+    };
+    expect(gradeExercise(ex, 20).correct).toBe(true);
+    expect(gradeExercise(ex, 21.9).correct).toBe(true); // dans la tolérance
+    expect(gradeExercise(ex, 23).correct).toBe(false); // hors tolérance
+    expect(gradeExercise(ex, '20').correct).toBe(false); // pas un nombre
+  });
+
+  it('corrige un label_chart (index)', () => {
+    const ex: LabelChartExercise = {
+      id: 'lc1',
+      type: 'label_chart',
+      skillId: 'skill.candles',
+      prompt: 'Que représente le repère ?',
+      chartSeed: 451,
+      markerIndex: 7,
+      options: ['Le plus haut atteint', 'Le support', 'Le volume'],
+      validation: { correctIndex: 0 },
+      feedback,
+    };
+    expect(gradeExercise(ex, 0).correct).toBe(true);
+    expect(gradeExercise(ex, 1).correct).toBe(false);
+  });
+
+  it('corrige un sequence_market_structure (ordre)', () => {
+    const ex: SequenceMarketStructureExercise = {
+      id: 'sm1',
+      type: 'sequence_market_structure',
+      skillId: 'skill.trend',
+      prompt: 'Remets la structure dans l’ordre.',
+      steps: ['Cassure', 'Range', 'Tendance', 'Pullback'],
+      validation: { correctOrder: [1, 0, 3, 2] },
+      feedback,
+    };
+    expect(gradeExercise(ex, [1, 0, 3, 2]).correct).toBe(true);
+    expect(gradeExercise(ex, [0, 1, 2, 3]).correct).toBe(false);
+    expect(gradeExercise(ex, [1, 0, 3]).correct).toBe(false); // longueur
   });
 });

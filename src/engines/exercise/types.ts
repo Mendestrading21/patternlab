@@ -15,7 +15,11 @@ export type ExerciseType =
   | 'find_error'
   | 'scenario'
   | 'numeric'
-  | 'timed';
+  | 'timed'
+  // Formats graphiques V5 (Lot 6)
+  | 'place_invalidation'
+  | 'label_chart'
+  | 'sequence_market_structure';
 
 export const ALL_EXERCISE_TYPES: ExerciseType[] = [
   'mcq',
@@ -30,6 +34,9 @@ export const ALL_EXERCISE_TYPES: ExerciseType[] = [
   'scenario',
   'numeric',
   'timed',
+  'place_invalidation',
+  'label_chart',
+  'sequence_market_structure',
 ];
 
 export type ExerciseDifficulty = 'easy' | 'medium' | 'hard';
@@ -118,6 +125,39 @@ export interface SelectChartZoneExercise extends BaseExercise {
   validation: { correctZone: number };
 }
 
+/**
+ * Placer un niveau d'invalidation (prix) sur le graphique.
+ * La réponse est un prix ; correcte si dans la tolérance absolue autour de la cible.
+ */
+export interface PlaceInvalidationExercise extends BaseExercise {
+  type: 'place_invalidation';
+  chartSeed: number;
+  /** Repère textuel (ex. « sous le second creux ») — sens attendu, accessible. */
+  hint?: string;
+  validation: { targetPrice: number; tolerance: number };
+}
+
+/** Étiqueter un élément mis en évidence sur le graphique (bougie marquée par un repère). */
+export interface LabelChartExercise extends BaseExercise {
+  type: 'label_chart';
+  chartSeed: number;
+  /** Index de la bougie mise en évidence (0-based) dans la série de 30. */
+  markerIndex: number;
+  options: string[];
+  validation: { correctIndex: number };
+}
+
+/** Reconstituer l'ordre d'une séquence de structure de marché (range → cassure → pullback…). */
+export interface SequenceMarketStructureExercise extends BaseExercise {
+  type: 'sequence_market_structure';
+  /** Étapes à ordonner. */
+  steps: string[];
+  /** Seed d'un graphique d'illustration (optionnel). */
+  chartSeed?: number;
+  /** correctOrder = indices de `steps` dans le bon ordre. */
+  validation: { correctOrder: number[] };
+}
+
 /** Union discriminée des formats implémentés (narrowing par `type`). */
 export type Exercise =
   | McqExercise
@@ -128,7 +168,10 @@ export type Exercise =
   | FindErrorExercise
   | IdentifyPatternExercise
   | ScenarioExercise
-  | SelectChartZoneExercise;
+  | SelectChartZoneExercise
+  | PlaceInvalidationExercise
+  | LabelChartExercise
+  | SequenceMarketStructureExercise;
 
 export interface GradeResult {
   correct: boolean;

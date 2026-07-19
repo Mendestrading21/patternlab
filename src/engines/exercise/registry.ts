@@ -15,6 +15,9 @@ import type {
   IdentifyPatternExercise,
   ScenarioExercise,
   SelectChartZoneExercise,
+  PlaceInvalidationExercise,
+  LabelChartExercise,
+  SequenceMarketStructureExercise,
 } from './types';
 
 export type Grader<E extends Exercise> = (exercise: E, answer: unknown) => GradeResult;
@@ -65,6 +68,20 @@ const gradeSelectChartZone: Grader<SelectChartZoneExercise> = (exercise, answer)
   return result(answer === exercise.validation.correctZone, exercise);
 };
 
+const gradePlaceInvalidation: Grader<PlaceInvalidationExercise> = (exercise, answer) => {
+  const { targetPrice, tolerance } = exercise.validation;
+  const ok = typeof answer === 'number' && Math.abs(answer - targetPrice) <= tolerance;
+  return result(ok, exercise);
+};
+
+const gradeLabelChart: Grader<LabelChartExercise> = (exercise, answer) => {
+  return result(answer === exercise.validation.correctIndex, exercise);
+};
+
+const gradeSequenceMarketStructure: Grader<SequenceMarketStructureExercise> = (exercise, answer) => {
+  return result(numberArrayEquals(answer, exercise.validation.correctOrder), exercise);
+};
+
 const graders: Partial<Record<ExerciseType, Grader<Exercise>>> = {
   mcq: gradeMcq as Grader<Exercise>,
   true_false: gradeTrueFalse as Grader<Exercise>,
@@ -75,6 +92,9 @@ const graders: Partial<Record<ExerciseType, Grader<Exercise>>> = {
   identify_pattern: gradeIdentifyPattern as Grader<Exercise>,
   scenario: gradeScenario as Grader<Exercise>,
   select_chart_zone: gradeSelectChartZone as Grader<Exercise>,
+  place_invalidation: gradePlaceInvalidation as Grader<Exercise>,
+  label_chart: gradeLabelChart as Grader<Exercise>,
+  sequence_market_structure: gradeSequenceMarketStructure as Grader<Exercise>,
 };
 
 export function isTypeSupported(type: ExerciseType): boolean {

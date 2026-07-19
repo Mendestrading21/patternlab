@@ -12,6 +12,11 @@ const FORMAT_LABELS: Record<string, string> = {
   match: 'Association',
   find_error: 'Trouve l’erreur',
   identify_pattern: 'Reconnaissance',
+  scenario: 'Scénario',
+  select_chart_zone: 'Zone du graphique',
+  place_invalidation: 'Place l’invalidation',
+  label_chart: 'Étiquette le graphique',
+  sequence_market_structure: 'Ordonne la structure',
 };
 
 export default function Quiz() {

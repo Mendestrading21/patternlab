@@ -6,6 +6,7 @@ import type { Lesson, Skill } from '../engines/learning';
 import { initialProgress } from '../engines/learning';
 import type { Exercise } from '../engines/exercise';
 import type { Pattern } from '../engines/pattern';
+import { generateCandles, supportLevel, resistanceLevel } from '../engines/pattern';
 import { PROGRESS_SCHEMA_VERSION, type ProgressState } from './repositories';
 
 export interface ContentModule {
@@ -184,6 +185,18 @@ const LESSONS: Record<string, Lesson[]> = {
 // ─── Exercices par compétence (formats variés) ───────────────────────
 const fb = (correct: string, incorrect: string, rule?: string, whenItFails?: string) => ({ correct, incorrect, rule, whenItFails });
 
+// ─── Cibles déterministes des exercices graphiques V5 (Lot 6) ────────────────
+// Calculées depuis la série reproductible (même seed ⇒ même cible) : le grader reste
+// pur (tolérance absolue), la correction affichée coïncide avec la ligne révélée.
+const INV_SEED = 909;
+const invCandles = generateCandles(INV_SEED, 30);
+const INV_TARGET = supportLevel(invCandles); // plancher = zone d'invalidation
+const INV_TOL = (resistanceLevel(invCandles) - supportLevel(invCandles)) * 0.08;
+
+const LABEL_SEED = 451;
+const labelCandles = generateCandles(LABEL_SEED, 30);
+const LABEL_MARKER = labelCandles.reduce((best, c, i) => (c.h > labelCandles[best].h ? i : best), 0); // plus haut atteint
+
 const EXERCISES: Record<string, Exercise[]> = {
   'skill.actions': [
     { id: 'ex.actions.mcq', type: 'mcq', skillId: 'skill.actions', prompt: 'Que représente une action ?', options: ['Un prêt à une entreprise', 'Une part d’une entreprise', 'Une monnaie numérique'], validation: { correctIndex: 1 }, difficulty: 'easy', feedback: fb('Exact — une action, c’est une part d’entreprise.', 'Une action n’est ni un prêt ni une monnaie.', 'Action = part d’entreprise.', 'Un prêt à une entreprise, c’est une obligation.') },
@@ -207,6 +220,9 @@ const EXERCISES: Record<string, Exercise[]> = {
     { id: 'ex.candles.find', type: 'find_error', skillId: 'skill.candles', prompt: 'Repère l’affirmation FAUSSE.', statements: ['Le corps relie ouverture et clôture.', 'Une longue mèche indique un rejet de prix.', 'La couleur d’une bougie prédit la bougie suivante.'], validation: { errorIndex: 2 }, difficulty: 'medium', feedback: fb('Exact : une couleur ne prédit pas la suite.', 'L’erreur : la couleur ne prédit pas la bougie suivante.', 'Une bougie décrit le passé, pas l’avenir.') },
   ],
   'skill.patterns': [
+    { id: 'ex.patterns.invalidation', type: 'place_invalidation', skillId: 'skill.patterns', prompt: 'Place le niveau d’invalidation : sous quel plancher la figure ne tient plus ?', chartSeed: INV_SEED, hint: 'le plus bas atteint (le plancher)', validation: { targetPrice: INV_TARGET, tolerance: INV_TOL }, difficulty: 'hard', feedback: fb('Bien vu : sous le plancher, l’hypothèse est invalidée.', 'L’invalidation se pose sous le plancher (le plus bas atteint), pas au milieu.', 'Invalidation = niveau qui, franchi, annule le scénario.', 'Une invalidation trop serrée saute au moindre bruit ; trop large, elle ne protège plus.') },
+    { id: 'ex.patterns.label', type: 'label_chart', skillId: 'skill.patterns', prompt: 'Observe le repère sur le graphique.', chartSeed: LABEL_SEED, markerIndex: LABEL_MARKER, options: ['Le plus haut atteint sur la période', 'Le plancher (support)', 'Le volume échangé'], validation: { correctIndex: 0 }, difficulty: 'medium', feedback: fb('Exact : le repère pointe le sommet, le plus haut atteint.', 'Le repère est au sommet : c’est le plus haut atteint, pas le plancher ni le volume.', 'La mèche haute marque le plus haut de la période.') },
+    { id: 'ex.patterns.sequence', type: 'sequence_market_structure', skillId: 'skill.patterns', prompt: 'Remets la structure de marché dans l’ordre chronologique.', chartSeed: 2024, steps: ['Cassure de la résistance (breakout)', 'Range : accumulation dans une zone', 'Tendance haussière : sommets et creux plus hauts', 'Pullback : retest du niveau cassé'], validation: { correctOrder: [1, 0, 3, 2] }, difficulty: 'hard', feedback: fb('Bien vu : accumulation, cassure, retest, puis tendance.', 'Ordre attendu : range → cassure → pullback → tendance.', 'La structure évolue par phases successives.', 'Une cassure peut échouer (faux signal) et le prix revenir dans le range.') },
     { id: 'ex.patterns.identify', type: 'identify_pattern', skillId: 'skill.patterns', prompt: 'Sur ce schéma, quelle est la direction dominante ?', chartSeed: 314, options: ['Plutôt haussière', 'Plutôt baissière', 'Sans direction nette'], validation: { correctIndex: 0 }, difficulty: 'medium', feedback: fb('Bien lu : la structure progresse vers le haut.', 'Observe l’ensemble : la structure monte.', 'On lit la direction sur la structure globale.') },
     { id: 'ex.patterns.mcq', type: 'mcq', skillId: 'skill.patterns', prompt: 'Un double creux est une figure plutôt…', options: ['Haussière', 'Baissière', 'Neutre par nature'], validation: { correctIndex: 0 }, difficulty: 'medium', feedback: fb('Exact : le double creux est une figure de retournement haussier.', 'Le double creux (« W ») est plutôt haussier.', 'Deux creux + cassure = potentiel haussier.') },
     { id: 'ex.patterns.tf', type: 'true_false', skillId: 'skill.patterns', prompt: 'Un double creux est confirmé par la cassure de la ligne de cou.', validation: { answer: true }, difficulty: 'medium', feedback: fb('Oui : sans cassure de la ligne de cou, la figure n’est pas confirmée.', 'C’est vrai : la cassure de la ligne de cou confirme.', 'Pas de confirmation sans cassure.') },
