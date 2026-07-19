@@ -38,8 +38,8 @@ describe('helpers', () => {
     expect(conceptBySlug(V5_CONCEPTS, 'double-creux')?.id).toBe('concept.double-bottom');
   });
   it('filtre par monde et catégorie', () => {
-    expect(conceptsByWorld(V5_CONCEPTS, 'world.candles').map((c) => c.id)).toEqual(['concept.hammer']);
-    expect(conceptsByCategory(V5_CONCEPTS, 'cat.patterns').map((c) => c.id)).toEqual(['concept.double-bottom']);
+    expect(conceptsByWorld(V5_CONCEPTS, 'world.candles').map((c) => c.id)).toContain('concept.hammer');
+    expect(conceptsByCategory(V5_CONCEPTS, 'cat.patterns').map((c) => c.id)).toContain('concept.double-bottom');
   });
   it('résout les concepts liés', () => {
     const hammer = conceptById(V5_CONCEPTS, 'concept.hammer')!;
@@ -84,7 +84,7 @@ describe('garde de vocabulaire (conformité éducative)', () => {
 describe('pont glossaire (vue dérivée non destructive)', () => {
   it('produit des GlossaryTerm valides avec relations résolues', () => {
     const terms = glossaryFromConcepts(V5_CONCEPTS);
-    expect(terms).toHaveLength(3);
+    expect(terms).toHaveLength(V5_CONCEPTS.length);
     const hammer = terms.find((t) => t.slug === 'marteau')!;
     expect(hammer.term).toBe('Marteau');
     expect(hammer.english).toBe('Hammer');

@@ -29,8 +29,14 @@ const BULLISH_ENGULFING: Candle[] = [
 ];
 // « W » : deux creux proches (46 / 45.6) séparés par un sommet (ligne de cou ≈ 52).
 const DOUBLE_BOTTOM = seriesFromTargets([62, 57, 53, 49, 46, 49, 52, 50, 47, 45.6, 49, 54, 58, 62]);
+// « M » : deux sommets proches (55 / 55) séparés par un creux (ligne de cou ≈ 48), puis cassure basse.
+const DOUBLE_TOP = seriesFromTargets([38, 44, 49, 53, 55, 51, 48, 51, 55, 55, 51, 47, 43, 39]);
 // Range : oscille entre ≈ 48 (support) et ≈ 62 (résistance).
 const RANGE = seriesFromTargets([50, 58, 61, 54, 49, 52, 60, 62, 55, 50, 48, 53, 59, 61, 52, 49]);
+// Tendance haussière : sommets et creux de plus en plus hauts (HH/HL).
+const UPTREND = seriesFromTargets([40, 46, 43, 50, 47, 55, 52, 60, 57, 64]);
+// Cassure de structure : progression haussière (HH/HL) puis rupture sous le dernier creux.
+const BOS = seriesFromTargets([44, 50, 47, 55, 51, 58, 53, 48, 43]);
 
 export const VISUAL_DATASETS: Record<string, Candle[]> = {
   'candle.anatomy.v1': ANATOMY,
@@ -39,7 +45,10 @@ export const VISUAL_DATASETS: Record<string, Candle[]> = {
   'candle.shooting-star.v1': SHOOTING_STAR,
   'candle.bullish-engulfing.v1': BULLISH_ENGULFING,
   'pattern.double-bottom.v1': DOUBLE_BOTTOM,
+  'pattern.double-top.v1': DOUBLE_TOP,
   'structure.support-resistance.v1': RANGE,
+  'structure.uptrend.v1': UPTREND,
+  'structure.bos.v1': BOS,
 };
 
 export function datasetByKey(key?: string): Candle[] {
