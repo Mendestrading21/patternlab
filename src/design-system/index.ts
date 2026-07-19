@@ -1,5 +1,6 @@
 export { theme, useTheme, type Theme } from './theme';
 export * from './tokens';
+export * from './a11y';
 export { useReducedMotion } from './useReducedMotion';
 export {
   contrastRatio,

@@ -34,7 +34,7 @@ export default function Premium() {
     return (
       <Screen>
         <Text variant="h1">PatternLab Premium ✨</Text>
-        <MascotFigure name="celebrate" gesture="celebrate" height={140} />
+        <MascotFigure name="celebrate" gesture="celebrate" height={140} decorative />
         <Card elevated>
           <Text variant="title" color={theme.colors.reward}>
             Tu es Premium 🎉

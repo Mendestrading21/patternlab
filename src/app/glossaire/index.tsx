@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { View, TextInput, Pressable, StyleSheet } from 'react-native';
-import { Screen, Text, Card, theme } from '@/design-system';
+import { Screen, Text, Card, theme, hitSlopFor } from '@/design-system';
 import { GLOSSARY_TERMS, GLOSSARY_CATEGORIES, searchGlossary, type GlossaryCategory } from '@/data';
 import { analytics } from '@/analytics';
 
@@ -41,6 +41,7 @@ export default function Glossaire() {
               onPress={() => setCat(c.id)}
               accessibilityRole="button"
               accessibilityState={{ selected: active }}
+              hitSlop={hitSlopFor(30)}
               style={[styles.chip, active && { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary }]}
             >
               <Text variant="label" color={active ? theme.colors.onPrimary : theme.colors.textSecondary}>

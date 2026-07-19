@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View, Pressable, StyleSheet } from 'react-native';
-import { Screen, Text, Card, Button, EmptyState, theme } from '@/design-system';
+import { Screen, Text, Card, Button, EmptyState, theme, hitSlopFor } from '@/design-system';
 import { GLOSSARY_TERMS, GLOSSARY_CATEGORIES, skillById } from '@/data';
 import { analytics } from '@/analytics';
 
@@ -82,6 +82,7 @@ export default function GlossaryDetail() {
                 accessibilityRole="button"
                 accessibilityHint={`Ouvrir ${rt.term}`}
                 onPress={() => router.push(`/glossaire/${rt.slug}`)}
+                hitSlop={hitSlopFor(32)}
                 style={styles.relatedChip}
               >
                 <Text variant="caption" color={theme.colors.technical}>

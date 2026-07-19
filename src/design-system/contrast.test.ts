@@ -42,3 +42,36 @@ describe('accessibilité de la palette Instrument Glass (AA ≥ 4.5)', () => {
     expect(contrastRatio(colors.onReward, colors.reward)).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
   });
 });
+
+// ── Garantie AA exhaustive (verrouille toute la palette réellement utilisée) ──
+// Toutes les couleurs de texte neutres doivent tenir l'AA sur TOUTES les surfaces,
+// y compris les fonds profonds (graphiques, bandeaux) — pas seulement les cartes.
+const ALL_SURFACES = [
+  'background',
+  'backgroundDeep',
+  'surface',
+  'surfaceElevated',
+  'surfaceInteractive',
+  'surfaceSunken',
+] as const;
+
+// Couleurs d'accent utilisées comme TEXTE/icône coloré (puces, statuts, légendes) —
+// elles apparaissent sur les surfaces de carte/écran (background/surface/surfaceElevated).
+const ACCENT_TEXT = ['primary', 'primaryBright', 'technical', 'warning', 'reward', 'neutral', 'bullish', 'bearish'] as const;
+const CARD_SURFACES = ['background', 'surface', 'surfaceElevated'] as const;
+
+describe('AA exhaustif — couleurs de texte neutres sur toutes les surfaces', () => {
+  for (const fg of ['textPrimary', 'textSecondary', 'textMuted'] as const) {
+    it.each(ALL_SURFACES)(`${fg} ≥ AA sur %s`, (s) => {
+      expect(contrastRatio(colors[fg], colors[s])).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
+    });
+  }
+});
+
+describe('AA exhaustif — accents colorés comme texte sur les surfaces de carte', () => {
+  for (const fg of ACCENT_TEXT) {
+    it.each(CARD_SURFACES)(`${fg} ≥ AA sur %s`, (s) => {
+      expect(contrastRatio(colors[fg], colors[s])).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
+    });
+  }
+});

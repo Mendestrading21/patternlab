@@ -1,7 +1,7 @@
 # État du projet
 
 ## Date
-2026-07-18 — **LOT 17 — Offline complet** terminé (après LOT 0 → LOT 16),
+2026-07-18 — **LOT 18 — Accessibilité complète** terminé (après LOT 0 → LOT 17),
 skill `patternlab-product-growth`, sur la base des lots P0/P1 précédents.
 
 ## Branche / commit
@@ -171,6 +171,14 @@ Connectivité branchable + local-first assumé, sans régression, toutes validat
 - **Un vrai garde-fou réseau** : sur le paywall, « Activer »/« Restaurer » désactivés hors-ligne avec raison explicite (« Connexion requise pour finaliser un achat ») — modélise le futur achat réel. Le reste de l'app reste pleinement utilisable hors-ligne (zéro bouton mort).
 - Vérifié en pilotant Chromium (offline réel via `setOffline`) : bandeau hors-ligne apparaît/disparaît, statut Profil bascule En ligne/Hors ligne, CTA d'achat gaté hors-ligne, navigation + apprentissage OK sans réseau. Voir **ADR-023**.
 
+## LOT 18 — Accessibilité complète (ce lot)
+Contraste verrouillé + titres + focus clavier + cibles tactiles, sans régression, toutes validations vertes :
+- **Contraste AA exhaustif** (`contrast.test.ts`) : chaque couleur de texte neutre ≥ 4.5 sur **toutes** les surfaces (fonds profonds inclus), chaque accent-texte (primary/technical/warning/reward/bullish/bearish/neutral/primaryBright) ≥ 4.5 sur les surfaces de carte. Toutes les paires réellement utilisées passent — aucun token changé ; toute dérive future casse la CI.
+- **Jetons/aides a11y purs et testés** `src/design-system/a11y.ts` : `minTouchTarget=44`, `maxFontScale=1.8`, `hitSlopFor`, `decorative`, `isHeadingVariant`.
+- **Titres annoncés** : le primitif `Text` donne `role=header` au seul `h1` (un titre de navigation par écran) ; `h2`/`display` (grands nombres, emojis, icônes) volontairement non-titres pour ne pas polluer la navigation.
+- **Polices dynamiques** honorées via `maxFontSizeMultiplier` (1.8, surchargeable). **Cibles tactiles** : `hitSlopFor` sur les petites puces (catégories glossaire, termes reliés). **Clavier web** : anneau `:focus-visible` (2 px) + `prefers-reduced-motion` global. **Décor masqué** : `MascotFigure decorative` (mission/réussites/premium retirés de l'arbre AT).
+- Vérifié en pilotant Chromium : exactement **1 titre par écran** (h1), boutons exposés `role=button`, focus clavier avec anneau visible (2 px solid), mascotte décorative masquée. Voir **ADR-024**.
+
 ## Partiel
 - Gamification : quêtes du jour + jalons de série + détection de badge obtenu en place. La **célébration visuelle** (toast/modale à l'obtention) est encore réduite à l'analytics `achievement_unlocked` ; l'écran Réussites reste le lieu de constat. Quêtes hebdomadaires et coffres non couverts (base extensible).
 - Lottie : dépendance + point d'intégration prêts ; rendu figures/SVG en attendant (ADR-005).
@@ -190,17 +198,18 @@ Connectivité branchable + local-first assumé, sans régression, toutes validat
 - Aucun connu (voir sorties lint / typecheck / test / validate:content / build web).
 
 ## Absent (par design, lots suivants)
-- Accessibilité complète, release readiness (lots 18→19 du skill `patternlab-product-growth`).
+- Release readiness (lot 19 du skill `patternlab-product-growth`).
 - Builds device iOS/Android (EAS + comptes Apple/Google).
 
 ## Prochaine priorité
-**Lot 18 — Accessibilité complète** (audit lecteurs d'écran, focus clavier web,
-tailles de police dynamiques, cibles tactiles, contrastes sur tous les états, alternatives
-aux gestes), puis Lot 19 — Release readiness. Le branchement de la source native NetInfo,
-d'un vrai fournisseur analytics et d'un magasin d'app (StoreKit / Play Billing) reste
-conditionné à une autorisation explicite. Célébration visuelle des réussites, historique
-30 jours, écran « journal analytics » (dev) et branchement des 18 concepts importés (après
-revue) restent ouverts.
+**Lot 19 — Release readiness** (checklist de publication : app.json/icônes/splash, EAS,
+politique de confidentialité, mentions légales, revue finale des états, QA multi-plateforme,
+notes de version). Le branchement de la source native NetInfo, d'un vrai fournisseur
+analytics et d'un magasin d'app (StoreKit / Play Billing) reste conditionné à une
+autorisation explicite. Sous-titres de section en `h2` non annoncés comme titres (variante
+surchargée) : un audit fin pourra introduire une sémantique de section dédiée. Célébration
+visuelle des réussites, historique 30 jours, écran « journal analytics » (dev) et
+branchement des 18 concepts importés (après revue) restent ouverts.
 
 ## Risques
 - Conteneur éphémère : commit local présent ; pousser après accord pour ne rien perdre.

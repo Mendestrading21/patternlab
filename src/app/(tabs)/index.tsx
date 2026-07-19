@@ -60,7 +60,7 @@ export default function Home() {
         </Text>
         <Text variant="h2">{mission.skillName || 'Module terminé'}</Text>
         <View style={styles.missionMascot}>
-          <MascotFigure name="toto-think" gesture="idle" height={104} />
+          <MascotFigure name="toto-think" gesture="idle" height={104} decorative />
         </View>
         <Text variant="body" color={theme.colors.textSecondary}>
           {mission.subtitle}

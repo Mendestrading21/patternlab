@@ -21,6 +21,8 @@ export type MascotFigureProps = {
   /** Ombre portée douce au sol (ancrage). */
   shadow?: boolean;
   accessibilityLabel?: string;
+  /** Masque la figure aux lecteurs d'écran quand elle est purement décorative. */
+  decorative?: boolean;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -51,6 +53,7 @@ export function MascotFigure({
   gesture = 'idle',
   shadow = true,
   accessibilityLabel,
+  decorative = false,
   style,
 }: MascotFigureProps) {
   const reduced = useReducedMotion();
@@ -119,9 +122,9 @@ export function MascotFigure({
     <View style={[styles.wrap, { height }, style]}>
       {shadow ? <Animated.View style={[styles.shadow, shadowStyle]} /> : null}
       <Animated.View
-        accessible
-        accessibilityRole="image"
-        accessibilityLabel={accessibilityLabel ?? labelFor(name)}
+        {...(decorative
+          ? { accessibilityElementsHidden: true, importantForAccessibility: 'no-hide-descendants' as const }
+          : { accessible: true, accessibilityRole: 'image' as const, accessibilityLabel: accessibilityLabel ?? labelFor(name) })}
         style={[styles.figure, figureStyle]}
       >
         <Image source={IMAGES[name]} style={StyleSheet.absoluteFill} contentFit="contain" />
