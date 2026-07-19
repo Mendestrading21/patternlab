@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
-import { View, StyleSheet } from 'react-native';
+import { View, Pressable, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, Chip, theme } from '@/design-system';
 import { CharacterScene } from '@/characters';
 import {
@@ -10,8 +10,21 @@ import {
   supportLevel,
   isLevelClose,
 } from '@/engines/pattern';
-import { DEMO_PATTERN } from '@/data';
+import { VisualCard } from '@/engines/visual';
+import { DEMO_PATTERN, V5_CONCEPTS, type VisualSpec } from '@/data';
 import { analytics } from '@/analytics';
+
+/** Aperçu du moteur de visuels V5 : anatomie d'une bougie (statique, accessible). */
+const ANATOMY_SPEC: VisualSpec = {
+  type: 'candle-anatomy',
+  variant: 'bullish',
+  direction: 'bullish',
+  labels: [],
+  annotations: [],
+  datasetKey: 'candle.anatomy.v1',
+  accessibilitySummary:
+    'Anatomie d’une bougie : un corps rectangulaire entre l’ouverture et la clôture, prolongé d’une mèche haute et d’une mèche basse.',
+};
 
 export default function Laboratoire() {
   const router = useRouter();
@@ -143,6 +156,33 @@ export default function Laboratoire() {
         <CharacterScene character="bobo" state="false-signal" size={60} reversed speech="Mais s’il casse nettement, le plancher devient un plafond." />
       </View>
 
+      <Text variant="h2">Visuels V5 (aperçu)</Text>
+      <Text variant="body" color={theme.colors.textSecondary}>
+        Des schémas originaux, générés en code et accessibles. Ouvre une fiche pour voir le visuel en contexte.
+      </Text>
+      <VisualCard spec={ANATOMY_SPEC} title="Anatomie d’une bougie" />
+      <Card>
+        <Text variant="title">Fiches visuelles</Text>
+        <View style={styles.conceptList}>
+          {V5_CONCEPTS.map((c) => (
+            <Pressable
+              key={c.id}
+              accessibilityRole="button"
+              accessibilityHint={`Ouvrir la fiche ${c.title}`}
+              onPress={() => router.push(`/concept/${c.slug}`)}
+              style={styles.conceptRow}
+            >
+              <Text variant="body" style={styles.flex1}>
+                {c.title}
+              </Text>
+              <Text variant="body" color={theme.colors.technical}>
+                ›
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+      </Card>
+
       <Button
         label="Voir la leçon — Le double creux"
         variant="secondary"
@@ -166,4 +206,7 @@ const styles = StyleSheet.create({
   rule: { marginTop: theme.spacing.xs },
   invalidCard: { borderColor: theme.colors.bearish },
   debate: { gap: theme.spacing.md },
+  conceptList: { gap: theme.spacing.xs, marginTop: theme.spacing.sm },
+  conceptRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm, minHeight: 40 },
+  flex1: { flex: 1 },
 });
