@@ -1,5 +1,13 @@
 # État du projet
 
+## PatternLab V5 — en cours (skill `patternlab-v5-master`)
+2026-07-19 — Démarrage du programme **V5** (16 lots, visuel-first, 500+ concepts) par-dessus la v1.
+Plan maître : `docs/PATTERNLAB_V5_MASTER_PLAN.md`. Skill installé sous `.claude/skills/patternlab-v5-master/`.
+- **V5 Lot 0 — Fiabilité & vérité du dépôt** ✅ : baseline vérifiée verte (lint · typecheck · tests 240 · validate:content 21 · release:check 13 · build:web) ; plan maître écrit. La v1 (Lots 0→19) couvre déjà la fiabilité — aucun correctif requis.
+- Prochain : **V5 Lot 1 — Schéma de contenu V5** (`LearningConcept`, registres mondes/catégories, pont non destructif, validation, tests).
+
+---
+
 ## Date
 2026-07-18 — **LOT 19 — Release readiness** terminé (après LOT 0 → LOT 18) —
 **feuille de route `patternlab-product-growth` complète (Lots 0 → 19)**.
