@@ -1,0 +1,35 @@
+{
+  "id": "concept.moving-average",
+  "slug": "moyenne-mobile",
+  "title": "Moyenne mobile",
+  "shortTitle": "Moyenne mobile",
+  "aliases": ["Moving average", "MA", "EMA"],
+  "categoryId": "cat.indicators",
+  "worldId": "world.indicators",
+  "difficulty": 2,
+  "prerequisites": [],
+  "tags": ["indicateur", "tendance", "lissage"],
+  "learningObjective": "Comprendre ce que lisse une moyenne mobile et ce qu’elle ne prédit pas.",
+  "definitionShort": "La moyenne des prix sur une fenêtre glissante : une lecture lissée de la tendance.",
+  "definitionDetailed": "La moyenne mobile calcule le prix moyen sur les N dernières périodes et se déplace avec le temps. Elle lisse le bruit et aide à visualiser la direction dominante. Elle est retardée par construction : elle décrit, elle n’anticipe pas.",
+  "howToRecognize": ["Une ligne qui suit le prix en le lissant.", "Une pente qui indique la direction dominante.", "Le prix qui oscille autour d’elle."],
+  "falseSignals": ["Un croisement de moyennes en plein range, sans direction.", "Une réaction attendue comme une certitude au contact."],
+  "commonMistakes": ["Croire qu’une moyenne mobile prédit le prix plutôt qu’elle ne le résume."],
+  "checklist": ["Fenêtre choisie ?", "Pente lisible ?", "Contexte de tendance ou de range ?"],
+  "miniQuizzes": [
+    {
+      "question": "Une moyenne mobile est-elle en avance ou en retard sur le prix ?",
+      "options": ["En avance", "En retard (par construction)", "Toujours exacte", "Aléatoire"],
+      "correctIndex": 1,
+      "explanation": "Étant une moyenne du passé, elle est retardée : elle décrit la tendance, elle ne l’anticipe pas."
+    }
+  ],
+  "relatedConceptIds": ["concept.uptrend"],
+  "sources": [{ "label": "Voix pédagogique PatternLab", "kind": "editorial" }],
+  "sourcePath": "editorial/v5/moyenne-mobile",
+  "sourceHash": "v5-ind-0002",
+  "version": 1,
+  "status": "needsReview",
+  "locale": "fr-CH",
+  "disclaimer": "Contenu éducatif. Aucun conseil en investissement. Le trading comporte un risque de perte."
+}

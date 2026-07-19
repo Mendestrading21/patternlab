@@ -14,6 +14,7 @@ import {
   type MapNode,
   type NodeStatus,
 } from '@/data';
+import { summarizeConcepts, coverageTotals } from '@/content/coverage';
 import { analytics } from '@/analytics';
 
 const COLORS: Record<NodeStatus, string> = {
@@ -60,6 +61,8 @@ export default function Parcours() {
   const map = buildWorldMap(state, SKILLS, PILOT_MODULE.title, Date.now());
   const overview = buildWorldOverview(WORLDS, V5_CONCEPTS);
   const openCount = worldsWithContent(overview);
+  const content = coverageTotals(summarizeConcepts(V5_CONCEPTS));
+  const nextMilestone = content.milestones[0];
 
   const openWorld = (worldId: string, slug: string | null) => {
     if (!slug) return;
@@ -153,6 +156,19 @@ export default function Parcours() {
         {openCount}/{overview.length} mondes ouverts · les autres arrivent (contenu V5 en préparation)
       </Text>
 
+      <Card style={styles.contentCard}>
+        <View style={styles.labelHead}>
+          <Text variant="title" style={styles.flex1}>
+            Progression du contenu
+          </Text>
+          <Chip label={`${content.total} / ${nextMilestone.target}`} color={theme.colors.technical} />
+        </View>
+        <ProgressBar value={nextMilestone.pct / 100} accessibilityLabel={`${content.total} concepts sur ${nextMilestone.target}`} />
+        <Text variant="caption" color={theme.colors.textMuted}>
+          {content.total} concepts en revue · objectif {nextMilestone.target} ({nextMilestone.pct} %), puis {content.milestones[1].target}+
+        </Text>
+      </Card>
+
       <View style={styles.worldList}>
         {overview.map((s) => {
           const openable = s.hasContent && Boolean(s.firstConceptSlug);
@@ -213,6 +229,7 @@ const styles = StyleSheet.create({
   labelCard: { marginBottom: theme.spacing.md, borderWidth: 1.5, gap: 2 },
   labelHead: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
   worldsHeader: { marginTop: theme.spacing.lg },
+  contentCard: { gap: theme.spacing.sm, marginTop: theme.spacing.xs },
   worldList: { gap: theme.spacing.sm, marginTop: theme.spacing.xs },
   worldCard: { borderWidth: 1 },
   worldCardOpen: { borderColor: theme.colors.technical },
