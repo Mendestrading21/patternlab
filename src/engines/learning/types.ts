@@ -30,6 +30,8 @@ export interface LegacyMeta {
 /**
  * Types de steps d'une leçon V2 (réf. skill : « Leçon V2 »).
  * Anciens contenus (explain/example/interaction/summary) restent valides.
+ * V5 (visual-first) ajoute `visual` (schéma d'un concept riche) et `hypothesis`
+ * (hypothèse conditionnelle Toto/Bobo à partir des scénarios d'un concept).
  */
 export type LessonStepKind =
   | 'intro' // hook d'ouverture
@@ -37,6 +39,8 @@ export type LessonStepKind =
   | 'observe' // observation guidée
   | 'example'
   | 'chart' // graphique déterministe
+  | 'visual' // V5 : visuel SVG d'un concept (via conceptRef)
+  | 'hypothesis' // V5 : hypothèse Toto (haussière) / Bobo (risque) d'un concept
   | 'interaction'
   | 'warning'
   | 'falseSignal' // faux signal / limite
@@ -51,12 +55,18 @@ export interface Flashcard {
 export interface LessonStep {
   id: string;
   kind: LessonStepKind;
-  /** Texte du step (optionnel : un 'chart' ou une 'flashcard' peut s'en passer). */
+  /** Texte du step (optionnel : un 'chart', 'flashcard' ou 'visual' peut s'en passer). */
   body?: string;
   /** Pour kind 'chart' : graine du graphique reproductible. */
   chartSeed?: number;
   /** Pour kind 'flashcard'. */
   flashcard?: Flashcard;
+  /**
+   * V5 : slug d'un `LearningConcept` (visual-first). Pour 'visual' → rend son `visualSpec` ;
+   * pour 'hypothesis' → rend ses scénarios haussier/baissier via Toto/Bobo.
+   * Chaîne primitive : aucune dépendance de `engines/learning` vers `data` (résolu à l'écran).
+   */
+  conceptRef?: string;
 }
 
 export interface Lesson {

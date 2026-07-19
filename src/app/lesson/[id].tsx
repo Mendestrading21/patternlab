@@ -4,7 +4,8 @@ import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, Chip, Flashcard, EmptyState, theme } from '@/design-system';
 import { CharacterScene } from '@/characters';
 import { PatternChart, generateCandles } from '@/engines/pattern';
-import { allLessons } from '@/data';
+import { VisualCard } from '@/engines/visual';
+import { allLessons, conceptBySlug, V5_CONCEPTS } from '@/data';
 import type { LessonStep, LessonStepKind } from '@/engines/learning';
 import { analytics } from '@/analytics';
 
@@ -16,6 +17,8 @@ const STEP_META: Record<LessonStepKind, Meta> = {
   observe: { label: '👀 Observe', color: theme.colors.technical },
   example: { label: 'Exemple', color: theme.colors.textMuted },
   chart: { label: '📈 Graphique', color: theme.colors.technical },
+  visual: { label: '🕯️ Le visuel', color: theme.colors.technical },
+  hypothesis: { label: '⚖️ Hypothèse — Toto / Bobo', color: theme.colors.advanced, accent: theme.colors.advanced },
   interaction: { label: 'À toi', color: theme.colors.primary },
   warning: { label: '⚠️ Attention', color: theme.colors.warning, accent: theme.colors.warning },
   falseSignal: { label: '🚩 Faux signal / limite', color: theme.colors.bearish, accent: theme.colors.bearish },
@@ -24,8 +27,80 @@ const STEP_META: Record<LessonStepKind, Meta> = {
 };
 
 function StepView({ step }: { step: LessonStep }) {
+  const router = useRouter();
+
   if (step.kind === 'flashcard' && step.flashcard) {
     return <Flashcard front={step.flashcard.front} back={step.flashcard.back} />;
+  }
+
+  if (step.kind === 'visual') {
+    const concept = step.conceptRef ? conceptBySlug(V5_CONCEPTS, step.conceptRef) : undefined;
+    if (concept?.visualSpec) {
+      return (
+        <View style={styles.stepStack}>
+          <VisualCard spec={concept.visualSpec} title={STEP_META.visual.label} />
+          {concept.howToRecognize.length ? (
+            <Card>
+              <Text variant="label" color={theme.colors.textMuted}>
+                Comment reconnaître
+              </Text>
+              {concept.howToRecognize.slice(0, 3).map((r) => (
+                <Text key={r} variant="body" color={theme.colors.textSecondary}>
+                  • {r}
+                </Text>
+              ))}
+            </Card>
+          ) : null}
+          <Button
+            label="Voir la fiche complète →"
+            variant="secondary"
+            onPress={() => router.push(`/concept/${concept.slug}`)}
+            accessibilityHint={`Ouvrir la fiche ${concept.title}`}
+          />
+        </View>
+      );
+    }
+    return (
+      <Card>
+        <Text variant="label" color={theme.colors.technical}>
+          {STEP_META.visual.label}
+        </Text>
+        {step.body ? <Text variant="body">{step.body}</Text> : null}
+      </Card>
+    );
+  }
+
+  if (step.kind === 'hypothesis') {
+    const concept = step.conceptRef ? conceptBySlug(V5_CONCEPTS, step.conceptRef) : undefined;
+    const bull = concept?.bullishScenario?.conditions?.[0];
+    const bear = concept?.bearishScenario?.conditions?.[0] ?? concept?.falseSignals?.[0];
+    return (
+      <Card style={styles.hypothesis}>
+        <Text variant="label" color={theme.colors.advanced}>
+          {STEP_META.hypothesis.label}
+        </Text>
+        {step.body ? (
+          <Text variant="body" color={theme.colors.textSecondary}>
+            {step.body}
+          </Text>
+        ) : null}
+        <View style={styles.debate}>
+          <CharacterScene
+            character="toto"
+            state="observe"
+            size={56}
+            speech={bull ? `Hypothèse haussière : ${bull}` : 'Toto formule une hypothèse haussière conditionnelle.'}
+          />
+          <CharacterScene
+            character="bobo"
+            state="false-signal"
+            size={56}
+            reversed
+            speech={bear ? `Le risque : ${bear}` : 'Bobo cherche ce qui invaliderait le scénario.'}
+          />
+        </View>
+      </Card>
+    );
   }
 
   if (step.kind === 'chart') {
@@ -125,6 +200,9 @@ export default function LessonScreen() {
       ) : null}
 
       <View style={styles.actions}>
+        <Text variant="caption" color={theme.colors.textMuted} center>
+          Prochaine étape : les exercices consolident, puis la révision espacée revient au bon moment.
+        </Text>
         <Button label="Terminer la leçon" onPress={finish} accessibilityHint="Passer aux exercices" />
         <Button label="Retour" variant="ghost" onPress={() => router.back()} />
       </View>
@@ -135,6 +213,9 @@ export default function LessonScreen() {
 const styles = StyleSheet.create({
   metaRow: { flexDirection: 'row', gap: theme.spacing.sm },
   chart: { alignItems: 'center', marginVertical: theme.spacing.md },
+  stepStack: { gap: theme.spacing.sm },
+  hypothesis: { borderColor: theme.colors.advanced },
+  debate: { gap: theme.spacing.md, marginTop: theme.spacing.sm },
   mistake: { borderColor: theme.colors.warning },
   actions: { gap: theme.spacing.sm, marginBottom: theme.spacing.lg },
 });
