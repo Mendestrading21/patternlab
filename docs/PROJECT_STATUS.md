@@ -3,8 +3,9 @@
 ## PatternLab V5 — en cours (skill `patternlab-v5-master`)
 2026-07-19 — Démarrage du programme **V5** (16 lots, visuel-first, 500+ concepts) par-dessus la v1.
 Plan maître : `docs/PATTERNLAB_V5_MASTER_PLAN.md`. Skill installé sous `.claude/skills/patternlab-v5-master/`.
-- **V5 Lot 0 — Fiabilité & vérité du dépôt** ✅ : baseline vérifiée verte (lint · typecheck · tests 240 · validate:content 21 · release:check 13 · build:web) ; plan maître écrit. La v1 (Lots 0→19) couvre déjà la fiabilité — aucun correctif requis.
-- Prochain : **V5 Lot 1 — Schéma de contenu V5** (`LearningConcept`, registres mondes/catégories, pont non destructif, validation, tests).
+- **V5 Lot 0 — Fiabilité & vérité du dépôt** ✅ : baseline vérifiée verte ; plan maître écrit. La v1 (Lots 0→19) couvre déjà la fiabilité — aucun correctif requis.
+- **V5 Lot 1 — Schéma de contenu V5** ✅ : modèle riche `LearningConcept` (`src/data/learningConcept.ts`) + registres `WORLDS` (15) / `CATEGORIES` (13) + helpers purs + garde de vocabulaire (aucun BUY/SELL/promesse) + `checkConceptsIntegrity`. Pont non destructif `glossaryFromConcepts` (la v1 reste la source de l'écran glossaire jusqu'au Lot 4). Schéma `learning-concept.schema.json` + `validate:content` étendu aux brouillons `concepts-v5/` (needsReview). Amorce de 3 concepts (marteau, double creux, support/résistance). Validations : lint · typecheck · tests **251** (+11) · validate:content **23** · release:check 13 · build:web. Voir **ADR-026**.
+- Prochain : **V5 Lot 3 — Moteur de visuels statiques** (générateurs SVG paramétriques : anatomie de bougie + patterns de chandeliers, datasets déterministes, résumés accessibles, tests snapshot).
 
 ---
 

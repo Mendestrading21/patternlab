@@ -28,6 +28,10 @@ const validateConcept = ajv.compile(
   JSON.parse(readFileSync(join(root, 'schemas', 'concept.schema.json'), 'utf8')),
 );
 
+const validateLearningConcept = ajv.compile(
+  JSON.parse(readFileSync(join(root, 'schemas', 'learning-concept.schema.json'), 'utf8')),
+);
+
 const base = join(root, 'content', 'published');
 let total = 0;
 let failed = 0;
@@ -60,6 +64,22 @@ if (existsSync(draftsDir)) {
       failed += 1;
       console.error(`✗ drafts/concepts/${file}`);
       console.error(validateConcept.errors);
+    }
+  }
+}
+
+// Concepts V5 (LearningConcept) — brouillons needsReview.
+const draftsV5Dir = join(root, 'content', 'drafts', 'concepts-v5');
+if (existsSync(draftsV5Dir)) {
+  for (const file of readdirSync(draftsV5Dir).filter((f) => f.endsWith('.json'))) {
+    total += 1;
+    const data = JSON.parse(readFileSync(join(draftsV5Dir, file), 'utf8'));
+    if (validateLearningConcept(data)) {
+      console.log(`✓ drafts/concepts-v5/${file}`);
+    } else {
+      failed += 1;
+      console.error(`✗ drafts/concepts-v5/${file}`);
+      console.error(validateLearningConcept.errors);
     }
   }
 }

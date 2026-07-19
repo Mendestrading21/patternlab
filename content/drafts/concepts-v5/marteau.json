@@ -1,0 +1,33 @@
+{
+  "id": "concept.hammer",
+  "slug": "marteau",
+  "title": "Marteau",
+  "shortTitle": "Marteau",
+  "aliases": ["Hammer"],
+  "categoryId": "cat.candles",
+  "worldId": "world.candles",
+  "skillId": "skill.candles",
+  "difficulty": 2,
+  "prerequisites": [],
+  "tags": ["chandelier", "retournement", "mèche"],
+  "learningObjective": "Reconnaître un marteau et comprendre les conditions qui lui donnent du sens.",
+  "definitionShort": "Une bougie à petit corps en haut et longue mèche basse, après une baisse.",
+  "definitionDetailed": "Le marteau a un petit corps dans le haut de la bougie et une mèche inférieure au moins deux fois plus longue que le corps. Il traduit un rejet des prix bas pendant la séance.",
+  "howToRecognize": ["Petit corps dans le tiers haut.", "Mèche basse au moins deux fois le corps.", "Apparaît après une baisse."],
+  "falseSignals": ["Marteau sans support à proximité."],
+  "commonMistakes": ["Entrer avant toute confirmation."],
+  "checklist": ["Contexte de baisse ?", "Support à proximité ?", "Confirmation attendue ?"],
+  "visualSpec": {
+    "type": "candlestick-pattern",
+    "variant": "hammer",
+    "direction": "bullish",
+    "datasetKey": "candle.hammer.v1",
+    "accessibilitySummary": "Bougie à petit corps en haut et longue mèche vers le bas, illustrant un rejet des prix bas après une baisse."
+  },
+  "relatedConceptIds": ["concept.support-resistance", "concept.double-bottom"],
+  "sources": [{ "label": "Voix pédagogique PatternLab", "kind": "editorial" }],
+  "version": 1,
+  "status": "needsReview",
+  "locale": "fr-CH",
+  "disclaimer": "Contenu éducatif. Aucun conseil en investissement. Le trading comporte un risque de perte."
+}

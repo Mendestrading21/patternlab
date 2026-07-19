@@ -1,0 +1,33 @@
+{
+  "id": "concept.support-resistance",
+  "slug": "support-resistance",
+  "title": "Support et résistance",
+  "shortTitle": "Support / résistance",
+  "aliases": ["Support & Resistance"],
+  "categoryId": "cat.structure",
+  "worldId": "world.support-resistance",
+  "skillId": "skill.trend",
+  "difficulty": 1,
+  "prerequisites": [],
+  "tags": ["structure", "niveau", "zone"],
+  "learningObjective": "Identifier une zone de support ou de résistance et son rôle.",
+  "definitionShort": "Niveaux où le prix bute : plancher (support) et plafond (résistance).",
+  "definitionDetailed": "Le support est une zone où les acheteurs reviennent ; la résistance une zone où les vendeurs reprennent la main. Ce sont des zones de mémoire du marché, pas des lignes exactes.",
+  "howToRecognize": ["Plusieurs touches au même niveau.", "Réactions visibles du prix.", "Un niveau cassé peut changer de rôle (flip)."],
+  "falseSignals": ["Mèche qui dépasse la zone sans clôture au-delà."],
+  "commonMistakes": ["Tracer des lignes trop précises au lieu de zones."],
+  "checklist": ["Plusieurs touches ?", "Zone plutôt que ligne ?", "Réaction du prix observée ?"],
+  "visualSpec": {
+    "type": "market-structure",
+    "variant": "support-resistance",
+    "direction": "neutral",
+    "datasetKey": "structure.support-resistance.v1",
+    "accessibilitySummary": "Deux zones horizontales encadrant le prix : un plancher (support) et un plafond (résistance)."
+  },
+  "relatedConceptIds": ["concept.hammer", "concept.double-bottom"],
+  "sources": [{ "label": "Voix pédagogique PatternLab", "kind": "editorial" }],
+  "version": 1,
+  "status": "needsReview",
+  "locale": "fr-CH",
+  "disclaimer": "Contenu éducatif. Aucun conseil en investissement. Le trading comporte un risque de perte."
+}
