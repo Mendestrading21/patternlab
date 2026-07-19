@@ -1,8 +1,8 @@
 # État du projet
 
 ## Date
-2026-07-18 — **LOT 18 — Accessibilité complète** terminé (après LOT 0 → LOT 17),
-skill `patternlab-product-growth`, sur la base des lots P0/P1 précédents.
+2026-07-18 — **LOT 19 — Release readiness** terminé (après LOT 0 → LOT 18) —
+**feuille de route `patternlab-product-growth` complète (Lots 0 → 19)**.
 
 ## Branche / commit
 Branche de travail `claude/connexion-application-1n30su`. Dépôt distant `origin`
@@ -10,7 +10,7 @@ existant (`Mendestrading21/patternlab`) ; aucune poussée ni PR sans accord expl
 
 ## Fonctionnel
 - App Expo SDK 57 (iOS/Android/web) qui démarre sur **web** (vérifiée en pilotant Chromium).
-- Navigation Expo Router : Splash → Onboarding → Tabs (Accueil, Parcours, Laboratoire, Révisions, Profil) + routes Leçon, Session, Glossaire, Réussites, Statistiques, Premium.
+- Navigation Expo Router : Splash → Onboarding → Tabs (Accueil, Parcours, Laboratoire, Révisions, Profil) + routes Leçon, Session, Glossaire, Réussites, Statistiques, Premium, À propos.
 - Design system sombre premium : tokens sémantiques + primitives (Text, Button, Card, ProgressBar, Chip, AnswerOption, FeedbackPanel, Screen, EmptyState).
 - Personnages Toto (taureau vert) & Bobo (ours rouge) : figures 3D HD détourées + avatars vectoriels, via `CharacterAnimationController` (respecte « réduire les animations »).
 - Moteurs découplés : apprentissage (répétition espacée SM-2 testée), exercices (registry, 9 formats), patterns (chart SVG reproductible).
@@ -179,6 +179,14 @@ Contraste verrouillé + titres + focus clavier + cibles tactiles, sans régressi
 - **Polices dynamiques** honorées via `maxFontSizeMultiplier` (1.8, surchargeable). **Cibles tactiles** : `hitSlopFor` sur les petites puces (catégories glossaire, termes reliés). **Clavier web** : anneau `:focus-visible` (2 px) + `prefers-reduced-motion` global. **Décor masqué** : `MascotFigure decorative` (mission/réussites/premium retirés de l'arbre AT).
 - Vérifié en pilotant Chromium : exactement **1 titre par écran** (h1), boutons exposés `role=button`, focus clavier avec anneau visible (2 px solid), mascotte décorative masquée. Voir **ADR-024**.
 
+## LOT 19 — Release readiness (ce lot)
+Config de publication + légal in-app + porte `release:check`, sans régression, toutes validations vertes :
+- **Config `app.json`** : nom `PatternLab`, `userInterfaceStyle: dark`, couleurs de marque (splash/adaptive/`backgroundColor`/`primaryColor`), identifiants reverse-DNS `com.patternlab.app` (iOS/Android), `supportsTablet`, compliance chiffrement iOS, `description`. Assets vérifiés présents.
+- **Source unique** `src/lib/appInfo.ts` (sans import, importable app + Node) : `APP_INFO`, `PRIVACY_SUMMARY`, `LEGAL_LINES` ; `config.ts` en dérive.
+- **Écran légal `/a-propos`** : version, disclaimer, résumé de confidentialité, mentions légales ; lié depuis le Profil (remplace le bouton « Réglages » mort). Politique complète `docs/PRIVACY.md`.
+- **Porte de publication** : logique pure testée `src/release/releaseCheck.ts` (13 invariants) + runner `scripts/release-check.mjs` (`npm run release:check`, exécution TS native Node 22), ajouté à la porte de validation. Checklist honnête `docs/RELEASE_CHECKLIST.md` (automatisé vs action humaine requise).
+- Vérifié : `release:check` 13/13 ; écran À propos rendu en pilotant Chromium (version, disclaimer, confidentialité, mentions légales). Voir **ADR-025**.
+
 ## Partiel
 - Gamification : quêtes du jour + jalons de série + détection de badge obtenu en place. La **célébration visuelle** (toast/modale à l'obtention) est encore réduite à l'analytics `achievement_unlocked` ; l'écran Réussites reste le lieu de constat. Quêtes hebdomadaires et coffres non couverts (base extensible).
 - Lottie : dépendance + point d'intégration prêts ; rendu figures/SVG en attendant (ADR-005).
@@ -197,19 +205,22 @@ Contraste verrouillé + titres + focus clavier + cibles tactiles, sans régressi
 ## Cassé
 - Aucun connu (voir sorties lint / typecheck / test / validate:content / build web).
 
-## Absent (par design, lots suivants)
-- Release readiness (lot 19 du skill `patternlab-product-growth`).
+## Absent (par design — hors périmètre agent, autorisation requise)
+- Feuille de route `patternlab-product-growth` **complète (Lots 0 → 19)**.
+- Publication réelle : comptes Apple/Google, EAS build/soumission, magasin d'achat réel,
+  fournisseur analytics/crash externe, source native NetInfo — voir `docs/RELEASE_CHECKLIST.md`
+  (« action humaine requise »). Rien de tout cela n'est réalisé sans accord explicite.
 - Builds device iOS/Android (EAS + comptes Apple/Google).
 
 ## Prochaine priorité
-**Lot 19 — Release readiness** (checklist de publication : app.json/icônes/splash, EAS,
-politique de confidentialité, mentions légales, revue finale des états, QA multi-plateforme,
-notes de version). Le branchement de la source native NetInfo, d'un vrai fournisseur
-analytics et d'un magasin d'app (StoreKit / Play Billing) reste conditionné à une
-autorisation explicite. Sous-titres de section en `h2` non annoncés comme titres (variante
-surchargée) : un audit fin pourra introduire une sémantique de section dédiée. Célébration
-visuelle des réussites, historique 30 jours, écran « journal analytics » (dev) et
-branchement des 18 concepts importés (après revue) restent ouverts.
+**Feuille de route croissance produit terminée (Lots 0 → 19).** Suites possibles, sur accord :
+- **Publication** : dérouler `docs/RELEASE_CHECKLIST.md` (« action humaine requise ») — EAS,
+  comptes stores, captures, soumission.
+- **Contenu** : brancher les 18 concepts importés (après revue humaine) et étoffer vers
+  30-40 leçons / 100-150 exercices ; nouveaux mondes.
+- **Finitions** : célébration visuelle des réussites (toast/modale), historique 30 jours,
+  écran « journal analytics » (dev), sémantique de section (`h2`) pour l'a11y, branchements
+  natifs réels (NetInfo, analytics, achats) — tous conditionnés à autorisation.
 
 ## Risques
 - Conteneur éphémère : commit local présent ; pousser après accord pour ne rien perdre.

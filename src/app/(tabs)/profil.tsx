@@ -174,10 +174,10 @@ export default function Profil() {
       <Button label="Mes réussites 🏅" onPress={() => router.push('/reussites')} />
       <Button label="Glossaire 📖" variant="secondary" onPress={() => router.push('/glossaire')} />
       <Button
-        label="Réglages"
-        variant="ghost"
-        disabled
-        disabledReason="Écran de réglages : prévu bientôt."
+        label="À propos & mentions légales"
+        variant="secondary"
+        onPress={() => router.push('/a-propos')}
+        accessibilityHint="Version, confidentialité et mentions légales"
       />
       <Button label="Réinitialiser ma progression" variant="secondary" onPress={reset} />
 
