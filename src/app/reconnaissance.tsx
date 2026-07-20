@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Screen, Text, Card, Button, theme } from '@/design-system';
-import { CharacterScene } from '@/characters';
+import { CharacterScene, characterLine } from '@/characters';
 import { VisualCard } from '@/engines/visual';
 import {
   buildVisualQuiz,
@@ -62,6 +62,8 @@ export default function Reconnaissance() {
   const round = finished ? null : session[index];
   const answered = selected !== null;
   const isCorrect = answered && round !== null && selected === round.correctIndex;
+  // Réplique contextuelle et variée de Toto/Bobo (varie avec l'index de la question).
+  const feedbackLine = answered ? characterLine({ kind: 'recognition', correct: isCorrect, streak }, index) : null;
 
   const choose = (i: number) => {
     if (answered || !round) return;
@@ -213,13 +215,15 @@ export default function Reconnaissance() {
           <Text variant="body" color={theme.colors.textSecondary}>
             Figure : {round!.figureTitle}. {round!.explanation}
           </Text>
-          <CharacterScene
-            character={isCorrect ? 'toto' : 'bobo'}
-            state={isCorrect ? 'agree' : 'explain'}
-            size={54}
-            showName={false}
-            speech={isCorrect ? 'Ta lecture est juste.' : 'Retiens sa forme — tu la reverras.'}
-          />
+          {feedbackLine ? (
+            <CharacterScene
+              character={feedbackLine.character}
+              state={feedbackLine.state}
+              size={54}
+              showName={false}
+              speech={feedbackLine.text}
+            />
+          ) : null}
           <Button label={index + 1 >= session.length ? 'Voir le résultat' : 'Figure suivante'} onPress={next} accessibilityHint="Passer à la figure suivante" />
         </Card>
       ) : null}
