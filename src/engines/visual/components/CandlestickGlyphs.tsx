@@ -46,8 +46,13 @@ export type CandlestickGlyphsProps = {
   zones?: Zone[];
   guides?: Guide[];
   markers?: Marker[];
+  /** Grille horizontale subtile (aide à la lecture). Activée par défaut. */
+  grid?: boolean;
   accessibilityLabel?: string;
 };
+
+/** Nombre d'intervalles de la grille horizontale. */
+const GRID_ROWS = 4;
 
 /** Rendu de bougies (SVG, responsive via viewBox) avec zones, niveaux, tracés et repères optionnels. */
 export function CandlestickGlyphs({
@@ -57,6 +62,7 @@ export function CandlestickGlyphs({
   zones = [],
   guides = [],
   markers = [],
+  grid = true,
   accessibilityLabel,
 }: CandlestickGlyphsProps) {
   const W = box.width;
@@ -71,6 +77,23 @@ export function CandlestickGlyphs({
   return (
     <View accessible accessibilityRole="image" accessibilityLabel={accessibilityLabel}>
       <Svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`}>
+        {grid
+          ? Array.from({ length: GRID_ROWS + 1 }, (_, i) => {
+              const gy = padY + (i / GRID_ROWS) * (H - 2 * padY);
+              return (
+                <Line
+                  key={`grid-${i}`}
+                  x1={0}
+                  y1={gy}
+                  x2={W}
+                  y2={gy}
+                  stroke={colors.border}
+                  strokeWidth={0.5}
+                  strokeOpacity={0.6}
+                />
+              );
+            })
+          : null}
         {zones.map((z, i) => {
           const yTop = scale.priceToY(z.to);
           const yBot = scale.priceToY(z.from);
