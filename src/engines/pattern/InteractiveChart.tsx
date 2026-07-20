@@ -3,6 +3,7 @@ import Svg, { Line, Rect } from 'react-native-svg';
 import { colors } from '../../design-system/tokens';
 import type { Candle } from './types';
 import { priceScale } from './interactive';
+import { describeCandles } from './chartA11y';
 
 export type InteractiveChartProps = {
   candles: Candle[];
@@ -41,7 +42,7 @@ export function InteractiveChart({
       style={{ width, height }}
       accessible
       accessibilityRole="adjustable"
-      accessibilityLabel="Graphique interactif : touche pour placer ton niveau horizontal"
+      accessibilityLabel={`Graphique interactif : touche pour placer ton niveau horizontal. ${describeCandles(candles)}`}
       onStartShouldSetResponder={() => !disabled}
       onResponderRelease={(e) => {
         if (!disabled) onPickPrice(scale.yToPrice(e.nativeEvent.locationY));
