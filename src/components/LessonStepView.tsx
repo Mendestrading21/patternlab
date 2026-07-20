@@ -5,6 +5,7 @@ import { CharacterScene } from '@/characters';
 import { PatternChart, generateCandles } from '@/engines/pattern';
 import { VisualCard } from '@/engines/visual';
 import { conceptBySlug, V5_CONCEPTS } from '@/data';
+import { LessonReplay } from './LessonReplay';
 import type { LessonStep, LessonStepKind } from '@/engines/learning';
 
 type Meta = { label: string; color: string; accent?: string };
@@ -121,6 +122,22 @@ export function LessonStepView({ step }: { step: LessonStep }) {
           </Text>
         ) : null}
       </Card>
+    );
+  }
+
+  if (step.kind === 'interaction') {
+    // Manipulation immersive : révélation du graphique bougie par bougie (statique, a11y).
+    return (
+      <View style={styles.stepStack}>
+        <LessonReplay seed={step.chartSeed ?? 2024} />
+        {step.body ? (
+          <Card>
+            <Text variant="body" color={theme.colors.textSecondary}>
+              {step.body}
+            </Text>
+          </Card>
+        ) : null}
+      </View>
     );
   }
 

@@ -60,6 +60,18 @@ lot** (fusion `main` → déploiement live). Roadmap 10 lots (voir SKILL.md).
   vocabulaire propres) · validate:content 31 · release:check 14 · build:web. Vérifié en pilotant
   Chromium (390×844) : fiches Étoile du matin / Profil de volume / Tendance baissière / Zone de
   demande rendues avec visuel, 58/150, 15/15 mondes, **0 erreur console**. Voir **ADR-057**.
+- **Exp-Max Lot 5 — Leçons immersives** ✅ : chaque compétence pilote s'ouvre sur une leçon
+  immersive avec **manipulation**. Nouveau composant `LessonReplay` (révélation d'un graphique
+  chandeliers **bougie par bougie** au toucher — ◀ / Révéler ▶ / Tout révéler / Recommencer,
+  compteur + label a11y, statique donc reduced-motion safe ; s'appuie sur `MarketReplayChart` + la
+  logique pure `chartEngine`). Le pas `interaction` de `LessonStepView` rend désormais `LessonReplay`
+  (graine via `chartSeed`). `seed.ts` : la 1re leçon des 4 compétences pilotes suit l'arc
+  observe → visuel → hypothèse Toto/Bobo → **manipulation** → explication → résumé (`read-trend` et
+  `reversal-figures` reconstruits ; `candle-basics` + `action-definition` complétés). Validations :
+  lint · typecheck · tests **399** · validate:content 31 · release:check 14 · build:web. Vérifié en
+  pilotant Chromium (390×844) : phase « Apprendre » de `skill.trend` (observe/visuel/hypothèse
+  Toto-Bobo/manipulation), replay fonctionnel (6→9→26/26 bougies), **0 erreur console**. Voir
+  **ADR-058**.
 
 ## PatternLab V5 — programme précédent (skill `patternlab-v5-master`)
 2026-07-19 — Démarrage du programme **V5** (16 lots, visuel-first, 500+ concepts) par-dessus la v1.
