@@ -3,18 +3,21 @@ import { useRouter } from 'expo-router';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Screen, Text, Card, Chip, ProgressBar, StateView, theme } from '@/design-system';
 import { MascotFigure } from '@/characters';
+import { MiniVisual } from '@/engines/visual';
 import {
   SKILLS,
   PILOT_MODULE,
   useProgress,
   buildWorldMap,
-  buildWorldOverview,
-  worldsWithContent,
+  buildWorldPath,
+  worldsUnlocked,
   conceptSlugForSkill,
   WORLDS,
   V5_CONCEPTS,
   type MapNode,
   type NodeStatus,
+  type WorldPathNode,
+  type WorldNodeStatus,
 } from '@/data';
 import { summarizeConcepts, coverageTotals } from '@/content/coverage';
 import { analytics } from '@/analytics';
@@ -54,8 +57,6 @@ export default function Parcours() {
 
   // Hooks avant tout retour anticipé (règle des Hooks). Données dérivées entièrement statiques
   // (WORLDS / V5_CONCEPTS sont des constantes de module) : calculées une seule fois.
-  const overview = useMemo(() => buildWorldOverview(WORLDS, V5_CONCEPTS), []);
-  const openCount = useMemo(() => worldsWithContent(overview), [overview]);
   const content = useMemo(() => coverageTotals(summarizeConcepts(V5_CONCEPTS)), []);
   const nextMilestone = content.milestones[0];
 
@@ -68,6 +69,8 @@ export default function Parcours() {
   }
 
   const map = buildWorldMap(state, SKILLS, PILOT_MODULE.title, Date.now());
+  const path = buildWorldPath(WORLDS, V5_CONCEPTS, state.learning?.conceptsExplored ?? []);
+  const unlockedCount = worldsUnlocked(path);
 
   const openWorld = (worldId: string, slug: string | null) => {
     if (!slug) return;
@@ -170,10 +173,10 @@ export default function Parcours() {
         🗺️ La carte des mondes
       </Text>
       <Text variant="body" color={theme.colors.textSecondary}>
-        Au-delà du module pilote, PatternLab se déploie en {overview.length} mondes.
+        Gravis les {WORLDS.length} mondes de PatternLab, un palier à la fois.
       </Text>
       <Text variant="caption" color={theme.colors.textMuted}>
-        {openCount}/{overview.length} mondes ouverts · les autres arrivent (contenu V5 en préparation)
+        {unlockedCount}/{WORLDS.length} mondes débloqués · explore un monde pour ouvrir le suivant
       </Text>
 
       <Card style={styles.contentCard}>
@@ -189,43 +192,120 @@ export default function Parcours() {
         </Text>
       </Card>
 
-      <View style={styles.worldList}>
-        {overview.map((s) => {
-          const openable = s.hasContent && Boolean(s.firstConceptSlug);
-          return (
-            <Pressable
-              key={s.world.id}
-              disabled={!openable}
-              accessibilityRole="button"
-              accessibilityState={{ disabled: !openable }}
-              accessibilityHint={openable ? `Ouvrir le monde ${s.world.title}` : 'Contenu à venir'}
-              onPress={() => openWorld(s.world.id, s.firstConceptSlug)}
-            >
-              <Card style={[styles.worldCard, openable ? styles.worldCardOpen : null]}>
-                <View style={styles.worldHead}>
-                  <View style={[styles.worldOrder, openable ? styles.worldOrderOpen : null]}>
-                    <Text variant="label" color={openable ? theme.colors.technical : theme.colors.textMuted}>
-                      {s.world.order}
-                    </Text>
-                  </View>
-                  <View style={styles.flex1}>
-                    <Text variant="title">{s.world.title}</Text>
-                    <Text variant="caption" color={theme.colors.textMuted}>
-                      {s.world.subtitle}
-                    </Text>
-                  </View>
-                  {s.hasContent ? (
-                    <Chip label={`${s.conceptCount} concept${s.conceptCount > 1 ? 's' : ''}`} color={theme.colors.technical} />
-                  ) : (
-                    <Chip label="à venir" color={theme.colors.textMuted} />
-                  )}
-                </View>
-              </Card>
-            </Pressable>
-          );
-        })}
+      <View style={styles.trail}>
+        {path.map((node) => (
+          <WorldNode
+            key={node.world.id}
+            node={node}
+            onOpen={() => openWorld(node.world.id, node.firstConceptSlug)}
+          />
+        ))}
       </View>
     </Screen>
+  );
+}
+
+// ─── Nœud de monde (chemin vertical vivant) ──────────────────────────
+const WORLD_COLORS: Record<WorldNodeStatus, string> = {
+  done: theme.colors.primary,
+  current: theme.colors.primaryBright,
+  unlocked: theme.colors.technical,
+  locked: theme.colors.textMuted,
+};
+
+/** Jalons (« paliers ») affichés après certains mondes. */
+const MILESTONES: Record<number, string> = {
+  3: 'Palier — Fondations posées 🎯',
+  7: 'Palier — Tu lis le prix 📈',
+  11: 'Palier — Concepts avancés 🧠',
+  15: 'Palier — Tour complet des mondes 🏆',
+};
+
+function worldIcon(node: WorldPathNode): string {
+  if (node.status === 'locked') return '🔒';
+  if (node.status === 'done') return '✓';
+  return String(node.world.order);
+}
+
+function WorldNode({ node, onOpen }: { node: WorldPathNode; onOpen: () => void }) {
+  const color = WORLD_COLORS[node.status];
+  const locked = node.status === 'locked';
+  const openable = !locked && Boolean(node.firstConceptSlug);
+  const milestone = MILESTONES[node.world.order];
+
+  return (
+    <>
+      <View style={styles.trailRow}>
+        <View style={styles.rail}>
+          {node.world.order > 1 ? (
+            <View style={[styles.connector, { backgroundColor: locked ? theme.colors.border : color }]} />
+          ) : (
+            <View style={styles.connector} />
+          )}
+          <View style={[styles.badge, { borderColor: color, backgroundColor: node.status === 'done' ? color : theme.colors.surface }]}>
+            <Text variant="label" color={node.status === 'done' ? theme.colors.onPrimary : color}>
+              {worldIcon(node)}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.labelWrap}>
+          <Pressable
+            disabled={!openable}
+            accessibilityRole="button"
+            accessibilityState={{ disabled: !openable }}
+            accessibilityHint={openable ? `Ouvrir le monde ${node.world.title}` : 'Explore le monde précédent pour débloquer'}
+            onPress={onOpen}
+          >
+            <Card style={[styles.worldCard, { borderColor: locked ? theme.colors.border : color }]}>
+              <View style={styles.worldHead}>
+                <View style={styles.flex1}>
+                  <Text variant="title" color={locked ? theme.colors.textMuted : theme.colors.textPrimary}>
+                    {node.world.title}
+                  </Text>
+                  <Text variant="caption" color={theme.colors.textMuted}>
+                    {node.world.subtitle}
+                  </Text>
+                </View>
+                {node.status === 'done' ? (
+                  <Chip label="terminé ✓" color={theme.colors.primary} />
+                ) : node.status === 'current' ? (
+                  <Chip label="à explorer" color={theme.colors.primaryBright} />
+                ) : locked ? (
+                  <Chip label="🔒" color={theme.colors.textMuted} />
+                ) : null}
+              </View>
+
+              {!locked && node.sampleSpec ? (
+                <View style={styles.worldVisual}>
+                  <MiniVisual spec={node.sampleSpec} width={132} />
+                </View>
+              ) : null}
+
+              {node.conceptCount > 0 ? (
+                <View style={styles.worldProgress}>
+                  <ProgressBar
+                    value={node.progress}
+                    accessibilityLabel={`${node.exploredCount} concept sur ${node.conceptCount} exploré`}
+                  />
+                  <Text variant="caption" color={theme.colors.textMuted}>
+                    {node.exploredCount}/{node.conceptCount} concept{node.conceptCount > 1 ? 's' : ''} exploré{node.conceptCount > 1 ? 's' : ''}
+                  </Text>
+                </View>
+              ) : null}
+            </Card>
+          </Pressable>
+        </View>
+      </View>
+
+      {milestone ? (
+        <View style={styles.milestone}>
+          <Text variant="caption" color={theme.colors.reward} center>
+            {milestone}
+          </Text>
+        </View>
+      ) : null}
+    </>
   );
 }
 
@@ -251,19 +331,16 @@ const styles = StyleSheet.create({
   discover: { paddingVertical: theme.spacing.xs, paddingLeft: theme.spacing.xs, marginTop: theme.spacing.xs },
   labelHead: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
   worldsHeader: { marginTop: theme.spacing.lg },
-  contentCard: { gap: theme.spacing.sm, marginTop: theme.spacing.xs },
-  worldList: { gap: theme.spacing.sm, marginTop: theme.spacing.xs },
-  worldCard: { borderWidth: 1 },
-  worldCardOpen: { borderColor: theme.colors.technical },
-  worldHead: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
-  worldOrder: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    borderWidth: 1.5,
-    borderColor: theme.colors.borderStrong,
-    alignItems: 'center',
-    justifyContent: 'center',
+  contentCard: { gap: theme.spacing.sm, marginTop: theme.spacing.xs, marginBottom: theme.spacing.sm },
+  worldCard: { borderWidth: 1.5, gap: theme.spacing.xs },
+  worldHead: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+  worldVisual: { alignItems: 'center', marginTop: theme.spacing.xs },
+  worldProgress: { gap: 2 },
+  milestone: {
+    marginLeft: RAIL_W + theme.spacing.md,
+    marginBottom: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
   },
-  worldOrderOpen: { borderColor: theme.colors.technical },
 });

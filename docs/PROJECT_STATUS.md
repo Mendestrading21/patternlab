@@ -72,6 +72,18 @@ lot** (fusion `main` → déploiement live). Roadmap 10 lots (voir SKILL.md).
   pilotant Chromium (390×844) : phase « Apprendre » de `skill.trend` (observe/visuel/hypothèse
   Toto-Bobo/manipulation), replay fonctionnel (6→9→26/26 bougies), **0 erreur console**. Voir
   **ADR-058**.
+- **Exp-Max Lot 6 — Parcours & 15 mondes vivants** ✅ : la « carte des mondes » (liste plate) devient
+  un **chemin vertical vivant** façon Duolingo. Module pur `worldPath.ts` (`buildWorldPath` →
+  statut done/current/unlocked/locked, progression `exploredCount/conceptCount`, visuel de monde ;
+  **déblocage séquentiel** : 3 mondes libres puis le suivant s'ouvre dès que le précédent est entamé,
+  d'après `state.learning.conceptsExplored`). `parcours.tsx` : rail + badges (numéro/✓/🔒) +
+  connecteurs, **MiniVisual** par monde (signal visuel), **barre de progression**, puces de statut,
+  **jalons** (« paliers » aux mondes 3/7/11/15) ; mondes verrouillés désactivés avec indice (zéro
+  bouton mort). Le catalogue libre reste via Glossaire/Bibliothèque. Validations : lint · typecheck ·
+  tests **404** (+5, `worldPath.test`) · validate:content 31 · release:check 14 · build:web. Vérifié
+  en pilotant Chromium (390×844) : « 3/15 mondes débloqués », mondes 1–3 avec visuel + « à explorer »,
+  jalon « Palier — Fondations posées », mondes 4–15 verrouillés (🔒), **0 erreur console**. Voir
+  **ADR-059**.
 
 ## PatternLab V5 — programme précédent (skill `patternlab-v5-master`)
 2026-07-19 — Démarrage du programme **V5** (16 lots, visuel-first, 500+ concepts) par-dessus la v1.
