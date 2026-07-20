@@ -95,6 +95,16 @@ lot** (fusion `main` → déploiement live). Roadmap 10 lots (voir SKILL.md).
   validate:content 31 · release:check 14 · build:web. Vérifié en pilotant Chromium (390×844) :
   répliques variées (« Exact, tu progresses ! »), série (« Tu es dans le rythme, continue ! ») après
   3 bonnes réponses, **0 erreur console**. Voir **ADR-060**.
+- **Exp-Max Lot 8 — Gamification & rétention** ✅ : hook quotidien + paliers de badges. Module pur
+  `conceptOfTheDay.ts` (`dayNumber` + `conceptOfTheDay` — un concept **avec visuel** par jour,
+  rotation déterministe sur le corpus). Accueil : carte **« 💡 Concept du jour »** (MiniVisual +
+  définition courte + lien fiche) sous la mission. **8 nouveaux badges** (`badges.ts`) adossés aux
+  stats persistées : `streak-7`, `climber` (niv. 5), `devoted` (500 XP), `treasurer` (200 pièces),
+  `curious-plus` (25 concepts), `world-tour` (15 mondes), `sharp-eye` (30 figures), `flawless-reco`
+  (série reco ≥ 8) → **15 → 23 badges**, tous non-pari. Validations : lint · typecheck · tests **415**
+  (+5, `conceptOfTheDay.test`) · validate:content 31 · release:check 14 · build:web. Vérifié en
+  pilotant Chromium (390×844) : accueil « Concept du jour » (Avalement haussier + visuel + lien),
+  Réussites « 0/23 » avec les nouveaux badges, **0 erreur console**. Voir **ADR-061**.
 
 ## PatternLab V5 — programme précédent (skill `patternlab-v5-master`)
 2026-07-19 — Démarrage du programme **V5** (16 lots, visuel-first, 500+ concepts) par-dessus la v1.

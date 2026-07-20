@@ -31,6 +31,15 @@ export const BADGES: Badge[] = [
   { id: 'curious', name: 'Curieux', emoji: '🔍', description: 'Explore 5 concepts.', family: 'understanding', earned: (s) => learn(s).conceptsExplored.length >= 5 },
   { id: 'world-cartographer', name: 'Cartographe des mondes', emoji: '🌍', description: 'Explore 3 mondes.', family: 'understanding', earned: (s) => learn(s).worldsExplored.length >= 3 },
   { id: 'reader-eye', name: 'Œil de lecteur', emoji: '👁️', description: 'Reconnais 15 figures à l’entraîneur.', family: 'understanding', earned: (s) => learn(s).figuresRecognized >= 15 },
+  // ── Paliers supérieurs (rétention longue) ──
+  { id: 'streak-7', name: 'Série de 7', emoji: '📅', description: 'Reviens 7 jours d’affilée.', family: 'progress', earned: (s) => s.streakDays >= 7 },
+  { id: 'climber', name: 'Grimpeur', emoji: '🧗', description: 'Atteins le niveau 5.', family: 'progress', earned: (s) => s.level >= 5 },
+  { id: 'devoted', name: 'Assidu', emoji: '📖', description: 'Gagne 500 XP au total.', family: 'progress', earned: (s) => s.totalXp >= 500 },
+  { id: 'treasurer', name: 'Trésorier', emoji: '💰', description: 'Amasse 200 pièces.', family: 'progress', earned: (s) => s.coins >= 200 },
+  { id: 'curious-plus', name: 'Grand curieux', emoji: '🔭', description: 'Explore 25 concepts.', family: 'understanding', earned: (s) => learn(s).conceptsExplored.length >= 25 },
+  { id: 'world-tour', name: 'Tour des mondes', emoji: '🌐', description: 'Explore les 15 mondes.', family: 'understanding', earned: (s) => learn(s).worldsExplored.length >= 15 },
+  { id: 'sharp-eye', name: 'Œil aiguisé', emoji: '🦅', description: 'Reconnais 30 figures à l’entraîneur.', family: 'understanding', earned: (s) => learn(s).figuresRecognized >= 30 },
+  { id: 'flawless-reco', name: 'Sans faute', emoji: '🎯', description: 'Enchaîne 8 figures reconnues d’affilée.', family: 'understanding', earned: (s) => learn(s).bestRecognitionStreak >= 8 },
 ];
 
 export function earnedBadges(state: ProgressState | null): Set<string> {

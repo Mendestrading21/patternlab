@@ -2,7 +2,8 @@ import { useRouter } from 'expo-router';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, Chip, ProgressBar, StateView, theme } from '@/design-system';
 import { CharacterScene, MascotFigure } from '@/characters';
-import { useProgress, SKILLS, buildDailyMission, selectDueReviews, exercisesForMinutes, buildDailyQuests, OBJECTIVES } from '@/data';
+import { MiniVisual } from '@/engines/visual';
+import { useProgress, SKILLS, buildDailyMission, selectDueReviews, exercisesForMinutes, buildDailyQuests, OBJECTIVES, conceptOfTheDay, V5_CONCEPTS } from '@/data';
 import { analytics } from '@/analytics';
 import { DISCLAIMER } from '@/lib/config';
 
@@ -34,6 +35,7 @@ export default function Home() {
   const objectiveLabel = OBJECTIVES.find((o) => o.value === profile?.objective)?.label;
   const quests = buildDailyQuests(state, now);
   const questsDone = quests.filter((q) => q.done).length;
+  const featured = conceptOfTheDay(V5_CONCEPTS, now);
 
   const startMission = () => {
     if (mission.skillId) {
@@ -86,6 +88,33 @@ export default function Home() {
           </Text>
         </View>
       </Card>
+
+      {/* Concept du jour : hook de rétention + signal visuel (rotation déterministe) */}
+      {featured ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityHint={`Découvrir le concept du jour : ${featured.title}`}
+          onPress={() => router.push(`/concept/${featured.slug}`)}
+        >
+          <Card style={styles.conceptCard}>
+            <Text variant="label" color={theme.colors.advanced}>
+              💡 CONCEPT DU JOUR
+            </Text>
+            <Text variant="h2">{featured.title}</Text>
+            {featured.visualSpec ? (
+              <View style={styles.conceptVisual}>
+                <MiniVisual spec={featured.visualSpec} width={150} />
+              </View>
+            ) : null}
+            <Text variant="body" color={theme.colors.textSecondary}>
+              {featured.definitionShort}
+            </Text>
+            <Text variant="caption" color={theme.colors.technical}>
+              Découvrir la fiche ›
+            </Text>
+          </Card>
+        </Pressable>
+      ) : null}
 
       {/* Révisions : pointeur compact vers l'onglet dédié */}
       <Pressable accessibilityRole="button" accessibilityHint="Ouvrir les révisions" onPress={() => router.push('/revisions')}>
@@ -182,6 +211,8 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   missionMascot: { alignItems: 'center', marginVertical: theme.spacing.sm },
+  conceptCard: { borderColor: theme.colors.advanced, gap: theme.spacing.xs },
+  conceptVisual: { alignItems: 'center', marginVertical: theme.spacing.xs },
   missionMeta: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, marginTop: theme.spacing.sm },
   cta: { marginVertical: theme.spacing.md },
   progressStrip: { gap: theme.spacing.xs },
