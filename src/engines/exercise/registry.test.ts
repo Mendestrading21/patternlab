@@ -14,6 +14,7 @@ import type {
   PlaceInvalidationExercise,
   LabelChartExercise,
   SequenceMarketStructureExercise,
+  IdentifyFigureExercise,
 } from './types';
 
 const feedback = {
@@ -254,5 +255,25 @@ describe('exercise registry — formats graphiques (Lot 6)', () => {
     expect(gradeExercise(ex, [1, 0, 3, 2]).correct).toBe(true);
     expect(gradeExercise(ex, [0, 1, 2, 3]).correct).toBe(false);
     expect(gradeExercise(ex, [1, 0, 3]).correct).toBe(false); // longueur
+  });
+});
+
+describe('exercise registry — reconnaissance de figure', () => {
+  it('supporte identify_figure et corrige l’index', () => {
+    const ex: IdentifyFigureExercise = {
+      id: 'if1',
+      type: 'identify_figure',
+      skillId: 'skill.patterns',
+      prompt: 'Quelle figure reconnais-tu ?',
+      datasetKey: 'pattern.head-shoulders.v1',
+      variant: 'head-shoulders',
+      visualType: 'chart-pattern',
+      options: ['Triangle ascendant', 'Épaule-tête-épaule', 'Double creux', 'Drapeau haussier'],
+      validation: { correctIndex: 1 },
+      feedback,
+    };
+    expect(isTypeSupported('identify_figure')).toBe(true);
+    expect(gradeExercise(ex, 1).correct).toBe(true);
+    expect(gradeExercise(ex, 0).correct).toBe(false);
   });
 });

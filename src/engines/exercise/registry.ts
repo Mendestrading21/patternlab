@@ -18,6 +18,7 @@ import type {
   PlaceInvalidationExercise,
   LabelChartExercise,
   SequenceMarketStructureExercise,
+  IdentifyFigureExercise,
 } from './types';
 
 export type Grader<E extends Exercise> = (exercise: E, answer: unknown) => GradeResult;
@@ -82,6 +83,10 @@ const gradeSequenceMarketStructure: Grader<SequenceMarketStructureExercise> = (e
   return result(numberArrayEquals(answer, exercise.validation.correctOrder), exercise);
 };
 
+const gradeIdentifyFigure: Grader<IdentifyFigureExercise> = (exercise, answer) => {
+  return result(answer === exercise.validation.correctIndex, exercise);
+};
+
 const graders: Partial<Record<ExerciseType, Grader<Exercise>>> = {
   mcq: gradeMcq as Grader<Exercise>,
   true_false: gradeTrueFalse as Grader<Exercise>,
@@ -95,6 +100,7 @@ const graders: Partial<Record<ExerciseType, Grader<Exercise>>> = {
   place_invalidation: gradePlaceInvalidation as Grader<Exercise>,
   label_chart: gradeLabelChart as Grader<Exercise>,
   sequence_market_structure: gradeSequenceMarketStructure as Grader<Exercise>,
+  identify_figure: gradeIdentifyFigure as Grader<Exercise>,
 };
 
 export function isTypeSupported(type: ExerciseType): boolean {

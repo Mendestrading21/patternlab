@@ -37,23 +37,21 @@ export function VisualCard({ spec, title, blind = false }: VisualCardProps) {
     visual = <CandlestickGlyphs candles={candles} accessibilityLabel={summary} />;
   } else if (spec.type === 'chart-pattern' && candles.length) {
     // Les figures chartistes portent des tracés (ligne de cou, tendances, canaux) via le registre.
+    // En mode énigme, on garde la géométrie mais on retire les textes révélateurs (labels, repères).
     const overlay = figureOverlay(spec.variant);
+    const guides = blind ? overlay?.guides?.map((g) => ({ ...g, label: undefined })) : overlay?.guides;
+    const zones = blind ? overlay?.zones?.map((z) => ({ ...z, label: undefined })) : overlay?.zones;
+    const markers = blind ? undefined : overlay?.markers;
     visual = (
-      <CandlestickGlyphs
-        candles={candles}
-        guides={overlay?.guides}
-        zones={overlay?.zones}
-        markers={overlay?.markers}
-        accessibilityLabel={summary}
-      />
+      <CandlestickGlyphs candles={candles} guides={guides} zones={zones} markers={markers} accessibilityLabel={summary} />
     );
   } else if (spec.type === 'market-structure' && candles.length) {
     const min = Math.min(...candles.map((c) => c.l));
     const max = Math.max(...candles.map((c) => c.h));
     const range = max - min || 1;
     const zones: Zone[] = [
-      { from: min, to: min + range * 0.06, label: 'support', color: theme.colors.bullish },
-      { from: max - range * 0.06, to: max, label: 'résistance', color: theme.colors.bearish },
+      { from: min, to: min + range * 0.06, label: blind ? undefined : 'support', color: theme.colors.bullish },
+      { from: max - range * 0.06, to: max, label: blind ? undefined : 'résistance', color: theme.colors.bearish },
     ];
     visual = <CandlestickGlyphs candles={candles} zones={zones} accessibilityLabel={summary} />;
   } else if (spec.type === 'indicator' && candles.length) {

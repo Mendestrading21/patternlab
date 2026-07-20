@@ -19,7 +19,9 @@ export type ExerciseType =
   // Formats graphiques V5 (Lot 6)
   | 'place_invalidation'
   | 'label_chart'
-  | 'sequence_market_structure';
+  | 'sequence_market_structure'
+  // Reconnaissance de figure sur visuel du moteur (bibliothèque)
+  | 'identify_figure';
 
 export const ALL_EXERCISE_TYPES: ExerciseType[] = [
   'mcq',
@@ -37,6 +39,7 @@ export const ALL_EXERCISE_TYPES: ExerciseType[] = [
   'place_invalidation',
   'label_chart',
   'sequence_market_structure',
+  'identify_figure',
 ];
 
 export type ExerciseDifficulty = 'easy' | 'medium' | 'hard';
@@ -158,6 +161,22 @@ export interface SequenceMarketStructureExercise extends BaseExercise {
   validation: { correctOrder: number[] };
 }
 
+/**
+ * Reconnaître une figure rendue par le moteur de visuels (bibliothèque déterministe).
+ * Le visuel est affiché en mode « énigme » ; on choisit son nom parmi des intitulés.
+ */
+export interface IdentifyFigureExercise extends BaseExercise {
+  type: 'identify_figure';
+  /** Clé du dataset OHLC déterministe de la figure à reconnaître. */
+  datasetKey: string;
+  /** Variant (= id de figure) pour résoudre overlays/indicateurs au rendu. */
+  variant: string;
+  /** Type de rendu du moteur de visuels. */
+  visualType: 'candle-anatomy' | 'candlestick-pattern' | 'chart-pattern' | 'market-structure' | 'indicator';
+  options: string[];
+  validation: { correctIndex: number };
+}
+
 /** Union discriminée des formats implémentés (narrowing par `type`). */
 export type Exercise =
   | McqExercise
@@ -171,7 +190,8 @@ export type Exercise =
   | SelectChartZoneExercise
   | PlaceInvalidationExercise
   | LabelChartExercise
-  | SequenceMarketStructureExercise;
+  | SequenceMarketStructureExercise
+  | IdentifyFigureExercise;
 
 export interface GradeResult {
   correct: boolean;

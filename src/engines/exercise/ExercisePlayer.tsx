@@ -4,6 +4,8 @@ import Svg, { Line, Rect, Polygon } from 'react-native-svg';
 import { Text, Button, AnswerOption, theme } from '../../design-system';
 import type { AnswerState } from '../../design-system';
 import { PatternChart, InteractiveChart, generateCandles, priceScale } from '../pattern';
+import { VisualCard } from '../visual';
+import type { VisualSpec } from '../../data/learningConcept';
 import type {
   Exercise,
   GradeResult,
@@ -16,6 +18,7 @@ import type {
   PlaceInvalidationExercise,
   LabelChartExercise,
   SequenceMarketStructureExercise,
+  IdentifyFigureExercise,
 } from './types';
 
 export type ExercisePlayerProps = {
@@ -52,6 +55,8 @@ export function ExercisePlayer({ exercise, result, onValidate }: ExercisePlayerP
       return <LabelChartPlayer exercise={exercise} locked={locked} onPick={onValidate} />;
     case 'sequence_market_structure':
       return <SequencePlayer exercise={exercise} locked={locked} onValidate={onValidate} />;
+    case 'identify_figure':
+      return <IdentifyFigurePlayer exercise={exercise} locked={locked} onPick={onValidate} />;
     default:
       return (
         <Text variant="caption" color={theme.colors.textMuted}>
@@ -76,6 +81,39 @@ function IdentifyPatternPlayer({
       <View style={styles.chartWrap}>
         <PatternChart candles={candles} width={300} height={150} />
       </View>
+      <ChoicePlayer
+        options={exercise.options}
+        correctIndex={exercise.validation.correctIndex}
+        locked={locked}
+        onPick={onPick}
+      />
+    </View>
+  );
+}
+
+function IdentifyFigurePlayer({
+  exercise,
+  locked,
+  onPick,
+}: {
+  exercise: IdentifyFigureExercise;
+  locked: boolean;
+  onPick: (i: number) => void;
+}) {
+  // Figure affichée en mode « énigme » (aucune fuite de la réponse, y compris au lecteur d'écran) ;
+  // révélée (annotée) une fois la réponse donnée.
+  const spec: VisualSpec = {
+    type: exercise.visualType,
+    variant: exercise.variant,
+    direction: 'neutral',
+    labels: [],
+    annotations: [],
+    datasetKey: exercise.datasetKey,
+    accessibilitySummary: 'Figure à reconnaître.',
+  };
+  return (
+    <View style={styles.stack}>
+      <VisualCard spec={spec} blind={!locked} />
       <ChoicePlayer
         options={exercise.options}
         correctIndex={exercise.validation.correctIndex}

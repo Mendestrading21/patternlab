@@ -98,6 +98,14 @@ Les images restent hors périmètre de commit (déjà sur `main`, jamais une dé
   Bollinger, divergence, order block, FVG, CHoCH) rendues avec visuels, 0 erreur console. Voir **ADR-050**.
 
 ## Fonctionnalités bâties sur la bibliothèque visuelle
+- **Exercices interactifs — format `identify_figure`** ✅ : nouveau format d'exercice graphique branché
+  sur le moteur de visuels (type + grader pur + `IdentifyFigurePlayer` rendant `VisualCard` en mode énigme,
+  révélée après réponse). **Durcissement** : `VisualCard` en `blind` retire aussi les textes d'overlay
+  (repères « épaule »/« tête », labels de tracés/zones/S-R) → mode énigme étanche (bénéfice partagé avec
+  l'entraîneur). 3 exercices ajoutés aux sessions (chandelier / figure / indicateur), notés dans la maîtrise
+  réelle. Validations : lint · typecheck · tests **380** (+1) · validate:content 31 · release:check 14 ·
+  build:web. Vérifié en pilotant Chromium : session skill.candles parcourue jusqu'à l'exercice figure, figure
+  rendue en énigme (aucune fuite), réponse notée avec feedback, 0 erreur. Voir **ADR-051**.
 - **Leçons visual-first des nouveaux concepts** ✅ : 4 leçons `draft` qui enchaînent les concepts en
   parcours guidés (steps `visual`/`hypothesis` via `conceptRef`) — **Les triangles** (asc./desc./sym.),
   **Le drapeau haussier** (mât → drapeau → invalidation), **RSI & divergence**, **Structure : CHoCH & order

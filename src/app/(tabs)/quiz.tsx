@@ -21,6 +21,7 @@ const FORMAT_LABELS: Record<string, string> = {
   place_invalidation: 'Place l’invalidation',
   label_chart: 'Étiquette le graphique',
   sequence_market_structure: 'Ordonne la structure',
+  identify_figure: 'Reconnais la figure',
 };
 
 export default function Quiz() {
