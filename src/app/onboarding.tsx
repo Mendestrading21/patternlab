@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { Screen, Text, Button, Card, Chip, ProgressBar, theme } from '@/design-system';
 import { CharacterScene, MascotFigure } from '@/characters';
+import { MiniVisual } from '@/engines/visual';
 import {
   useProgress,
   SKILLS,
@@ -19,15 +20,32 @@ import {
   type DailyMinutes,
   type Topic,
   type OnboardingProfile,
+  type VisualSpec,
 } from '@/data';
 import { analytics } from '@/analytics';
 
 const STEPS = ['Bienvenue', 'Objectif', 'Niveau', 'Temps', 'Sujets', 'Diagnostic', 'Ton parcours'] as const;
 
-const DIAGNOSTIC = [
+type DiagQuestion = { prompt: string; options: string[]; correct: number; visual?: VisualSpec };
+
+const DIAGNOSTIC: DiagQuestion[] = [
   { prompt: 'Une action, c’est avant tout…', options: ['Une part d’entreprise', 'Un prêt à une entreprise', 'Une monnaie numérique'], correct: 0 },
   { prompt: 'Des sommets et creux de plus en plus hauts décrivent une tendance…', options: ['Haussière', 'Baissière', 'Sans direction'], correct: 0 },
-  { prompt: 'Une bougie verte : la clôture est…', options: ['Au-dessus de l’ouverture', 'En dessous de l’ouverture', 'Toujours au plus haut'], correct: 0 },
+  {
+    prompt: 'Une bougie verte : la clôture est…',
+    options: ['Au-dessus de l’ouverture', 'En dessous de l’ouverture', 'Toujours au plus haut'],
+    correct: 0,
+    // Vraie bougie affichée pour la question : résumé accessible neutre (ne divulgue pas la réponse).
+    visual: {
+      type: 'candlestick-pattern',
+      variant: 'bullish-marubozu',
+      direction: 'bullish',
+      labels: [],
+      annotations: [],
+      datasetKey: 'candle.bullish-marubozu.v1',
+      accessibilitySummary: 'Une bougie.',
+    },
+  },
 ];
 
 type DiagState = 'intro' | 'running' | 'done';
@@ -55,6 +73,8 @@ export default function Onboarding() {
 
   const startSkillId = recommendStartSkill(level ?? 'debutant', topics, SKILLS);
   const startSkillName = skillById(startSkillId)?.name ?? 'ta première compétence';
+  // Question courante du diagnostic (index toujours valide) : capturée en const pour le narrowing TS.
+  const currentDiag = DIAGNOSTIC[diagIndex];
 
   const toggleTopic = (t: Topic) =>
     setTopics((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
@@ -192,8 +212,13 @@ export default function Onboarding() {
               <Text variant="caption" color={theme.colors.textMuted}>
                 Question {diagIndex + 1} / {DIAGNOSTIC.length}
               </Text>
-              <Text variant="title">{DIAGNOSTIC[diagIndex].prompt}</Text>
-              {DIAGNOSTIC[diagIndex].options.map((opt, i) => (
+              <Text variant="title">{currentDiag.prompt}</Text>
+              {currentDiag.visual ? (
+                <View style={styles.diagVisual}>
+                  <MiniVisual spec={currentDiag.visual} width={150} />
+                </View>
+              ) : null}
+              {currentDiag.options.map((opt, i) => (
                 <OptionCard key={opt} emoji={String.fromCharCode(65 + i)} label={opt} onPress={() => answerDiag(i)} />
               ))}
             </>
@@ -297,6 +322,7 @@ const styles = StyleSheet.create({
   selected: { borderColor: theme.colors.primary, borderWidth: 1.5 },
   optionRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
   flex1: { flex: 1 },
+  diagVisual: { alignItems: 'center', marginVertical: theme.spacing.xs },
   recapMascot: { alignItems: 'center', marginVertical: theme.spacing.sm },
   recapChips: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, marginTop: theme.spacing.sm },
   nav: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: theme.spacing.sm },

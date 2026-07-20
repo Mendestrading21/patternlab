@@ -4,6 +4,9 @@ Toujours appliquer le Skill `patternlab-full-launch`.
 Pour la croissance produit par lots (fiabilité, design, navigation, contenu,
 monétisation…), appliquer le Skill `patternlab-product-growth` (un seul lot majeur
 par session).
+Pour le programme « expérience / visuel » (graphiques parfaits, un signal visuel
+partout, quiz visuels, leçons immersives, 15 mondes, gamification), appliquer le
+Skill `patternlab-experience-max` (un seul gros lot par session, publié en live).
 
 ## Produit
 

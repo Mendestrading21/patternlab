@@ -46,7 +46,10 @@ const LESSONS: Record<string, Lesson[]> = {
         { id: 's0', kind: 'intro', body: 'Derrière chaque action se cache une vraie entreprise. En détenir une, c’est en posséder un petit morceau.' },
         { id: 's1', kind: 'explain', body: 'Une action représente une petite part d’une entreprise. En détenir une fait de toi un actionnaire.' },
         { id: 's2', kind: 'example', body: 'Si une entreprise est découpée en 1 000 actions et que tu en as 10, tu possèdes 1 % de l’entreprise.' },
-        { id: 's3', kind: 'summary', body: 'Une action = une part d’entreprise. Son prix varie selon l’offre et la demande.' },
+        { id: 's2b', kind: 'observe', body: 'Le prix d’une action se lit sur un graphique. Chaque « bougie » résume une période : ouverture, clôture, plus haut et plus bas.' },
+        { id: 's2c', kind: 'visual', conceptRef: 'anatomie-bougie' },
+        { id: 's2d', kind: 'chart', chartSeed: 2024, body: 'Le prix affiché en bougies : verte quand la clôture dépasse l’ouverture, rouge sinon. La structure d’ensemble raconte la tendance.' },
+        { id: 's3', kind: 'summary', body: 'Une action = une part d’entreprise. Son prix se lit en bougies sur un graphique et varie selon l’offre et la demande.' },
         { id: 's4', kind: 'flashcard', flashcard: { front: 'Qu’est-ce qu’une action ?', back: 'Une part de propriété d’une entreprise : la détenir fait de toi un actionnaire.' } },
       ],
       commonMistake: 'Confondre le prix d’une action avec la « valeur » de l’entreprise.',
@@ -355,6 +358,8 @@ const LABEL_MARKER = labelCandles.reduce((best, c, i) => (c.h > labelCandles[bes
 const EXERCISES: Record<string, Exercise[]> = {
   'skill.actions': [
     { id: 'ex.actions.mcq', type: 'mcq', skillId: 'skill.actions', prompt: 'Que représente une action ?', options: ['Un prêt à une entreprise', 'Une part d’une entreprise', 'Une monnaie numérique'], validation: { correctIndex: 1 }, difficulty: 'easy', feedback: fb('Exact — une action, c’est une part d’entreprise.', 'Une action n’est ni un prêt ni une monnaie.', 'Action = part d’entreprise.', 'Un prêt à une entreprise, c’est une obligation.') },
+    { id: 'ex.actions.chart-direction', type: 'identify_pattern', skillId: 'skill.actions', prompt: 'Voici le prix d’une action affiché en bougies. Quelle est sa direction générale ?', chartSeed: 2024, options: ['Plutôt à la hausse', 'Plutôt à la baisse', 'Sans direction nette'], validation: { correctIndex: 0 }, difficulty: 'easy', feedback: fb('Bien vu : la structure d’ensemble progresse vers le haut.', 'Regarde l’ensemble des bougies : la structure monte.', 'Le prix se lit sur un graphique en bougies ; la tendance se lit sur la structure globale.', 'Une seule bougie ne fait pas la tendance : c’est l’ensemble qui compte.') },
+    { id: 'ex.actions.green-candle', type: 'identify_figure', skillId: 'skill.actions', prompt: 'Sur cette bougie, comment le prix a-t-il évolué pendant la période ?', datasetKey: 'candle.bullish-marubozu.v1', variant: 'bullish-marubozu', visualType: 'candlestick-pattern', options: ['Le prix a monté (clôture au-dessus de l’ouverture)', 'Le prix a baissé', 'Le prix n’a pas bougé'], validation: { correctIndex: 0 }, difficulty: 'easy', feedback: fb('Exact : une bougie verte clôture au-dessus de son ouverture.', 'Une bougie verte clôture au-dessus de l’ouverture : le prix a monté.', 'Couleur = sens ouverture → clôture (verte = hausse).') },
     { id: 'ex.actions.tf', type: 'true_false', skillId: 'skill.actions', prompt: 'Un actionnaire possède une part de l’entreprise.', validation: { answer: true }, difficulty: 'easy', feedback: fb('Oui : détenir une action, c’est posséder une fraction de l’entreprise.', 'C’est pourtant vrai : l’actionnaire est copropriétaire.', 'Actionnaire = copropriétaire.') },
     { id: 'ex.actions.numeric', type: 'numeric', skillId: 'skill.actions', prompt: 'Sur 1 000 actions, combien en faut-il pour 1 % ?', unit: 'actions', validation: { answer: 10, tolerance: 0 }, difficulty: 'easy', feedback: fb('Exact : 1 % de 1 000 = 10.', '1 % de 1 000 = 10 actions.', 'Part = actions détenues ÷ total.') },
     { id: 'ex.actions.match', type: 'match', skillId: 'skill.actions', prompt: 'Associe chaque terme à sa définition.', left: ['Action', 'Obligation', 'Dividende'], right: ['Part d’entreprise', 'Dette de l’entreprise', 'Part du bénéfice versée'], validation: { matches: [0, 1, 2] }, difficulty: 'medium', feedback: fb('Parfait : action = part, obligation = dette, dividende = bénéfice versé.', 'Une obligation est une dette, pas une part.', 'Action ≠ obligation.') },
@@ -414,6 +419,19 @@ export function skillById(id: string): Skill | undefined {
 }
 export function allLessons(): Lesson[] {
   return SKILLS.flatMap((s) => getLessons(s.id));
+}
+
+// ─── Pont compétence → fiche concept V5 ──────────────────────────────
+// Relie chaque compétence du parcours à une fiche concept riche (avec VisualCard),
+// pour le lien « Découvrir la notion » du parcours. Slugs présents dans V5_CONCEPTS.
+export const CONCEPT_BY_SKILL: Record<string, string> = {
+  'skill.actions': 'marche-et-prix',
+  'skill.trend': 'tendance-haussiere',
+  'skill.candles': 'anatomie-bougie',
+  'skill.patterns': 'double-creux',
+};
+export function conceptSlugForSkill(id: string): string | undefined {
+  return CONCEPT_BY_SKILL[id];
 }
 
 export const DEMO_PATTERN: Pattern = {
