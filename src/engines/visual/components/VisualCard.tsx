@@ -3,11 +3,12 @@ import { View, StyleSheet } from 'react-native';
 import { Card, Text, theme } from '@/design-system';
 import type { VisualSpec } from '../../../data/learningConcept';
 import { datasetByKey } from '../visualDatasets';
-import { CandlestickGlyphs, type Zone } from './CandlestickGlyphs';
+import { CandlestickGlyphs, type Zone, type Level } from './CandlestickGlyphs';
 import { CandleAnatomy } from './CandleAnatomy';
 import { IndicatorPanel } from './IndicatorPanel';
 import { figureOverlay } from '../figureOverlays';
 import { indicatorConfig } from '../indicatorConfigs';
+import { riskSetup } from '../riskSetups';
 
 export type VisualCardProps = {
   spec: VisualSpec;
@@ -61,6 +62,23 @@ export function VisualCard({ spec, title, blind = false }: VisualCardProps) {
     ) : (
       <CandlestickGlyphs candles={candles} accessibilityLabel={summary} />
     );
+  } else if (spec.type === 'risk-reward' && candles.length) {
+    // Schéma risque/rendement : entrée, stop (risque, rouge), cible (rendement, vert) + zones.
+    const rs = riskSetup(spec.variant);
+    if (rs) {
+      const levels: Level[] = [
+        { price: rs.entry, label: blind ? undefined : 'Entrée', color: theme.colors.technical },
+        { price: rs.stop, label: blind ? undefined : 'Stop', color: theme.colors.bearish, dashed: true },
+        { price: rs.target, label: blind ? undefined : `Cible · ${rs.ratio}`, color: theme.colors.bullish, dashed: true },
+      ];
+      const zones: Zone[] = [
+        { from: rs.stop, to: rs.entry, color: theme.colors.bearish },
+        { from: rs.entry, to: rs.target, color: theme.colors.bullish },
+      ];
+      visual = <CandlestickGlyphs candles={candles} levels={levels} zones={zones} accessibilityLabel={summary} />;
+    } else {
+      visual = <CandlestickGlyphs candles={candles} accessibilityLabel={summary} />;
+    }
   } else {
     visual = (
       <View style={styles.fallback} accessible accessibilityLabel={summary}>

@@ -173,6 +173,8 @@ const FAKEOUT = seriesFromTargets([46, 52, 55, 57, 52, 48, 50]);
 const BREAK_RETEST = seriesFromTargets([46, 52, 55, 58, 55, 54, 60]);
 // Accumulation (Wyckoff) : longue base en range puis sortie par le haut (markup).
 const ACCUMULATION = seriesFromTargets([50, 52, 48, 51, 49, 52, 48, 51, 49, 52, 48, 56, 60]);
+// Setup de gestion du risque : base puis progression (support pour l'entrée/stop/cible).
+const RISK_SETUP = seriesFromTargets([50, 52, 48, 51, 49, 52, 55, 53, 57, 60, 58, 63]);
 
 // ─── Séries pour indicateurs (Lot 4) ─────────────────────────────────
 // Moyennes mobiles : hausse, repli, reprise → croisement rapide/lent visible.
@@ -296,6 +298,7 @@ export const VISUAL_DATASETS: Record<string, Candle[]> = {
   'structure.fakeout.v1': FAKEOUT,
   'structure.break-retest.v1': BREAK_RETEST,
   'structure.accumulation.v1': ACCUMULATION,
+  'risk.setup.v1': RISK_SETUP,
   // Indicateurs (Lot 4)
   'indicator.ma.v1': INDICATOR_MA,
   'indicator.bollinger.v1': INDICATOR_BOLLINGER,
@@ -326,4 +329,5 @@ export const SUPPORTED_VISUAL_TYPES = [
   'chart-pattern',
   'market-structure',
   'indicator',
+  'risk-reward',
 ] as const;

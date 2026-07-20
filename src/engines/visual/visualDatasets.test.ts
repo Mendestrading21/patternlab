@@ -4,6 +4,7 @@ import { V5_CONCEPTS } from '../../data/learningContent';
 import { PATTERN_LIBRARY } from '../../data/patternLibrary';
 import { FIGURE_OVERLAYS } from './figureOverlays';
 import { INDICATOR_CONFIGS } from './indicatorConfigs';
+import { RISK_SETUPS } from './riskSetups';
 
 describe('datasets déterministes', () => {
   it('seriesFromTargets chaîne open→close et est déterministe', () => {
@@ -122,5 +123,22 @@ describe('configs d’indicateurs', () => {
     const [oa, ob] = cfg.oscHighs!;
     expect(candles[pb].h).toBeGreaterThan(candles[pa].h); // prix : plus-haut plus haut
     expect(cfg.osc![ob]).toBeLessThan(cfg.osc![oa]); // oscillateur : plus-haut plus bas
+  });
+});
+
+describe('setups risque/rendement', () => {
+  it('chaque setup ordonne stop < entrée < cible et porte un ratio', () => {
+    for (const [key, s] of Object.entries(RISK_SETUPS)) {
+      expect(s.stop).toBeLessThan(s.entry);
+      expect(s.entry).toBeLessThan(s.target);
+      expect(s.ratio.trim().length).toBeGreaterThan(0);
+      // le setup s'inscrit dans l'amplitude du dataset de gestion du risque
+      const candles = datasetByKey('risk.setup.v1');
+      const lo = Math.min(...candles.map((c) => c.l));
+      const hi = Math.max(...candles.map((c) => c.h));
+      expect(s.stop).toBeGreaterThanOrEqual(lo);
+      expect(s.target).toBeLessThanOrEqual(hi);
+      expect(key.length).toBeGreaterThan(0);
+    }
   });
 });

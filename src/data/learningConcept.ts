@@ -85,6 +85,7 @@ export interface VisualSpec {
     | 'chart-pattern'
     | 'market-structure'
     | 'indicator'
+    | 'risk-reward'
     | 'volume-profile'
     | 'comparison'
     | 'cheat-sheet';

@@ -87,6 +87,13 @@ Les images restent hors périmètre de commit (déjà sur `main`, jamais une dé
   (%K/%D + 80/20)/VWAP/ATR rendus, 0 erreur console. Voir **ADR-047**.
 
 ## Contenu bâti sur la bibliothèque visuelle
+- **Visuel risque/rendement + monde Risk** ✅ : nouveau **type de visuel `risk-reward`** (niveaux
+  Entrée/Stop/Cible + zones risque/rendement, rendu via `CandlestickGlyphs` levels/zones, étanche au mode
+  énigme) + registre pur `riskSetups.ts` (testé) + dataset `risk.setup.v1`. 3 concepts `needsReview`
+  (rapport risque/rendement, stop/invalidation, taille de position) → ouvre le monde *Risk* (**10/15 →
+  11/15**). `V5_CONCEPTS` **29 → 32**. Cadrage « préservation du capital », sans promesse. Validations :
+  lint · typecheck · tests **381** (+1) · validate:content 31 · release:check 14 · build:web. Vérifié en
+  pilotant Chromium : niveaux + zones rendus, Parcours 11/15 mondes, 0 erreur. Voir **ADR-052**.
 - **Ouverture de mondes (Volume / Wyckoff / Faux signaux)** ✅ : 4 concepts `needsReview` (volume, VWAP,
   accumulation Wyckoff, faux signal) + dataset `structure.accumulation.v1`. `V5_CONCEPTS` **25 → 29** ;
   la carte des mondes passe de **7/15 à 10/15 ouverts** (mondes Volume, Wyckoff, Laboratoire de faux signaux).

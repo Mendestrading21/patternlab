@@ -14,5 +14,6 @@ export { IndicatorPanel } from './components/IndicatorPanel';
 export { MiniVisual } from './components/MiniVisual';
 export { VisualCard } from './components/VisualCard';
 export { FIGURE_OVERLAYS, figureOverlay, type FigureOverlay } from './figureOverlays';
+export { RISK_SETUPS, riskSetup, type RiskSetup } from './riskSetups';
 export * from './indicatorMath';
 export { INDICATOR_CONFIGS, indicatorConfig, type IndicatorConfig, type IndicatorKind } from './indicatorConfigs';
