@@ -175,6 +175,8 @@ const BREAK_RETEST = seriesFromTargets([46, 52, 55, 58, 55, 54, 60]);
 const ACCUMULATION = seriesFromTargets([50, 52, 48, 51, 49, 52, 48, 51, 49, 52, 48, 56, 60]);
 // Setup de gestion du risque : base puis progression (support pour l'entrée/stop/cible).
 const RISK_SETUP = seriesFromTargets([50, 52, 48, 51, 49, 52, 55, 53, 57, 60, 58, 63]);
+// Emballement parabolique (FOMO) : accélération puis essoufflement — « le prix s'envole ».
+const PARABOLIC = seriesFromTargets([48, 49, 51, 54, 58, 63, 69, 66, 62]);
 
 // ─── Séries pour indicateurs (Lot 4) ─────────────────────────────────
 // Moyennes mobiles : hausse, repli, reprise → croisement rapide/lent visible.
@@ -298,6 +300,7 @@ export const VISUAL_DATASETS: Record<string, Candle[]> = {
   'structure.fakeout.v1': FAKEOUT,
   'structure.break-retest.v1': BREAK_RETEST,
   'structure.accumulation.v1': ACCUMULATION,
+  'structure.parabolic.v1': PARABOLIC,
   'risk.setup.v1': RISK_SETUP,
   // Indicateurs (Lot 4)
   'indicator.ma.v1': INDICATOR_MA,

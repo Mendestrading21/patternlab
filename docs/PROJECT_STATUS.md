@@ -87,6 +87,12 @@ Les images restent hors périmètre de commit (déjà sur `main`, jamais une dé
   (%K/%D + 80/20)/VWAP/ATR rendus, 0 erreur console. Voir **ADR-047**.
 
 ## Contenu bâti sur la bibliothèque visuelle
+- **Ouverture Psychologie / Fondations / Price action** ✅ : 4 concepts `needsReview` illustrés (FOMO,
+  discipline & plan, marché & prix, price action) + dataset `structure.parabolic.v1` (emballement FOMO).
+  `V5_CONCEPTS` **32 → 36** ; la carte des mondes passe de **11/15 à 14/15 ouverts** (seul *Options* reste
+  fermé). Cadrage éducatif (processus, préservation du capital), aucune promesse. Validations : lint ·
+  typecheck · tests **381** · validate:content 31 · release:check 14 · build:web. Vérifié en pilotant
+  Chromium : fiches fomo / discipline / marche-et-prix / price-action rendues, Parcours 14/15 mondes, 0 erreur.
 - **Visuel risque/rendement + monde Risk** ✅ : nouveau **type de visuel `risk-reward`** (niveaux
   Entrée/Stop/Cible + zones risque/rendement, rendu via `CandlestickGlyphs` levels/zones, étanche au mode
   énigme) + registre pur `riskSetups.ts` (testé) + dataset `risk.setup.v1`. 3 concepts `needsReview`
