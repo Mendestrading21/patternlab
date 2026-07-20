@@ -86,6 +86,15 @@ Les images restent hors périmètre de commit (déjà sur `main`, jamais une dé
   release:check 14 · build:web. Vérifié en pilotant Chromium (390×900) : 72 SVG, 24 polylignes, ruban/stoch
   (%K/%D + 80/20)/VWAP/ATR rendus, 0 erreur console. Voir **ADR-047**.
 
+## Fonctionnalités bâties sur la bibliothèque visuelle
+- **Entraîneur « Reconnais la figure »** ✅ : logique pure `recognitionTrainer.ts` (`buildRecognitionSession`,
+  PRNG mulberry32, distracteurs prioritairement de même famille) ; mode **`blind`** de `VisualCard`
+  (énigme sans fuite de la réponse, y compris au lecteur d'écran) ; écran **`/reconnaissance`** (quiz 8
+  manches, score/série, boutons accessibles ✓/✗, retour Toto/Bobo, résultat + rejouer) ; entrée depuis le
+  Quiz. Validations : lint · typecheck · tests **372** (+5) · validate:content 31 · release:check 14 ·
+  build:web. Vérifié en pilotant Chromium (390×844) : figure en énigme (aucune fuite), réponse → révélation
+  annotée, ✓/✗ non porté par la seule couleur, 0 erreur console. Voir **ADR-048**.
+
 ## 🏁 Initiative « un signal visuel partout » — COMPLÈTE (Lots 1 → 5, +extension)
 Inspirée des 66 images de référence (jamais copiées) : **72 figures** dessinées en code sur **7 familles**
 — chandeliers simples/doubles/triples (Lot 1), figures chartistes + moteur d'overlays (2), structure & SMC

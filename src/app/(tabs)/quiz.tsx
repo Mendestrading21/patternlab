@@ -73,6 +73,12 @@ export default function Quiz() {
         onPress={() => router.push(`/session/${DEMO_SKILL.id}`)}
         accessibilityHint="Lancer les exercices"
       />
+      <Button
+        label="Reconnais la figure 🔍"
+        variant="secondary"
+        onPress={() => router.push('/reconnaissance')}
+        accessibilityHint="Entraînement de reconnaissance des figures"
+      />
     </Screen>
   );
 }

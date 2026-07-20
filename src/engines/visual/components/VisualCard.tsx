@@ -13,6 +13,12 @@ export type VisualCardProps = {
   spec: VisualSpec;
   /** Titre optionnel affiché au-dessus du visuel. */
   title?: string;
+  /**
+   * Mode « énigme » (Lot reconnaissance) : masque étiquettes et résumé, et remplace l'alternative
+   * textuelle par un libellé neutre — pour que la figure soit à deviner sans que la réponse fuite
+   * (y compris au lecteur d'écran). Le résumé est révélé après réponse par l'écran appelant.
+   */
+  blind?: boolean;
 };
 
 /**
@@ -20,9 +26,9 @@ export type VisualCardProps = {
  * est visible ET porté par `accessibilityLabel` (information jamais transmise par la seule couleur).
  * Les types non encore couverts affichent un repli lisible.
  */
-export function VisualCard({ spec, title }: VisualCardProps) {
+export function VisualCard({ spec, title, blind = false }: VisualCardProps) {
   const candles = datasetByKey(spec.datasetKey);
-  const summary = spec.accessibilitySummary;
+  const summary = blind ? 'Graphique d’une figure à reconnaître.' : spec.accessibilitySummary;
 
   let visual: ReactNode;
   if (spec.type === 'candle-anatomy' && candles[0]) {
@@ -75,7 +81,7 @@ export function VisualCard({ spec, title }: VisualCardProps) {
         </Text>
       ) : null}
       <View style={styles.frame}>{visual}</View>
-      {spec.labels.length ? (
+      {!blind && spec.labels.length ? (
         <View style={styles.chips}>
           {spec.labels.map((l) => (
             <Text key={l.text} variant="caption" color={theme.colors.textSecondary} style={styles.chip}>
@@ -84,9 +90,11 @@ export function VisualCard({ spec, title }: VisualCardProps) {
           ))}
         </View>
       ) : null}
-      <Text variant="caption" color={theme.colors.textMuted}>
-        {summary}
-      </Text>
+      {!blind ? (
+        <Text variant="caption" color={theme.colors.textMuted}>
+          {summary}
+        </Text>
+      ) : null}
     </Card>
   );
 }
