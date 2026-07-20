@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, Chip, theme } from '@/design-system';
@@ -35,16 +35,17 @@ const ANATOMY_SPEC: VisualSpec = {
 
 export default function Laboratoire() {
   const router = useRouter();
-  const candles = generateCandles(2024, 30);
-  const scale = priceScale(candles, 170);
-  const target = supportLevel(candles);
+  // Séries déterministes (mêmes seeds) : mémorisées pour éviter de régénérer à chaque rendu.
+  const candles = useMemo(() => generateCandles(2024, 30), []);
+  const scale = useMemo(() => priceScale(candles, 170), [candles]);
+  const target = useMemo(() => supportLevel(candles), [candles]);
   const step = scale.range * 0.02;
 
   const [userPrice, setUserPrice] = useState<number | null>(null);
   const [revealed, setRevealed] = useState(false);
 
   // Scénario 2 — replay bougie par bougie + volume (participation).
-  const replayCandles = generateCandles(777, 24);
+  const replayCandles = useMemo(() => generateCandles(777, 24), []);
   const [replay, setReplay] = useState(() => initReplay(replayCandles.length, 6));
   const [replayDone, setReplayDone] = useState(false);
 

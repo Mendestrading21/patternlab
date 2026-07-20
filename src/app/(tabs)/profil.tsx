@@ -123,7 +123,9 @@ export default function Profil() {
         </Text>
         <Text variant="caption" color={theme.colors.textMuted}>
           Embarqués : {offline.skills} compétences · {offline.lessons} leçons · {offline.exercises}{' '}
-          exercices · {offline.glossaryTerms} termes du glossaire.
+          exercices · {offline.unifiedGlossary} termes · {offline.concepts} fiches concept ·{' '}
+          {offline.visualDatasets} visuels · {offline.worlds} mondes. Les visuels sont générés en code,
+          jamais téléchargés.
         </Text>
       </Card>
 

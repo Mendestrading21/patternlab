@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Screen, Text, Card, Chip, ProgressBar, StateView, theme } from '@/design-system';
@@ -50,6 +51,13 @@ export default function Parcours() {
   const router = useRouter();
   const { state, ready } = useProgress();
 
+  // Hooks avant tout retour anticipé (règle des Hooks). Données dérivées entièrement statiques
+  // (WORLDS / V5_CONCEPTS sont des constantes de module) : calculées une seule fois.
+  const overview = useMemo(() => buildWorldOverview(WORLDS, V5_CONCEPTS), []);
+  const openCount = useMemo(() => worldsWithContent(overview), [overview]);
+  const content = useMemo(() => coverageTotals(summarizeConcepts(V5_CONCEPTS)), []);
+  const nextMilestone = content.milestones[0];
+
   if (!ready || !state) {
     return (
       <Screen>
@@ -59,10 +67,6 @@ export default function Parcours() {
   }
 
   const map = buildWorldMap(state, SKILLS, PILOT_MODULE.title, Date.now());
-  const overview = buildWorldOverview(WORLDS, V5_CONCEPTS);
-  const openCount = worldsWithContent(overview);
-  const content = coverageTotals(summarizeConcepts(V5_CONCEPTS));
-  const nextMilestone = content.milestones[0];
 
   const openWorld = (worldId: string, slug: string | null) => {
     if (!slug) return;
