@@ -21,6 +21,8 @@ function base(overrides: Partial<ReleaseInputs> = {}): ReleaseInputs {
     disclaimer: 'Application éducative — aucun conseil.',
     privacySummary: ['a', 'b', 'c'],
     hasAboutScreen: true,
+    contentDraftCount: 10,
+    contentAllInReview: true,
     ...overrides,
   };
 }
@@ -65,5 +67,11 @@ describe('runReleaseChecks', () => {
   it('exige le plugin expo-router', () => {
     const { checks } = runReleaseChecks(base({ config: { ...base().config, plugins: ['expo-splash-screen'] } }));
     expect(checks.find((c) => c.name.includes('expo-router'))?.ok).toBe(false);
+  });
+
+  it('bloque la publication si un brouillon V5 est auto-publié', () => {
+    const { ok, checks } = runReleaseChecks(base({ contentAllInReview: false }));
+    expect(ok).toBe(false);
+    expect(checks.find((c) => c.name.includes('contenu V5 en revue'))?.ok).toBe(false);
   });
 });

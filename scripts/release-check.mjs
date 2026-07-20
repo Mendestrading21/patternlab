@@ -7,7 +7,7 @@
  *
  * Usage : npm run release:check
  */
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runReleaseChecks } from '../src/release/releaseCheck.ts';
@@ -20,6 +20,15 @@ const appJson = readJson('app.json');
 const pkg = readJson('package.json');
 const config = appJson.expo ?? {};
 
+// Contenu V5 (voie éditoriale) : aucun brouillon ne doit être `approved`/`published` (revue humaine).
+const PUBLISHED = new Set(['approved', 'published']);
+const v5Dir = join(root, 'content', 'drafts', 'concepts-v5');
+const v5Drafts = existsSync(v5Dir)
+  ? readdirSync(v5Dir)
+      .filter((f) => f.endsWith('.json'))
+      .map((f) => readJson(`content/drafts/concepts-v5/${f}`))
+  : [];
+
 const { checks, ok } = runReleaseChecks({
   config,
   packageVersion: pkg.version,
@@ -28,6 +37,8 @@ const { checks, ok } = runReleaseChecks({
   disclaimer: APP_INFO.disclaimer,
   privacySummary: PRIVACY_SUMMARY,
   hasAboutScreen: existsSync(join(root, 'src/app/a-propos.tsx')),
+  contentDraftCount: v5Drafts.length,
+  contentAllInReview: v5Drafts.every((d) => !PUBLISHED.has(d.status)),
 });
 
 for (const c of checks) {

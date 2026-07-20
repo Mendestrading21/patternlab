@@ -31,6 +31,10 @@ export interface ReleaseInputs {
   privacySummary: string[];
   /** L'écran « À propos / mentions » est-il présent (route) ? */
   hasAboutScreen: boolean;
+  /** Nombre de brouillons de contenu V5 (voie éditoriale). */
+  contentDraftCount: number;
+  /** Tous les brouillons V5 sont-ils encore en revue (aucun `approved`/`published` accidentel) ? */
+  contentAllInReview: boolean;
 }
 
 export interface CheckResult {
@@ -94,6 +98,13 @@ export function runReleaseChecks(input: ReleaseInputs): { checks: CheckResult[];
   add('disclaimer éducatif présent', input.disclaimer.trim().length > 0, input.disclaimer ? 'ok' : '(vide)');
   add('résumé de confidentialité (≥ 3 points)', input.privacySummary.length >= 3, `${input.privacySummary.length} point(s)`);
   add('écran « À propos / mentions » présent', input.hasAboutScreen, input.hasAboutScreen ? 'a-propos' : '(absent)');
+
+  // Contenu V5 : rien d'auto-publié (revue humaine obligatoire avant publication)
+  add(
+    'contenu V5 en revue (aucun brouillon auto-publié)',
+    input.contentAllInReview,
+    `${input.contentDraftCount} brouillon(s)`,
+  );
 
   return { checks, ok: checks.every((x) => x.ok) };
 }
