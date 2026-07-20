@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
-import { buildRecognitionSession } from './recognitionTrainer';
+import { buildRecognitionSession, poolForGroup, RECOGNITION_GROUPS } from './recognitionTrainer';
 import { PATTERN_LIBRARY } from './patternLibrary';
 
 describe('buildRecognitionSession', () => {
@@ -41,5 +41,30 @@ describe('buildRecognitionSession', () => {
   it('borne le nombre de manches à la taille du pool', () => {
     const big = buildRecognitionSession(1, 9999, 4);
     expect(big.length).toBe(PATTERN_LIBRARY.length);
+  });
+});
+
+describe('groupes d’entraînement (par famille)', () => {
+  it('chaque groupe a assez de figures pour 4 options', () => {
+    for (const g of RECOGNITION_GROUPS) {
+      const pool = poolForGroup(g.id);
+      expect(pool.length).toBeGreaterThanOrEqual(4);
+    }
+  });
+
+  it('« all » = toute la bibliothèque ; un groupe restreint est un sous-ensemble propre', () => {
+    expect(poolForGroup('all').length).toBe(PATTERN_LIBRARY.length);
+    const smc = poolForGroup('smc');
+    expect(smc.every((g) => g.family === 'structure-smc')).toBe(true);
+    expect(smc.length).toBeLessThan(PATTERN_LIBRARY.length);
+  });
+
+  it('une session restreinte à un groupe ne propose que des intitulés de ce groupe', () => {
+    const pool = poolForGroup('indicateurs');
+    const titles = new Set(pool.map((p) => p.title));
+    const session = buildRecognitionSession(7, 6, 4, pool);
+    for (const r of session) {
+      for (const o of r.options) expect(titles.has(o)).toBe(true);
+    }
   });
 });

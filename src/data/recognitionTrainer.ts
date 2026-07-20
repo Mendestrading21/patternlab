@@ -6,8 +6,27 @@
  *
  * Pédagogique et sans jugement de marché : on nomme des figures, on n'émet aucun signal.
  */
-import { PATTERN_LIBRARY, glyphToVisualSpec, type PatternGlyph } from './patternLibrary';
+import { PATTERN_LIBRARY, glyphToVisualSpec, type PatternGlyph, type PatternFamily } from './patternLibrary';
 import type { VisualSpec } from './learningConcept';
+
+// ─── Groupes d'entraînement (familles regroupées pour le choix à l'écran) ──
+export type RecognitionGroup = 'all' | 'chandeliers' | 'figures' | 'indicateurs' | 'smc';
+
+export const RECOGNITION_GROUPS: { id: RecognitionGroup; label: string; families: PatternFamily[] | 'all' }[] = [
+  { id: 'all', label: 'Tout', families: 'all' },
+  { id: 'chandeliers', label: 'Chandeliers', families: ['chandelier-simple', 'chandelier-double', 'chandelier-triple'] },
+  { id: 'figures', label: 'Figures', families: ['figure-chartiste', 'structure'] },
+  { id: 'indicateurs', label: 'Indicateurs', families: ['indicateur'] },
+  { id: 'smc', label: 'SMC', families: ['structure-smc'] },
+];
+
+/** Sous-ensemble de la bibliothèque pour un groupe (défaut : tout). */
+export function poolForGroup(group: RecognitionGroup, pool: PatternGlyph[] = PATTERN_LIBRARY): PatternGlyph[] {
+  const def = RECOGNITION_GROUPS.find((g) => g.id === group);
+  if (!def || def.families === 'all') return pool;
+  const fams = new Set<PatternFamily>(def.families);
+  return pool.filter((g) => fams.has(g.family));
+}
 
 export interface RecognitionRound {
   figureId: string;

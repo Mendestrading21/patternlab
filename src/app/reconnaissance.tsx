@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { Screen, Text, Card, Button, theme } from '@/design-system';
 import { CharacterScene } from '@/characters';
 import { VisualCard } from '@/engines/visual';
-import { buildRecognitionSession, useProgress } from '@/data';
+import { buildRecognitionSession, poolForGroup, RECOGNITION_GROUPS, useProgress, type RecognitionGroup } from '@/data';
 
 const ROUNDS = 8;
 const OPTIONS = 4;
@@ -18,13 +18,28 @@ export default function Reconnaissance() {
   const router = useRouter();
   const { recordRecognition, ready } = useProgress();
   const [seed, setSeed] = useState(2024);
-  const session = useMemo(() => buildRecognitionSession(seed, ROUNDS, OPTIONS), [seed]);
+  const [group, setGroup] = useState<RecognitionGroup>('all');
+  const session = useMemo(() => buildRecognitionSession(seed, ROUNDS, OPTIONS, poolForGroup(group)), [seed, group]);
 
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
+
+  const resetSession = () => {
+    setIndex(0);
+    setSelected(null);
+    setScore(0);
+    setStreak(0);
+    setBestStreak(0);
+  };
+
+  const chooseGroup = (g: RecognitionGroup) => {
+    if (g === group) return;
+    setGroup(g);
+    resetSession();
+  };
 
   const finished = index >= session.length;
   const round = finished ? null : session[index];
@@ -57,18 +72,37 @@ export default function Reconnaissance() {
 
   const replay = () => {
     setSeed((s) => s + 1);
-    setIndex(0);
-    setSelected(null);
-    setScore(0);
-    setStreak(0);
-    setBestStreak(0);
+    resetSession();
   };
+
+  const groupPicker = (
+    <View style={styles.groups} accessibilityRole="tablist">
+      {RECOGNITION_GROUPS.map((g) => {
+        const active = group === g.id;
+        return (
+          <Pressable
+            key={g.id}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: active }}
+            accessibilityHint={`S’entraîner : ${g.label.toLowerCase()}`}
+            onPress={() => chooseGroup(g.id)}
+            style={[styles.pill, active && styles.pillActive]}
+          >
+            <Text variant="caption" color={active ? theme.colors.backgroundDeep : theme.colors.textSecondary}>
+              {g.label}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
 
   if (finished) {
     const ratio = Math.round((score / session.length) * 100);
     return (
       <Screen>
         <Text variant="h1">Résultat 🔍</Text>
+        {groupPicker}
         <Card elevated style={styles.result}>
           <Text variant="h2">{score} / {session.length} figures reconnues</Text>
           <Text variant="body" color={theme.colors.textSecondary}>
@@ -91,6 +125,7 @@ export default function Reconnaissance() {
   return (
     <Screen>
       <Text variant="h1">Reconnais la figure 🔍</Text>
+      {groupPicker}
       <View style={styles.meta}>
         <Text variant="caption" color={theme.colors.textMuted}>Figure {index + 1} / {session.length}</Text>
         <Text variant="caption" color={theme.colors.technical}>Score {score} · série {streak}</Text>
@@ -154,6 +189,15 @@ export default function Reconnaissance() {
 }
 
 const styles = StyleSheet.create({
+  groups: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs, marginBottom: theme.spacing.xs },
+  pill: {
+    borderWidth: 1,
+    borderColor: theme.colors.borderStrong,
+    borderRadius: theme.radius.pill,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: 6,
+  },
+  pillActive: { backgroundColor: theme.colors.technical, borderColor: theme.colors.technical },
   meta: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   options: { gap: theme.spacing.sm, marginVertical: theme.spacing.sm },
   option: {

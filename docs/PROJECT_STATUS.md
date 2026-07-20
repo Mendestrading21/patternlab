@@ -113,6 +113,12 @@ Les images restent hors périmètre de commit (déjà sur `main`, jamais une dé
   typecheck · tests **376** · validate:content 31 · release:check 14 · build:web. Vérifié en pilotant
   Chromium : série jouée (2/8) **persistée** et réaffichée à l'identique dans les statistiques, 0 erreur.
   Voir **ADR-049**.
+- **Entraîneur — mode par famille** ✅ : groupes d'entraînement (`RECOGNITION_GROUPS` + `poolForGroup` :
+  Tout / Chandeliers / Figures / Indicateurs / SMC) ; sélecteur de pastilles dans `/reconnaissance` qui
+  restreint la série à la famille choisie (distracteurs de même famille = plus exigeant), avec réinitialisation
+  propre. Tests : chaque groupe a ≥ 4 figures, sous-ensemble propre, options restreintes au groupe. Validations :
+  lint · typecheck · tests **379** (+3) · validate:content 31 · release:check 14 · build:web. Vérifié en pilotant
+  Chromium : 5 pastilles, « Indicateurs » → toutes les options sont des indicateurs, 0 erreur. Voir **ADR-048**.
 - **Entraîneur « Reconnais la figure »** ✅ : logique pure `recognitionTrainer.ts` (`buildRecognitionSession`,
   PRNG mulberry32, distracteurs prioritairement de même famille) ; mode **`blind`** de `VisualCard`
   (énigme sans fuite de la réponse, y compris au lecteur d'écran) ; écran **`/reconnaissance`** (quiz 8
