@@ -78,11 +78,20 @@ Les images restent hors périmètre de commit (déjà sur `main`, jamais une dé
   quiz (6 vignettes, doubles/zones inclus), deck de révision débloqué (démo Premium) avec 28 vignettes sur
   les cartes, 0 erreur de page. Voir **ADR-046**.
 
-## 🏁 Initiative « un signal visuel partout » — COMPLÈTE (Lots 1 → 5)
-Inspirée des 66 images de référence (jamais copiées) : **64 figures** dessinées en code sur **7 familles**
+- **Lot 4 étendu — indicateurs supplémentaires** ✅ : famille indicateurs **7 → 15**. Math pur +
+  (`stochastic`, `vwap`, `atr`, `highsOf`/`lowsOf`) ; nouveaux `kind` renderer `ribbon`/`stochastic`/
+  `vwap`/`atr` + paramètre `pivot` pour la divergence cachée. **8 indicateurs** ajoutés : croisement doré,
+  croisement de la mort, compression de Bollinger, ruban de moyennes, stochastique, VWAP, ATR, divergence
+  cachée. Galerie **72 figures**. Validations : lint · typecheck · tests **367** (+3) · validate:content 31 ·
+  release:check 14 · build:web. Vérifié en pilotant Chromium (390×900) : 72 SVG, 24 polylignes, ruban/stoch
+  (%K/%D + 80/20)/VWAP/ATR rendus, 0 erreur console. Voir **ADR-047**.
+
+## 🏁 Initiative « un signal visuel partout » — COMPLÈTE (Lots 1 → 5, +extension)
+Inspirée des 66 images de référence (jamais copiées) : **72 figures** dessinées en code sur **7 familles**
 — chandeliers simples/doubles/triples (Lot 1), figures chartistes + moteur d'overlays (2), structure & SMC
-(3), indicateurs avec sous-panneau (4), câblage d'un signal visuel sur chaque carte de révision et le quiz
-(5). Galerie `/bibliotheque-visuelle`. Gate verte à chaque lot. ADRs 042 → 046. **Aucun push sans accord.**
+(3), indicateurs avec sous-panneau — 15 indicateurs (4 + extension), câblage d'un signal visuel sur chaque
+carte de révision et le quiz (5). Galerie `/bibliotheque-visuelle`. Gate verte à chaque lot. ADRs 042 → 047.
+**Aucun push sans accord.**
 
 ---
 

@@ -195,6 +195,39 @@ const INDICATOR_DIVERGENCE: Candle[] = [
   { o: 53, h: 61, l: 52, c: 59 }, // plus-haut #2 (61, plus haut)
   { o: 59, h: 60, l: 54, c: 55 },
 ];
+// Golden cross : baisse puis reprise → la moyenne rapide repasse au-dessus de la lente.
+const INDICATOR_GOLDEN_CROSS = seriesFromTargets([60, 56, 53, 51, 50, 52, 56, 60, 64, 68]);
+// Death cross : hausse puis retournement → la moyenne rapide repasse sous la lente.
+const INDICATOR_DEATH_CROSS = seriesFromTargets([40, 44, 47, 49, 50, 48, 44, 40, 36, 32]);
+// Bollinger squeeze : compression très serrée puis expansion nette.
+const INDICATOR_BOLLINGER_SQUEEZE = seriesFromTargets([50, 50.4, 50, 50.4, 50, 50.4, 50, 50.4, 50, 57, 44, 60]);
+// Ruban de moyennes : tendance douce (plusieurs EMA empilées).
+const INDICATOR_MA_RIBBON = seriesFromTargets([42, 45, 44, 48, 47, 52, 50, 55, 54, 60, 58, 64]);
+// Stochastique : prix oscillant pour balayer suracheté/survendu.
+const INDICATOR_STOCHASTIC = seriesFromTargets([50, 54, 58, 55, 50, 46, 44, 48, 54, 58, 54, 49, 45, 47, 52, 56]);
+// VWAP : prix oscillant autour d'une moyenne pondérée.
+const INDICATOR_VWAP = seriesFromTargets([48, 53, 50, 55, 49, 54, 50, 56, 51]);
+// ATR : amplitudes croissantes (pic de volatilité) puis décroissantes.
+const INDICATOR_ATR: Candle[] = [
+  { o: 50, h: 51, l: 49, c: 50.5 },
+  { o: 50.5, h: 52, l: 49.5, c: 51 },
+  { o: 51, h: 55, l: 50, c: 54 },
+  { o: 54, h: 60, l: 52, c: 58 },
+  { o: 58, h: 66, l: 55, c: 62 },
+  { o: 62, h: 65, l: 60, c: 61 },
+  { o: 61, h: 63, l: 60, c: 62 },
+  { o: 62, h: 63.5, l: 61, c: 62.5 },
+];
+// Divergence cachée (haussière) : le prix fait un creux plus haut, l'oscillateur un creux plus bas.
+const INDICATOR_HIDDEN_DIV: Candle[] = [
+  { o: 52, h: 54, l: 50, c: 51 },
+  { o: 51, h: 52, l: 47, c: 49 }, // creux #1 (47)
+  { o: 49, h: 56, l: 48, c: 55 },
+  { o: 55, h: 58, l: 53, c: 54 },
+  { o: 54, h: 56, l: 51, c: 52 }, // creux #2 (51, plus haut)
+  { o: 52, h: 62, l: 51, c: 60 },
+  { o: 60, h: 63, l: 58, c: 61 },
+];
 
 export const VISUAL_DATASETS: Record<string, Candle[]> = {
   // Chandeliers simples
@@ -268,6 +301,15 @@ export const VISUAL_DATASETS: Record<string, Candle[]> = {
   'indicator.macd.v1': INDICATOR_MACD,
   'indicator.volume.v1': INDICATOR_VOLUME,
   'indicator.divergence.v1': INDICATOR_DIVERGENCE,
+  // Indicateurs — extension Lot 4
+  'indicator.golden-cross.v1': INDICATOR_GOLDEN_CROSS,
+  'indicator.death-cross.v1': INDICATOR_DEATH_CROSS,
+  'indicator.bollinger-squeeze.v1': INDICATOR_BOLLINGER_SQUEEZE,
+  'indicator.ma-ribbon.v1': INDICATOR_MA_RIBBON,
+  'indicator.stochastic.v1': INDICATOR_STOCHASTIC,
+  'indicator.vwap.v1': INDICATOR_VWAP,
+  'indicator.atr.v1': INDICATOR_ATR,
+  'indicator.hidden-divergence.v1': INDICATOR_HIDDEN_DIV,
 };
 
 export function datasetByKey(key?: string): Candle[] {

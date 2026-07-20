@@ -459,6 +459,54 @@ export const PATTERN_LIBRARY: PatternGlyph[] = [
     labels: ['prix : plus-hauts croissants', 'oscillateur : plus-hauts décroissants'],
     summary: 'Le prix fait des plus-hauts croissants mais l’oscillateur des plus-hauts décroissants : un désaccord qui invite à la prudence.',
   },
+  {
+    id: 'golden-cross', title: 'Croisement doré', aliasEn: 'Golden Cross', family: 'indicateur',
+    visualType: 'indicator', direction: 'bullish', datasetKey: 'indicator.golden-cross.v1',
+    labels: ['moyenne rapide passe au-dessus'],
+    summary: 'La moyenne rapide repasse au-dessus de la moyenne lente après une baisse : un signal d’élan haussier souvent commenté.',
+  },
+  {
+    id: 'death-cross', title: 'Croisement de la mort', aliasEn: 'Death Cross', family: 'indicateur',
+    visualType: 'indicator', direction: 'bearish', datasetKey: 'indicator.death-cross.v1',
+    labels: ['moyenne rapide passe en dessous'],
+    summary: 'La moyenne rapide repasse sous la moyenne lente après une hausse : un signal d’élan baissier souvent commenté.',
+  },
+  {
+    id: 'bollinger-squeeze', title: 'Compression de Bollinger', aliasEn: 'Bollinger Squeeze', family: 'indicateur',
+    visualType: 'indicator', direction: 'neutral', datasetKey: 'indicator.bollinger-squeeze.v1',
+    labels: ['bandes resserrées', 'puis expansion'],
+    summary: 'Les bandes se resserrent en faible volatilité (compression) puis s’écartent : une expansion peut suivre, sans direction garantie.',
+  },
+  {
+    id: 'ma-ribbon', title: 'Ruban de moyennes', aliasEn: 'Moving Average Ribbon', family: 'indicateur',
+    visualType: 'indicator', direction: 'neutral', datasetKey: 'indicator.ma-ribbon.v1',
+    labels: ['plusieurs moyennes empilées'],
+    summary: 'Plusieurs moyennes de périodes croissantes : leur empilement ordonné illustre la force et le sens d’une tendance.',
+  },
+  {
+    id: 'stochastic', title: 'Stochastique', aliasEn: 'Stochastic Oscillator', family: 'indicateur',
+    visualType: 'indicator', direction: 'neutral', datasetKey: 'indicator.stochastic.v1',
+    labels: ['%K et %D', 'suracheté > 80 · survendu < 20'],
+    summary: 'Un oscillateur %K/%D situant la clôture dans son range récent : au-dessus de 80 suracheté, sous 20 survendu — à lire avec le contexte.',
+  },
+  {
+    id: 'vwap', title: 'VWAP', aliasEn: 'VWAP', family: 'indicateur',
+    visualType: 'indicator', direction: 'neutral', datasetKey: 'indicator.vwap.v1',
+    labels: ['prix moyen pondéré par le volume'],
+    summary: 'Une moyenne du prix pondérée par le volume : un repère autour duquel le prix oscille souvent au cours d’une séance.',
+  },
+  {
+    id: 'atr', title: 'ATR (volatilité)', aliasEn: 'Average True Range', family: 'indicateur',
+    visualType: 'indicator', direction: 'neutral', datasetKey: 'indicator.atr.v1',
+    labels: ['amplitude moyenne'],
+    summary: 'La moyenne de l’amplitude vraie : elle mesure la volatilité (elle monte quand les bougies s’élargissent), sans indiquer de direction.',
+  },
+  {
+    id: 'hidden-divergence', title: 'Divergence cachée', aliasEn: 'Hidden Divergence', family: 'indicateur',
+    visualType: 'indicator', direction: 'bullish', datasetKey: 'indicator.hidden-divergence.v1',
+    labels: ['prix : creux plus haut', 'oscillateur : creux plus bas'],
+    summary: 'Dans une hausse, le prix fait un creux plus haut mais l’oscillateur un creux plus bas : une divergence cachée, souvent lue comme une continuation.',
+  },
 ];
 
 // ─── Helpers purs ────────────────────────────────────────────────────

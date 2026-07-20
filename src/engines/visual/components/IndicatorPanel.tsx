@@ -4,8 +4,10 @@ import { colors } from '../../../design-system/tokens';
 import { priceScale } from '../../pattern/interactive';
 import { candleLayout } from '../candleGeometry';
 import type { Candle } from '../../pattern/types';
-import { closesOf, sma, rsi, macdSeries, bollinger, fibLevels, volumeBars } from '../indicatorMath';
+import { closesOf, highsOf, lowsOf, sma, ema, rsi, macdSeries, bollinger, fibLevels, volumeBars, stochastic, vwap, atr } from '../indicatorMath';
 import type { IndicatorConfig } from '../indicatorConfigs';
+
+const RIBBON_COLORS = [colors.bullish, colors.technical, colors.advanced, colors.bearish];
 
 const W = 320;
 
@@ -31,7 +33,13 @@ export function IndicatorPanel({
   accessibilityLabel?: string;
 }) {
   const closes = closesOf(candles);
-  const hasSub = config.kind === 'rsi' || config.kind === 'macd' || config.kind === 'volume' || config.kind === 'divergence';
+  const hasSub =
+    config.kind === 'rsi' ||
+    config.kind === 'macd' ||
+    config.kind === 'volume' ||
+    config.kind === 'divergence' ||
+    config.kind === 'stochastic' ||
+    config.kind === 'atr';
   const H = 180;
   const priceH = hasSub ? 106 : 172;
   const gap = 8;
@@ -67,14 +75,23 @@ export function IndicatorPanel({
         </SvgText>,
       );
     }
+  } else if (config.kind === 'ribbon') {
+    const periods = config.ribbon ?? [3, 5, 8];
+    periods.forEach((p, idx) => {
+      overlays.push(<Polyline key={`rib-${p}`} points={poly(ema(closes, p), xAt, yP)} fill="none" stroke={RIBBON_COLORS[idx % RIBBON_COLORS.length]} strokeWidth={1.4} />);
+    });
+  } else if (config.kind === 'vwap') {
+    overlays.push(<Polyline key="vwap" points={poly(vwap(candles), xAt, yP)} fill="none" stroke={colors.advanced} strokeWidth={1.6} strokeDasharray="5 3" />);
+    overlays.push(<SvgText key="vwap-t" x={W - 3} y={14} fill={colors.textMuted} fontSize={9} textAnchor="end">VWAP</SvgText>);
   } else if (config.kind === 'divergence' && config.priceHighs) {
+    const low = config.pivot === 'low';
     const [a, b] = config.priceHighs;
+    const pa = low ? candles[a].l : candles[a].h;
+    const pb = low ? candles[b].l : candles[b].h;
+    overlays.push(<Line key="div-price" x1={xAt(a)} y1={yP(pa)} x2={xAt(b)} y2={yP(pb)} stroke={colors.bearish} strokeWidth={1.4} strokeDasharray="4 3" />);
     overlays.push(
-      <Line key="div-price" x1={xAt(a)} y1={yP(candles[a].h)} x2={xAt(b)} y2={yP(candles[b].h)} stroke={colors.bearish} strokeWidth={1.4} strokeDasharray="4 3" />,
-    );
-    overlays.push(
-      <SvgText key="div-pt" x={xAt(b)} y={yP(candles[b].h) - 3} fill={colors.textSecondary} fontSize={9} textAnchor="end">
-        prix ↑
+      <SvgText key="div-pt" x={xAt(b)} y={yP(pb) + (low ? 12 : -3)} fill={colors.textSecondary} fontSize={9} textAnchor="end">
+        {low ? 'prix : creux ↑' : 'prix ↑'}
       </SvgText>,
     );
   }
@@ -114,13 +131,32 @@ export function IndicatorPanel({
       sub.push(<Rect key={`v-${i}`} x={xAt(i) - slot * 0.3} y={subTop + subH - h} width={Math.max(2, slot * 0.6)} height={h} fill={candles[i].c >= candles[i].o ? colors.bullish : colors.bearish} fillOpacity={0.55} />);
     });
     sub.push(<SvgText key="lab" x={3} y={subTop + 10} fill={colors.textMuted} fontSize={9}>Volume</SvgText>);
+  } else if (config.kind === 'stochastic') {
+    const s = stochastic(highsOf(candles), lowsOf(candles), closes, config.period ?? 5, config.k ?? 3);
+    const toY = (v: number) => subTop + subH - (v / 100) * subH;
+    sub.push(<Rect key="ob" x={0} y={toY(100)} width={W} height={toY(80) - toY(100)} fill={colors.bearish} fillOpacity={0.12} />);
+    sub.push(<Rect key="os" x={0} y={toY(20)} width={W} height={toY(0) - toY(20)} fill={colors.bullish} fillOpacity={0.12} />);
+    sub.push(<Line key="l80" x1={0} y1={toY(80)} x2={W} y2={toY(80)} stroke={colors.textMuted} strokeWidth={1} strokeDasharray="4 3" />);
+    sub.push(<Line key="l20" x1={0} y1={toY(20)} x2={W} y2={toY(20)} stroke={colors.textMuted} strokeWidth={1} strokeDasharray="4 3" />);
+    sub.push(<Polyline key="k" points={poly(s.k, xAt, toY)} fill="none" stroke={colors.technical} strokeWidth={1.5} />);
+    sub.push(<Polyline key="d" points={poly(s.d, xAt, toY)} fill="none" stroke={colors.advanced} strokeWidth={1.3} />);
+    sub.push(<SvgText key="lab" x={3} y={subTop + 10} fill={colors.textMuted} fontSize={9}>Stoch · 80/20</SvgText>);
+  } else if (config.kind === 'atr') {
+    const a = atr(candles, config.period ?? 4);
+    const defined = a.filter((v): v is number => v != null);
+    const maxA = Math.max(1, ...defined);
+    const minA = Math.min(0, ...defined);
+    const toY = (v: number) => subTop + subH - ((v - minA) / (maxA - minA || 1)) * (subH - 6);
+    sub.push(<Polyline key="atr" points={poly(a, xAt, toY)} fill="none" stroke={colors.technical} strokeWidth={1.6} />);
+    sub.push(<SvgText key="lab" x={3} y={subTop + 10} fill={colors.textMuted} fontSize={9}>ATR (volatilité)</SvgText>);
   } else if (config.kind === 'divergence' && config.osc && config.oscHighs) {
     const osc = config.osc;
+    const low = config.pivot === 'low';
     const toY = (val: number) => subTop + subH - (val / 100) * subH;
     sub.push(<Polyline key="osc" points={poly(osc, xAt, toY)} fill="none" stroke={colors.technical} strokeWidth={1.6} />);
     const [a, b] = config.oscHighs;
     sub.push(<Line key="div-osc" x1={xAt(a)} y1={toY(osc[a])} x2={xAt(b)} y2={toY(osc[b])} stroke={colors.bearish} strokeWidth={1.4} strokeDasharray="4 3" />);
-    sub.push(<SvgText key="lab" x={3} y={subTop + 10} fill={colors.textMuted} fontSize={9}>RSI ↓</SvgText>);
+    sub.push(<SvgText key="lab" x={3} y={subTop + 10} fill={colors.textMuted} fontSize={9}>{low ? 'RSI : creux ↓' : 'RSI ↓'}</SvgText>);
   }
 
   return (

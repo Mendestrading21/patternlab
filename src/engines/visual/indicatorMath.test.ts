@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
-import { sma, ema, rsi, macdSeries, bollinger, fibLevels, volumeBars, closesOf } from './indicatorMath';
+import { sma, ema, rsi, macdSeries, bollinger, fibLevels, volumeBars, closesOf, highsOf, lowsOf, stochastic, vwap, atr } from './indicatorMath';
 import { seriesFromTargets } from './visualDatasets';
 
 describe('indicatorMath (pur, déterministe)', () => {
@@ -66,5 +66,34 @@ describe('indicatorMath (pur, déterministe)', () => {
     expect(v.every((x) => x > 0)).toBe(true);
     expect(volumeBars(candles)).toEqual(v);
     expect(closesOf(candles)).toEqual(candles.map((c) => c.c));
+  });
+
+  it('stochastic : %K borné 0–100 et 100 au plus-haut du range', () => {
+    const candles = seriesFromTargets([50, 54, 52, 58, 55, 60]);
+    const s = stochastic(highsOf(candles), lowsOf(candles), closesOf(candles), 3, 2);
+    const defined = s.k.filter((v): v is number => v != null);
+    for (const v of defined) {
+      expect(v).toBeGreaterThanOrEqual(0);
+      expect(v).toBeLessThanOrEqual(100);
+    }
+  });
+
+  it('vwap : défini partout et dans l’enveloppe des prix', () => {
+    const candles = seriesFromTargets([50, 54, 48, 56, 52]);
+    const v = vwap(candles);
+    const lo = Math.min(...lowsOf(candles));
+    const hi = Math.max(...highsOf(candles));
+    for (const x of v) {
+      expect(x).not.toBeNull();
+      expect(x as number).toBeGreaterThanOrEqual(lo);
+      expect(x as number).toBeLessThanOrEqual(hi);
+    }
+  });
+
+  it('atr : positif quand défini', () => {
+    const candles = seriesFromTargets([50, 55, 48, 60, 44, 58]);
+    const a = atr(candles, 3).filter((v): v is number => v != null);
+    expect(a.length).toBeGreaterThan(0);
+    expect(a.every((x) => x > 0)).toBe(true);
   });
 });

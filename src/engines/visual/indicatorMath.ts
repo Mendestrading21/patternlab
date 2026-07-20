@@ -6,6 +6,8 @@
 import type { Candle } from '../pattern/types';
 
 export const closesOf = (candles: Candle[]): number[] => candles.map((c) => c.c);
+export const highsOf = (candles: Candle[]): number[] => candles.map((c) => c.h);
+export const lowsOf = (candles: Candle[]): number[] => candles.map((c) => c.l);
 
 /** Moyenne mobile simple (période p). Renvoie `null` avant d'avoir assez de points. */
 export function sma(values: number[], p: number): (number | null)[] {
@@ -121,4 +123,48 @@ export function fibLevels(low: number, high: number): FibLevel[] {
 /** Volume pédagogique déterministe : dérivé de l'amplitude et du corps de chaque bougie. */
 export function volumeBars(candles: Candle[]): number[] {
   return candles.map((c) => Math.round((c.h - c.l) * 8 + Math.abs(c.c - c.o) * 12 + 20));
+}
+
+export interface Stoch {
+  k: (number | null)[];
+  d: (number | null)[];
+}
+/** Oscillateur stochastique %K (position dans le range sur kP) et %D (SMA de %K). */
+export function stochastic(highs: number[], lows: number[], closes: number[], kP = 5, dP = 3): Stoch {
+  const k: (number | null)[] = closes.map((c, i) => {
+    if (i < kP - 1) return null;
+    let hh = -Infinity;
+    let ll = Infinity;
+    for (let j = i - kP + 1; j <= i; j++) {
+      hh = Math.max(hh, highs[j]);
+      ll = Math.min(ll, lows[j]);
+    }
+    return hh === ll ? 50 : ((c - ll) / (hh - ll)) * 100;
+  });
+  const filled = k.map((v) => v ?? 0);
+  const d = sma(filled, dP).map((v, i) => (k[i] == null ? null : v));
+  return { k, d };
+}
+
+/** VWAP cumulé : prix typique pondéré par le volume (déterministe). */
+export function vwap(candles: Candle[]): (number | null)[] {
+  const vols = volumeBars(candles);
+  let cumPV = 0;
+  let cumV = 0;
+  return candles.map((c, i) => {
+    const tp = (c.h + c.l + c.c) / 3;
+    cumPV += tp * vols[i];
+    cumV += vols[i];
+    return cumV ? cumPV / cumV : null;
+  });
+}
+
+/** ATR : moyenne (SMA) du True Range sur p périodes — un indicateur de volatilité. */
+export function atr(candles: Candle[], p = 5): (number | null)[] {
+  const tr = candles.map((c, i) => {
+    if (i === 0) return c.h - c.l;
+    const pc = candles[i - 1].c;
+    return Math.max(c.h - c.l, Math.abs(c.h - pc), Math.abs(c.l - pc));
+  });
+  return sma(tr, p);
 }
