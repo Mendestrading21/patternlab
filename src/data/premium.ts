@@ -45,22 +45,27 @@ export interface PremiumFeature {
   icon: string;
 }
 
-/** Ce que débloque Premium (skill). Le cœur d'apprentissage reste gratuit. */
+/**
+ * Ce que débloque Premium (skill). Le cœur d'apprentissage reste gratuit : Premium n'apporte
+ * que de la COMMODITÉ et de la PROFONDEUR (jamais du contenu d'apprentissage essentiel).
+ * Deux perks sont réellement livrés et vérrouillés aujourd'hui (`stats`, `deck`) ; les autres
+ * décrivent l'offre à venir.
+ */
 export const PREMIUM_FEATURES: PremiumFeature[] = [
-  { id: 'stats', label: 'Statistiques détaillées et historique', icon: '📊' },
-  { id: 'worlds', label: 'Tous les mondes et parcours', icon: '🗺️' },
-  { id: 'lab', label: 'Laboratoire complet (tous les scénarios)', icon: '🧪' },
+  { id: 'stats', label: 'Statistiques complètes et historique', icon: '📊' },
+  { id: 'deck', label: 'Deck de révision des concepts (flashcards + quiz réunis)', icon: '🃏' },
   { id: 'exercises', label: 'Exercices avancés', icon: '🎯' },
+  { id: 'lab', label: 'Laboratoire complet (tous les scénarios)', icon: '🧪' },
   { id: 'reviews', label: 'Révisions illimitées', icon: '🔁' },
   { id: 'offline', label: 'Mode hors-ligne étendu', icon: '📶' },
 ];
 
-/** Ce qui reste gratuit, affiché pour la transparence. */
+/** Ce qui reste gratuit, affiché pour la transparence (tout l'apprentissage essentiel). */
 export const FREE_FEATURES: string[] = [
-  'Le premier monde « Lire un graphique »',
-  'La mission du jour et les quêtes',
-  'Progression, série et réussites',
-  'Le glossaire essentiel',
+  'Le module pilote « Lire un graphique » en entier',
+  'Les 15 mondes en aperçu et les fiches concept visuelles',
+  'Le glossaire unifié, la recherche et les favoris',
+  'Mission du jour, quêtes, série et réussites',
   'Un aperçu de tes statistiques',
 ];
 

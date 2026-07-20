@@ -117,6 +117,24 @@ export default function Revisions() {
         })
       )}
 
+      <Card>
+        <View style={styles.row}>
+          <Text variant="title" style={styles.flex1}>
+            🃏 Deck de révision des concepts
+          </Text>
+          <Chip label="Premium" color={theme.colors.reward} />
+        </View>
+        <Text variant="body" color={theme.colors.textSecondary}>
+          Flashcards et mini-quiz de tous les concepts, réunis pour réviser d’un coup.
+        </Text>
+        <Button
+          label="Ouvrir le deck"
+          variant="secondary"
+          onPress={() => router.push('/revision-deck')}
+          accessibilityHint="Deck de révision des concepts (Premium)"
+        />
+      </Card>
+
       <Button
         label="Continuer le parcours"
         variant="secondary"

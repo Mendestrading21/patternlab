@@ -12,6 +12,7 @@ export * from './learningContent';
 export * from './favorites';
 export * from './glossaryUnified';
 export * from './learningStats';
+export * from './revisionDeck';
 export * from './dailyMission';
 export * from './onboardingProfile';
 export * from './sessionPlan';
