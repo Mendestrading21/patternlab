@@ -47,6 +47,19 @@ lot** (fusion `main` → déploiement live). Roadmap 10 lots (voir SKILL.md).
   validate:content 31 · release:check 14 · build:web. Vérifié en pilotant Chromium (390×844) :
   sélecteurs Facile/Moyen/Expert, question à graphique, feedback illustré (« Réponse : … · Figure :
   … »), **0 erreur console**. Voir **ADR-056**.
+- **Exp-Max Lot 4 — Contenu massif (bibliothèque)** ✅ : lot éditorial de **+20 concepts** pleinement
+  rédigés (module isolé `learningContentBatch.ts`, `V5_CONCEPTS = [...CORE, ...BATCH]`) réutilisant
+  les datasets déterministes existants — 10 chandeliers (marubozu, pendu, marteau inversé, avalement
+  baissier, harami, étoiles du matin/soir, trois soldats, trois corbeaux, pincettes), 5 figures
+  (biseau ascendant, drapeau baissier, tasse-anse, triple creux, ÉTÉ inversée), 2 structure (tendance
+  baissière, cassure-retest), 2 SMC (zones de demande/offre), 1 volume (profil de volume). Corpus
+  **38 → 58 concepts** ; surface automatique (glossaire, carte des mondes **15/15**, fiches
+  `/concept/[slug]`, progression **58/150**). Chaque concept : id/slug uniques, monde/catégorie
+  valides, `needsReview`, `visualSpec` sur dataset existant, relations résolues, zéro vocabulaire
+  interdit. Validations : lint · typecheck · tests **399** (portail `contentFactory` : intégrité +
+  vocabulaire propres) · validate:content 31 · release:check 14 · build:web. Vérifié en pilotant
+  Chromium (390×844) : fiches Étoile du matin / Profil de volume / Tendance baissière / Zone de
+  demande rendues avec visuel, 58/150, 15/15 mondes, **0 erreur console**. Voir **ADR-057**.
 
 ## PatternLab V5 — programme précédent (skill `patternlab-v5-master`)
 2026-07-19 — Démarrage du programme **V5** (16 lots, visuel-first, 500+ concepts) par-dessus la v1.

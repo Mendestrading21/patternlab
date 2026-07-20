@@ -6,8 +6,9 @@
  * Conformité : éducatif, conditionnel, sans BUY/SELL ni promesse (garanti par test).
  */
 import { DEFAULT_DISCLAIMER, type LearningConcept } from './learningConcept';
+import { BATCH_CONCEPTS } from './learningContentBatch';
 
-export const V5_CONCEPTS: LearningConcept[] = [
+const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.hammer',
     slug: 'marteau',
@@ -2333,3 +2334,9 @@ export const V5_CONCEPTS: LearningConcept[] = [
     disclaimer: DEFAULT_DISCLAIMER,
   },
 ];
+
+/**
+ * Corpus V5 complet = concepts amorce + lots éditoriaux. Le batch « bibliothèque » (Exp-Max Lot 4)
+ * se surface automatiquement (glossaire, carte des mondes, fiches) via ce même tableau.
+ */
+export const V5_CONCEPTS: LearningConcept[] = [...CORE_V5_CONCEPTS, ...BATCH_CONCEPTS];
