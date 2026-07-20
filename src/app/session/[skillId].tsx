@@ -4,8 +4,9 @@ import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, ProgressBar, FeedbackPanel, theme } from '@/design-system';
 import { CharacterScene, MascotFigure } from '@/characters';
 import { ExercisePlayer, gradeExercise, type GradeResult } from '@/engines/exercise';
-import { getExercises, skillById, limitCount, isCheckpoint, isFalseSignalExercise, useProgress, buildSessionSummary } from '@/data';
+import { getExercises, getLessons, skillById, limitCount, isCheckpoint, isFalseSignalExercise, useProgress, buildSessionSummary } from '@/data';
 import { xpForGrade } from '@/engines/learning';
+import { LessonStepView } from '@/components/LessonStepView';
 import { analytics } from '@/analytics';
 
 /** Seuil de réussite d'une session (déblocage de la compétence). */
@@ -22,12 +23,61 @@ export default function Session() {
   const target = count != null ? Number.parseInt(count, 10) : null;
   const list = all.slice(0, limitCount(all.length, target));
   const skillName = skillById(resolvedId)?.name ?? 'Session';
+  // Leçons de la compétence : la phase « Apprendre » les montre AVANT les exercices,
+  // pour que le nouvel utilisateur voie tout de suite le visuel (bougies, graphique).
+  const lessons = getLessons(resolvedId);
 
   const [index, setIndex] = useState(0);
   const [result, setResult] = useState<GradeResult | null>(null);
   const [correct, setCorrect] = useState(0);
+  // Un point de contrôle (`getLessons` vide) démarre directement en « practice ».
+  const [phase, setPhase] = useState<'learn' | 'practice'>(lessons.length ? 'learn' : 'practice');
 
   const finished = index >= list.length;
+
+  if (phase === 'learn') {
+    const primary = lessons[0];
+    return (
+      <Screen>
+        <Text variant="caption" color={theme.colors.primary}>
+          APPRENDRE
+        </Text>
+        <Text variant="h2">{skillName}</Text>
+        <CharacterScene
+          character="toto"
+          state="explain"
+          size={60}
+          speech="On regarde d’abord, puis on s’exerce."
+        />
+        {primary.steps.map((step) => (
+          <LessonStepView key={step.id} step={step} />
+        ))}
+        {lessons.length > 1 ? (
+          <Card>
+            <Text variant="label" color={theme.colors.textMuted}>
+              Pour aller plus loin
+            </Text>
+            {lessons.slice(1).map((l) => (
+              <Button
+                key={l.id}
+                label={`${l.title} →`}
+                variant="ghost"
+                onPress={() => router.push(`/lesson/${l.id}`)}
+                accessibilityHint={`Ouvrir la leçon ${l.title}`}
+              />
+            ))}
+          </Card>
+        ) : null}
+        <Button
+          label="Commencer les exercices"
+          onPress={() => {
+            analytics.track('lesson_started', { skillId: resolvedId });
+            setPhase('practice');
+          }}
+        />
+      </Screen>
+    );
+  }
 
   if (finished) {
     return (

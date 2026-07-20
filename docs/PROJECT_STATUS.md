@@ -1,6 +1,28 @@
 # État du projet
 
-## PatternLab V5 — en cours (skill `patternlab-v5-master`)
+## PatternLab Experience Max — en cours (skill `patternlab-experience-max`)
+2026-07-20 — Nouveau programme « app parfaite » : bibliothèque de trading immersive, un signal
+visuel partout, graphiques parfaits, quiz visuels, 15 mondes vivants. Skill enregistré sous
+`.claude/skills/patternlab-experience-max/` (référencé dans `CLAUDE.md`). Publication **à chaque
+lot** (fusion `main` → déploiement live). Roadmap 10 lots (voir SKILL.md).
+- **Exp-Max Lot 1 — Parcours visuel-first dès la première minute** ✅ : correctif du défaut signalé
+  (« aucun graphique/bougie sur le premier parcours »). Diagnostic : le moteur visuel existait mais
+  n'était pas branché dans le parcours d'entrée, et l'écran de session **ne rendait que les
+  exercices, jamais les leçons**. Livré : (1) composant partagé `src/components/LessonStepView.tsx`
+  (factorisé depuis `/lesson/[id]`, refactor pur) ; (2) **phase « Apprendre »** dans
+  `/session/[skillId]` — la leçon (bougies + graphique) s'affiche AVANT les exercices, puis
+  « Commencer les exercices » ; (3) `skill.actions` rendu **visuel-first** (`seed.ts`) : étapes
+  observe/visual (anatomie de bougie via `conceptRef: anatomie-bougie`)/chart, + exercice graphique
+  `ex.actions.chart-direction` (question AVEC chandeliers) + `identify_figure` marubozu ; (4) vraie
+  **bougie dans le diagnostic d'onboarding** (`MiniVisual`) ; (5) lien **« Découvrir la notion »**
+  sous chaque nœud du parcours → fiche concept (`conceptSlugForSkill`). Validations : lint ·
+  typecheck · tests **386** · validate:content **31** · release:check **14** · build:web. Vérifié en
+  pilotant Chromium (390×844) : session `skill.actions` en phase « Apprendre » rend l'anatomie de
+  bougie + le graphique (svg=3), la question 2 rend un **graphique en chandeliers** (svg=1, 30
+  bougies), le parcours affiche 4 liens « Découvrir la notion », la fiche concept et la leçon
+  refactorée rendent leurs visuels, **0 erreur console**. Voir **ADR-054**.
+
+## PatternLab V5 — programme précédent (skill `patternlab-v5-master`)
 2026-07-19 — Démarrage du programme **V5** (16 lots, visuel-first, 500+ concepts) par-dessus la v1.
 Plan maître : `docs/PATTERNLAB_V5_MASTER_PLAN.md`. Skill installé sous `.claude/skills/patternlab-v5-master/`.
 - **V5 Lot 0 — Fiabilité & vérité du dépôt** ✅ : baseline vérifiée verte ; plan maître écrit. La v1 (Lots 0→19) couvre déjà la fiabilité — aucun correctif requis.

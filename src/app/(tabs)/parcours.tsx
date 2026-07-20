@@ -10,6 +10,7 @@ import {
   buildWorldMap,
   buildWorldOverview,
   worldsWithContent,
+  conceptSlugForSkill,
   WORLDS,
   V5_CONCEPTS,
   type MapNode,
@@ -99,6 +100,8 @@ export default function Parcours() {
           const color = COLORS[node.status];
           const locked = node.status === 'locked';
           const reached = node.status !== 'locked';
+          // Fiche concept liée (avec visuel) — accessible librement, comme la carte des mondes.
+          const conceptSlug = node.kind === 'skill' ? conceptSlugForSkill(node.id) : undefined;
           return (
             <View key={node.id} style={styles.trailRow}>
               <View style={styles.rail}>
@@ -122,29 +125,42 @@ export default function Parcours() {
                 </View>
               </View>
 
-              <Pressable
-                style={styles.flex1}
-                disabled={locked}
-                accessibilityRole="button"
-                accessibilityState={{ disabled: locked }}
-                accessibilityHint={locked ? 'Étape verrouillée' : 'Ouvrir cette étape'}
-                onPress={() => !locked && router.push(`/session/${node.id}`)}
-              >
-                <Card style={[styles.labelCard, { borderColor: reached ? color : theme.colors.border }]}>
-                  <View style={styles.labelHead}>
-                    <Text variant="title" style={styles.flex1}>
-                      {node.title}
+              <View style={styles.labelWrap}>
+                <Pressable
+                  disabled={locked}
+                  accessibilityRole="button"
+                  accessibilityState={{ disabled: locked }}
+                  accessibilityHint={locked ? 'Étape verrouillée' : 'Ouvrir cette étape'}
+                  onPress={() => !locked && router.push(`/session/${node.id}`)}
+                >
+                  <Card style={[styles.labelCard, { borderColor: reached ? color : theme.colors.border }]}>
+                    <View style={styles.labelHead}>
+                      <Text variant="title" style={styles.flex1}>
+                        {node.title}
+                      </Text>
+                      {node.status === 'due' ? <Chip label="à réviser" color={theme.colors.warning} /> : null}
+                      {node.kind === 'checkpoint' && node.status === 'current' ? (
+                        <Chip label="revue" color={theme.colors.technical} />
+                      ) : null}
+                    </View>
+                    <Text variant="caption" color={theme.colors.textMuted}>
+                      {labelFor(node)}
                     </Text>
-                    {node.status === 'due' ? <Chip label="à réviser" color={theme.colors.warning} /> : null}
-                    {node.kind === 'checkpoint' && node.status === 'current' ? (
-                      <Chip label="revue" color={theme.colors.technical} />
-                    ) : null}
-                  </View>
-                  <Text variant="caption" color={theme.colors.textMuted}>
-                    {labelFor(node)}
-                  </Text>
-                </Card>
-              </Pressable>
+                  </Card>
+                </Pressable>
+                {conceptSlug ? (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityHint={`Découvrir la notion liée à ${node.title}`}
+                    onPress={() => router.push(`/concept/${conceptSlug}`)}
+                    style={styles.discover}
+                  >
+                    <Text variant="caption" color={theme.colors.technical}>
+                      Découvrir la notion ›
+                    </Text>
+                  </Pressable>
+                ) : null}
+              </View>
             </View>
           );
         })}
@@ -230,7 +246,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  labelCard: { marginBottom: theme.spacing.md, borderWidth: 1.5, gap: 2 },
+  labelWrap: { flex: 1, marginBottom: theme.spacing.md },
+  labelCard: { borderWidth: 1.5, gap: 2 },
+  discover: { paddingVertical: theme.spacing.xs, paddingLeft: theme.spacing.xs, marginTop: theme.spacing.xs },
   labelHead: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
   worldsHeader: { marginTop: theme.spacing.lg },
   contentCard: { gap: theme.spacing.sm, marginTop: theme.spacing.xs },
