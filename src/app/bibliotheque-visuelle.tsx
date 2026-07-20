@@ -8,9 +8,72 @@ import {
   PATTERN_LIBRARY,
   glyphToVisualSpec,
   type Direction,
+  type VisualSpec,
 } from '@/data';
 
 type Filter = 'all' | Direction;
+
+/** Vitrine des formats visuels avancés (volume, comparaisons, aide-mémoire) — hors familles de figures. */
+const SHOWCASE: { title: string; spec: VisualSpec }[] = [
+  {
+    title: 'Profil de volume · range',
+    spec: {
+      type: 'volume-profile',
+      variant: 'range',
+      direction: 'neutral',
+      labels: [],
+      annotations: [],
+      datasetKey: 'structure.support-resistance.v1',
+      accessibilitySummary: 'Profil de volume : le volume se concentre autour d’un palier de prix central (POC).',
+    },
+  },
+  {
+    title: 'Comparaison · haussière vs baissière',
+    spec: {
+      type: 'comparison',
+      variant: 'bull-vs-bear',
+      direction: 'neutral',
+      labels: [],
+      annotations: [],
+      accessibilitySummary:
+        'Comparaison : une bougie haussière verte (clôture au-dessus de l’ouverture) face à une bougie baissière rouge.',
+    },
+  },
+  {
+    title: 'Comparaison · tendance vs range',
+    spec: {
+      type: 'comparison',
+      variant: 'trend-vs-range',
+      direction: 'neutral',
+      labels: [],
+      annotations: [],
+      accessibilitySummary: 'Comparaison : une structure en tendance face à une structure en range (latérale).',
+    },
+  },
+  {
+    title: 'Aide-mémoire · bougies',
+    spec: {
+      type: 'cheat-sheet',
+      variant: 'candles',
+      direction: 'neutral',
+      labels: [],
+      annotations: [],
+      accessibilitySummary: 'Aide-mémoire des bougies : verte, rouge, doji, marteau.',
+    },
+  },
+  {
+    title: 'Aide-mémoire · retournements',
+    spec: {
+      type: 'cheat-sheet',
+      variant: 'reversals',
+      direction: 'neutral',
+      labels: [],
+      annotations: [],
+      accessibilitySummary:
+        'Aide-mémoire des figures de retournement : marteau, étoile filante, avalement haussier, étoile du soir.',
+    },
+  },
+];
 
 const FILTERS: { id: Filter; label: string }[] = [
   { id: 'all', label: 'Toutes' },
@@ -79,6 +142,16 @@ export default function BibliothequeVisuelle() {
           </View>
         );
       })}
+
+      <View style={styles.section}>
+        <Text variant="h2">Volume, comparaisons & aide-mémoire</Text>
+        <Text variant="caption" color={theme.colors.textMuted}>
+          De nouveaux formats visuels, tous générés en code et accessibles.
+        </Text>
+        {SHOWCASE.map((s) => (
+          <VisualCard key={s.title} spec={s.spec} title={s.title} />
+        ))}
+      </View>
 
       <Button label="Retour" variant="secondary" onPress={() => router.back()} />
     </Screen>

@@ -8,10 +8,14 @@ export type PatternChartProps = {
   candles: Candle[];
   width?: number;
   height?: number;
+  /** Grille horizontale subtile (aide à la lecture). Activée par défaut. */
+  grid?: boolean;
 };
 
+const GRID_ROWS = 4;
+
 /** Rendu en chandeliers japonais (SVG). Vert = clôture ≥ ouverture, rouge sinon (sémantique FINANCIÈRE). */
-export function PatternChart({ candles, width = 320, height = 180 }: PatternChartProps) {
+export function PatternChart({ candles, width = 320, height = 180, grid = true }: PatternChartProps) {
   const padY = 12;
   const values = candles.flatMap((c) => [c.h, c.l]);
   const min = Math.min(...values);
@@ -26,6 +30,23 @@ export function PatternChart({ candles, width = 320, height = 180 }: PatternChar
   return (
     <View accessible accessibilityRole="image" accessibilityLabel={describeCandles(candles)}>
       <Svg width={width} height={height}>
+        {grid
+          ? Array.from({ length: GRID_ROWS + 1 }, (_, i) => {
+              const gy = padY + (i / GRID_ROWS) * (height - 2 * padY);
+              return (
+                <Line
+                  key={`grid-${i}`}
+                  x1={0}
+                  y1={gy}
+                  x2={width}
+                  y2={gy}
+                  stroke={colors.border}
+                  strokeWidth={0.5}
+                  strokeOpacity={0.6}
+                />
+              );
+            })
+          : null}
         {candles.map((c, i) => {
           const cx = i * slot + slot / 2;
           const up = c.c >= c.o;

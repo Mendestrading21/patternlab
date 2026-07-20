@@ -7,9 +7,14 @@ import { CandlestickGlyphs, type Zone, type Level } from './CandlestickGlyphs';
 import { CandleAnatomy } from './CandleAnatomy';
 import { IndicatorPanel } from './IndicatorPanel';
 import { OptionPayoff } from './OptionPayoff';
+import { VolumeProfile } from './VolumeProfile';
+import { ComparisonVisual } from './ComparisonVisual';
+import { CheatSheetVisual } from './CheatSheetVisual';
 import { figureOverlay } from '../figureOverlays';
 import { indicatorConfig } from '../indicatorConfigs';
 import { riskSetup } from '../riskSetups';
+import { comparison } from '../comparisons';
+import { cheatSheet } from '../cheatSheets';
 
 export type VisualCardProps = {
   spec: VisualSpec;
@@ -31,6 +36,8 @@ export type VisualCardProps = {
 export function VisualCard({ spec, title, blind = false }: VisualCardProps) {
   const candles = datasetByKey(spec.datasetKey);
   const summary = blind ? 'Graphique d’une figure à reconnaître.' : spec.accessibilitySummary;
+  const cmp = spec.type === 'comparison' ? comparison(spec.variant) : undefined;
+  const cheat = spec.type === 'cheat-sheet' ? cheatSheet(spec.variant) : undefined;
 
   let visual: ReactNode;
   if (spec.type === 'candle-anatomy' && candles[0]) {
@@ -83,6 +90,15 @@ export function VisualCard({ spec, title, blind = false }: VisualCardProps) {
   } else if (spec.type === 'option-payoff') {
     // Diagramme de payoff (call/put) — pas de dataset OHLC, rendu dédié.
     visual = <OptionPayoff kind={spec.variant === 'put' ? 'put' : 'call'} hideLabels={blind} accessibilityLabel={summary} />;
+  } else if (spec.type === 'volume-profile' && candles.length) {
+    // Profil de volume : barres de volume par palier de prix (POC mis en avant).
+    visual = <VolumeProfile candles={candles} accessibilityLabel={summary} />;
+  } else if (spec.type === 'comparison' && cmp) {
+    // Comparaison côte à côte de deux schémas (ex. haussière vs baissière).
+    visual = <ComparisonVisual comparison={cmp} accessibilityLabel={summary} />;
+  } else if (spec.type === 'cheat-sheet' && cheat) {
+    // Aide-mémoire : grille de mini-schémas légendés.
+    visual = <CheatSheetVisual items={cheat} accessibilityLabel={summary} />;
   } else {
     visual = (
       <View style={styles.fallback} accessible accessibilityLabel={summary}>

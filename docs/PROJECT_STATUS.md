@@ -21,6 +21,19 @@ lot** (fusion `main` → déploiement live). Roadmap 10 lots (voir SKILL.md).
   bougie + le graphique (svg=3), la question 2 rend un **graphique en chandeliers** (svg=1, 30
   bougies), le parcours affiche 4 liens « Découvrir la notion », la fiche concept et la leçon
   refactorée rendent leurs visuels, **0 erreur console**. Voir **ADR-054**.
+- **Exp-Max Lot 2 — Graphiques parfaits, un par un** ✅ : (1) les **3 derniers types de `VisualSpec`**
+  encore non rendus le sont désormais — `volume-profile` (module pur `volumeProfile.ts` +
+  `VolumeProfile`, barres de volume par palier de prix, **POC en or**), `comparison` (registre
+  `comparisons.ts` + `ComparisonVisual`, deux schémas côte à côte), `cheat-sheet` (registre
+  `cheatSheets.ts` + `CheatSheetVisual`, grille de mini-schémas légendés) ; dispatch `VisualCard` +
+  `SUPPORTED_VISUAL_TYPES` (10 types) + barrel. (2) **Polish lisibilité** : grille horizontale
+  subtile (prop `grid`, activée par défaut) sur `CandlestickGlyphs` et `PatternChart` → tous les
+  graphiques de l'app gagnent en lecture, statique et a11y intacte. (3) **Vitrine** « Volume,
+  comparaisons & aide-mémoire » dans la Bibliothèque visuelle. Validations : lint · typecheck · tests
+  **394** (+8) · validate:content 31 · release:check 14 · build:web. Vérifié en pilotant Chromium
+  (390×844) : profil de volume + **POC**, comparaisons (haussière/baissière, tendance/range),
+  aide-mémoire (bougies, retournements) rendus ; grille visible sur les charts ; **0 erreur console**.
+  Voir **ADR-055**.
 
 ## PatternLab V5 — programme précédent (skill `patternlab-v5-master`)
 2026-07-19 — Démarrage du programme **V5** (16 lots, visuel-first, 500+ concepts) par-dessus la v1.
