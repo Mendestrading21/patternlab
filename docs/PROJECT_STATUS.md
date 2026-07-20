@@ -43,10 +43,18 @@ Les images restent hors périmètre de commit (déjà sur `main`, jamais une dé
   Schémas 100 % générés en code — aucune image de référence copiée/embarquée. Validations : lint ·
   typecheck · tests **350** (+8) · validate:content 31 · release:check 14 · build:web. Vérifié en pilotant
   Chromium (390×844) : 29 SVG rendus, 4 familles, filtre 29→baissières, 0 erreur console. Voir **ADR-042**.
-- **Suite (non commencée)** : figures chartistes riches (necklines/trendlines/projections), structure &
-  SMC (CHoCH, supply/demand, FVG, sweep, fakeout), indicateurs (RSI/MACD/volume, Bollinger, Fibonacci),
-  puis câblage d'un signal visuel sur chaque carte de quiz/exercice/révision. Un lot par tour, commit
-  local, **aucun push sans accord**.
+- **Lot 2 — Figures chartistes + moteur d'overlays** ✅ : `CandlestickGlyphs` gagne des props
+  **`guides`** (tracés libres entre ancrages `{i, price}` : ligne de cou, tendance, canal ; pointillé +
+  label) et **`markers`** (repères « épaule »/« tête »…). Registre pur `figureOverlays.ts` (indexé par
+  variant) lu par `VisualCard` pour les specs `chart-pattern`. **20 nouvelles figures** (datasets + glyphes,
+  famille `figure-chartiste`) : triple creux/sommet, épaule-tête-épaule ±inversé, triangles asc/desc/sym,
+  biseaux, drapeaux, fanions, rectangles, canaux, tasse-anse, arrondis ; doubles creux/sommet gagnent leur
+  ligne de cou. Galerie **49 figures**. Validations : lint · typecheck · tests **353** (+3) · validate:content
+  31 · release:check 14 · build:web. Vérifié en pilotant Chromium (390×844) : 49 SVG, 13 lignes de cou en
+  pointillé + trendlines rendues, 6 figures repères présentes, 0 erreur console. Voir **ADR-043**.
+- **Suite (à faire)** : structure & SMC (CHoCH, supply/demand, FVG, sweep, fakeout — réutilise le moteur
+  d'overlays), indicateurs (RSI/MACD/volume, Bollinger, Fibonacci — nouveau renderer), puis câblage d'un
+  signal visuel sur chaque carte de quiz/exercice/révision. Un lot par tour, commit local, **aucun push sans accord**.
 
 ---
 

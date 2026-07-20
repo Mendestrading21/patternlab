@@ -5,6 +5,7 @@ import type { VisualSpec } from '../../../data/learningConcept';
 import { datasetByKey } from '../visualDatasets';
 import { CandlestickGlyphs, type Zone } from './CandlestickGlyphs';
 import { CandleAnatomy } from './CandleAnatomy';
+import { figureOverlay } from '../figureOverlays';
 
 export type VisualCardProps = {
   spec: VisualSpec;
@@ -24,8 +25,20 @@ export function VisualCard({ spec, title }: VisualCardProps) {
   let visual: ReactNode;
   if (spec.type === 'candle-anatomy' && candles[0]) {
     visual = <CandleAnatomy candle={candles[0]} accessibilityLabel={summary} />;
-  } else if ((spec.type === 'candlestick-pattern' || spec.type === 'chart-pattern') && candles.length) {
+  } else if (spec.type === 'candlestick-pattern' && candles.length) {
     visual = <CandlestickGlyphs candles={candles} accessibilityLabel={summary} />;
+  } else if (spec.type === 'chart-pattern' && candles.length) {
+    // Les figures chartistes portent des tracés (ligne de cou, tendances, canaux) via le registre.
+    const overlay = figureOverlay(spec.variant);
+    visual = (
+      <CandlestickGlyphs
+        candles={candles}
+        guides={overlay?.guides}
+        zones={overlay?.zones}
+        markers={overlay?.markers}
+        accessibilityLabel={summary}
+      />
+    );
   } else if (spec.type === 'market-structure' && candles.length) {
     const min = Math.min(...candles.map((c) => c.l));
     const max = Math.max(...candles.map((c) => c.h));

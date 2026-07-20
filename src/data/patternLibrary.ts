@@ -11,7 +11,12 @@
  */
 import { vocabularyIssuesIn, type Direction, type VisualSpec } from './learningConcept';
 
-export type PatternFamily = 'chandelier-simple' | 'chandelier-double' | 'chandelier-triple' | 'structure';
+export type PatternFamily =
+  | 'chandelier-simple'
+  | 'chandelier-double'
+  | 'chandelier-triple'
+  | 'figure-chartiste'
+  | 'structure';
 
 export interface FamilyMeta {
   id: PatternFamily;
@@ -25,7 +30,8 @@ export const PATTERN_FAMILIES: FamilyMeta[] = [
   { id: 'chandelier-simple', order: 1, title: 'Chandeliers — une bougie', subtitle: 'Marteau, doji, marubozu… la brique de base.' },
   { id: 'chandelier-double', order: 2, title: 'Chandeliers — deux bougies', subtitle: 'Avalements, harami, pincettes…' },
   { id: 'chandelier-triple', order: 3, title: 'Chandeliers — trois bougies', subtitle: 'Étoiles, soldats et corbeaux.' },
-  { id: 'structure', order: 4, title: 'Structure & figures', subtitle: 'Tendances, cassures, doubles et zones.' },
+  { id: 'figure-chartiste', order: 4, title: 'Figures chartistes', subtitle: 'Triangles, biseaux, drapeaux, épaule-tête-épaule…' },
+  { id: 'structure', order: 5, title: 'Structure & niveaux', subtitle: 'Tendances, cassures, doubles et zones.' },
 ];
 
 export interface PatternGlyph {
@@ -190,7 +196,129 @@ export const PATTERN_LIBRARY: PatternGlyph[] = [
     summary: 'Trois bougies baissières successives aux clôtures de plus en plus basses : une pression régulière des vendeurs.',
   },
 
-  // ─── Structure & figures ───────────────────────────────────────────
+  // ─── Figures chartistes (Lot 2) ────────────────────────────────────
+  {
+    id: 'triple-bottom', title: 'Triple creux', aliasEn: 'Triple Bottom', family: 'figure-chartiste',
+    visualType: 'chart-pattern', direction: 'bullish', datasetKey: 'pattern.triple-bottom.v1',
+    labels: ['trois creux', 'ligne de cou'],
+    summary: 'Trois creux à un niveau proche séparés par des sommets ; le franchissement de la ligne de cou confirme la figure.',
+  },
+  {
+    id: 'triple-top', title: 'Triple sommet', aliasEn: 'Triple Top', family: 'figure-chartiste',
+    visualType: 'chart-pattern', direction: 'bearish', datasetKey: 'pattern.triple-top.v1',
+    labels: ['trois sommets', 'ligne de cou'],
+    summary: 'Trois sommets à un niveau proche séparés par des creux ; la cassure de la ligne de cou confirme la figure.',
+  },
+  {
+    id: 'head-shoulders', title: 'Épaule-tête-épaule', aliasEn: 'Head & Shoulders', family: 'figure-chartiste',
+    visualType: 'chart-pattern', direction: 'bearish', datasetKey: 'pattern.head-shoulders.v1',
+    labels: ['deux épaules', 'une tête', 'ligne de cou'],
+    summary: 'Trois sommets — la tête plus haute entre deux épaules ; la cassure de la ligne de cou marque le retournement.',
+  },
+  {
+    id: 'inverse-head-shoulders', title: 'Épaule-tête-épaule inversé', aliasEn: 'Inverse Head & Shoulders', family: 'figure-chartiste',
+    visualType: 'chart-pattern', direction: 'bullish', datasetKey: 'pattern.inverse-head-shoulders.v1',
+    labels: ['deux épaules', 'une tête', 'ligne de cou'],
+    summary: 'Trois creux — la tête plus basse entre deux épaules ; le franchissement de la ligne de cou marque le retournement.',
+  },
+  {
+    id: 'ascending-triangle', title: 'Triangle ascendant', aliasEn: 'Ascending Triangle', family: 'figure-chartiste',
+    visualType: 'chart-pattern', direction: 'bullish', datasetKey: 'pattern.ascending-triangle.v1',
+    labels: ['sommets plats', 'creux montants'],
+    summary: 'Des sommets alignés et des creux de plus en plus hauts qui compriment le prix vers une résistance plate.',
+  },
+  {
+    id: 'descending-triangle', title: 'Triangle descendant', aliasEn: 'Descending Triangle', family: 'figure-chartiste',
+    visualType: 'chart-pattern', direction: 'bearish', datasetKey: 'pattern.descending-triangle.v1',
+    labels: ['creux plats', 'sommets descendants'],
+    summary: 'Des creux alignés et des sommets de plus en plus bas qui compriment le prix vers un support plat.',
+  },
+  {
+    id: 'symmetrical-triangle', title: 'Triangle symétrique', aliasEn: 'Symmetrical Triangle', family: 'figure-chartiste',
+    visualType: 'chart-pattern', direction: 'neutral', datasetKey: 'pattern.symmetrical-triangle.v1',
+    labels: ['sommets descendants', 'creux montants'],
+    summary: 'Sommets descendants et creux montants qui convergent : une compression sans direction, résolue à la sortie.',
+  },
+  {
+    id: 'rising-wedge', title: 'Biseau ascendant', aliasEn: 'Rising Wedge', family: 'figure-chartiste',
+    visualType: 'chart-pattern', direction: 'bearish', datasetKey: 'pattern.rising-wedge.v1',
+    labels: ['deux droites montantes', 'convergence'],
+    summary: 'Deux droites montantes qui convergent : une hausse qui s’essouffle, souvent résolue vers le bas.',
+  },
+  {
+    id: 'falling-wedge', title: 'Biseau descendant', aliasEn: 'Falling Wedge', family: 'figure-chartiste',
+    visualType: 'chart-pattern', direction: 'bullish', datasetKey: 'pattern.falling-wedge.v1',
+    labels: ['deux droites descendantes', 'convergence'],
+    summary: 'Deux droites descendantes qui convergent : une baisse qui s’essouffle, souvent résolue vers le haut.',
+  },
+  {
+    id: 'bull-flag', title: 'Drapeau haussier', aliasEn: 'Bull Flag', family: 'figure-chartiste',
+    visualType: 'chart-pattern', direction: 'bullish', datasetKey: 'pattern.bull-flag.v1',
+    labels: ['mât', 'canal descendant'],
+    summary: 'Une forte hausse (le mât) suivie d’une consolidation en canal descendant : une pause avant reprise éventuelle.',
+  },
+  {
+    id: 'bear-flag', title: 'Drapeau baissier', aliasEn: 'Bear Flag', family: 'figure-chartiste',
+    visualType: 'chart-pattern', direction: 'bearish', datasetKey: 'pattern.bear-flag.v1',
+    labels: ['mât', 'canal montant'],
+    summary: 'Une forte baisse (le mât) suivie d’une consolidation en canal montant : une pause avant continuation éventuelle.',
+  },
+  {
+    id: 'bullish-pennant', title: 'Fanion haussier', aliasEn: 'Bullish Pennant', family: 'figure-chartiste',
+    visualType: 'chart-pattern', direction: 'bullish', datasetKey: 'pattern.bullish-pennant.v1',
+    labels: ['mât', 'convergence'],
+    summary: 'Un mât haussier suivi d’une petite convergence symétrique : consolidation avant reprise éventuelle.',
+  },
+  {
+    id: 'bearish-pennant', title: 'Fanion baissier', aliasEn: 'Bearish Pennant', family: 'figure-chartiste',
+    visualType: 'chart-pattern', direction: 'bearish', datasetKey: 'pattern.bearish-pennant.v1',
+    labels: ['mât', 'convergence'],
+    summary: 'Un mât baissier suivi d’une petite convergence symétrique : consolidation avant continuation éventuelle.',
+  },
+  {
+    id: 'bull-rectangle', title: 'Rectangle haussier', aliasEn: 'Bullish Rectangle', family: 'figure-chartiste',
+    visualType: 'chart-pattern', direction: 'bullish', datasetKey: 'pattern.bull-rectangle.v1',
+    labels: ['deux bornes plates'],
+    summary: 'Le prix oscille entre deux bornes horizontales après une hausse : une respiration avant sortie éventuelle par le haut.',
+  },
+  {
+    id: 'bear-rectangle', title: 'Rectangle baissier', aliasEn: 'Bearish Rectangle', family: 'figure-chartiste',
+    visualType: 'chart-pattern', direction: 'bearish', datasetKey: 'pattern.bear-rectangle.v1',
+    labels: ['deux bornes plates'],
+    summary: 'Le prix oscille entre deux bornes horizontales après une baisse : une respiration avant sortie éventuelle par le bas.',
+  },
+  {
+    id: 'ascending-channel', title: 'Canal ascendant', aliasEn: 'Ascending Channel', family: 'figure-chartiste',
+    visualType: 'chart-pattern', direction: 'bullish', datasetKey: 'pattern.ascending-channel.v1',
+    labels: ['deux droites parallèles'],
+    summary: 'Le prix progresse entre deux droites parallèles montantes : une tendance haussière ordonnée.',
+  },
+  {
+    id: 'descending-channel', title: 'Canal descendant', aliasEn: 'Descending Channel', family: 'figure-chartiste',
+    visualType: 'chart-pattern', direction: 'bearish', datasetKey: 'pattern.descending-channel.v1',
+    labels: ['deux droites parallèles'],
+    summary: 'Le prix évolue entre deux droites parallèles descendantes : une tendance baissière ordonnée.',
+  },
+  {
+    id: 'cup-handle', title: 'Tasse avec anse', aliasEn: 'Cup & Handle', family: 'figure-chartiste',
+    visualType: 'chart-pattern', direction: 'bullish', datasetKey: 'pattern.cup-handle.v1',
+    labels: ['tasse arrondie', 'anse'],
+    summary: 'Un arrondi en « U » (la tasse) suivi d’une petite consolidation (l’anse), avant sortie éventuelle par le haut.',
+  },
+  {
+    id: 'rounding-bottom', title: 'Fond arrondi', aliasEn: 'Rounding Bottom', family: 'figure-chartiste',
+    visualType: 'chart-pattern', direction: 'bullish', datasetKey: 'pattern.rounding-bottom.v1',
+    labels: ['transition douce'],
+    summary: 'Une transition progressive de la baisse vers la hausse, dessinant un « U » arrondi.',
+  },
+  {
+    id: 'rounding-top', title: 'Sommet arrondi', aliasEn: 'Rounding Top', family: 'figure-chartiste',
+    visualType: 'chart-pattern', direction: 'bearish', datasetKey: 'pattern.rounding-top.v1',
+    labels: ['transition douce'],
+    summary: 'Une transition progressive de la hausse vers la baisse, dessinant un « ∩ » arrondi.',
+  },
+
+  // ─── Structure & niveaux ───────────────────────────────────────────
   {
     id: 'uptrend', title: 'Tendance haussière', aliasEn: 'Uptrend', family: 'structure',
     visualType: 'chart-pattern', direction: 'bullish', datasetKey: 'structure.uptrend.v1',

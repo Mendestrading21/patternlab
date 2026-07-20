@@ -108,6 +108,48 @@ const DOWNTREND = seriesFromTargets([64, 58, 61, 52, 55, 47, 50, 42, 45, 40]);
 // Cassure de structure : progression haussière (HH/HL) puis rupture sous le dernier creux.
 const BOS = seriesFromTargets([44, 50, 47, 55, 51, 58, 53, 48, 43]);
 
+// ─── Figures chartistes (Lot 2) ──────────────────────────────────────
+// Trois planchers proches (≈ 46) séparés par des sommets (ligne de cou ≈ 53), puis cassure haute.
+const TRIPLE_BOTTOM = seriesFromTargets([60, 54, 46, 52, 46, 52, 46, 54, 61]);
+// Trois plafonds proches (≈ 54) séparés par des creux (ligne de cou ≈ 48), puis cassure basse.
+const TRIPLE_TOP = seriesFromTargets([40, 46, 54, 48, 54, 48, 54, 46, 39]);
+// Épaule-tête-épaule : épaules ≈ 54, tête ≈ 60, ligne de cou ≈ 49, cassure basse.
+const HEAD_SHOULDERS = seriesFromTargets([44, 48, 54, 49, 60, 49, 54, 48, 42]);
+// Épaule-tête-épaule inversé : miroir haussier (tête ≈ 44, cou ≈ 55).
+const INVERSE_HEAD_SHOULDERS = seriesFromTargets([60, 56, 50, 55, 44, 55, 50, 56, 62]);
+// Triangle ascendant : sommets plats (≈ 56), creux montants, cassure haute.
+const ASCENDING_TRIANGLE = seriesFromTargets([48, 56, 50, 56, 52, 56, 54, 56, 60]);
+// Triangle descendant : creux plats (≈ 48), sommets descendants, cassure basse.
+const DESCENDING_TRIANGLE = seriesFromTargets([56, 48, 54, 48, 52, 48, 50, 48, 44]);
+// Triangle symétrique : sommets descendants et creux montants qui convergent.
+const SYMMETRICAL_TRIANGLE = seriesFromTargets([44, 56, 47, 54, 49, 52, 50, 51, 57]);
+// Biseau ascendant : deux droites montantes convergentes, cassure basse (baissier).
+const RISING_WEDGE = seriesFromTargets([46, 52, 49, 56, 52, 58, 55, 59, 50]);
+// Biseau descendant : deux droites descendantes convergentes, cassure haute (haussier).
+const FALLING_WEDGE = seriesFromTargets([60, 54, 57, 50, 52, 47, 49, 46, 55]);
+// Drapeau haussier : mât montant, petit canal descendant, cassure haute.
+const BULL_FLAG = seriesFromTargets([42, 44, 58, 55, 57, 54, 56, 53, 64]);
+// Drapeau baissier : mât descendant, petit canal montant, cassure basse.
+const BEAR_FLAG = seriesFromTargets([62, 60, 46, 49, 47, 50, 48, 51, 38]);
+// Fanion haussier : mât montant puis convergence symétrique, cassure haute.
+const BULLISH_PENNANT = seriesFromTargets([42, 58, 52, 56, 53, 55, 54, 61]);
+// Fanion baissier : mât descendant puis convergence, cassure basse.
+const BEARISH_PENNANT = seriesFromTargets([62, 46, 52, 48, 51, 49, 50, 39]);
+// Rectangle haussier : oscillation entre deux plats (≈ 50 / ≈ 56), cassure haute.
+const BULL_RECTANGLE = seriesFromTargets([44, 50, 56, 50, 56, 50, 56, 62]);
+// Rectangle baissier : oscillation entre deux plats (≈ 48 / ≈ 54), cassure basse.
+const BEAR_RECTANGLE = seriesFromTargets([60, 54, 48, 54, 48, 54, 48, 42]);
+// Canal ascendant : deux droites parallèles montantes.
+const ASCENDING_CHANNEL = seriesFromTargets([44, 50, 46, 54, 50, 58, 54, 62]);
+// Canal descendant : deux droites parallèles descendantes.
+const DESCENDING_CHANNEL = seriesFromTargets([62, 56, 60, 52, 56, 48, 52, 44]);
+// Tasse avec anse : arrondi en « U », petite anse, cassure haute.
+const CUP_HANDLE = seriesFromTargets([58, 52, 48, 46, 47, 50, 54, 57, 55, 53, 55, 62]);
+// Fond arrondi : transition douce de baisse à hausse (« U »).
+const ROUNDING_BOTTOM = seriesFromTargets([58, 53, 49, 46, 45, 46, 49, 53, 58, 62]);
+// Sommet arrondi : transition douce de hausse à baisse (« ∩ »).
+const ROUNDING_TOP = seriesFromTargets([42, 47, 51, 54, 55, 54, 51, 47, 42, 38]);
+
 export const VISUAL_DATASETS: Record<string, Candle[]> = {
   // Chandeliers simples
   'candle.anatomy.v1': ANATOMY,
@@ -142,6 +184,27 @@ export const VISUAL_DATASETS: Record<string, Candle[]> = {
   'structure.uptrend.v1': UPTREND,
   'structure.downtrend.v1': DOWNTREND,
   'structure.bos.v1': BOS,
+  // Figures chartistes (Lot 2)
+  'pattern.triple-bottom.v1': TRIPLE_BOTTOM,
+  'pattern.triple-top.v1': TRIPLE_TOP,
+  'pattern.head-shoulders.v1': HEAD_SHOULDERS,
+  'pattern.inverse-head-shoulders.v1': INVERSE_HEAD_SHOULDERS,
+  'pattern.ascending-triangle.v1': ASCENDING_TRIANGLE,
+  'pattern.descending-triangle.v1': DESCENDING_TRIANGLE,
+  'pattern.symmetrical-triangle.v1': SYMMETRICAL_TRIANGLE,
+  'pattern.rising-wedge.v1': RISING_WEDGE,
+  'pattern.falling-wedge.v1': FALLING_WEDGE,
+  'pattern.bull-flag.v1': BULL_FLAG,
+  'pattern.bear-flag.v1': BEAR_FLAG,
+  'pattern.bullish-pennant.v1': BULLISH_PENNANT,
+  'pattern.bearish-pennant.v1': BEARISH_PENNANT,
+  'pattern.bull-rectangle.v1': BULL_RECTANGLE,
+  'pattern.bear-rectangle.v1': BEAR_RECTANGLE,
+  'pattern.ascending-channel.v1': ASCENDING_CHANNEL,
+  'pattern.descending-channel.v1': DESCENDING_CHANNEL,
+  'pattern.cup-handle.v1': CUP_HANDLE,
+  'pattern.rounding-bottom.v1': ROUNDING_BOTTOM,
+  'pattern.rounding-top.v1': ROUNDING_TOP,
 };
 
 export function datasetByKey(key?: string): Candle[] {

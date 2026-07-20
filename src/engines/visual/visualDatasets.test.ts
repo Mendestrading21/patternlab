@@ -2,6 +2,7 @@ import { describe, it, expect } from '@jest/globals';
 import { VISUAL_DATASETS, datasetByKey, seriesFromTargets, SUPPORTED_VISUAL_TYPES } from './visualDatasets';
 import { V5_CONCEPTS } from '../../data/learningContent';
 import { PATTERN_LIBRARY } from '../../data/patternLibrary';
+import { FIGURE_OVERLAYS } from './figureOverlays';
 
 describe('datasets déterministes', () => {
   it('seriesFromTargets chaîne open→close et est déterministe', () => {
@@ -73,6 +74,33 @@ describe('intégrité registre ↔ bibliothèque de figures', () => {
     for (const g of PATTERN_LIBRARY) {
       expect(SUPPORTED_VISUAL_TYPES).toContain(g.visualType);
       expect(datasetByKey(g.datasetKey).length).toBeGreaterThan(0);
+    }
+  });
+
+  it('la famille figure-chartiste est bien fournie', () => {
+    const figures = PATTERN_LIBRARY.filter((g) => g.family === 'figure-chartiste');
+    expect(figures.length).toBeGreaterThanOrEqual(18);
+  });
+});
+
+describe('overlays de figures', () => {
+  const ids = new Set(PATTERN_LIBRARY.map((g) => g.id));
+  it('aucun overlay orphelin (chaque clé correspond à un glyphe)', () => {
+    for (const key of Object.keys(FIGURE_OVERLAYS)) {
+      expect(ids.has(key)).toBe(true);
+    }
+  });
+  it('les tracés ont des coordonnées finies et un index de bougie dans la série', () => {
+    for (const [key, ov] of Object.entries(FIGURE_OVERLAYS)) {
+      const glyph = PATTERN_LIBRARY.find((g) => g.id === key)!;
+      const n = datasetByKey(glyph.datasetKey).length;
+      for (const g of ov.guides ?? []) {
+        for (const p of [g.from, g.to]) {
+          expect(Number.isFinite(p.i) && Number.isFinite(p.price)).toBe(true);
+          expect(p.i).toBeGreaterThanOrEqual(0);
+          expect(p.i).toBeLessThanOrEqual(n);
+        }
+      }
     }
   });
 });

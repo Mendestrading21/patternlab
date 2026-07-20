@@ -17,21 +17,46 @@ export interface Zone {
   label?: string;
   color?: string;
 }
+/** Point d'ancrage d'un tracé : index de bougie (fractionnaire accepté) + prix. */
+export interface GuidePoint {
+  i: number;
+  price: number;
+}
+/** Tracé libre (ligne de cou, ligne de tendance, projection) entre deux ancrages. */
+export interface Guide {
+  from: GuidePoint;
+  to: GuidePoint;
+  color?: string;
+  dashed?: boolean;
+  label?: string;
+}
+/** Repère textuel positionné (ex. « épaule », « cou », « ▲ cible »). */
+export interface Marker {
+  i: number;
+  price: number;
+  text: string;
+  color?: string;
+  anchor?: 'start' | 'middle' | 'end';
+}
 
 export type CandlestickGlyphsProps = {
   candles: Candle[];
   box?: Box;
   levels?: Level[];
   zones?: Zone[];
+  guides?: Guide[];
+  markers?: Marker[];
   accessibilityLabel?: string;
 };
 
-/** Rendu de bougies (SVG, responsive via viewBox) avec zones et niveaux optionnels. */
+/** Rendu de bougies (SVG, responsive via viewBox) avec zones, niveaux, tracés et repères optionnels. */
 export function CandlestickGlyphs({
   candles,
   box = { width: 320, height: 180, padY: 14 },
   levels = [],
   zones = [],
+  guides = [],
+  markers = [],
   accessibilityLabel,
 }: CandlestickGlyphsProps) {
   const W = box.width;
@@ -39,6 +64,9 @@ export function CandlestickGlyphs({
   const padY = box.padY ?? 14;
   const scale = priceScale(candles, H, padY);
   const layout = candleLayout(candles, box);
+  const n = candles.length || 1;
+  const slot = W / n;
+  const xAt = (i: number) => Math.max(0, Math.min(W, i * slot + slot / 2));
 
   return (
     <View accessible accessibilityRole="image" accessibilityLabel={accessibilityLabel}>
@@ -68,6 +96,18 @@ export function CandlestickGlyphs({
             stroke={lv.color ?? colors.technical}
             strokeWidth={1.2}
             strokeDasharray={lv.dashed ? '5 4' : undefined}
+          />
+        ))}
+        {guides.map((g, i) => (
+          <Line
+            key={`g-${i}`}
+            x1={xAt(g.from.i)}
+            y1={scale.priceToY(g.from.price)}
+            x2={xAt(g.to.i)}
+            y2={scale.priceToY(g.to.price)}
+            stroke={g.color ?? colors.technical}
+            strokeWidth={1.4}
+            strokeDasharray={g.dashed ? '5 4' : undefined}
           />
         ))}
         {layout.map((c) => (
@@ -106,6 +146,32 @@ export function CandlestickGlyphs({
               {l.label}
             </SvgText>
           ))}
+        {guides
+          .filter((g) => g.label)
+          .map((g, i) => (
+            <SvgText
+              key={`gt-${i}`}
+              x={(xAt(g.from.i) + xAt(g.to.i)) / 2}
+              y={(scale.priceToY(g.from.price) + scale.priceToY(g.to.price)) / 2 - 4}
+              fill={colors.textMuted}
+              fontSize={10}
+              textAnchor="middle"
+            >
+              {g.label}
+            </SvgText>
+          ))}
+        {markers.map((m, i) => (
+          <SvgText
+            key={`m-${i}`}
+            x={xAt(m.i)}
+            y={scale.priceToY(m.price)}
+            fill={m.color ?? colors.textSecondary}
+            fontSize={10}
+            textAnchor={m.anchor ?? 'middle'}
+          >
+            {m.text}
+          </SvgText>
+        ))}
       </Svg>
     </View>
   );
