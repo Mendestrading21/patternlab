@@ -2,7 +2,7 @@ import { Component, type ReactNode } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { theme } from '../design-system/theme';
 import { StateView } from '../design-system/components/StateView';
-import { analytics } from '../analytics';
+import { analytics } from '@/analytics';
 
 type Props = { children: ReactNode };
 type State = { hasError: boolean; message?: string };

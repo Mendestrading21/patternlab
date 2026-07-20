@@ -151,6 +151,12 @@ export default function Profil() {
             </Text>
           </View>
         </Pressable>
+        <Button
+          label="Voir le journal d’usage (local)"
+          variant="secondary"
+          onPress={() => router.push('/journal')}
+          accessibilityHint="Voir exactement les évènements enregistrés localement"
+        />
       </Card>
 
       <Card elevated>

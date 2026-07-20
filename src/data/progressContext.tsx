@@ -16,7 +16,7 @@ import * as premium from './premium';
 import { masteryStatus, type Grade } from '../engines/learning';
 import * as progressLogic from './progressLogic';
 import * as gamification from './gamification';
-import { analytics } from '../analytics';
+import { analytics } from '@/analytics';
 
 /** Émet `achievement_unlocked` pour chaque badge nouvellement obtenu. */
 function announceBadges(prev: ProgressState, next: ProgressState) {
