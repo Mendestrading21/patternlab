@@ -19,6 +19,7 @@ export * from './learningStats';
 export * from './revisionDeck';
 export * from './dailyMission';
 export * from './conceptOfTheDay';
+export * from './greeting';
 export * from './onboardingProfile';
 export * from './sessionPlan';
 export * from './worldMap';
