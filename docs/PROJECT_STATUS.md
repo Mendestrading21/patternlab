@@ -86,6 +86,15 @@ Les images restent hors périmètre de commit (déjà sur `main`, jamais une dé
   release:check 14 · build:web. Vérifié en pilotant Chromium (390×900) : 72 SVG, 24 polylignes, ruban/stoch
   (%K/%D + 80/20)/VWAP/ATR rendus, 0 erreur console. Voir **ADR-047**.
 
+## Contenu bâti sur la bibliothèque visuelle
+- **Fiches concept des nouvelles figures** ✅ : **6 concepts `needsReview`** ajoutés à `V5_CONCEPTS`
+  (**12 → 18**) — triangle ascendant, épaule-tête-épaule, drapeau haussier (figures), RSI, divergence
+  (indicateurs), order block (SMC) — chacun relié à son visuel déjà codé (overlays/panneaux rendus). Ils
+  entrent **automatiquement** au glossaire, à la carte des mondes (**5/15 → 7/15 ouverts** : indicateurs +
+  SMC), au deck de révision et à l'entraîneur de reconnaissance. Conformité vocabulaire tenue. Validations :
+  lint · typecheck · tests **376** · validate:content 31 · release:check 14 · build:web. Vérifié en pilotant
+  Chromium : fiches triangle-ascendant / rsi / order-block rendues, Parcours 7/15 mondes, 0 erreur. Voir **ADR-050**.
+
 ## Fonctionnalités bâties sur la bibliothèque visuelle
 - **Persistance des progrès de reconnaissance + badge** ✅ : schéma de progression **v6 → v7**
   (`figuresRecognized`, `bestRecognitionStreak` cumulatifs ; migration sûre, défaut 0, assainie — aucune
