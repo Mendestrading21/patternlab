@@ -87,6 +87,12 @@ Les images restent hors périmètre de commit (déjà sur `main`, jamais une dé
   (%K/%D + 80/20)/VWAP/ATR rendus, 0 erreur console. Voir **ADR-047**.
 
 ## Contenu bâti sur la bibliothèque visuelle
+- **Ouverture de mondes (Volume / Wyckoff / Faux signaux)** ✅ : 4 concepts `needsReview` (volume, VWAP,
+  accumulation Wyckoff, faux signal) + dataset `structure.accumulation.v1`. `V5_CONCEPTS` **25 → 29** ;
+  la carte des mondes passe de **7/15 à 10/15 ouverts** (mondes Volume, Wyckoff, Laboratoire de faux signaux).
+  Chaque concept porte un visuel (contrainte du deck de révision). Validations : lint · typecheck · tests
+  **380** · validate:content 31 · release:check 14 · build:web. Vérifié en pilotant Chromium : fiches
+  volume / wyckoff-accumulation / faux-signal rendues, Parcours 10/15 mondes, 0 erreur. Voir **ADR-050**.
 - **Fiches concept des nouvelles figures** ✅ : `V5_CONCEPTS` passe de **12 à 25** concepts `needsReview`,
   chacun relié à son visuel déjà codé (overlays/panneaux rendus). **1er lot (12 → 18)** : triangle ascendant,
   épaule-tête-épaule, drapeau haussier, RSI, divergence, order block — ouvre les mondes Indicateurs + SMC

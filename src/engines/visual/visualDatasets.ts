@@ -171,6 +171,8 @@ const LIQUIDITY_SWEEP = seriesFromTargets([48, 55, 50, 55, 50, 58, 44]);
 const FAKEOUT = seriesFromTargets([46, 52, 55, 57, 52, 48, 50]);
 // Cassure et retest : cassure d'un niveau, retour le tester, puis continuation.
 const BREAK_RETEST = seriesFromTargets([46, 52, 55, 58, 55, 54, 60]);
+// Accumulation (Wyckoff) : longue base en range puis sortie par le haut (markup).
+const ACCUMULATION = seriesFromTargets([50, 52, 48, 51, 49, 52, 48, 51, 49, 52, 48, 56, 60]);
 
 // ─── Séries pour indicateurs (Lot 4) ─────────────────────────────────
 // Moyennes mobiles : hausse, repli, reprise → croisement rapide/lent visible.
@@ -293,6 +295,7 @@ export const VISUAL_DATASETS: Record<string, Candle[]> = {
   'structure.liquidity-sweep.v1': LIQUIDITY_SWEEP,
   'structure.fakeout.v1': FAKEOUT,
   'structure.break-retest.v1': BREAK_RETEST,
+  'structure.accumulation.v1': ACCUMULATION,
   // Indicateurs (Lot 4)
   'indicator.ma.v1': INDICATOR_MA,
   'indicator.bollinger.v1': INDICATOR_BOLLINGER,
