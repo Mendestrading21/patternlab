@@ -172,6 +172,30 @@ const FAKEOUT = seriesFromTargets([46, 52, 55, 57, 52, 48, 50]);
 // Cassure et retest : cassure d'un niveau, retour le tester, puis continuation.
 const BREAK_RETEST = seriesFromTargets([46, 52, 55, 58, 55, 54, 60]);
 
+// ─── Séries pour indicateurs (Lot 4) ─────────────────────────────────
+// Moyennes mobiles : hausse, repli, reprise → croisement rapide/lent visible.
+const INDICATOR_MA = seriesFromTargets([44, 48, 46, 52, 50, 56, 54, 50, 48, 52, 56, 60, 58, 62]);
+// Bollinger : compression (faible volatilité) puis expansion.
+const INDICATOR_BOLLINGER = seriesFromTargets([50, 51, 50, 51, 50, 49, 50, 51, 56, 46, 58, 44, 60]);
+// Fibonacci : impulsion haussière puis retracement.
+const INDICATOR_FIB = seriesFromTargets([44, 48, 52, 58, 62, 58, 54, 56, 60]);
+// RSI : montée en zone haute (>70) puis chute en zone basse (<30) puis reprise.
+const INDICATOR_RSI = seriesFromTargets([50, 53, 56, 60, 63, 66, 64, 60, 55, 50, 46, 43, 41, 44, 48, 52]);
+// MACD : tendance avec changement de momentum.
+const INDICATOR_MACD = seriesFromTargets([46, 48, 47, 50, 49, 53, 52, 56, 55, 54, 52, 50, 51, 54, 57, 60]);
+// Volume : bougies d'amplitudes variées.
+const INDICATOR_VOLUME = seriesFromTargets([44, 50, 46, 56, 52, 60, 50, 58]);
+// Divergence : le prix fait deux plus-hauts croissants (voir oscillateur en repli, en config).
+const INDICATOR_DIVERGENCE: Candle[] = [
+  { o: 48, h: 52, l: 47, c: 51 },
+  { o: 51, h: 53, l: 49, c: 50 },
+  { o: 50, h: 57, l: 49, c: 55 }, // plus-haut #1 (57)
+  { o: 55, h: 56, l: 51, c: 52 },
+  { o: 52, h: 54, l: 50, c: 53 },
+  { o: 53, h: 61, l: 52, c: 59 }, // plus-haut #2 (61, plus haut)
+  { o: 59, h: 60, l: 54, c: 55 },
+];
+
 export const VISUAL_DATASETS: Record<string, Candle[]> = {
   // Chandeliers simples
   'candle.anatomy.v1': ANATOMY,
@@ -236,6 +260,14 @@ export const VISUAL_DATASETS: Record<string, Candle[]> = {
   'structure.liquidity-sweep.v1': LIQUIDITY_SWEEP,
   'structure.fakeout.v1': FAKEOUT,
   'structure.break-retest.v1': BREAK_RETEST,
+  // Indicateurs (Lot 4)
+  'indicator.ma.v1': INDICATOR_MA,
+  'indicator.bollinger.v1': INDICATOR_BOLLINGER,
+  'indicator.fib.v1': INDICATOR_FIB,
+  'indicator.rsi.v1': INDICATOR_RSI,
+  'indicator.macd.v1': INDICATOR_MACD,
+  'indicator.volume.v1': INDICATOR_VOLUME,
+  'indicator.divergence.v1': INDICATOR_DIVERGENCE,
 };
 
 export function datasetByKey(key?: string): Candle[] {
@@ -248,4 +280,5 @@ export const SUPPORTED_VISUAL_TYPES = [
   'candlestick-pattern',
   'chart-pattern',
   'market-structure',
+  'indicator',
 ] as const;

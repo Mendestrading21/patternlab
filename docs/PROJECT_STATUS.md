@@ -60,9 +60,18 @@ Les images restent hors périmètre de commit (déjà sur `main`, jamais une dé
   Validations : lint · typecheck · tests **353** · validate:content 31 · release:check 14 · build:web.
   Vérifié en pilotant Chromium (390×844) : 57 SVG, 8 bandes de zones, repères CHoCH/FVG/sweep/retest/order
   block/offre/demande rendus dans les SVG, 0 erreur console. Voir **ADR-044**.
-- **Suite (à faire)** : indicateurs (RSI/MACD/volume, Bollinger, Fibonacci — nouveau renderer à
-  sous-panneau), puis câblage d'un signal visuel sur chaque carte de quiz/exercice/révision. Un lot par
-  tour, commit local, **aucun push sans accord**.
+- **Lot 4 — Indicateurs techniques** ✅ : nouveau type de rendu `indicator` (premier non-bougie). Calculs
+  purs testés `indicatorMath.ts` (sma, ema, rsi Wilder, macd, bollinger, fibLevels, volumeBars). Renderer
+  `IndicatorPanel` : panneau prix + superpositions (moyennes, bandes, niveaux Fibonacci, guide de
+  divergence) et sous-panneau à échelle propre (RSI 70/30, MACD histogramme+lignes, volume, oscillateur de
+  divergence). Registre `indicatorConfigs.ts` (par variant) ; `SUPPORTED_VISUAL_TYPES` gagne `indicator`.
+  **7 indicateurs** (famille `indicateur`) : moyennes mobiles, Bollinger, RSI, MACD, volume, Fibonacci,
+  divergence. Galerie **64 figures / 7 familles**. Validations : lint · typecheck · tests **363** (+10) ·
+  validate:content 31 · release:check 14 · build:web. Vérifié en pilotant Chromium (390×844) : 64 SVG,
+  9 polylignes (2 moyennes + 3 Bollinger + RSI + 2 MACD + divergence), repères RSI·70/30 / MACD / prix ↑ /
+  RSI ↓ / 61.8 % rendus, 0 erreur console. Voir **ADR-045**.
+- **Suite (à faire)** : **Lot 5** — câbler un signal visuel sur chaque carte de quiz/exercice/révision et
+  chaque concept, pour tenir l'objectif « toujours un signal de ce que c'est » partout. Commit local, **aucun push sans accord**.
 
 ---
 

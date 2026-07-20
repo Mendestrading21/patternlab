@@ -3,6 +3,7 @@ import { VISUAL_DATASETS, datasetByKey, seriesFromTargets, SUPPORTED_VISUAL_TYPE
 import { V5_CONCEPTS } from '../../data/learningContent';
 import { PATTERN_LIBRARY } from '../../data/patternLibrary';
 import { FIGURE_OVERLAYS } from './figureOverlays';
+import { INDICATOR_CONFIGS } from './indicatorConfigs';
 
 describe('datasets déterministes', () => {
   it('seriesFromTargets chaîne open→close et est déterministe', () => {
@@ -102,5 +103,24 @@ describe('overlays de figures', () => {
         }
       }
     }
+  });
+});
+
+describe('configs d’indicateurs', () => {
+  const ids = new Set(PATTERN_LIBRARY.map((g) => g.id));
+  it('aucune config orpheline et chaque datasetKey résout', () => {
+    for (const [key, cfg] of Object.entries(INDICATOR_CONFIGS)) {
+      expect(ids.has(key)).toBe(true);
+      expect(datasetByKey(cfg.datasetKey).length).toBeGreaterThan(0);
+    }
+  });
+  it('la divergence est cohérente : oscillateur aligné, sommets décroissants, prix croissant', () => {
+    const cfg = INDICATOR_CONFIGS['divergence'];
+    const candles = datasetByKey(cfg.datasetKey);
+    expect(cfg.osc!.length).toBe(candles.length);
+    const [pa, pb] = cfg.priceHighs!;
+    const [oa, ob] = cfg.oscHighs!;
+    expect(candles[pb].h).toBeGreaterThan(candles[pa].h); // prix : plus-haut plus haut
+    expect(cfg.osc![ob]).toBeLessThan(cfg.osc![oa]); // oscillateur : plus-haut plus bas
   });
 });

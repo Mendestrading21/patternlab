@@ -5,7 +5,9 @@ import type { VisualSpec } from '../../../data/learningConcept';
 import { datasetByKey } from '../visualDatasets';
 import { CandlestickGlyphs, type Zone } from './CandlestickGlyphs';
 import { CandleAnatomy } from './CandleAnatomy';
+import { IndicatorPanel } from './IndicatorPanel';
 import { figureOverlay } from '../figureOverlays';
+import { indicatorConfig } from '../indicatorConfigs';
 
 export type VisualCardProps = {
   spec: VisualSpec;
@@ -48,6 +50,13 @@ export function VisualCard({ spec, title }: VisualCardProps) {
       { from: max - range * 0.06, to: max, label: 'résistance', color: theme.colors.bearish },
     ];
     visual = <CandlestickGlyphs candles={candles} zones={zones} accessibilityLabel={summary} />;
+  } else if (spec.type === 'indicator' && candles.length) {
+    const config = indicatorConfig(spec.variant);
+    visual = config ? (
+      <IndicatorPanel candles={candles} config={config} accessibilityLabel={summary} />
+    ) : (
+      <CandlestickGlyphs candles={candles} accessibilityLabel={summary} />
+    );
   } else {
     visual = (
       <View style={styles.fallback} accessible accessibilityLabel={summary}>

@@ -10,5 +10,8 @@ export {
   type Marker,
 } from './components/CandlestickGlyphs';
 export { CandleAnatomy } from './components/CandleAnatomy';
+export { IndicatorPanel } from './components/IndicatorPanel';
 export { VisualCard } from './components/VisualCard';
 export { FIGURE_OVERLAYS, figureOverlay, type FigureOverlay } from './figureOverlays';
+export * from './indicatorMath';
+export { INDICATOR_CONFIGS, indicatorConfig, type IndicatorConfig, type IndicatorKind } from './indicatorConfigs';

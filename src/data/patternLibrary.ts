@@ -17,7 +17,8 @@ export type PatternFamily =
   | 'chandelier-triple'
   | 'figure-chartiste'
   | 'structure'
-  | 'structure-smc';
+  | 'structure-smc'
+  | 'indicateur';
 
 export interface FamilyMeta {
   id: PatternFamily;
@@ -34,6 +35,7 @@ export const PATTERN_FAMILIES: FamilyMeta[] = [
   { id: 'figure-chartiste', order: 4, title: 'Figures chartistes', subtitle: 'Triangles, biseaux, drapeaux, épaule-tête-épaule…' },
   { id: 'structure', order: 5, title: 'Structure & niveaux', subtitle: 'Tendances, cassures, doubles et zones.' },
   { id: 'structure-smc', order: 6, title: 'Structure avancée (SMC)', subtitle: 'Zones, order blocks, FVG, liquidité — éducatif.' },
+  { id: 'indicateur', order: 7, title: 'Indicateurs techniques', subtitle: 'Moyennes, RSI, MACD, Bollinger, volume, Fibonacci.' },
 ];
 
 export interface PatternGlyph {
@@ -412,6 +414,50 @@ export const PATTERN_LIBRARY: PatternGlyph[] = [
     visualType: 'chart-pattern', direction: 'bullish', datasetKey: 'structure.break-retest.v1',
     labels: ['cassure', 'retest du niveau'],
     summary: 'Un niveau franchi, puis retesté par l’arrière (l’ancien plafond servant d’appui), avant continuation.',
+  },
+
+  // ─── Indicateurs techniques ────────────────────────────────────────
+  {
+    id: 'moving-average', title: 'Moyennes mobiles', aliasEn: 'Moving Averages', family: 'indicateur',
+    visualType: 'indicator', direction: 'neutral', datasetKey: 'indicator.ma.v1',
+    labels: ['moyenne rapide', 'moyenne lente'],
+    summary: 'Deux moyennes mobiles (rapide en vert, lente en rouge) lissent le prix ; leur croisement illustre un changement de rythme.',
+  },
+  {
+    id: 'bollinger', title: 'Bandes de Bollinger', aliasEn: 'Bollinger Bands', family: 'indicateur',
+    visualType: 'indicator', direction: 'neutral', datasetKey: 'indicator.bollinger.v1',
+    labels: ['bande haute', 'moyenne', 'bande basse'],
+    summary: 'Une moyenne encadrée de deux bandes à ±2 écarts-types : elles se resserrent en faible volatilité et s’écartent à l’expansion.',
+  },
+  {
+    id: 'rsi', title: 'RSI', aliasEn: 'Relative Strength Index', family: 'indicateur',
+    visualType: 'indicator', direction: 'neutral', datasetKey: 'indicator.rsi.v1',
+    labels: ['suracheté > 70', 'survendu < 30'],
+    summary: 'Un oscillateur 0–100 (sous le prix) : au-dessus de 70 le marché est dit suracheté, sous 30 survendu — à lire avec le contexte.',
+  },
+  {
+    id: 'macd', title: 'MACD', aliasEn: 'MACD', family: 'indicateur',
+    visualType: 'indicator', direction: 'neutral', datasetKey: 'indicator.macd.v1',
+    labels: ['ligne MACD', 'ligne de signal', 'histogramme'],
+    summary: 'Différence de deux moyennes exponentielles, sa ligne de signal et un histogramme : illustre l’élan et ses croisements.',
+  },
+  {
+    id: 'volume', title: 'Volume', aliasEn: 'Volume', family: 'indicateur',
+    visualType: 'indicator', direction: 'neutral', datasetKey: 'indicator.volume.v1',
+    labels: ['participation par bougie'],
+    summary: 'Des barres de participation sous le prix : un mouvement soutenu par un volume élevé est jugé plus crédible qu’un mouvement sans volume.',
+  },
+  {
+    id: 'fibonacci', title: 'Retracement de Fibonacci', aliasEn: 'Fibonacci Retracement', family: 'indicateur',
+    visualType: 'indicator', direction: 'neutral', datasetKey: 'indicator.fib.v1',
+    labels: ['0 · 23,6 · 38,2 · 50 · 61,8 · 100 %'],
+    summary: 'Des niveaux horizontaux entre un plus-bas et un plus-haut : des repères de retracement fréquemment observés, jamais garantis.',
+  },
+  {
+    id: 'divergence', title: 'Divergence', aliasEn: 'Divergence', family: 'indicateur',
+    visualType: 'indicator', direction: 'bearish', datasetKey: 'indicator.divergence.v1',
+    labels: ['prix : plus-hauts croissants', 'oscillateur : plus-hauts décroissants'],
+    summary: 'Le prix fait des plus-hauts croissants mais l’oscillateur des plus-hauts décroissants : un désaccord qui invite à la prudence.',
   },
 ];
 
