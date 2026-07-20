@@ -4,7 +4,7 @@ import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, ProgressBar, FeedbackPanel, theme } from '@/design-system';
 import { CharacterScene, MascotFigure } from '@/characters';
 import { ExercisePlayer, gradeExercise, type GradeResult } from '@/engines/exercise';
-import { getExercises, skillById, limitCount, isCheckpoint, isFalseSignalExercise, useProgress } from '@/data';
+import { getExercises, skillById, limitCount, isCheckpoint, isFalseSignalExercise, useProgress, buildSessionSummary } from '@/data';
 import { xpForGrade } from '@/engines/learning';
 import { analytics } from '@/analytics';
 
@@ -119,7 +119,8 @@ function Results({
   onHome: () => void;
   onRetry: () => void;
 }) {
-  const success = correct >= Math.ceil(total * PASS_RATIO);
+  const summary = buildSessionSummary(correct, total, PASS_RATIO);
+  const success = summary.passed;
   const done = useRef(false);
   useEffect(() => {
     if (!done.current) {
@@ -135,35 +136,52 @@ function Results({
   return (
     <Screen>
       <Card elevated style={styles.results}>
-        <Text variant="display">{success ? '🎉' : '💪'}</Text>
+        <Text variant="display">{summary.emoji}</Text>
         <Text variant="h1" center>
           {correct} / {total}
         </Text>
         <Text variant="body" color={theme.colors.textSecondary} center>
-          {success ? 'Session réussie, bravo !' : 'Bien essayé — révise et retente !'}
+          {summary.headline}
         </Text>
-        <View style={styles.gains}>
-          <Text variant="title" color={theme.colors.reward}>
-            +{xp} XP
-          </Text>
-          <Text variant="caption" color={theme.colors.textMuted}>
-            série mise à jour 🔥
-          </Text>
+
+        <View style={styles.accuracyWrap}>
+          <ProgressBar value={summary.accuracy} accessibilityLabel={`Précision : ${summary.accuracyPct} %`} />
         </View>
-        {success ? (
-          <MascotFigure name="celebrate" gesture="celebrate" height={170} />
-        ) : (
+
+        {/* Trois tuiles récapitulatives (façon Duolingo) */}
+        <View style={styles.statTiles}>
+          <StatTile label="XP" value={`+${xp}`} color={theme.colors.reward} />
+          <StatTile label="Précision" value={`${summary.accuracyPct}%`} color={theme.colors.technical} />
+          <StatTile label="Série" value="🔥" color={theme.colors.bullish} />
+        </View>
+
+        {summary.tier === 'retry' ? (
           <CharacterScene
             character="toto"
             state="encourage"
             size={72}
             speech="On y retourne quand tu veux."
           />
+        ) : (
+          <MascotFigure name="celebrate" gesture="celebrate" height={170} />
         )}
       </Card>
       <Button label="Retour à l’accueil" onPress={onHome} />
       <Button label="Refaire la session" variant="secondary" onPress={onRetry} />
     </Screen>
+  );
+}
+
+function StatTile({ label, value, color }: { label: string; value: string; color: string }) {
+  return (
+    <View style={styles.tile}>
+      <Text variant="title" color={color} center>
+        {value}
+      </Text>
+      <Text variant="caption" color={theme.colors.textMuted} center>
+        {label}
+      </Text>
+    </View>
   );
 }
 
@@ -185,5 +203,16 @@ const LABELS: Record<string, string> = {
 const styles = StyleSheet.create({
   header: { gap: theme.spacing.sm },
   results: { alignItems: 'center', gap: theme.spacing.md },
-  gains: { alignItems: 'center', gap: 2 },
+  accuracyWrap: { width: '100%' },
+  statTiles: { flexDirection: 'row', gap: theme.spacing.sm, width: '100%' },
+  tile: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 2,
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.surface,
+  },
 });

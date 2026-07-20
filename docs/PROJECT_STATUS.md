@@ -124,6 +124,12 @@ Les images restent hors périmètre de commit (déjà sur `main`, jamais une dé
   Bollinger, divergence, order block, FVG, CHoCH) rendues avec visuels, 0 erreur console. Voir **ADR-050**.
 
 ## Fonctionnalités bâties sur la bibliothèque visuelle
+- **Célébration de fin de session (façon Duolingo)** ✅ : logique pure testée `sessionSummary.ts`
+  (`buildSessionSummary` : précision, palier perfect/pass/retry, emoji, message ; entrées assainies).
+  Écran Résultat enrichi : emoji de palier, **barre de précision** et **3 tuiles** (XP · Précision % ·
+  Série), mascottes Toto & Bobo en célébration (respect de la réduction d'animation). Validations : lint ·
+  typecheck · tests **386** (+5) · validate:content 31 · release:check 14 · build:web. Vérifié en pilotant
+  Chromium : session 5/5 → 🏆 « Sans faute — parfait ! », barre 100 %, tuiles +50 XP / 100 % / 🔥, 0 erreur.
 - **Exercices interactifs — format `identify_figure`** ✅ : nouveau format d'exercice graphique branché
   sur le moteur de visuels (type + grader pur + `IdentifyFigurePlayer` rendant `VisualCard` en mode énigme,
   révélée après réponse). **Durcissement** : `VisualCard` en `blind` retire aussi les textes d'overlay
