@@ -1,7 +1,7 @@
 import Svg, { Circle, Ellipse, G, Path } from 'react-native-svg';
 import { palette } from '../design-system/tokens';
 import type { CharacterId, CharacterState, Expression } from './types';
-import { STATE_TO_EXPRESSION } from './types';
+import { STATE_TO_EXPRESSION } from './states';
 
 export type CharacterAvatarProps = {
   character: CharacterId;

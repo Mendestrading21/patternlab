@@ -1,0 +1,35 @@
+{
+  "id": "concept.accumulation",
+  "slug": "accumulation-wyckoff",
+  "title": "Accumulation (Wyckoff)",
+  "shortTitle": "Accumulation",
+  "aliases": ["Wyckoff accumulation"],
+  "categoryId": "cat.wyckoff",
+  "worldId": "world.wyckoff",
+  "difficulty": 4,
+  "prerequisites": ["concept.range", "concept.support-resistance"],
+  "tags": ["wyckoff", "range", "accumulation"],
+  "learningObjective": "Reconnaître une phase d’accumulation dans le cadre Wyckoff (éducatif).",
+  "definitionShort": "Une phase de range où l’activité se concentre avant une éventuelle sortie par le haut.",
+  "definitionDetailed": "Dans le schéma de Wyckoff, l’accumulation est une phase de range où le prix construit une base. Elle comporte des repères éducatifs (creux de rejet, tests, ressort) qui décrivent le comportement du prix — sans jamais garantir la suite. C’est un cadre de lecture, pas une recette.",
+  "howToRecognize": ["Un range après une baisse.", "Des tests répétés du bas de la zone.", "Une diminution de l’activité vendeuse."],
+  "falseSignals": ["Lire une accumulation là où le range se rompt par le bas."],
+  "commonMistakes": ["Appliquer le schéma de façon rigide, comme une certitude."],
+  "checklist": ["Range identifié ?", "Tests du bas repérés ?", "Comportement cohérent avec le cadre ?"],
+  "miniQuizzes": [
+    {
+      "question": "L’accumulation Wyckoff garantit-elle une hausse ensuite ?",
+      "options": ["Oui", "Non : c’est un cadre de lecture, pas une garantie", "Toujours en été", "Seulement avec un indicateur"],
+      "correctIndex": 1,
+      "explanation": "Le schéma décrit un comportement possible du prix ; il ne garantit aucune issue."
+    }
+  ],
+  "relatedConceptIds": ["concept.range", "concept.support-resistance"],
+  "sources": [{ "label": "Voix pédagogique PatternLab", "kind": "editorial" }],
+  "sourcePath": "editorial/v5/accumulation-wyckoff",
+  "sourceHash": "v5-wyc-0001",
+  "version": 1,
+  "status": "needsReview",
+  "locale": "fr-CH",
+  "disclaimer": "Contenu éducatif. Aucun conseil en investissement. Le trading comporte un risque de perte."
+}

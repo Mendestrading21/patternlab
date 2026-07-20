@@ -1,0 +1,35 @@
+{
+  "id": "concept.stop-loss",
+  "slug": "stop-de-protection",
+  "title": "Stop de protection",
+  "shortTitle": "Stop",
+  "aliases": ["Stop-loss", "Invalidation"],
+  "categoryId": "cat.risk",
+  "worldId": "world.risk",
+  "difficulty": 2,
+  "prerequisites": [],
+  "tags": ["risque", "invalidation", "protection"],
+  "learningObjective": "Comprendre le rôle d’un stop de protection comme niveau d’invalidation.",
+  "definitionShort": "Un niveau prédéfini qui, atteint, met fin à une hypothèse pour limiter la perte.",
+  "definitionDetailed": "Le stop de protection est le niveau où le scénario envisagé n’est plus valable. Le placer, c’est décider à l’avance jusqu’où l’on accepte de se tromper. Il se situe là où l’hypothèse est invalidée (par exemple sous un support), pas à une distance arbitraire.",
+  "howToRecognize": ["Un niveau choisi avant d’agir.", "Placé là où le scénario devient faux.", "Cohérent avec la structure (support, plus bas)."],
+  "falseSignals": ["Un stop trop serré, sauté par le bruit du marché.", "Un stop trop large qui ne protège plus."],
+  "commonMistakes": ["Déplacer son stop pour éviter de se tromper.", "Choisir une distance au hasard plutôt qu’un niveau d’invalidation."],
+  "checklist": ["Niveau d’invalidation identifié ?", "Ni trop serré ni trop large ?", "Décidé avant d’agir ?"],
+  "miniQuizzes": [
+    {
+      "question": "Où placer logiquement un stop de protection ?",
+      "options": ["Au hasard", "Là où le scénario est invalidé", "Toujours à 1 %", "Au plus haut"],
+      "correctIndex": 1,
+      "explanation": "Le stop se pose là où l’hypothèse ne tient plus, pas à une distance arbitraire."
+    }
+  ],
+  "relatedConceptIds": ["concept.support-resistance", "concept.break-of-structure"],
+  "sources": [{ "label": "Voix pédagogique PatternLab", "kind": "editorial" }],
+  "sourcePath": "editorial/v5/stop-de-protection",
+  "sourceHash": "v5-risk-0001",
+  "version": 1,
+  "status": "needsReview",
+  "locale": "fr-CH",
+  "disclaimer": "Contenu éducatif. Aucun conseil en investissement. Le trading comporte un risque de perte."
+}

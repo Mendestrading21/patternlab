@@ -1,0 +1,31 @@
+{
+  "type": "chart-pattern",
+  "variant": "double-bottom",
+  "direction": "bullish",
+  "datasetKey": "double-bottom-clean-01",
+  "labels": [
+    {
+      "id": "low1",
+      "text": "Premier creux"
+    },
+    {
+      "id": "neckline",
+      "text": "Zone de confirmation"
+    },
+    {
+      "id": "low2",
+      "text": "Second creux"
+    }
+  ],
+  "annotations": [
+    {
+      "type": "zone",
+      "role": "confirmation"
+    },
+    {
+      "type": "zone",
+      "role": "invalidation"
+    }
+  ],
+  "accessibilitySummary": "Deux creux proches séparés par un rebond. La figure reste hypothétique avant confirmation."
+}

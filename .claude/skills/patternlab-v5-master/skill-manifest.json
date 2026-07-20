@@ -1,0 +1,40 @@
+{
+  "name": "patternlab-v5-master",
+  "version": "5.0.0",
+  "mode": "plan-then-execute",
+  "target": "500+ concepts",
+  "reference_images": [
+    "01-candlestick-and-pattern-cheatsheet.jpeg",
+    "02-chart-patterns-grid.jpeg",
+    "03-candlestick-patterns-guide.jpeg",
+    "04-chart-patterns-complete-guide.jpeg"
+  ],
+  "files": [
+    "README-INSTALLATION.md",
+    "SKILL.md",
+    "prompts/CONTINUE-NEXT-LOT.md",
+    "prompts/START-PLAN-THEN-EXECUTE.md",
+    "references/01-product-vision.md",
+    "references/02-design-system.md",
+    "references/03-glossary-taxonomy.md",
+    "references/04-visual-engine.md",
+    "references/05-interactive-chart-engine.md",
+    "references/06-learning-game-system.md",
+    "references/07-content-factory.md",
+    "references/08-roadmap-v5.md",
+    "references/09-quality-compliance.md",
+    "references/10-reference-images.md",
+    "references/visual-inspiration/01-candlestick-and-pattern-cheatsheet.jpeg",
+    "references/visual-inspiration/02-chart-patterns-grid.jpeg",
+    "references/visual-inspiration/03-candlestick-patterns-guide.jpeg",
+    "references/visual-inspiration/04-chart-patterns-complete-guide.jpeg",
+    "templates/concept.example.ts",
+    "templates/lot-report.md",
+    "templates/visual-spec.example.json",
+    "workflows/01-plan-then-execute.md",
+    "workflows/02-content-batch.md",
+    "workflows/03-generate-visuals.md",
+    "workflows/04-interactive-chart.md",
+    "workflows/05-release-readiness.md"
+  ]
+}

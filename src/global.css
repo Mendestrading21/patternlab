@@ -8,11 +8,31 @@
   --font-serif: Georgia, 'Times New Roman', serif;
 }
 
-/* Fond sombre premium jusqu'aux bords (web) + pas de scroll horizontal. */
+/* Fond « Instrument Glass » jusqu'aux bords (web) + pas de scroll horizontal. */
 html,
 body,
 #root {
-  background-color: #0c1411;
+  background-color: #0b1119;
   margin: 0;
   overflow-x: hidden;
+}
+
+/* Accessibilité clavier (web) : anneau de focus visible au parcours au clavier,
+   sans polluer la navigation à la souris/tactile (`:focus-visible` uniquement). */
+:focus-visible {
+  outline: 2px solid #42b7e8;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Respecte le réglage système « réduire les animations » côté web. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

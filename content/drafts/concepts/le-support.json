@@ -1,0 +1,22 @@
+{
+  "id": "concept.le-support",
+  "slug": "le-support",
+  "title": "Le support",
+  "category": "tendance",
+  "skillId": "skill.trend",
+  "difficulty": "beginner",
+  "definition": "Un support est une zone plancher où les acheteurs ont tendance à revenir. C’est un repère de marché, pas une garantie.",
+  "commonMistake": null,
+  "sources": [
+    "WMB — Support & Résistance"
+  ],
+  "status": "needsReview",
+  "locale": "fr",
+  "disclaimer": "Contenu éducatif. Aucun conseil en investissement, aucun signal, aucune promesse de gain.",
+  "origin": {
+    "sourcePath": "scripts/import-app/source/concepts.json",
+    "sourceHash": "c6b56967",
+    "importedAt": "2026-07-18T10:44:52.521Z",
+    "migrationVersion": 1
+  }
+}

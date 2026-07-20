@@ -1,20 +1,45 @@
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { View, TextInput, Pressable, StyleSheet } from 'react-native';
-import { Screen, Text, Card, theme } from '@/design-system';
-import { GLOSSARY_TERMS, GLOSSARY_CATEGORIES, type GlossaryCategory } from '@/data';
+import { Screen, Text, Card, SegmentedControl, FavoriteButton, theme, hitSlopFor, type SegmentOption } from '@/design-system';
+import {
+  UNIFIED_GLOSSARY,
+  GLOSSARY_CATEGORIES,
+  searchGlossary,
+  hasConceptFiche,
+  useProgress,
+  type GlossaryCategory,
+  type GlossaryTerm,
+} from '@/data';
+import { analytics } from '@/analytics';
+
+type ViewMode = 'all' | 'favorites' | 'recent';
 
 export default function Glossaire() {
   const router = useRouter();
+  const { favorites, recentSlugs, toggleFavorite } = useProgress();
   const [query, setQuery] = useState('');
   const [cat, setCat] = useState<GlossaryCategory | 'all'>('all');
+  const [view, setView] = useState<ViewMode>('all');
 
-  const q = query.trim().toLowerCase();
-  const list = GLOSSARY_TERMS.filter(
-    (t) =>
-      (cat === 'all' || t.category === cat) &&
-      (!q || `${t.term} ${t.english} ${t.summary}`.toLowerCase().includes(q)),
-  );
+  let list: GlossaryTerm[];
+  if (view === 'recent') {
+    const bySlug = new Map(UNIFIED_GLOSSARY.map((t) => [t.slug, t]));
+    const recents = recentSlugs.map((s) => bySlug.get(s)).filter((t): t is GlossaryTerm => Boolean(t));
+    list = query.trim() ? searchGlossary(recents, query, cat) : recents.filter((t) => cat === 'all' || t.category === cat);
+  } else {
+    const base = view === 'favorites' ? UNIFIED_GLOSSARY.filter((t) => favorites.has(t.slug)) : UNIFIED_GLOSSARY;
+    list = searchGlossary(base, query, cat);
+  }
+
+  const open = (t: GlossaryTerm) =>
+    router.push(hasConceptFiche(t.slug) ? `/concept/${t.slug}` : `/glossaire/${t.slug}`);
+
+  const views: SegmentOption<ViewMode>[] = [
+    { id: 'all', label: 'Tout' },
+    { id: 'favorites', label: '★ Favoris', badge: favorites.size },
+    { id: 'recent', label: 'Récents', badge: recentSlugs.length },
+  ];
 
   return (
     <Screen>
@@ -27,10 +52,15 @@ export default function Glossaire() {
         style={styles.search}
         value={query}
         onChangeText={setQuery}
+        onSubmitEditing={() =>
+          analytics.track('glossary_searched', { queryLength: query.trim().length, category: cat, results: list.length })
+        }
         placeholder="Rechercher un terme…"
         placeholderTextColor={theme.colors.textMuted}
         accessibilityLabel="Rechercher un terme"
       />
+
+      <SegmentedControl options={views} value={view} onChange={setView} accessibilityLabel="Filtrer le glossaire" />
 
       <View style={styles.chips}>
         {GLOSSARY_CATEGORIES.map((c) => {
@@ -41,6 +71,7 @@ export default function Glossaire() {
               onPress={() => setCat(c.id)}
               accessibilityRole="button"
               accessibilityState={{ selected: active }}
+              hitSlop={hitSlopFor(30)}
               style={[styles.chip, active && { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary }]}
             >
               <Text variant="label" color={active ? theme.colors.onPrimary : theme.colors.textSecondary}>
@@ -52,37 +83,53 @@ export default function Glossaire() {
       </View>
 
       <Text variant="caption" color={theme.colors.textMuted}>
-        {list.length} terme{list.length > 1 ? 's' : ''} · aperçu du glossaire complet (1 111+ termes)
+        {list.length} terme{list.length > 1 ? 's' : ''} sur {UNIFIED_GLOSSARY.length} · le vocabulaire essentiel des marchés
       </Text>
 
       {list.map((t) => {
         const c = GLOSSARY_CATEGORIES.find((x) => x.id === t.category);
+        const fav = favorites.has(t.slug);
+        const fiche = hasConceptFiche(t.slug);
         return (
-          <Pressable key={t.slug} accessibilityRole="button" onPress={() => router.push(`/glossaire/${t.slug}`)}>
-            <Card>
-              <View style={styles.top}>
-                <View style={styles.termHead}>
+          <Card key={t.slug}>
+            <View style={styles.top}>
+              <Pressable style={styles.flex1} accessibilityRole="button" accessibilityHint={`Ouvrir ${t.term}`} onPress={() => open(t)}>
+                <View style={styles.titleRow}>
                   <Text variant="title">{t.term}</Text>
-                  <Text variant="caption" color={theme.colors.textMuted}>
-                    {t.english}
-                  </Text>
+                  {fiche ? (
+                    <View style={styles.ficheTag}>
+                      <Text variant="caption" color={theme.colors.technical}>
+                        fiche visuelle
+                      </Text>
+                    </View>
+                  ) : null}
                 </View>
+                <Text variant="caption" color={theme.colors.textMuted}>
+                  {t.english}
+                </Text>
+                <Text variant="body" color={theme.colors.textSecondary} style={styles.summary}>
+                  {t.summary}
+                </Text>
+              </Pressable>
+              <View style={styles.side}>
+                <FavoriteButton active={fav} onToggle={() => toggleFavorite(t.slug)} label={t.term} />
                 <View style={[styles.tag, { borderColor: c?.color ?? theme.colors.border }]}>
                   <Text variant="caption" color={c?.color}>
                     {c?.label}
                   </Text>
                 </View>
               </View>
-              <Text variant="body" color={theme.colors.textSecondary}>
-                {t.summary}
-              </Text>
-            </Card>
-          </Pressable>
+            </View>
+          </Card>
         );
       })}
       {list.length === 0 ? (
         <Text variant="body" color={theme.colors.textMuted} center>
-          Aucun terme ne correspond à « {query} ».
+          {view === 'favorites'
+            ? 'Aucun favori pour l’instant. Touche ★ sur un terme pour l’enregistrer.'
+            : view === 'recent'
+              ? 'Aucun terme consulté récemment.'
+              : `Aucun terme ne correspond à « ${query} ».`}
         </Text>
       ) : null}
     </Screen>
@@ -109,6 +156,10 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.borderStrong,
   },
   top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: theme.spacing.sm },
-  termHead: { flex: 1, gap: 1 },
+  flex1: { flex: 1, gap: 1 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm, flexWrap: 'wrap' },
+  ficheTag: { borderWidth: 1, borderColor: theme.colors.technical, borderRadius: theme.radius.pill, paddingHorizontal: theme.spacing.sm, paddingVertical: 1 },
+  summary: { marginTop: 2 },
+  side: { alignItems: 'flex-end', gap: theme.spacing.xs },
   tag: { borderWidth: 1, borderRadius: theme.radius.pill, paddingHorizontal: theme.spacing.sm, paddingVertical: 2 },
 });

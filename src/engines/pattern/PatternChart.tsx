@@ -2,6 +2,7 @@ import { View } from 'react-native';
 import Svg, { Line, Rect } from 'react-native-svg';
 import { colors } from '../../design-system/tokens';
 import type { Candle } from './types';
+import { describeCandles } from './chartA11y';
 
 export type PatternChartProps = {
   candles: Candle[];
@@ -23,7 +24,7 @@ export function PatternChart({ candles, width = 320, height = 180 }: PatternChar
   const y = (v: number) => padY + (1 - (v - min) / range) * (height - 2 * padY);
 
   return (
-    <View accessibilityLabel="Graphique en chandeliers (données de démonstration)">
+    <View accessible accessibilityRole="image" accessibilityLabel={describeCandles(candles)}>
       <Svg width={width} height={height}>
         {candles.map((c, i) => {
           const cx = i * slot + slot / 2;

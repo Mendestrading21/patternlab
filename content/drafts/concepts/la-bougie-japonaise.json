@@ -1,0 +1,22 @@
+{
+  "id": "concept.la-bougie-japonaise",
+  "slug": "la-bougie-japonaise",
+  "title": "La bougie japonaise",
+  "category": "chandeliers",
+  "skillId": "skill.candles",
+  "difficulty": "beginner",
+  "definition": "Une bougie résume une période par quatre prix : ouverture, plus haut, plus bas et clôture. Le corps relie ouverture et clôture, les mèches marquent les extrêmes.",
+  "commonMistake": "Lire la couleur sans regarder la taille du corps ni les mèches.",
+  "sources": [
+    "WMB — Analyse technique : Chandeliers"
+  ],
+  "status": "needsReview",
+  "locale": "fr",
+  "disclaimer": "Contenu éducatif. Aucun conseil en investissement, aucun signal, aucune promesse de gain.",
+  "origin": {
+    "sourcePath": "scripts/import-app/source/concepts.json",
+    "sourceHash": "4c1405a5",
+    "importedAt": "2026-07-18T10:44:52.521Z",
+    "migrationVersion": 1
+  }
+}

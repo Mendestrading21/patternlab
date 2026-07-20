@@ -1,0 +1,35 @@
+{
+  "id": "concept.fomo",
+  "slug": "fomo",
+  "title": "FOMO (peur de manquer)",
+  "shortTitle": "FOMO",
+  "aliases": ["Fear of missing out"],
+  "categoryId": "cat.psychology",
+  "worldId": "world.psychology",
+  "difficulty": 2,
+  "prerequisites": [],
+  "tags": ["psychologie", "biais", "discipline"],
+  "learningObjective": "Reconnaître la FOMO et son effet sur les décisions.",
+  "definitionShort": "La peur de manquer un mouvement, qui pousse à agir dans la précipitation.",
+  "definitionDetailed": "La FOMO est le biais qui fait courir après un mouvement déjà bien engagé, par crainte de le rater. Elle conduit souvent à agir sans plan ni invalidation claire, au pire moment. La reconnaître, c’est reprendre la main sur son processus.",
+  "howToRecognize": ["Une envie soudaine d’agir après une forte hausse.", "Une décision sans plan ni niveau d’invalidation.", "Un sentiment d’urgence."],
+  "falseSignals": ["Confondre une opportunité réfléchie avec une impulsion de FOMO."],
+  "commonMistakes": ["Entrer tard, au sommet d’un mouvement, sans plan."],
+  "checklist": ["Sentiment d’urgence ?", "Plan et invalidation définis ?", "Décision ou impulsion ?"],
+  "miniQuizzes": [
+    {
+      "question": "Quel réflexe désamorce la FOMO ?",
+      "options": ["Agir vite", "Revenir à son plan et à son invalidation", "Augmenter la taille", "Ignorer le risque"],
+      "correctIndex": 1,
+      "explanation": "Reprendre son processus (plan, invalidation) transforme une impulsion en décision réfléchie."
+    }
+  ],
+  "relatedConceptIds": ["concept.stop-loss"],
+  "sources": [{ "label": "Voix pédagogique PatternLab", "kind": "editorial" }],
+  "sourcePath": "editorial/v5/fomo",
+  "sourceHash": "v5-psy-0001",
+  "version": 1,
+  "status": "needsReview",
+  "locale": "fr-CH",
+  "disclaimer": "Contenu éducatif. Aucun conseil en investissement. Le trading comporte un risque de perte."
+}

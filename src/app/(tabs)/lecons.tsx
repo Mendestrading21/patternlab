@@ -1,12 +1,10 @@
 import { useRouter } from 'expo-router';
 import { Pressable, View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Chip, theme } from '@/design-system';
-import { PatternChart, generateCandles } from '@/engines/pattern';
-import { SKILLS, getLessons, DEMO_PATTERN } from '@/data';
+import { SKILLS, getLessons } from '@/data';
 
 export default function Lecons() {
   const router = useRouter();
-  const candles = generateCandles(2024, 30);
 
   return (
     <Screen>
@@ -40,21 +38,21 @@ export default function Lecons() {
         </View>
       ))}
 
-      <Text variant="h2">Aperçu du Laboratoire 🧪</Text>
       <Card>
-        <Text variant="title">{DEMO_PATTERN.name}</Text>
-        <Text variant="caption" color={theme.colors.textMuted}>
-          Figure {DEMO_PATTERN.direction === 'bullish' ? 'haussière' : 'baissière'} · données de démonstration
-        </Text>
-        <View style={styles.chart}>
-          <PatternChart candles={candles} width={300} height={160} />
-        </View>
+        <Text variant="title">🧪 Envie de t’exercer sur un vrai graphique ?</Text>
         <Text variant="body" color={theme.colors.textSecondary}>
-          {DEMO_PATTERN.definition}
+          L’onglet Laboratoire présente une figure en chandeliers avec sa zone de
+          confirmation et son invalidation.
         </Text>
-        <Text variant="caption" color={theme.colors.textMuted}>
-          Tracé, comparaison et invalidation interactifs : à venir (P1).
-        </Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityHint="Ouvrir le Laboratoire"
+          onPress={() => router.push('/laboratoire')}
+        >
+          <Text variant="title" color={theme.colors.primaryBright}>
+            Ouvrir le Laboratoire ›
+          </Text>
+        </Pressable>
       </Card>
     </Screen>
   );
@@ -63,5 +61,4 @@ export default function Lecons() {
 const styles = StyleSheet.create({
   section: { gap: theme.spacing.sm },
   meta: { flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.sm },
-  chart: { alignItems: 'center', marginVertical: theme.spacing.md },
 });

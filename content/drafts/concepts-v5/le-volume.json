@@ -1,0 +1,35 @@
+{
+  "id": "concept.volume",
+  "slug": "le-volume",
+  "title": "Le volume",
+  "shortTitle": "Volume",
+  "aliases": ["Volume"],
+  "categoryId": "cat.volume",
+  "worldId": "world.volume",
+  "difficulty": 2,
+  "prerequisites": [],
+  "tags": ["volume", "participation"],
+  "learningObjective": "Comprendre ce que mesure le volume et pourquoi il contextualise un mouvement.",
+  "definitionShort": "La quantité échangée sur une période : la participation derrière un mouvement.",
+  "definitionDetailed": "Le volume mesure combien d’unités ont été échangées pendant une période. Un mouvement accompagné d’un volume en hausse traduit une participation réelle ; un mouvement sans volume est plus fragile. Le volume contextualise le prix, il ne le prédit pas.",
+  "howToRecognize": ["Des barres de volume sous le graphique de prix.", "Un volume qui gonfle sur les mouvements décidés.", "Un volume qui s’essouffle en fin de mouvement."],
+  "falseSignals": ["Une cassure sans volume, souvent peu fiable.", "Un pic de volume isolé sans suite."],
+  "commonMistakes": ["Lire le volume seul, sans le prix ni le contexte."],
+  "checklist": ["Volume en hausse ou en baisse ?", "Cohérent avec le mouvement de prix ?"],
+  "miniQuizzes": [
+    {
+      "question": "Qu’indique un volume élevé sur une cassure ?",
+      "options": ["Rien", "Une participation réelle qui la rend plus crédible", "Une garantie de hausse", "Une erreur"],
+      "correctIndex": 1,
+      "explanation": "Le volume ne garantit rien, mais une cassure soutenue par la participation est plus crédible qu’une cassure sans volume."
+    }
+  ],
+  "relatedConceptIds": ["concept.support-resistance"],
+  "sources": [{ "label": "Voix pédagogique PatternLab", "kind": "editorial" }],
+  "sourcePath": "editorial/v5/le-volume",
+  "sourceHash": "v5-vol-0001",
+  "version": 1,
+  "status": "needsReview",
+  "locale": "fr-CH",
+  "disclaimer": "Contenu éducatif. Aucun conseil en investissement. Le trading comporte un risque de perte."
+}

@@ -1,0 +1,22 @@
+{
+  "id": "concept.la-gestion-du-risque",
+  "slug": "la-gestion-du-risque",
+  "title": "La gestion du risque",
+  "category": "risk",
+  "skillId": null,
+  "difficulty": "beginner",
+  "definition": "Définir à l’avance la perte maximale acceptable par position — souvent une petite fraction du capital — protège des décisions émotionnelles.",
+  "commonMistake": "Augmenter la taille après une perte pour « se refaire ».",
+  "sources": [
+    "WMB — Méthode : Gestion du risque"
+  ],
+  "status": "needsReview",
+  "locale": "fr",
+  "disclaimer": "Contenu éducatif. Aucun conseil en investissement, aucun signal, aucune promesse de gain.",
+  "origin": {
+    "sourcePath": "scripts/import-app/source/concepts.json",
+    "sourceHash": "a9f53f4a",
+    "importedAt": "2026-07-18T10:44:52.521Z",
+    "migrationVersion": 1
+  }
+}

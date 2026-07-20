@@ -6,7 +6,8 @@ import type { Lesson, Skill } from '../engines/learning';
 import { initialProgress } from '../engines/learning';
 import type { Exercise } from '../engines/exercise';
 import type { Pattern } from '../engines/pattern';
-import { PROGRESS_SCHEMA_VERSION, type ProgressState } from './repositories';
+import { generateCandles, supportLevel, resistanceLevel } from '../engines/pattern';
+import { PROGRESS_SCHEMA_VERSION, emptyLearning, type ProgressState } from './repositories';
 
 export interface ContentModule {
   id: string;
@@ -42,9 +43,11 @@ const LESSONS: Record<string, Lesson[]> = {
       difficulty: 'beginner',
       estimatedMinutes: 4,
       steps: [
+        { id: 's0', kind: 'intro', body: 'Derrière chaque action se cache une vraie entreprise. En détenir une, c’est en posséder un petit morceau.' },
         { id: 's1', kind: 'explain', body: 'Une action représente une petite part d’une entreprise. En détenir une fait de toi un actionnaire.' },
         { id: 's2', kind: 'example', body: 'Si une entreprise est découpée en 1 000 actions et que tu en as 10, tu possèdes 1 % de l’entreprise.' },
         { id: 's3', kind: 'summary', body: 'Une action = une part d’entreprise. Son prix varie selon l’offre et la demande.' },
+        { id: 's4', kind: 'flashcard', flashcard: { front: 'Qu’est-ce qu’une action ?', back: 'Une part de propriété d’une entreprise : la détenir fait de toi un actionnaire.' } },
       ],
       commonMistake: 'Confondre le prix d’une action avec la « valeur » de l’entreprise.',
       sources: ['WMB — Glossaire : Action'],
@@ -99,6 +102,72 @@ const LESSONS: Record<string, Lesson[]> = {
       sources: ['WMB — Glossaire : Support & Résistance'],
       status: 'approved',
     },
+    {
+      id: 'lesson.support-resistance-v5',
+      slug: 'support-resistance-visuel',
+      title: 'Support & résistance (visuel)',
+      skillId: 'skill.trend',
+      objective: 'Voir les zones de support/résistance et raisonner en scénarios.',
+      difficulty: 'intermediate',
+      estimatedMinutes: 6,
+      steps: [
+        { id: 's0', kind: 'intro', body: 'Le prix bute souvent aux mêmes niveaux : ce sont les zones où l’offre et la demande se disputent.' },
+        { id: 's1', kind: 'observe', body: 'Repère une zone basse où le prix rebondit (support) et une zone haute où il plafonne (résistance).' },
+        { id: 's2', kind: 'visual', conceptRef: 'support-resistance' },
+        { id: 's3', kind: 'hypothesis', conceptRef: 'support-resistance', body: 'Une zone tient… jusqu’à ce qu’elle cède. On raisonne en scénarios, pas en certitudes.' },
+        { id: 's4', kind: 'explain', body: 'Ce sont des zones de mémoire : plus un niveau a été testé, plus il compte — sans jamais garantir un rebond.' },
+        { id: 's5', kind: 'falseSignal', body: 'Une cassure nette d’un support peut le transformer en résistance (flip) : le plancher devient plafond.' },
+        { id: 's6', kind: 'summary', body: 'Support = plancher, résistance = plafond ; des repères de zone, jamais des garanties.' },
+        { id: 's7', kind: 'flashcard', flashcard: { front: 'Que devient un support cassé nettement ?', back: 'Souvent une résistance (flip) : l’ancien plancher agit comme un nouveau plafond.' } },
+      ],
+      commonMistake: 'Tracer un trait unique au lieu d’une zone, et l’attendre comme une garantie.',
+      sources: ['WMB — Support & Résistance'],
+      status: 'draft',
+    },
+    {
+      id: 'lesson.rsi-divergence-v5',
+      slug: 'rsi-et-divergence-visuel',
+      title: 'RSI & divergence (visuel)',
+      skillId: 'skill.trend',
+      objective: 'Lire le RSI sans en faire un signal, et repérer une divergence prix/oscillateur.',
+      difficulty: 'advanced',
+      estimatedMinutes: 7,
+      steps: [
+        { id: 's0', kind: 'intro', body: 'Un oscillateur sous le prix, borné 0–100 : le RSI. Utile comme repère de contexte, jamais comme ordre.' },
+        { id: 's1', kind: 'visual', conceptRef: 'rsi' },
+        { id: 's2', kind: 'explain', body: 'Au-dessus de 70, on parle de surachat ; sous 30, de survente. En tendance forte, l’extrême peut durer : ce n’est pas un signal en soi.' },
+        { id: 's3', kind: 'visual', conceptRef: 'divergence' },
+        { id: 's4', kind: 'hypothesis', conceptRef: 'divergence', body: 'Prix en plus-hauts croissants, oscillateur en plus-hauts décroissants : l’élan faiblit sous la surface. Une hypothèse d’essoufflement, à confirmer.' },
+        { id: 's5', kind: 'falseSignal', body: 'Une divergence peut persister longtemps sans retournement : ce n’est pas un minuteur. La structure confirme, pas l’oscillateur seul.' },
+        { id: 's6', kind: 'summary', body: 'RSI = repère de contexte ; divergence = désaccord prix/oscillateur, signe d’essoufflement à confirmer par la structure.' },
+        { id: 's7', kind: 'flashcard', flashcard: { front: 'Une divergence est-elle un signal isolé fiable ?', back: 'Non : elle signale un essoufflement possible ; la confirmation vient de la structure de prix.' } },
+      ],
+      commonMistake: 'Vendre un simple « surachat » ou une divergence sans confirmation de structure.',
+      sources: ['WMB — Indicateurs : RSI & divergences'],
+      status: 'draft',
+    },
+    {
+      id: 'lesson.choch-orderblock-v5',
+      slug: 'choch-et-order-block-visuel',
+      title: 'Structure : CHoCH & order block (visuel)',
+      skillId: 'skill.trend',
+      objective: 'Enchaîner changement de caractère et zone d’intérêt (éducatif, jamais prescriptif).',
+      difficulty: 'advanced',
+      estimatedMinutes: 7,
+      steps: [
+        { id: 's0', kind: 'intro', body: 'La structure raconte le rapport de force : des creux et sommets qui se suivent, jusqu’à ce que le rythme change.' },
+        { id: 's1', kind: 'visual', conceptRef: 'changement-de-caractere' },
+        { id: 's2', kind: 'explain', body: 'Le changement de caractère (CHoCH) est la première cassure à contre-tendance : un premier signe de bascule, pas une certitude.' },
+        { id: 's3', kind: 'visual', conceptRef: 'order-block' },
+        { id: 's4', kind: 'hypothesis', conceptRef: 'order-block', body: 'La dernière bougie avant l’impulsion devient une zone d’intérêt souvent retestée — un repère d’observation, jamais une garantie.' },
+        { id: 's5', kind: 'falseSignal', body: 'Le prix ne réagit pas toujours : une zone peut être traversée sans réaction. On confronte toujours à la structure.' },
+        { id: 's6', kind: 'summary', body: 'CHoCH = premier signe de bascule ; order block = zone d’intérêt à confirmer. Éducatif, jamais prescriptif.' },
+        { id: 's7', kind: 'flashcard', flashcard: { front: 'Un CHoCH garantit-il un retournement ?', back: 'Non : c’est un premier signe de bascule, à confirmer par la suite de la structure.' } },
+      ],
+      commonMistake: 'Voir des order blocks partout et oublier le contexte de structure.',
+      sources: ['WMB — Structure : CHoCH & zones'],
+      status: 'draft',
+    },
   ],
   'skill.candles': [
     {
@@ -108,11 +177,16 @@ const LESSONS: Record<string, Lesson[]> = {
       skillId: 'skill.candles',
       objective: 'Lire ce qu’une bougie raconte sur une période.',
       difficulty: 'beginner',
-      estimatedMinutes: 5,
+      estimatedMinutes: 6,
       steps: [
+        { id: 's0', kind: 'intro', body: 'Une seule bougie raconte déjà une histoire : qui, des acheteurs ou des vendeurs, a eu le dernier mot sur la période.' },
         { id: 's1', kind: 'explain', body: 'Une bougie résume une période : ouverture, clôture, plus haut et plus bas. Le corps relie ouverture et clôture.' },
-        { id: 's2', kind: 'example', body: 'Bougie verte : la clôture est au-dessus de l’ouverture (hausse sur la période). Rouge : l’inverse.' },
-        { id: 's3', kind: 'summary', body: 'Les mèches (ombres) montrent les extrêmes atteints ; le corps montre le sens dominant.' },
+        { id: 's2', kind: 'observe', body: 'Repère le corps (épais) et les mèches (fins traits) : le corps dit le sens, les mèches disent jusqu’où le prix est allé.' },
+        { id: 's3', kind: 'chart', chartSeed: 77, body: 'Sur ce graphique de démonstration, chaque bougie verte clôture plus haut qu’elle n’a ouvert, chaque rouge l’inverse.' },
+        { id: 's4', kind: 'example', body: 'Bougie verte : la clôture est au-dessus de l’ouverture (hausse sur la période). Rouge : l’inverse.' },
+        { id: 's5', kind: 'falseSignal', body: 'Une grande bougie verte n’annonce pas la suite : une longue mèche haute juste après peut signaler un rejet. Le contexte prime.' },
+        { id: 's6', kind: 'summary', body: 'Les mèches montrent les extrêmes atteints ; le corps montre le sens dominant.' },
+        { id: 's7', kind: 'flashcard', flashcard: { front: 'Que montre le corps d’une bougie ?', back: 'La distance ouverture ↔ clôture — donc le sens dominant de la période.' } },
       ],
       commonMistake: 'Lire la couleur sans regarder la taille du corps ni les mèches.',
       sources: ['WMB — Analyse technique : Chandeliers'],
@@ -132,6 +206,28 @@ const LESSONS: Record<string, Lesson[]> = {
       ],
       sources: ['WMB — Analyse technique : Chandeliers'],
       status: 'approved',
+    },
+    {
+      id: 'lesson.hammer-v5',
+      slug: 'le-marteau-visuel',
+      title: 'Le marteau (visuel)',
+      skillId: 'skill.candles',
+      objective: 'Reconnaître un marteau et poser son hypothèse conditionnelle.',
+      difficulty: 'intermediate',
+      estimatedMinutes: 6,
+      steps: [
+        { id: 's0', kind: 'intro', body: 'Après une baisse, une bougie plante une longue mèche basse puis referme près du haut : le marteau.' },
+        { id: 's1', kind: 'observe', body: 'Cherche un petit corps en haut et une longue mèche basse — au moins deux fois le corps.' },
+        { id: 's2', kind: 'visual', conceptRef: 'marteau' },
+        { id: 's3', kind: 'hypothesis', conceptRef: 'marteau', body: 'Le marteau seul ne suffit pas : il pose une hypothèse à confirmer.' },
+        { id: 's4', kind: 'explain', body: 'La longue mèche basse montre que les vendeurs ont poussé le prix bas… avant que les acheteurs ne reprennent la main d’ici la clôture.' },
+        { id: 's5', kind: 'falseSignal', body: 'Un marteau en plein range, sans zone de support ni confirmation, n’a pas de valeur : le contexte prime.' },
+        { id: 's6', kind: 'summary', body: 'Marteau = rejet du bas dans un contexte de baisse ; on attend une confirmation avant d’en tirer une hypothèse.' },
+        { id: 's7', kind: 'flashcard', flashcard: { front: 'Que raconte la longue mèche basse d’un marteau ?', back: 'Un rejet du bas : les vendeurs ont poussé le prix, les acheteurs l’ont ramené vers le haut avant la clôture.' } },
+      ],
+      commonMistake: 'Prendre tout petit corps avec mèche pour un marteau, hors contexte de baisse.',
+      sources: ['WMB — Chandeliers : Marteau'],
+      status: 'draft',
     },
   ],
   'skill.patterns': [
@@ -158,20 +254,103 @@ const LESSONS: Record<string, Lesson[]> = {
       skillId: 'skill.patterns',
       objective: 'Reconnaître un double creux et sa confirmation.',
       difficulty: 'intermediate',
-      estimatedMinutes: 5,
+      estimatedMinutes: 6,
       steps: [
+        { id: 's0', kind: 'intro', body: 'Après une baisse, le prix teste deux fois le même plancher sans le casser : les vendeurs s’essoufflent-ils ?' },
         { id: 's1', kind: 'explain', body: 'Deux creux à un niveau proche séparés par un rebond forment un « W ». C’est une figure potentiellement haussière.' },
-        { id: 's2', kind: 'summary', body: 'La confirmation vient de la cassure de la « ligne de cou » (le sommet intermédiaire), idéalement avec du volume.' },
+        { id: 's2', kind: 'chart', chartSeed: 314, body: 'Observe la structure en « W » : deux creux proches et un sommet intermédiaire (la ligne de cou).' },
+        { id: 's3', kind: 'falseSignal', body: 'Tant que la ligne de cou n’est pas cassée, la figure n’est pas confirmée ; un nouveau plus-bas sous le second creux l’invalide.' },
+        { id: 's4', kind: 'summary', body: 'La confirmation vient de la cassure de la ligne de cou, idéalement avec du volume.' },
+        { id: 's5', kind: 'flashcard', flashcard: { front: 'Qu’est-ce qui confirme un double creux ?', back: 'La cassure de la ligne de cou (le sommet intermédiaire), idéalement soutenue par le volume.' } },
       ],
       commonMistake: 'Ignorer le volume, souvent plus faible sur le second creux.',
       sources: ['WMB — Figures chartistes : Double Creux'],
       status: 'approved',
+    },
+    {
+      id: 'lesson.double-bottom-v5',
+      slug: 'le-double-creux-visuel',
+      title: 'Le double creux (visuel)',
+      skillId: 'skill.patterns',
+      objective: 'Voir un double creux et distinguer sa confirmation de son invalidation.',
+      difficulty: 'intermediate',
+      estimatedMinutes: 6,
+      steps: [
+        { id: 's0', kind: 'intro', body: 'Deux creux au même niveau, un sommet entre les deux : le « W » du double creux.' },
+        { id: 's1', kind: 'observe', body: 'Cherche deux creux proches séparés par un rebond, et la ligne de cou (le sommet intermédiaire).' },
+        { id: 's2', kind: 'visual', conceptRef: 'double-creux' },
+        { id: 's3', kind: 'hypothesis', conceptRef: 'double-creux', body: 'Le « W » pose une hypothèse haussière conditionnelle : rien n’est acquis avant la cassure.' },
+        { id: 's4', kind: 'explain', body: 'La confirmation vient de la cassure de la ligne de cou, idéalement soutenue par le volume.' },
+        { id: 's5', kind: 'falseSignal', body: 'Sans cassure de la ligne de cou, la figure n’est pas active ; un plus-bas sous le second creux l’invalide.' },
+        { id: 's6', kind: 'summary', body: 'Double creux = deux planchers + cassure de la ligne de cou pour confirmer ; sinon, hypothèse invalidée.' },
+        { id: 's7', kind: 'flashcard', flashcard: { front: 'Quand un double creux est-il invalidé ?', back: 'Quand le prix casse nettement sous le second creux ; tant que la ligne de cou n’est pas franchie, il n’est pas confirmé.' } },
+      ],
+      commonMistake: 'Anticiper la hausse avant la cassure de la ligne de cou.',
+      sources: ['WMB — Figures : Double Creux'],
+      status: 'draft',
+    },
+    {
+      id: 'lesson.triangles-v5',
+      slug: 'les-triangles-visuel',
+      title: 'Les triangles (visuel)',
+      skillId: 'skill.patterns',
+      objective: 'Distinguer triangle ascendant, descendant et symétrique, et attendre la sortie confirmée.',
+      difficulty: 'intermediate',
+      estimatedMinutes: 7,
+      steps: [
+        { id: 's0', kind: 'intro', body: 'Le prix se comprime entre deux lignes qui se rapprochent : un triangle. Trois familles, une même règle — attendre la sortie confirmée.' },
+        { id: 's1', kind: 'visual', conceptRef: 'triangle-ascendant' },
+        { id: 's2', kind: 'explain', body: 'Triangle ascendant : résistance plate, creux montants. La pression acheteuse monte contre un plafond fixe.' },
+        { id: 's3', kind: 'visual', conceptRef: 'triangle-descendant' },
+        { id: 's4', kind: 'explain', body: 'Triangle descendant : support plat, sommets descendants. La pression vendeuse pèse sur un plancher fixe.' },
+        { id: 's5', kind: 'visual', conceptRef: 'triangle-symetrique' },
+        { id: 's6', kind: 'falseSignal', body: 'Le triangle symétrique n’a pas de biais : une sortie non tenue (fausse sortie) piège ceux qui devinent le sens à l’avance.' },
+        { id: 's7', kind: 'summary', body: 'Trois triangles, une discipline : on identifie les lignes, puis on attend la sortie confirmée (clôture, retest).' },
+        { id: 's8', kind: 'flashcard', flashcard: { front: 'Qu’attend-on avant d’agir sur un triangle ?', back: 'La sortie confirmée d’une des lignes (clôture, idéalement retest) — jamais une supposition avant.' } },
+      ],
+      commonMistake: 'Deviner le sens d’un triangle symétrique avant la sortie confirmée.',
+      sources: ['WMB — Figures chartistes : Triangles'],
+      status: 'draft',
+    },
+    {
+      id: 'lesson.bull-flag-v5',
+      slug: 'le-drapeau-haussier-visuel',
+      title: 'Le drapeau haussier (visuel)',
+      skillId: 'skill.patterns',
+      objective: 'Lire un drapeau comme respiration dans une hausse et situer son invalidation.',
+      difficulty: 'intermediate',
+      estimatedMinutes: 6,
+      steps: [
+        { id: 's0', kind: 'intro', body: 'Une hausse forte (le mât), puis une petite consolidation en pente douce : le drapeau haussier.' },
+        { id: 's1', kind: 'observe', body: 'Repère le mât (l’impulsion) puis le canal étroit qui respire à contre-sens.' },
+        { id: 's2', kind: 'visual', conceptRef: 'drapeau-haussier' },
+        { id: 's3', kind: 'hypothesis', conceptRef: 'drapeau-haussier', body: 'Le drapeau pose une hypothèse de continuation : elle se joue à la sortie du canal, pas avant.' },
+        { id: 's4', kind: 'explain', body: 'Le volume se calme pendant la consolidation, puis reprend souvent à la sortie par le haut.' },
+        { id: 's5', kind: 'falseSignal', body: 'Une consolidation trop profonde qui efface le mât n’est plus un drapeau : l’hypothèse de continuation tombe.' },
+        { id: 's6', kind: 'summary', body: 'Drapeau = mât + consolidation ordonnée ; on agit sur la sortie confirmée, pas sur la consolidation.' },
+        { id: 's7', kind: 'flashcard', flashcard: { front: 'Qu’est-ce qui invalide un drapeau haussier ?', back: 'Une consolidation qui casse le bas du drapeau et efface une bonne part du mât.' } },
+      ],
+      commonMistake: 'Confondre un drapeau (respiration brève) avec un vrai retournement.',
+      sources: ['WMB — Figures chartistes : Drapeaux'],
+      status: 'draft',
     },
   ],
 };
 
 // ─── Exercices par compétence (formats variés) ───────────────────────
 const fb = (correct: string, incorrect: string, rule?: string, whenItFails?: string) => ({ correct, incorrect, rule, whenItFails });
+
+// ─── Cibles déterministes des exercices graphiques V5 (Lot 6) ────────────────
+// Calculées depuis la série reproductible (même seed ⇒ même cible) : le grader reste
+// pur (tolérance absolue), la correction affichée coïncide avec la ligne révélée.
+const INV_SEED = 909;
+const invCandles = generateCandles(INV_SEED, 30);
+const INV_TARGET = supportLevel(invCandles); // plancher = zone d'invalidation
+const INV_TOL = (resistanceLevel(invCandles) - supportLevel(invCandles)) * 0.08;
+
+const LABEL_SEED = 451;
+const labelCandles = generateCandles(LABEL_SEED, 30);
+const LABEL_MARKER = labelCandles.reduce((best, c, i) => (c.h > labelCandles[best].h ? i : best), 0); // plus haut atteint
 
 const EXERCISES: Record<string, Exercise[]> = {
   'skill.actions': [
@@ -187,29 +366,50 @@ const EXERCISES: Record<string, Exercise[]> = {
     { id: 'ex.trend.mcq', type: 'mcq', skillId: 'skill.trend', prompt: 'Qu’est-ce qu’une résistance ?', options: ['Un plancher où les acheteurs reviennent', 'Un plafond où les vendeurs reprennent la main', 'Un indicateur de volume'], validation: { correctIndex: 1 }, difficulty: 'medium', feedback: fb('Exact : la résistance plafonne la hausse.', 'La résistance est un plafond ; le plancher, c’est le support.', 'Résistance = plafond, support = plancher.') },
     { id: 'ex.trend.find', type: 'find_error', skillId: 'skill.trend', prompt: 'Repère l’affirmation FAUSSE.', statements: ['Le support agit comme un plancher.', 'La résistance garantit à 100 % que le prix redescend.', 'Ces niveaux sont des repères, pas des certitudes.'], validation: { errorIndex: 1 }, difficulty: 'medium', feedback: fb('Exact : rien n’est garanti à 100 %.', 'L’erreur est le « garantit à 100 % ».', 'Un niveau est un repère, jamais une garantie.') },
     { id: 'ex.trend.identify', type: 'identify_pattern', skillId: 'skill.trend', prompt: 'Quelle tendance générale ce graphique montre-t-il ?', chartSeed: 2024, options: ['Haussière', 'Baissière', 'Latérale (range)'], validation: { correctIndex: 0 }, difficulty: 'medium', feedback: fb('Oui : la structure globale monte (sommets/creux plus hauts).', 'Regarde la structure d’ensemble : elle progresse vers le haut.', 'La tendance se lit sur la structure, pas sur une bougie.') },
+    { id: 'ex.trend.zone', type: 'select_chart_zone', skillId: 'skill.trend', prompt: 'Le support est le plancher où les acheteurs reviennent. Touche la zone du support.', chartSeed: 2024, zones: ['Zone haute', 'Zone médiane', 'Zone basse'], validation: { correctZone: 2 }, difficulty: 'medium', feedback: fb('Exact — le support, c’est la zone basse (le plancher).', 'Le support est la zone basse ; le plafond du haut, c’est la résistance.', 'Support = plancher (bas), résistance = plafond (haut).', 'Un support finit parfois par céder : rien n’est garanti à 100 %.') },
+    { id: 'ex.trend.identify-figure', type: 'identify_figure', skillId: 'skill.trend', prompt: 'Quel indicateur reconnais-tu ?', datasetKey: 'indicator.rsi.v1', variant: 'rsi', visualType: 'indicator', options: ['MACD', 'RSI', 'Bandes de Bollinger', 'Volume'], validation: { correctIndex: 1 }, difficulty: 'hard', feedback: fb('Exact : un oscillateur 0–100 avec zones 70/30.', 'C’est le RSI : oscillateur borné 0–100 sous le prix, seuils 70/30.', 'RSI = force relative, surachat > 70 / survente < 30.', '« Suracheté » n’est pas un ordre : en tendance, l’extrême peut durer.') },
   ],
   'skill.candles': [
     { id: 'ex.candles.mcq', type: 'mcq', skillId: 'skill.candles', prompt: 'Une bougie verte signifie…', options: ['Clôture au-dessus de l’ouverture', 'Clôture en dessous de l’ouverture', 'Aucun échange'], validation: { correctIndex: 0 }, difficulty: 'easy', feedback: fb('Exact : verte = clôture > ouverture.', 'Verte = clôture au-dessus de l’ouverture (hausse sur la période).', 'Couleur = sens ouverture→clôture.') },
     { id: 'ex.candles.tf', type: 'true_false', skillId: 'skill.candles', prompt: 'Les mèches montrent les prix extrêmes atteints pendant la période.', validation: { answer: true }, difficulty: 'easy', feedback: fb('Oui : mèche haute = plus haut, mèche basse = plus bas.', 'C’est vrai : les mèches marquent les extrêmes.', 'Corps = sens ; mèches = extrêmes.') },
     { id: 'ex.candles.match', type: 'match', skillId: 'skill.candles', prompt: 'Associe chaque élément à ce qu’il représente.', left: ['Corps', 'Mèche haute', 'Couleur'], right: ['Ouverture ↔ clôture', 'Plus haut atteint', 'Sens de la période'], validation: { matches: [0, 1, 2] }, difficulty: 'medium', feedback: fb('Parfait.', 'Corps = ouverture↔clôture, mèche haute = plus haut, couleur = sens.', 'Chaque partie raconte quelque chose de précis.') },
     { id: 'ex.candles.find', type: 'find_error', skillId: 'skill.candles', prompt: 'Repère l’affirmation FAUSSE.', statements: ['Le corps relie ouverture et clôture.', 'Une longue mèche indique un rejet de prix.', 'La couleur d’une bougie prédit la bougie suivante.'], validation: { errorIndex: 2 }, difficulty: 'medium', feedback: fb('Exact : une couleur ne prédit pas la suite.', 'L’erreur : la couleur ne prédit pas la bougie suivante.', 'Une bougie décrit le passé, pas l’avenir.') },
+    { id: 'ex.candles.identify-figure', type: 'identify_figure', skillId: 'skill.candles', prompt: 'Quelle bougie reconnais-tu ?', datasetKey: 'candle.shooting-star.v1', variant: 'shooting-star', visualType: 'candlestick-pattern', options: ['Marteau', 'Doji', 'Étoile filante', 'Marubozu haussier'], validation: { correctIndex: 2 }, difficulty: 'medium', feedback: fb('Exact : petit corps en bas, longue mèche haute.', 'C’est une étoile filante : petit corps bas + longue mèche haute, après une hausse.', 'Étoile filante = miroir du marteau, en contexte de hausse.', 'Isolée, sans résistance ni confirmation, elle a peu de valeur.') },
   ],
   'skill.patterns': [
+    { id: 'ex.patterns.invalidation', type: 'place_invalidation', skillId: 'skill.patterns', prompt: 'Place le niveau d’invalidation : sous quel plancher la figure ne tient plus ?', chartSeed: INV_SEED, hint: 'le plus bas atteint (le plancher)', validation: { targetPrice: INV_TARGET, tolerance: INV_TOL }, difficulty: 'hard', feedback: fb('Bien vu : sous le plancher, l’hypothèse est invalidée.', 'L’invalidation se pose sous le plancher (le plus bas atteint), pas au milieu.', 'Invalidation = niveau qui, franchi, annule le scénario.', 'Une invalidation trop serrée saute au moindre bruit ; trop large, elle ne protège plus.') },
+    { id: 'ex.patterns.label', type: 'label_chart', skillId: 'skill.patterns', prompt: 'Observe le repère sur le graphique.', chartSeed: LABEL_SEED, markerIndex: LABEL_MARKER, options: ['Le plus haut atteint sur la période', 'Le plancher (support)', 'Le volume échangé'], validation: { correctIndex: 0 }, difficulty: 'medium', feedback: fb('Exact : le repère pointe le sommet, le plus haut atteint.', 'Le repère est au sommet : c’est le plus haut atteint, pas le plancher ni le volume.', 'La mèche haute marque le plus haut de la période.') },
+    { id: 'ex.patterns.sequence', type: 'sequence_market_structure', skillId: 'skill.patterns', prompt: 'Remets la structure de marché dans l’ordre chronologique.', chartSeed: 2024, steps: ['Cassure de la résistance (breakout)', 'Range : accumulation dans une zone', 'Tendance haussière : sommets et creux plus hauts', 'Pullback : retest du niveau cassé'], validation: { correctOrder: [1, 0, 3, 2] }, difficulty: 'hard', feedback: fb('Bien vu : accumulation, cassure, retest, puis tendance.', 'Ordre attendu : range → cassure → pullback → tendance.', 'La structure évolue par phases successives.', 'Une cassure peut échouer (faux signal) et le prix revenir dans le range.') },
     { id: 'ex.patterns.identify', type: 'identify_pattern', skillId: 'skill.patterns', prompt: 'Sur ce schéma, quelle est la direction dominante ?', chartSeed: 314, options: ['Plutôt haussière', 'Plutôt baissière', 'Sans direction nette'], validation: { correctIndex: 0 }, difficulty: 'medium', feedback: fb('Bien lu : la structure progresse vers le haut.', 'Observe l’ensemble : la structure monte.', 'On lit la direction sur la structure globale.') },
     { id: 'ex.patterns.mcq', type: 'mcq', skillId: 'skill.patterns', prompt: 'Un double creux est une figure plutôt…', options: ['Haussière', 'Baissière', 'Neutre par nature'], validation: { correctIndex: 0 }, difficulty: 'medium', feedback: fb('Exact : le double creux est une figure de retournement haussier.', 'Le double creux (« W ») est plutôt haussier.', 'Deux creux + cassure = potentiel haussier.') },
     { id: 'ex.patterns.tf', type: 'true_false', skillId: 'skill.patterns', prompt: 'Un double creux est confirmé par la cassure de la ligne de cou.', validation: { answer: true }, difficulty: 'medium', feedback: fb('Oui : sans cassure de la ligne de cou, la figure n’est pas confirmée.', 'C’est vrai : la cassure de la ligne de cou confirme.', 'Pas de confirmation sans cassure.') },
     { id: 'ex.patterns.find', type: 'find_error', skillId: 'skill.patterns', prompt: 'Repère l’affirmation FAUSSE sur le double creux.', statements: ['Les deux creux sont à un niveau proche.', 'La figure est invalidée si le prix casse nettement sous le second creux.', 'La figure garantit une hausse.'], validation: { errorIndex: 2 }, difficulty: 'medium', feedback: fb('Exact : aucune figure ne garantit un mouvement.', 'L’erreur : rien n’est garanti.', 'Une figure donne un scénario, jamais une certitude.') },
+    { id: 'ex.patterns.scenario', type: 'scenario', skillId: 'skill.patterns', prompt: 'Que peux-tu en conclure ?', context: 'Un double creux s’est formé et le prix casse la ligne de cou avec du volume.', options: ['La figure est confirmée : hypothèse haussière.', 'La figure est invalidée.', 'Il ne se passe rien de notable.'], validation: { correctIndex: 0 }, difficulty: 'medium', feedback: fb('Oui : cassure de la ligne de cou + volume = confirmation.', 'La cassure de la ligne de cou avec volume confirme la figure.', 'Confirmation = cassure de la ligne de cou, idéalement avec volume.', 'Une confirmation n’est jamais une certitude : le prix peut refranchir le niveau (faux signal).') },
+    { id: 'ex.patterns.identify-figure', type: 'identify_figure', skillId: 'skill.patterns', prompt: 'Quelle figure chartiste reconnais-tu ?', datasetKey: 'pattern.head-shoulders.v1', variant: 'head-shoulders', visualType: 'chart-pattern', options: ['Triangle ascendant', 'Épaule-tête-épaule', 'Double creux', 'Drapeau haussier'], validation: { correctIndex: 1 }, difficulty: 'medium', feedback: fb('Bien vu : trois sommets, la tête au centre.', 'C’est une épaule-tête-épaule : la tête (sommet central) domine deux épaules.', 'ÉTÉ = tête centrale plus haute + ligne de cou ; la cassure confirme.', 'Sans cassure de la ligne de cou, la figure n’est pas confirmée.') },
   ],
 };
+
+// ─── Checkpoint (revue mixte du module) ──────────────────────────────
+// Nœud de fin de module : réunit quelques exercices de chaque compétence.
+// Les exercices gardent leur skillId réel → répondre met à jour la maîtrise réelle.
+export const CHECKPOINT_ID = 'checkpoint.read-chart';
+export const CHECKPOINT_TITLE = 'Revue — Lire un graphique';
+export function isCheckpoint(id: string): boolean {
+  return id === CHECKPOINT_ID;
+}
 
 // ─── Helpers de contenu ──────────────────────────────────────────────
 export function getLessons(skillId: string): Lesson[] {
   return LESSONS[skillId] ?? [];
 }
 export function getExercises(skillId: string): Exercise[] {
+  if (skillId === CHECKPOINT_ID) {
+    return SKILLS.flatMap((s) => (EXERCISES[s.id] ?? []).slice(0, 2));
+  }
   return EXERCISES[skillId] ?? [];
 }
 export function skillById(id: string): Skill | undefined {
+  if (id === CHECKPOINT_ID) return { id: CHECKPOINT_ID, name: CHECKPOINT_TITLE };
   return SKILLS.find((s) => s.id === id);
 }
 export function allLessons(): Lesson[] {
@@ -248,6 +448,11 @@ export function defaultProgress(now: number): ProgressState {
     coins: 0,
     completedSkills: [],
     skills,
+    daily: { date: '', sessions: 0, correct: 0, xp: 0 },
+    claimedQuestIds: [],
+    claimedStreakMilestones: [],
+    history: [],
+    learning: emptyLearning(),
     schemaVersion: PROGRESS_SCHEMA_VERSION,
   };
 }

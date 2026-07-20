@@ -8,6 +8,11 @@ import {
   applyGrade,
   isMastered,
   isDue,
+  xpForGrade,
+  coinsForGrade,
+  levelForXp,
+  masteryStatus,
+  errorCount,
 } from './spacedRepetition';
 
 const T0 = 1_700_000_000_000; // timestamp fixe et reproductible
@@ -59,5 +64,58 @@ describe('spacedRepetition (SM-2)', () => {
     let s = initialReview(T0);
     for (let i = 0; i < 10; i++) s = scheduleNext(s, 0, T0);
     expect(s.easiness).toBeGreaterThanOrEqual(1.3);
+  });
+});
+
+describe('barème de récompense (source unique de vérité)', () => {
+  it('xpForGrade : 10 si réussi (grade ≥ 3), sinon 2', () => {
+    expect(xpForGrade(5)).toBe(10);
+    expect(xpForGrade(3)).toBe(10);
+    expect(xpForGrade(2)).toBe(2);
+    expect(xpForGrade(0)).toBe(2);
+  });
+
+  it('coinsForGrade : 5 si réussi, sinon 0', () => {
+    expect(coinsForGrade(5)).toBe(5);
+    expect(coinsForGrade(2)).toBe(0);
+  });
+
+  it('applyGrade utilise exactement xpForGrade', () => {
+    const p = initialProgress('skill.a', T0);
+    expect(applyGrade(p, 5, T0).xp).toBe(p.xp + xpForGrade(5));
+    expect(applyGrade(p, 2, T0).xp).toBe(p.xp + xpForGrade(2));
+  });
+
+  it('levelForXp : 100 XP par niveau, jamais sous 1', () => {
+    expect(levelForXp(0)).toBe(1);
+    expect(levelForXp(99)).toBe(1);
+    expect(levelForXp(100)).toBe(2);
+    expect(levelForXp(350)).toBe(4);
+    expect(levelForXp(-50)).toBe(1);
+  });
+});
+
+describe('maîtrise adaptative', () => {
+  const sp = (over: Partial<import('./spacedRepetition').SkillProgress> = {}) => ({
+    skillId: 's',
+    xp: 0,
+    mastery: 0,
+    confidence: 0,
+    review: { repetitions: 0, easiness: 2.5, intervalDays: 0, dueAt: 0 },
+    ...over,
+  });
+
+  it('masteryStatus suit l’échelle new → mastered', () => {
+    expect(masteryStatus(sp())).toBe('new');
+    expect(masteryStatus(sp({ mastery: 0.2 }))).toBe('learning');
+    expect(masteryStatus(sp({ mastery: 0.6, confidence: 0.2 }))).toBe('fragile');
+    expect(masteryStatus(sp({ mastery: 0.6, confidence: 0.6 }))).toBe('reviewing');
+    expect(masteryStatus(sp({ mastery: 0.85, review: { repetitions: 2, easiness: 2.5, intervalDays: 6, dueAt: 0 } }))).toBe('strong');
+    expect(masteryStatus(sp({ mastery: 0.85, review: { repetitions: 3, easiness: 2.5, intervalDays: 15, dueAt: 0 } }))).toBe('mastered');
+  });
+
+  it('errorCount somme les errorTags (0 si absent)', () => {
+    expect(errorCount(sp())).toBe(0);
+    expect(errorCount(sp({ errorTags: { a: 2, b: 1 } }))).toBe(3);
   });
 });

@@ -1,0 +1,22 @@
+{
+  "id": "concept.la-tendance",
+  "slug": "la-tendance",
+  "title": "La tendance",
+  "category": "tendance",
+  "skillId": "skill.trend",
+  "difficulty": "beginner",
+  "definition": "Des sommets et des creux de plus en plus hauts décrivent une tendance haussière ; de plus en plus bas, une tendance baissière. C’est la structure du prix qui définit la tendance, pas une opinion.",
+  "commonMistake": "Croire qu’une seule grosse bougie définit une tendance.",
+  "sources": [
+    "WMB — Glossaire : Tendance"
+  ],
+  "status": "needsReview",
+  "locale": "fr",
+  "disclaimer": "Contenu éducatif. Aucun conseil en investissement, aucun signal, aucune promesse de gain.",
+  "origin": {
+    "sourcePath": "scripts/import-app/source/concepts.json",
+    "sourceHash": "04e33fcd",
+    "importedAt": "2026-07-18T10:44:52.521Z",
+    "migrationVersion": 1
+  }
+}

@@ -29,17 +29,21 @@ export default function TabsLayout() {
         options={{ title: 'Parcours', tabBarIcon: () => <TabIcon emoji="🗺️" /> }}
       />
       <Tabs.Screen
-        name="lecons"
-        options={{ title: 'Leçons', tabBarIcon: () => <TabIcon emoji="📚" /> }}
+        name="laboratoire"
+        options={{ title: 'Labo', tabBarIcon: () => <TabIcon emoji="🧪" /> }}
       />
       <Tabs.Screen
-        name="quiz"
-        options={{ title: 'Quiz', tabBarIcon: () => <TabIcon emoji="🎯" /> }}
+        name="revisions"
+        options={{ title: 'Révisions', tabBarIcon: () => <TabIcon emoji="🔁" /> }}
       />
       <Tabs.Screen
         name="profil"
         options={{ title: 'Profil', tabBarIcon: () => <TabIcon emoji="🐂" /> }}
       />
+
+      {/* Écrans conservés, accessibles par navigation, mais hors barre d'onglets. */}
+      <Tabs.Screen name="lecons" options={{ href: null }} />
+      <Tabs.Screen name="quiz" options={{ href: null }} />
     </Tabs>
   );
 }

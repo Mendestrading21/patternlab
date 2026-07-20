@@ -4,52 +4,41 @@
  */
 export type CharacterId = 'toto' | 'bobo';
 
-/** États d'animation prévus (le rendu Lottie viendra remplir chacun — voir ADR-005). */
+/**
+ * États canoniques (Toto/Bobo V2). Couvre la liste du skill :
+ * idle, welcome, explain, observe, think, debate, celebrate, encourage, confused,
+ * warning, wrong(Answer), false-signal, level-up, streak, review, rest, loading,
+ * offline, premium — plus quelques nuances (wave, inspect, agree, disagree).
+ * Le registre `CHARACTER_STATES` (states.ts) est la source unique de leur métadonnée.
+ */
 export type CharacterState =
   | 'idle'
   | 'wave'
+  | 'welcome'
   | 'explain'
+  | 'observe'
   | 'inspect'
   | 'think'
   | 'agree'
   | 'disagree'
+  | 'debate'
   | 'encourage'
   | 'celebrate-small'
   | 'celebrate-big'
   | 'warning'
   | 'wrong'
+  | 'false-signal'
   | 'confused'
-  | 'debate'
   | 'streak'
   | 'level-up'
+  | 'review'
+  | 'premium'
   | 'rest'
   | 'offline'
   | 'loading';
 
-/** Expression faciale déduite d'un état (utilisée par l'avatar SVG de P0.1). */
+/** Expression faciale déduite d'un état (utilisée par l'avatar SVG). */
 export type Expression = 'happy' | 'excited' | 'thinking' | 'concerned' | 'sad' | 'neutral';
-
-export const STATE_TO_EXPRESSION: Record<CharacterState, Expression> = {
-  idle: 'neutral',
-  wave: 'happy',
-  explain: 'happy',
-  inspect: 'thinking',
-  think: 'thinking',
-  agree: 'happy',
-  disagree: 'concerned',
-  encourage: 'happy',
-  'celebrate-small': 'happy',
-  'celebrate-big': 'excited',
-  warning: 'concerned',
-  wrong: 'sad',
-  confused: 'thinking',
-  debate: 'concerned',
-  streak: 'excited',
-  'level-up': 'excited',
-  rest: 'neutral',
-  offline: 'concerned',
-  loading: 'neutral',
-};
 
 export const CHARACTER_NAME: Record<CharacterId, string> = {
   toto: 'Toto',

@@ -1,0 +1,22 @@
+{
+  "id": "concept.la-discipline",
+  "slug": "la-discipline",
+  "title": "La discipline",
+  "category": "psychologie",
+  "skillId": null,
+  "difficulty": "beginner",
+  "definition": "Appliquer son plan même quand l’émotion pousse à en dévier : la discipline transforme des règles en habitudes.",
+  "commonMistake": null,
+  "sources": [
+    "WMB — Psychologie : Discipline"
+  ],
+  "status": "needsReview",
+  "locale": "fr",
+  "disclaimer": "Contenu éducatif. Aucun conseil en investissement, aucun signal, aucune promesse de gain.",
+  "origin": {
+    "sourcePath": "scripts/import-app/source/concepts.json",
+    "sourceHash": "b0b40262",
+    "importedAt": "2026-07-18T10:44:52.521Z",
+    "migrationVersion": 1
+  }
+}

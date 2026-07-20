@@ -1,0 +1,35 @@
+{
+  "id": "concept.volume-profile",
+  "slug": "profil-de-volume",
+  "title": "Profil de volume",
+  "shortTitle": "Profil de volume",
+  "aliases": ["Volume profile", "POC", "VAH/VAL"],
+  "categoryId": "cat.volume",
+  "worldId": "world.volume",
+  "difficulty": 4,
+  "prerequisites": ["concept.volume"],
+  "tags": ["volume", "profile", "poc"],
+  "learningObjective": "Lire un profil de volume et repérer les zones de forte activité.",
+  "definitionShort": "Une distribution du volume par niveau de prix : où le marché a le plus échangé.",
+  "definitionDetailed": "Le profil de volume répartit l’activité non pas dans le temps mais par niveau de prix. Le point de contrôle (POC) est le prix le plus échangé ; la zone de valeur (VAH/VAL) encadre l’essentiel de l’activité. Ces zones servent de repères d’acceptation ou de rejet du prix.",
+  "howToRecognize": ["Un histogramme horizontal accolé aux prix.", "Un pic marqué au POC.", "Des zones creuses (peu d’échanges)."],
+  "falseSignals": ["Confondre un profil d’une seule séance avec une référence durable."],
+  "commonMistakes": ["Prendre le POC pour un objectif de prix plutôt qu’un repère."],
+  "checklist": ["POC identifié ?", "Zone de valeur repérée ?", "Zones creuses notées ?"],
+  "miniQuizzes": [
+    {
+      "question": "Que représente le POC ?",
+      "options": ["Le plus haut", "Le niveau de prix le plus échangé", "Le volume total", "La clôture"],
+      "correctIndex": 1,
+      "explanation": "Le point de contrôle est le prix auquel le marché a le plus échangé sur la période étudiée."
+    }
+  ],
+  "relatedConceptIds": ["concept.volume"],
+  "sources": [{ "label": "Voix pédagogique PatternLab", "kind": "editorial" }],
+  "sourcePath": "editorial/v5/profil-de-volume",
+  "sourceHash": "v5-vol-0002",
+  "version": 1,
+  "status": "needsReview",
+  "locale": "fr-CH",
+  "disclaimer": "Contenu éducatif. Aucun conseil en investissement. Le trading comporte un risque de perte."
+}

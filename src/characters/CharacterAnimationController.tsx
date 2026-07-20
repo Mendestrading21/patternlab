@@ -11,6 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { MascotAvatar } from './MascotAvatar';
 import { useReducedMotion } from './useReducedMotion';
+import { CHARACTER_STATES } from './states';
 import type { CharacterId, CharacterState } from './types';
 
 export type CharacterAnimationControllerProps = {
@@ -38,7 +39,8 @@ export function CharacterAnimationController({
   const scale = useSharedValue(1);
   const translateY = useSharedValue(0);
 
-  const celebrating = state === 'celebrate-small' || state === 'celebrate-big' || state === 'streak' || state === 'level-up';
+  // Intensité pilotée par le registre d'états (source unique).
+  const intensity = CHARACTER_STATES[state]?.intensity ?? 'subtle';
 
   useEffect(() => {
     if (reduced) {
@@ -48,8 +50,9 @@ export function CharacterAnimationController({
       translateY.value = 0;
       return;
     }
-    // petite réaction ponctuelle au changement d'état
-    scale.value = withSequence(withTiming(celebrating ? 1.14 : 1.06, { duration: 140 }), withSpring(1));
+    // réaction ponctuelle au changement d'état, dosée par l'intensité
+    const pop = intensity === 'lively' ? 1.14 : intensity === 'still' ? 1.0 : 1.06;
+    scale.value = withSequence(withTiming(pop, { duration: 140 }), withSpring(1));
     // flottement doux uniquement au repos
     if (state === 'idle') {
       translateY.value = withRepeat(withSequence(withTiming(-3, { duration: 1100 }), withTiming(0, { duration: 1100 })), -1, true);
@@ -60,7 +63,7 @@ export function CharacterAnimationController({
     return () => {
       cancelAnimation(translateY);
     };
-  }, [state, reduced, celebrating, scale, translateY]);
+  }, [state, reduced, intensity, scale, translateY]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }, { scale: scale.value }],

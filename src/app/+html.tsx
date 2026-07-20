@@ -19,7 +19,7 @@ export default function Root({ children }: PropsWithChildren) {
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
         />
 
-        <meta name="theme-color" content="#0C1411" />
+        <meta name="theme-color" content="#0B1119" />
         <meta name="color-scheme" content="dark" />
 
         {/* Installable / plein écran */}
@@ -45,7 +45,7 @@ export default function Root({ children }: PropsWithChildren) {
 const responsiveBackground = `
 html, body, #root {
   height: 100%;
-  background-color: #0C1411;
+  background-color: #0B1119;
 }
 body {
   overscroll-behavior: none;
@@ -61,7 +61,7 @@ body {
   body {
     display: flex;
     justify-content: center;
-    background-color: #05090A;
+    background-color: #080C12;
   }
   #root {
     width: 460px;

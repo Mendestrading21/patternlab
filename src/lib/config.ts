@@ -1,7 +1,9 @@
-/** Constantes produit centralisées. */
+/** Constantes produit centralisées. Nom/tagline/disclaimer dérivés de la source unique `appInfo`. */
+import { APP_INFO } from './appInfo';
+
 export const APP = {
-  name: 'PatternLab',
-  tagline: 'Apprends à lire les marchés, quelques minutes par jour.',
+  name: APP_INFO.name,
+  tagline: APP_INFO.tagline,
   promise: 'Apprends, analyse, entraîne-toi, progresse — avec Toto & Bobo.',
 } as const;
 
@@ -14,5 +16,4 @@ export const PILLARS = [
 ] as const;
 
 /** Rappel réglementaire : PatternLab est un média/jeu éducatif, pas un conseiller. */
-export const DISCLAIMER =
-  'PatternLab est une application éducative. Aucun conseil en investissement, aucun signal d’achat ou de vente, aucune promesse de gain.';
+export const DISCLAIMER = APP_INFO.disclaimer;

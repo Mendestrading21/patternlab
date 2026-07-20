@@ -1,0 +1,22 @@
+{
+  "id": "concept.l-avalement-haussier",
+  "slug": "l-avalement-haussier",
+  "title": "L’avalement haussier",
+  "category": "chandeliers",
+  "skillId": "skill.candles",
+  "difficulty": "beginner",
+  "definition": "Une grande bougie verte qui englobe entièrement la bougie rouge précédente : un basculement possible du rapport de force vers les acheteurs.",
+  "commonMistake": null,
+  "sources": [
+    "WMB — Chandeliers : Avalement"
+  ],
+  "status": "needsReview",
+  "locale": "fr",
+  "disclaimer": "Contenu éducatif. Aucun conseil en investissement, aucun signal, aucune promesse de gain.",
+  "origin": {
+    "sourcePath": "scripts/import-app/source/concepts.json",
+    "sourceHash": "2fa9b83c",
+    "importedAt": "2026-07-18T10:44:52.521Z",
+    "migrationVersion": 1
+  }
+}

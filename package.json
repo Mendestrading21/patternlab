@@ -49,10 +49,15 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "validate:content": "node ./scripts/validate-content/index.mjs",
+    "import:app": "node ./scripts/import-app/index.mjs",
+    "release:check": "node ./scripts/release-check.mjs",
     "build:web": "expo export --platform web"
   },
   "jest": {
     "preset": "jest-expo",
+    "setupFiles": [
+      "<rootDir>/jest.setup.js"
+    ],
     "testMatch": [
       "**/src/**/*.test.ts",
       "**/src/**/*.test.tsx"

@@ -1,0 +1,35 @@
+{
+  "id": "concept.rsi",
+  "slug": "rsi",
+  "title": "RSI (force relative)",
+  "shortTitle": "RSI",
+  "aliases": ["Relative Strength Index"],
+  "categoryId": "cat.indicators",
+  "worldId": "world.indicators",
+  "difficulty": 3,
+  "prerequisites": [],
+  "tags": ["indicateur", "oscillateur", "momentum"],
+  "learningObjective": "Lire le RSI et comprendre ses limites (jamais un signal isolé).",
+  "definitionShort": "Un oscillateur de 0 à 100 qui mesure la vitesse et l’ampleur des variations récentes.",
+  "definitionDetailed": "Le RSI compare l’ampleur des hausses et des baisses récentes pour situer le momentum entre 0 et 100. On parle souvent de zones de surachat (haut) et de survente (bas), mais un RSI extrême peut le rester longtemps en tendance : c’est un repère de contexte, pas un déclencheur.",
+  "howToRecognize": ["Une courbe oscillant entre 0 et 100 sous le graphique.", "Des zones de référence (par ex. 70 / 30).", "Des divergences possibles avec le prix."],
+  "falseSignals": ["Vendre juste parce que le RSI est haut, en pleine tendance haussière.", "Une divergence isolée sans confirmation de prix."],
+  "commonMistakes": ["Traiter le RSI comme un signal autonome plutôt qu’un contexte."],
+  "checklist": ["Zone du RSI ?", "Divergence avec le prix ?", "Contexte de tendance ?"],
+  "miniQuizzes": [
+    {
+      "question": "Un RSI très haut signifie-t-il qu’il faut vendre ?",
+      "options": ["Oui, toujours", "Non : en tendance, il peut rester haut longtemps", "Seulement le lundi", "Cela dépend du volume seul"],
+      "correctIndex": 1,
+      "explanation": "Un RSI extrême est un repère de contexte : en tendance forte, il peut rester élevé sans que cela invalide la tendance."
+    }
+  ],
+  "relatedConceptIds": ["concept.uptrend"],
+  "sources": [{ "label": "Voix pédagogique PatternLab", "kind": "editorial" }],
+  "sourcePath": "editorial/v5/rsi",
+  "sourceHash": "v5-ind-0001",
+  "version": 1,
+  "status": "needsReview",
+  "locale": "fr-CH",
+  "disclaimer": "Contenu éducatif. Aucun conseil en investissement. Le trading comporte un risque de perte."
+}

@@ -9,6 +9,12 @@ import type {
   MatchExercise,
   FindErrorExercise,
   IdentifyPatternExercise,
+  ScenarioExercise,
+  SelectChartZoneExercise,
+  PlaceInvalidationExercise,
+  LabelChartExercise,
+  SequenceMarketStructureExercise,
+  IdentifyFigureExercise,
 } from './types';
 
 const feedback = {
@@ -152,5 +158,122 @@ describe('exercise registry — formats P0.2', () => {
     expect(isTypeSupported('identify_pattern')).toBe(true);
     expect(gradeExercise(ex, 0).correct).toBe(true);
     expect(gradeExercise(ex, 2).correct).toBe(false);
+  });
+});
+
+describe('exercise registry — formats avancés (Lot 7)', () => {
+  it('supporte scenario et select_chart_zone', () => {
+    expect(isTypeSupported('scenario')).toBe(true);
+    expect(isTypeSupported('select_chart_zone')).toBe(true);
+  });
+
+  it('corrige un scenario (SI/ALORS)', () => {
+    const ex: ScenarioExercise = {
+      id: 'sc1',
+      type: 'scenario',
+      skillId: 'skill.patterns',
+      prompt: 'Que conclure ?',
+      context: 'Le prix casse la ligne de cou avec du volume.',
+      options: ['Confirmée', 'Invalidée', 'Rien'],
+      validation: { correctIndex: 0 },
+      feedback,
+    };
+    expect(gradeExercise(ex, 0).correct).toBe(true);
+    expect(gradeExercise(ex, 1).correct).toBe(false);
+  });
+
+  it('corrige un select_chart_zone', () => {
+    const ex: SelectChartZoneExercise = {
+      id: 'sz1',
+      type: 'select_chart_zone',
+      skillId: 'skill.trend',
+      prompt: 'Touche le support.',
+      chartSeed: 2024,
+      zones: ['Haute', 'Médiane', 'Basse'],
+      validation: { correctZone: 2 },
+      feedback,
+    };
+    expect(gradeExercise(ex, 2).correct).toBe(true);
+    expect(gradeExercise(ex, 0).correct).toBe(false);
+  });
+
+  it('expose au moins 9 formats branchés', () => {
+    expect(supportedTypes().length).toBeGreaterThanOrEqual(9);
+  });
+});
+
+describe('exercise registry — formats graphiques (Lot 6)', () => {
+  it('supporte les 3 nouveaux formats graphiques', () => {
+    for (const t of ['place_invalidation', 'label_chart', 'sequence_market_structure'] as const) {
+      expect(isTypeSupported(t)).toBe(true);
+    }
+    expect(supportedTypes().length).toBeGreaterThanOrEqual(12);
+  });
+
+  it('corrige un place_invalidation (tolérance absolue)', () => {
+    const ex: PlaceInvalidationExercise = {
+      id: 'pi1',
+      type: 'place_invalidation',
+      skillId: 'skill.patterns',
+      prompt: 'Place l’invalidation.',
+      chartSeed: 909,
+      validation: { targetPrice: 20, tolerance: 2 },
+      feedback,
+    };
+    expect(gradeExercise(ex, 20).correct).toBe(true);
+    expect(gradeExercise(ex, 21.9).correct).toBe(true); // dans la tolérance
+    expect(gradeExercise(ex, 23).correct).toBe(false); // hors tolérance
+    expect(gradeExercise(ex, '20').correct).toBe(false); // pas un nombre
+  });
+
+  it('corrige un label_chart (index)', () => {
+    const ex: LabelChartExercise = {
+      id: 'lc1',
+      type: 'label_chart',
+      skillId: 'skill.candles',
+      prompt: 'Que représente le repère ?',
+      chartSeed: 451,
+      markerIndex: 7,
+      options: ['Le plus haut atteint', 'Le support', 'Le volume'],
+      validation: { correctIndex: 0 },
+      feedback,
+    };
+    expect(gradeExercise(ex, 0).correct).toBe(true);
+    expect(gradeExercise(ex, 1).correct).toBe(false);
+  });
+
+  it('corrige un sequence_market_structure (ordre)', () => {
+    const ex: SequenceMarketStructureExercise = {
+      id: 'sm1',
+      type: 'sequence_market_structure',
+      skillId: 'skill.trend',
+      prompt: 'Remets la structure dans l’ordre.',
+      steps: ['Cassure', 'Range', 'Tendance', 'Pullback'],
+      validation: { correctOrder: [1, 0, 3, 2] },
+      feedback,
+    };
+    expect(gradeExercise(ex, [1, 0, 3, 2]).correct).toBe(true);
+    expect(gradeExercise(ex, [0, 1, 2, 3]).correct).toBe(false);
+    expect(gradeExercise(ex, [1, 0, 3]).correct).toBe(false); // longueur
+  });
+});
+
+describe('exercise registry — reconnaissance de figure', () => {
+  it('supporte identify_figure et corrige l’index', () => {
+    const ex: IdentifyFigureExercise = {
+      id: 'if1',
+      type: 'identify_figure',
+      skillId: 'skill.patterns',
+      prompt: 'Quelle figure reconnais-tu ?',
+      datasetKey: 'pattern.head-shoulders.v1',
+      variant: 'head-shoulders',
+      visualType: 'chart-pattern',
+      options: ['Triangle ascendant', 'Épaule-tête-épaule', 'Double creux', 'Drapeau haussier'],
+      validation: { correctIndex: 1 },
+      feedback,
+    };
+    expect(isTypeSupported('identify_figure')).toBe(true);
+    expect(gradeExercise(ex, 1).correct).toBe(true);
+    expect(gradeExercise(ex, 0).correct).toBe(false);
   });
 });

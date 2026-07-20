@@ -1,18 +1,27 @@
 {
   "expo": {
-    "name": "patternlab",
+    "name": "PatternLab",
     "slug": "patternlab",
     "version": "1.0.0",
+    "description": "Apprends à lire les marchés, quelques minutes par jour. Application éducative gamifiée — aucun conseil financier.",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "patternlab",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0B1119",
+    "primaryColor": "#26C281",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "com.patternlab.app",
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "com.patternlab.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0B1119",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -28,7 +37,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#0B1119",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }

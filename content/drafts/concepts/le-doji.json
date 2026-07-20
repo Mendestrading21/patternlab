@@ -1,0 +1,22 @@
+{
+  "id": "concept.le-doji",
+  "slug": "le-doji",
+  "title": "Le doji",
+  "category": "chandeliers",
+  "skillId": "skill.candles",
+  "difficulty": "beginner",
+  "definition": "Un doji a une ouverture et une clôture quasi identiques : un corps minuscule qui traduit l’indécision entre acheteurs et vendeurs.",
+  "commonMistake": null,
+  "sources": [
+    "WMB — Chandeliers : Doji"
+  ],
+  "status": "needsReview",
+  "locale": "fr",
+  "disclaimer": "Contenu éducatif. Aucun conseil en investissement, aucun signal, aucune promesse de gain.",
+  "origin": {
+    "sourcePath": "scripts/import-app/source/concepts.json",
+    "sourceHash": "c79ed417",
+    "importedAt": "2026-07-18T10:44:52.521Z",
+    "migrationVersion": 1
+  }
+}

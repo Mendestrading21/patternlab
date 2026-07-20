@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PatternLab LearningConcept V5",
+  "type": "object",
+  "required": [
+    "id",
+    "slug",
+    "title",
+    "shortTitle",
+    "categoryId",
+    "worldId",
+    "difficulty",
+    "learningObjective",
+    "definitionShort",
+    "definitionDetailed",
+    "status",
+    "locale",
+    "disclaimer",
+    "version"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "id": { "type": "string", "pattern": "^concept\\." },
+    "slug": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "shortTitle": { "type": "string", "minLength": 1 },
+    "aliases": { "type": "array", "items": { "type": "string" } },
+    "categoryId": { "type": "string", "pattern": "^cat\\." },
+    "worldId": { "type": "string", "pattern": "^world\\." },
+    "skillId": { "type": ["string", "null"] },
+    "difficulty": { "type": "integer", "minimum": 1, "maximum": 5 },
+    "prerequisites": { "type": "array", "items": { "type": "string" } },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "learningObjective": { "type": "string", "minLength": 1 },
+    "definitionShort": { "type": "string", "minLength": 1 },
+    "definitionDetailed": { "type": "string", "minLength": 1 },
+    "howToRecognize": { "type": "array", "items": { "type": "string" } },
+    "falseSignals": { "type": "array", "items": { "type": "string" } },
+    "commonMistakes": { "type": "array", "items": { "type": "string" } },
+    "checklist": { "type": "array", "items": { "type": "string" } },
+    "visualSpec": {
+      "type": "object",
+      "required": ["type", "variant", "accessibilitySummary"],
+      "properties": {
+        "type": {
+          "enum": [
+            "candle-anatomy",
+            "candlestick-pattern",
+            "chart-pattern",
+            "market-structure",
+            "indicator",
+            "volume-profile",
+            "comparison",
+            "cheat-sheet"
+          ]
+        },
+        "variant": { "type": "string", "minLength": 1 },
+        "direction": { "enum": ["bullish", "bearish", "neutral"] },
+        "datasetKey": { "type": "string" },
+        "accessibilitySummary": { "type": "string", "minLength": 1 }
+      }
+    },
+    "flashcards": { "type": "array", "items": { "type": "object" } },
+    "miniQuizzes": { "type": "array", "items": { "type": "object" } },
+    "relatedConceptIds": { "type": "array", "items": { "type": "string" } },
+    "sources": { "type": "array", "items": { "type": "object" } },
+    "version": { "type": "integer", "minimum": 1 },
+    "status": {
+      "enum": ["imported", "draft", "needsReview", "approved", "published", "archived"]
+    },
+    "locale": { "enum": ["fr-CH", "fr-FR"] },
+    "disclaimer": { "type": "string", "minLength": 1 }
+  }
+}

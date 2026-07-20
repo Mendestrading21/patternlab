@@ -1,48 +1,73 @@
 /**
- * PatternLab — Design tokens
- * Direction : sombre premium, vert haussier, rouge baissier, or pour les récompenses.
- * Réf. kit : reference/04-design-system.md + planches visuelles 01/05.
+ * PatternLab — Design tokens (V2 « Instrument Glass »).
+ * Direction : surfaces mates graphite/bleu nuit, verre sombre contrôlé, couleur
+ * fonctionnelle parcimonieuse (≈ 70 / 20 / 10). Réf. skill : patternlab-product-growth
+ * « Direction visuelle » + reference/04-design-system.md.
  *
  * IMPORTANT (règle kit) : distinguer la sémantique PÉDAGOGIQUE (correct/incorrect)
  * de la sémantique FINANCIÈRE (bullish/bearish). Dans un exercice de marché, une
  * bougie verte n'est PAS « la bonne réponse ». Les tokens `feedback*` sont donc
  * séparés de `bullish/bearish` pour permettre aux exercices de patterns de les surcharger.
+ *
+ * Accessibilité : les paires texte/surface visent le contraste WCAG AA (≥ 4.5).
+ * Vérifié par `contrast.test.ts` — ne pas assombrir `textMuted` sans revalider.
  */
 
 export const palette = {
-  bg: '#0C1411',
-  surface: '#14201B',
-  surfaceElevated: '#1C2C25',
-  surfaceSunken: '#0A100D',
-  border: '#26362E',
-  borderStrong: '#33473C',
+  // Surfaces mates (bleu nuit / graphite) — V5 : fond profond aligné #070B11
+  backgroundDeep: '#070B11',
+  bg: '#0B1119',
+  surface: '#111A24',
+  surfaceElevated: '#172331',
+  surfaceInteractive: '#1C2A39',
+  surfaceSunken: '#080C12',
 
-  textPrimary: '#F1F5F2',
-  textSecondary: '#9DB0A6',
-  textMuted: '#6B7D74',
+  // Bordures / verre contrôlé
+  borderSubtle: '#253343',
+  borderStrong: '#364A60',
+  hairline: 'rgba(244, 247, 250, 0.06)',
+  // Verre sombre contrôlé (≈ 20 % de l'identité V5) : voile translucide + liseré clair.
+  glass: 'rgba(23, 35, 49, 0.72)',
+  glassBorder: 'rgba(244, 247, 250, 0.12)',
 
-  green: '#2FB35C',
-  greenBright: '#3FD07A',
-  greenDim: '#1E7A3E',
-  red: '#D0453C',
-  redBright: '#E15A50',
-  amber: '#E6A23C',
-  blue: '#3E9AE6',
-  gold: '#E9B44C',
+  // Texte (textMuted éclairci vs la palette indicative pour tenir l'AA sur surfaces élevées)
+  textPrimary: '#F4F7FA',
+  textSecondary: '#AAB7C6',
+  textMuted: '#8B99AB',
+
+  // Couleur fonctionnelle
+  green: '#26C281',
+  greenBright: '#3BD695',
+  greenDim: '#1C8F5E',
+  red: '#F05A67',
+  redBright: '#F5727D',
+  technical: '#42B7E8',
+  amber: '#F3B94E',
+  gold: '#E8B94F',
+  neutral: '#8292A6',
+  // Concepts avancés (V5) : violet distinct des sémantiques financière/pédagogique.
+  advanced: '#9B7CF6',
 
   white: '#FFFFFF',
   black: '#000000',
   onGreen: '#06210F',
   onGold: '#2A1E05',
+  onAdvanced: '#1A1030',
 } as const;
 
 export const colors = {
   background: palette.bg,
+  backgroundDeep: palette.backgroundDeep,
   surface: palette.surface,
   surfaceElevated: palette.surfaceElevated,
+  surfaceInteractive: palette.surfaceInteractive,
   surfaceSunken: palette.surfaceSunken,
-  border: palette.border,
+  border: palette.borderSubtle,
+  borderSubtle: palette.borderSubtle,
   borderStrong: palette.borderStrong,
+  hairline: palette.hairline,
+  glass: palette.glass,
+  glassBorder: palette.glassBorder,
 
   textPrimary: palette.textPrimary,
   textSecondary: palette.textSecondary,
@@ -51,12 +76,16 @@ export const colors = {
   // UI semantics
   primary: palette.green,
   primaryBright: palette.greenBright,
+  primaryDim: palette.greenDim,
   success: palette.green,
   danger: palette.red,
   warning: palette.amber,
-  info: palette.blue,
+  info: palette.technical,
+  technical: palette.technical,
   reward: palette.gold,
-  neutral: palette.textMuted,
+  neutral: palette.neutral,
+  /** Concepts avancés (difficulté 4–5, familles expertes) — jamais une direction financière. */
+  advanced: palette.advanced,
 
   // Financial semantics (chart direction) — NOT to be reused as correct/incorrect
   bullish: palette.green,
@@ -68,6 +97,7 @@ export const colors = {
 
   onPrimary: palette.onGreen,
   onReward: palette.onGold,
+  onAdvanced: palette.onAdvanced,
 } as const;
 
 export const spacing = {
@@ -88,6 +118,27 @@ export const radius = {
   xxl: 28,
   pill: 999,
 } as const;
+
+/** Ombres portées (profondeur « verre » discrète, contrôlée). Compatibles iOS/Android/web. */
+export const elevation = {
+  none: {},
+  card: {
+    shadowColor: '#000000',
+    shadowOpacity: 0.3,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 6,
+  },
+  raised: {
+    shadowColor: '#000000',
+    shadowOpacity: 0.42,
+    shadowRadius: 28,
+    shadowOffset: { width: 0, height: 16 },
+    elevation: 12,
+  },
+} as const;
+
+export type Elevation = keyof typeof elevation;
 
 export type FontWeight = '400' | '500' | '600' | '700' | '800';
 

@@ -1,14 +1,13 @@
 import { Component, type ReactNode } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { theme } from '../design-system/theme';
-import { Text } from '../design-system/components/Text';
-import { Button } from '../design-system/components/Button';
-import { analytics } from '../analytics';
+import { StateView } from '../design-system/components/StateView';
+import { analytics } from '@/analytics';
 
 type Props = { children: ReactNode };
 type State = { hasError: boolean; message?: string };
 
-/** Garde-fou global : capture les erreurs de rendu et affiche un écran d'erreur propre. */
+/** Garde-fou global : capture les erreurs de rendu et affiche un état d'erreur propre. */
 export class ErrorBoundary extends Component<Props, State> {
   state: State = { hasError: false };
 
@@ -26,16 +25,11 @@ export class ErrorBoundary extends Component<Props, State> {
     if (!this.state.hasError) return this.props.children;
     return (
       <View style={styles.wrap}>
-        <Text variant="display" center>
-          😵‍💫
-        </Text>
-        <Text variant="h2" center>
-          Oups, un pépin est survenu
-        </Text>
-        <Text variant="body" color={theme.colors.textSecondary} center>
-          Rien de perdu. Réessaie — ton avancée est sauvegardée localement.
-        </Text>
-        <Button label="Réessayer" onPress={this.reset} fullWidth={false} />
+        <StateView
+          variant="error"
+          message="Rien de perdu. Réessaie — ton avancée est sauvegardée localement."
+          action={{ label: 'Réessayer', onPress: this.reset }}
+        />
       </View>
     );
   }
@@ -47,7 +41,6 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: theme.spacing.md,
     padding: theme.spacing.xl,
   },
 });

@@ -12,18 +12,23 @@ export interface GlossaryTerm {
   summary: string;
   definition: string;
   example?: string;
+  /** Compétence du parcours à laquelle s'entraîner (null/absent si aucune). */
+  relatedSkillId?: string;
+  /** Slugs de termes reliés (navigation croisée). */
+  related?: string[];
 }
 
+// Couleurs alignées sur la palette « Instrument Glass » (Lot 1).
 export const GLOSSARY_CATEGORIES: { id: GlossaryCategory | 'all'; label: string; color: string }[] = [
-  { id: 'all', label: 'Tous', color: '#9DB0A6' },
-  { id: 'marche', label: 'Marché', color: '#5B7488' },
-  { id: 'analyse', label: 'Analyse', color: '#2FB35C' },
-  { id: 'risque', label: 'Risque', color: '#D0453C' },
-  { id: 'strategie', label: 'Stratégie', color: '#C79A45' },
-  { id: 'indicateur', label: 'Indicateur', color: '#3E9AE6' },
+  { id: 'all', label: 'Tous', color: '#8292A6' },
+  { id: 'marche', label: 'Marché', color: '#42B7E8' },
+  { id: 'analyse', label: 'Analyse', color: '#26C281' },
+  { id: 'risque', label: 'Risque', color: '#F05A67' },
+  { id: 'strategie', label: 'Stratégie', color: '#E8B94F' },
+  { id: 'indicateur', label: 'Indicateur', color: '#3BD695' },
 ];
 
-export const GLOSSARY_TERMS: GlossaryTerm[] = [
+const RAW_GLOSSARY_TERMS: GlossaryTerm[] = [
   { slug: 'bull-bear', term: 'Marché haussier & baissier', english: 'Bull & Bear Market', category: 'marche',
     summary: 'Deux régimes opposés : prix qui montent durablement (bull) ou qui baissent (bear).',
     definition: 'Un marché haussier (bull) désigne une hausse prolongée d’au moins 20 % depuis un creux ; un marché baissier (bear) une baisse d’au moins 20 % depuis un sommet.',
@@ -101,3 +106,32 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
     summary: 'Quand les pertes menacent le capital garanti d’une position à levier.',
     definition: 'Le courtier exige d’ajouter des fonds ou liquide la position. C’est le risque central de l’effet de levier.' },
 ];
+
+// Liens : compétence du parcours à travailler + termes reliés (navigation croisée).
+const GLOSSARY_LINKS: Record<string, { relatedSkillId?: string; related?: string[] }> = {
+  'bull-bear': { relatedSkillId: 'skill.trend', related: ['tendance', 'bulle'] },
+  'support-resistance': { relatedSkillId: 'skill.trend', related: ['tendance', 'volume'] },
+  tendance: { relatedSkillId: 'skill.trend', related: ['support-resistance', 'moyenne-mobile'] },
+  volume: { relatedSkillId: 'skill.trend', related: ['support-resistance', 'tendance'] },
+  'moyenne-mobile': { relatedSkillId: 'skill.trend', related: ['tendance', 'macd'] },
+  dividende: { relatedSkillId: 'skill.actions', related: ['capitalisation', 'per'] },
+  capitalisation: { relatedSkillId: 'skill.actions', related: ['per', 'etf'] },
+  per: { relatedSkillId: 'skill.actions', related: ['capitalisation', 'dividende'] },
+  etf: { relatedSkillId: 'skill.actions', related: ['diversification', 'capitalisation'] },
+  rsi: { related: ['macd', 'bollinger'] },
+  macd: { related: ['rsi', 'moyenne-mobile'] },
+  bollinger: { related: ['volatilite', 'moyenne-mobile'] },
+  volatilite: { related: ['bollinger', 'levier'] },
+  levier: { related: ['appel-de-marge', 'stop-take'] },
+  'appel-de-marge': { related: ['levier', 'stop-take'] },
+  'stop-take': { related: ['levier', 'appel-de-marge'] },
+  diversification: { related: ['correlation', 'etf'] },
+  correlation: { related: ['diversification'] },
+  bulle: { related: ['volatilite', 'bull-bear'] },
+};
+
+/** Glossaire enrichi : chaque terme reçoit sa compétence liée et ses termes reliés. */
+export const GLOSSARY_TERMS: GlossaryTerm[] = RAW_GLOSSARY_TERMS.map((t) => ({
+  ...t,
+  ...GLOSSARY_LINKS[t.slug],
+}));

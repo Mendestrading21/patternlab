@@ -1,6 +1,4 @@
-import { View, StyleSheet } from 'react-native';
-import { theme } from '../theme';
-import { Text } from './Text';
+import { StateView } from './StateView';
 
 export type EmptyStateProps = {
   icon?: string;
@@ -8,29 +6,7 @@ export type EmptyStateProps = {
   message?: string;
 };
 
-export function EmptyState({ icon = '🧭', title, message }: EmptyStateProps) {
-  return (
-    <View style={styles.wrap}>
-      <Text variant="display" center>
-        {icon}
-      </Text>
-      <Text variant="h2" center>
-        {title}
-      </Text>
-      {message ? (
-        <Text variant="body" color={theme.colors.textSecondary} center>
-          {message}
-        </Text>
-      ) : null}
-    </View>
-  );
+/** Compat : état « vide » — délègue à la primitive d'état unifiée (StateView). */
+export function EmptyState({ icon, title, message }: EmptyStateProps) {
+  return <StateView variant="empty" icon={icon} title={title} message={message} />;
 }
-
-const styles = StyleSheet.create({
-  wrap: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: theme.spacing.sm,
-    paddingVertical: theme.spacing.xxxl,
-  },
-});

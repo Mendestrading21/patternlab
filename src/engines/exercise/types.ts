@@ -15,7 +15,13 @@ export type ExerciseType =
   | 'find_error'
   | 'scenario'
   | 'numeric'
-  | 'timed';
+  | 'timed'
+  // Formats graphiques V5 (Lot 6)
+  | 'place_invalidation'
+  | 'label_chart'
+  | 'sequence_market_structure'
+  // Reconnaissance de figure sur visuel du moteur (bibliothèque)
+  | 'identify_figure';
 
 export const ALL_EXERCISE_TYPES: ExerciseType[] = [
   'mcq',
@@ -30,6 +36,10 @@ export const ALL_EXERCISE_TYPES: ExerciseType[] = [
   'scenario',
   'numeric',
   'timed',
+  'place_invalidation',
+  'label_chart',
+  'sequence_market_structure',
+  'identify_figure',
 ];
 
 export type ExerciseDifficulty = 'easy' | 'medium' | 'hard';
@@ -99,6 +109,74 @@ export interface IdentifyPatternExercise extends BaseExercise {
   validation: { correctIndex: number };
 }
 
+/** Scénario conditionnel (SI … / ALORS …). */
+export interface ScenarioExercise extends BaseExercise {
+  type: 'scenario';
+  /** Le « SI » : le setup/contexte à évaluer. */
+  context: string;
+  /** Les issues possibles (« ALORS »). */
+  options: string[];
+  validation: { correctIndex: number };
+}
+
+/** Sélection d'une zone du graphique (gauche→droite). */
+export interface SelectChartZoneExercise extends BaseExercise {
+  type: 'select_chart_zone';
+  chartSeed: number;
+  /** Libellés des zones, de gauche à droite (servent aussi de repère accessible). */
+  zones: string[];
+  validation: { correctZone: number };
+}
+
+/**
+ * Placer un niveau d'invalidation (prix) sur le graphique.
+ * La réponse est un prix ; correcte si dans la tolérance absolue autour de la cible.
+ */
+export interface PlaceInvalidationExercise extends BaseExercise {
+  type: 'place_invalidation';
+  chartSeed: number;
+  /** Repère textuel (ex. « sous le second creux ») — sens attendu, accessible. */
+  hint?: string;
+  validation: { targetPrice: number; tolerance: number };
+}
+
+/** Étiqueter un élément mis en évidence sur le graphique (bougie marquée par un repère). */
+export interface LabelChartExercise extends BaseExercise {
+  type: 'label_chart';
+  chartSeed: number;
+  /** Index de la bougie mise en évidence (0-based) dans la série de 30. */
+  markerIndex: number;
+  options: string[];
+  validation: { correctIndex: number };
+}
+
+/** Reconstituer l'ordre d'une séquence de structure de marché (range → cassure → pullback…). */
+export interface SequenceMarketStructureExercise extends BaseExercise {
+  type: 'sequence_market_structure';
+  /** Étapes à ordonner. */
+  steps: string[];
+  /** Seed d'un graphique d'illustration (optionnel). */
+  chartSeed?: number;
+  /** correctOrder = indices de `steps` dans le bon ordre. */
+  validation: { correctOrder: number[] };
+}
+
+/**
+ * Reconnaître une figure rendue par le moteur de visuels (bibliothèque déterministe).
+ * Le visuel est affiché en mode « énigme » ; on choisit son nom parmi des intitulés.
+ */
+export interface IdentifyFigureExercise extends BaseExercise {
+  type: 'identify_figure';
+  /** Clé du dataset OHLC déterministe de la figure à reconnaître. */
+  datasetKey: string;
+  /** Variant (= id de figure) pour résoudre overlays/indicateurs au rendu. */
+  variant: string;
+  /** Type de rendu du moteur de visuels. */
+  visualType: 'candle-anatomy' | 'candlestick-pattern' | 'chart-pattern' | 'market-structure' | 'indicator';
+  options: string[];
+  validation: { correctIndex: number };
+}
+
 /** Union discriminée des formats implémentés (narrowing par `type`). */
 export type Exercise =
   | McqExercise
@@ -107,7 +185,13 @@ export type Exercise =
   | OrderExercise
   | MatchExercise
   | FindErrorExercise
-  | IdentifyPatternExercise;
+  | IdentifyPatternExercise
+  | ScenarioExercise
+  | SelectChartZoneExercise
+  | PlaceInvalidationExercise
+  | LabelChartExercise
+  | SequenceMarketStructureExercise
+  | IdentifyFigureExercise;
 
 export interface GradeResult {
   correct: boolean;

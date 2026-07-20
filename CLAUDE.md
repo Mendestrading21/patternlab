@@ -1,6 +1,9 @@
 # CLAUDE.md — PatternLab
 
 Toujours appliquer le Skill `patternlab-full-launch`.
+Pour la croissance produit par lots (fiabilité, design, navigation, contenu,
+monétisation…), appliquer le Skill `patternlab-product-growth` (un seul lot majeur
+par session).
 
 ## Produit
 

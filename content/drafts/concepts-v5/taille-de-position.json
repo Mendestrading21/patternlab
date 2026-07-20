@@ -1,0 +1,35 @@
+{
+  "id": "concept.position-size",
+  "slug": "taille-de-position",
+  "title": "Taille de position",
+  "shortTitle": "Taille de position",
+  "aliases": ["Position sizing"],
+  "categoryId": "cat.risk",
+  "worldId": "world.risk",
+  "difficulty": 3,
+  "prerequisites": ["concept.stop-loss"],
+  "tags": ["risque", "sizing", "ruine"],
+  "learningObjective": "Comprendre pourquoi la taille de position découle du risque accepté, pas de l’envie.",
+  "definitionShort": "La quantité engagée, déduite du risque par opération et de la distance au stop.",
+  "definitionDetailed": "La taille de position se déduit de deux éléments : combien on accepte de perdre sur une opération, et la distance jusqu’au niveau d’invalidation. Une distance de stop plus large impose une position plus petite pour garder le même risque. C’est un garde-fou contre le risque de ruine.",
+  "howToRecognize": ["Un risque par opération fixé à l’avance.", "Une taille qui varie selon la distance au stop.", "Un risque constant d’une opération à l’autre."],
+  "falseSignals": ["Augmenter la taille après une série de réussites, par excès de confiance."],
+  "commonMistakes": ["Choisir la taille par envie plutôt que par le risque et le stop."],
+  "checklist": ["Risque par opération défini ?", "Distance au stop connue ?", "Taille cohérente avec les deux ?"],
+  "miniQuizzes": [
+    {
+      "question": "Si le stop est plus loin, la position doit être…",
+      "options": ["Plus grande", "Plus petite (à risque constant)", "Inchangée", "Doublée"],
+      "correctIndex": 1,
+      "explanation": "Pour garder le même risque, une distance de stop plus large impose une position plus petite."
+    }
+  ],
+  "relatedConceptIds": ["concept.stop-loss"],
+  "sources": [{ "label": "Voix pédagogique PatternLab", "kind": "editorial" }],
+  "sourcePath": "editorial/v5/taille-de-position",
+  "sourceHash": "v5-risk-0002",
+  "version": 1,
+  "status": "needsReview",
+  "locale": "fr-CH",
+  "disclaimer": "Contenu éducatif. Aucun conseil en investissement. Le trading comporte un risque de perte."
+}

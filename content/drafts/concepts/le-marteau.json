@@ -1,0 +1,22 @@
+{
+  "id": "concept.le-marteau",
+  "slug": "le-marteau",
+  "title": "Le marteau",
+  "category": "chandeliers",
+  "skillId": "skill.candles",
+  "difficulty": "beginner",
+  "definition": "Après une baisse, une bougie à petit corps haut et longue mèche basse signale un rejet des prix bas : un possible essoufflement des vendeurs.",
+  "commonMistake": "Confondre un marteau isolé avec une confirmation de retournement.",
+  "sources": [
+    "WMB — Chandeliers : Marteau"
+  ],
+  "status": "needsReview",
+  "locale": "fr",
+  "disclaimer": "Contenu éducatif. Aucun conseil en investissement, aucun signal, aucune promesse de gain.",
+  "origin": {
+    "sourcePath": "scripts/import-app/source/concepts.json",
+    "sourceHash": "a276158d",
+    "importedAt": "2026-07-18T10:44:52.521Z",
+    "migrationVersion": 1
+  }
+}

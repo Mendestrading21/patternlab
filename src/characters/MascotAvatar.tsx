@@ -1,6 +1,7 @@
 import { View, StyleSheet } from 'react-native';
 import { Toto, Bobo } from './vector';
-import { STATE_TO_EXPRESSION, type CharacterId, type CharacterState } from './types';
+import { STATE_TO_EXPRESSION } from './states';
+import type { CharacterId, CharacterState } from './types';
 
 export type MascotAvatarProps = {
   character: CharacterId;
