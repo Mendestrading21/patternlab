@@ -2,7 +2,11 @@ import { useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, Chip, theme } from '@/design-system';
 import { CharacterScene, MascotFigure } from '@/characters';
-import { DEMO_SKILL, DEMO_EXERCISES } from '@/data';
+import { MiniVisual } from '@/engines/visual';
+import { DEMO_SKILL, DEMO_EXERCISES, V5_CONCEPTS } from '@/data';
+
+/** Quelques figures à reconnaître (signal visuel sur la page d'accueil du quiz). */
+const RECOGNIZE = V5_CONCEPTS.filter((c) => c.visualSpec).slice(0, 6);
 
 const FORMAT_LABELS: Record<string, string> = {
   mcq: 'Choix multiple',
@@ -41,6 +45,23 @@ export default function Quiz() {
         </View>
       </Card>
 
+      <Card>
+        <Text variant="title">Ce que tu vas reconnaître</Text>
+        <Text variant="caption" color={theme.colors.textMuted}>
+          Des figures à repérer — chaque schéma est dessiné en code.
+        </Text>
+        <View style={styles.recognize}>
+          {RECOGNIZE.map((c) => (
+            <View key={c.id} style={styles.recognizeItem}>
+              {c.visualSpec ? <MiniVisual spec={c.visualSpec} width={104} /> : null}
+              <Text variant="caption" color={theme.colors.textSecondary} center>
+                {c.shortTitle}
+              </Text>
+            </View>
+          ))}
+        </View>
+      </Card>
+
       <CharacterScene
         character="toto"
         state="explain"
@@ -58,4 +79,6 @@ export default function Quiz() {
 
 const styles = StyleSheet.create({
   formats: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, marginTop: theme.spacing.sm },
+  recognize: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md, marginTop: theme.spacing.sm, justifyContent: 'space-between' },
+  recognizeItem: { alignItems: 'center', gap: 2 },
 });

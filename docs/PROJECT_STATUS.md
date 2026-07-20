@@ -70,8 +70,19 @@ Les images restent hors périmètre de commit (déjà sur `main`, jamais une dé
   validate:content 31 · release:check 14 · build:web. Vérifié en pilotant Chromium (390×844) : 64 SVG,
   9 polylignes (2 moyennes + 3 Bollinger + RSI + 2 MACD + divergence), repères RSI·70/30 / MACD / prix ↑ /
   RSI ↓ / 61.8 % rendus, 0 erreur console. Voir **ADR-045**.
-- **Suite (à faire)** : **Lot 5** — câbler un signal visuel sur chaque carte de quiz/exercice/révision et
-  chaque concept, pour tenir l'objectif « toujours un signal de ce que c'est » partout. Commit local, **aucun push sans accord**.
+- **Lot 5 — Un signal visuel sur chaque carte** ✅ (**dernier lot**) : vignette `MiniVisual` (rendu compact
+  d'un `VisualSpec`, résumé porté par `accessibilityLabel`). `buildRevisionDeck` transporte le `visualSpec`
+  du concept → chaque flashcard et mini-quiz du deck affiche sa vignette. Onglet Quiz : carte « Ce que tu
+  vas reconnaître » (grille de vignettes étiquetées). Validations : lint · typecheck · tests **364** (+1) ·
+  validate:content 31 · release:check 14 · build:web. Vérifié en pilotant Chromium (390×844) : strip du
+  quiz (6 vignettes, doubles/zones inclus), deck de révision débloqué (démo Premium) avec 28 vignettes sur
+  les cartes, 0 erreur de page. Voir **ADR-046**.
+
+## 🏁 Initiative « un signal visuel partout » — COMPLÈTE (Lots 1 → 5)
+Inspirée des 66 images de référence (jamais copiées) : **64 figures** dessinées en code sur **7 familles**
+— chandeliers simples/doubles/triples (Lot 1), figures chartistes + moteur d'overlays (2), structure & SMC
+(3), indicateurs avec sous-panneau (4), câblage d'un signal visuel sur chaque carte de révision et le quiz
+(5). Galerie `/bibliotheque-visuelle`. Gate verte à chaque lot. ADRs 042 → 046. **Aucun push sans accord.**
 
 ---
 

@@ -5,13 +5,15 @@
  * le deck consolidé (réviser d'un coup) est la valeur ajoutée. Aucune donnée personnelle.
  */
 import { V5_CONCEPTS } from './learningContent';
-import type { LearningConcept } from './learningConcept';
+import type { LearningConcept, VisualSpec } from './learningConcept';
 
 export interface DeckFlashcard {
   conceptSlug: string;
   conceptTitle: string;
   front: string;
   back: string;
+  /** Signal visuel du concept (Lot 5) — vignette sur la carte. */
+  visualSpec?: VisualSpec;
 }
 
 export interface DeckQuiz {
@@ -21,6 +23,8 @@ export interface DeckQuiz {
   options: string[];
   correctIndex: number;
   explanation: string;
+  /** Signal visuel du concept (Lot 5) — vignette sur la carte. */
+  visualSpec?: VisualSpec;
 }
 
 export interface RevisionDeck {
@@ -35,7 +39,7 @@ export function buildRevisionDeck(concepts: LearningConcept[] = V5_CONCEPTS): Re
   const quizzes: DeckQuiz[] = [];
   for (const c of concepts) {
     for (const f of c.flashcards) {
-      flashcards.push({ conceptSlug: c.slug, conceptTitle: c.title, front: f.front, back: f.back });
+      flashcards.push({ conceptSlug: c.slug, conceptTitle: c.title, front: f.front, back: f.back, visualSpec: c.visualSpec });
     }
     for (const q of c.miniQuizzes) {
       quizzes.push({
@@ -45,6 +49,7 @@ export function buildRevisionDeck(concepts: LearningConcept[] = V5_CONCEPTS): Re
         options: q.options,
         correctIndex: q.correctIndex,
         explanation: q.explanation,
+        visualSpec: c.visualSpec,
       });
     }
   }

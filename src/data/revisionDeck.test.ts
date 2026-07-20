@@ -33,4 +33,13 @@ describe('buildRevisionDeck', () => {
   it('est déterministe (ordre stable)', () => {
     expect(buildRevisionDeck(V5_CONCEPTS)).toEqual(deck);
   });
+
+  it('chaque carte porte un signal visuel avec dataset et résumé accessible', () => {
+    const cards = [...deck.flashcards, ...deck.quizzes];
+    for (const c of cards) {
+      expect(c.visualSpec).toBeDefined();
+      expect(c.visualSpec!.datasetKey).toBeTruthy();
+      expect(c.visualSpec!.accessibilitySummary.trim().length).toBeGreaterThan(0);
+    }
+  });
 });

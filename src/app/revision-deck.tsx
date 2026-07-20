@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, Flashcard, theme } from '@/design-system';
 import { CharacterScene } from '@/characters';
+import { MiniVisual } from '@/engines/visual';
 import { useProgress, buildRevisionDeck, isPremium } from '@/data';
 import { analytics } from '@/analytics';
 
@@ -58,9 +59,12 @@ export default function RevisionDeck() {
       <Text variant="h2">Flashcards</Text>
       {deck.flashcards.map((f, i) => (
         <View key={`f-${i}`} style={styles.item}>
-          <Text variant="caption" color={theme.colors.technical}>
-            {f.conceptTitle}
-          </Text>
+          <View style={styles.head}>
+            {f.visualSpec ? <MiniVisual spec={f.visualSpec} width={96} /> : null}
+            <Text variant="caption" color={theme.colors.technical} style={styles.flex1}>
+              {f.conceptTitle}
+            </Text>
+          </View>
           <Flashcard front={f.front} back={f.back} />
         </View>
       ))}
@@ -68,9 +72,12 @@ export default function RevisionDeck() {
       <Text variant="h2">Mini-quiz</Text>
       {deck.quizzes.map((q, i) => (
         <View key={`q-${i}`} style={styles.item}>
-          <Text variant="caption" color={theme.colors.technical}>
-            {q.conceptTitle}
-          </Text>
+          <View style={styles.head}>
+            {q.visualSpec ? <MiniVisual spec={q.visualSpec} width={96} /> : null}
+            <Text variant="caption" color={theme.colors.technical} style={styles.flex1}>
+              {q.conceptTitle}
+            </Text>
+          </View>
           <Flashcard front={q.question} back={`Réponse : ${q.options[q.correctIndex]} — ${q.explanation}`} />
         </View>
       ))}
@@ -83,4 +90,6 @@ export default function RevisionDeck() {
 const styles = StyleSheet.create({
   gate: { gap: theme.spacing.sm },
   item: { gap: theme.spacing.xs },
+  head: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+  flex1: { flex: 1 },
 });
