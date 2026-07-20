@@ -36,10 +36,14 @@ export interface LearningStats {
   worldsExplored: string[];
   /** Faux signaux / invalidations correctement repérés (cumulatif). */
   falseSignalsSpotted: number;
+  /** Figures correctement reconnues à l'entraîneur (cumulatif, schéma v7). */
+  figuresRecognized: number;
+  /** Meilleure série de reconnaissance atteinte (schéma v7). */
+  bestRecognitionStreak: number;
 }
 
 export function emptyLearning(): LearningStats {
-  return { conceptsExplored: [], worldsExplored: [], falseSignalsSpotted: 0 };
+  return { conceptsExplored: [], worldsExplored: [], falseSignalsSpotted: 0, figuresRecognized: 0, bestRecognitionStreak: 0 };
 }
 
 export interface ProgressState {
@@ -66,7 +70,7 @@ export interface ProgressState {
   schemaVersion: number;
 }
 
-export const PROGRESS_SCHEMA_VERSION = 6;
+export const PROGRESS_SCHEMA_VERSION = 7;
 
 export interface ProgressRepository {
   load(): Promise<ProgressState | null>;
@@ -155,6 +159,8 @@ function migrateLearning(raw: unknown): LearningStats {
     conceptsExplored: strings(l.conceptsExplored),
     worldsExplored: strings(l.worldsExplored),
     falseSignalsSpotted: count(l.falseSignalsSpotted),
+    figuresRecognized: count(l.figuresRecognized),
+    bestRecognitionStreak: count(l.bestRecognitionStreak),
   };
 }
 

@@ -11,7 +11,7 @@ import {
 import { defaultProgress } from './seed';
 import type { OnboardingProfile } from './onboardingProfile';
 import { toggleInSet, pushRecent } from './favorites';
-import { addConceptExplored, addFalseSignalSpotted } from './learningStats';
+import { addConceptExplored, addFalseSignalSpotted, addRecognitionResult } from './learningStats';
 import * as premium from './premium';
 import { masteryStatus, type Grade } from '../engines/learning';
 import * as progressLogic from './progressLogic';
@@ -58,6 +58,8 @@ interface ProgressContextValue {
   markConceptExplored: (slug: string, worldId?: string) => void;
   /** Réussites V5 : enregistre un faux signal / une invalidation correctement repérés. */
   recordFalseSignal: () => void;
+  /** Reconnaissance : enregistre une série (figures reconnues + meilleure série). */
+  recordRecognition: (recognized: number, bestStreak: number) => void;
   reset: () => void;
 }
 
@@ -137,6 +139,18 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       const next = addFalseSignalSpotted(prev);
       void progressRepository.save(next);
       analytics.track('false_signal_identified', { total: next.learning?.falseSignalsSpotted ?? 0 });
+      announceBadges(prev, next);
+      return next;
+    });
+  }, []);
+
+  const recordRecognition = useCallback((recognized: number, bestStreak: number) => {
+    setState((prev) => {
+      if (!prev) return prev;
+      const next = addRecognitionResult(prev, recognized, bestStreak);
+      if (next === prev) return prev;
+      void progressRepository.save(next);
+      analytics.track('recognition_completed', { total: next.learning?.figuresRecognized ?? 0 });
       announceBadges(prev, next);
       return next;
     });
@@ -294,6 +308,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         markRecentlyViewed,
         markConceptExplored,
         recordFalseSignal,
+        recordRecognition,
         reset,
       }}
     >

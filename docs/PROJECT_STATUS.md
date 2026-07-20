@@ -87,6 +87,14 @@ Les images restent hors périmètre de commit (déjà sur `main`, jamais une dé
   (%K/%D + 80/20)/VWAP/ATR rendus, 0 erreur console. Voir **ADR-047**.
 
 ## Fonctionnalités bâties sur la bibliothèque visuelle
+- **Persistance des progrès de reconnaissance + badge** ✅ : schéma de progression **v6 → v7**
+  (`figuresRecognized`, `bestRecognitionStreak` cumulatifs ; migration sûre, défaut 0, assainie — aucune
+  perte). Logique pure `addRecognitionResult` ; badge **« Œil de lecteur » 👁️** à 15 figures reconnues ;
+  `ProgressProvider.recordRecognition` (persistance + analytics `recognition_completed` + badges) appelé en
+  fin de série ; carte Exploration des statistiques enrichie (« Figures reconnues »). Validations : lint ·
+  typecheck · tests **376** · validate:content 31 · release:check 14 · build:web. Vérifié en pilotant
+  Chromium : série jouée (2/8) **persistée** et réaffichée à l'identique dans les statistiques, 0 erreur.
+  Voir **ADR-049**.
 - **Entraîneur « Reconnais la figure »** ✅ : logique pure `recognitionTrainer.ts` (`buildRecognitionSession`,
   PRNG mulberry32, distracteurs prioritairement de même famille) ; mode **`blind`** de `VisualCard`
   (énigme sans fuite de la réponse, y compris au lecteur d'écran) ; écran **`/reconnaissance`** (quiz 8

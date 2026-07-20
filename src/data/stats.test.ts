@@ -23,13 +23,13 @@ function fresh(overrides: Partial<ProgressState> = {}): ProgressState {
 
 describe('computeStats — exploration (compréhension V5)', () => {
   it('reporte les compteurs d’exploration', () => {
-    const s = fresh({ learning: { conceptsExplored: ['a', 'b', 'c'], worldsExplored: ['world.candles', 'world.structure'], falseSignalsSpotted: 4 } });
+    const s = fresh({ learning: { conceptsExplored: ['a', 'b', 'c'], worldsExplored: ['world.candles', 'world.structure'], falseSignalsSpotted: 4, figuresRecognized: 9, bestRecognitionStreak: 5 } });
     const stats = computeStats(s, SKILLS, T0);
-    expect(stats.exploration).toEqual({ conceptsExplored: 3, worldsExplored: 2, falseSignalsSpotted: 4 });
+    expect(stats.exploration).toEqual({ conceptsExplored: 3, worldsExplored: 2, falseSignalsSpotted: 4, figuresRecognized: 9 });
   });
   it('défaut à zéro si learning absent', () => {
     const stats = computeStats(fresh({ learning: undefined }), SKILLS, T0);
-    expect(stats.exploration).toEqual({ conceptsExplored: 0, worldsExplored: 0, falseSignalsSpotted: 0 });
+    expect(stats.exploration).toEqual({ conceptsExplored: 0, worldsExplored: 0, falseSignalsSpotted: 0, figuresRecognized: 0 });
   });
 });
 

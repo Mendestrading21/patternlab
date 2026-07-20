@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { Screen, Text, Card, Button, theme } from '@/design-system';
 import { CharacterScene } from '@/characters';
 import { VisualCard } from '@/engines/visual';
-import { buildRecognitionSession } from '@/data';
+import { buildRecognitionSession, useProgress } from '@/data';
 
 const ROUNDS = 8;
 const OPTIONS = 4;
@@ -16,6 +16,7 @@ const OPTIONS = 4;
  */
 export default function Reconnaissance() {
   const router = useRouter();
+  const { recordRecognition, ready } = useProgress();
   const [seed, setSeed] = useState(2024);
   const session = useMemo(() => buildRecognitionSession(seed, ROUNDS, OPTIONS), [seed]);
 
@@ -46,6 +47,10 @@ export default function Reconnaissance() {
   };
 
   const next = () => {
+    // Dernière manche : consigner le résultat de la série (persisté + badges).
+    if (round && index === session.length - 1 && ready) {
+      recordRecognition(score, bestStreak);
+    }
     setSelected(null);
     setIndex((i) => i + 1);
   };

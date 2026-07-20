@@ -59,7 +59,7 @@ export interface Stats {
   windowXp: number;
   peakXp: number;
   /** Exploration cumulative (réussites « compréhension » V5). */
-  exploration: { conceptsExplored: number; worldsExplored: number; falseSignalsSpotted: number };
+  exploration: { conceptsExplored: number; worldsExplored: number; falseSignalsSpotted: number; figuresRecognized: number };
 }
 
 export function computeStats(
@@ -138,6 +138,7 @@ export function computeStats(
     conceptsExplored: l.conceptsExplored.length,
     worldsExplored: l.worldsExplored.length,
     falseSignalsSpotted: l.falseSignalsSpotted,
+    figuresRecognized: l.figuresRecognized,
   };
 
   return {

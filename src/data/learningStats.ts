@@ -31,3 +31,17 @@ export function addFalseSignalSpotted(state: ProgressState): ProgressState {
   const l = learningOf(state);
   return { ...state, learning: { ...l, falseSignalsSpotted: l.falseSignalsSpotted + 1 } };
 }
+
+/**
+ * Enregistre le résultat d'une série de reconnaissance : ajoute les figures reconnues au cumul et
+ * relève la meilleure série. Pur ; `recognized`/`bestStreak` négatifs ou non finis sont ignorés.
+ */
+export function addRecognitionResult(state: ProgressState, recognized: number, bestStreak: number): ProgressState {
+  const l = learningOf(state);
+  const add = Number.isFinite(recognized) && recognized > 0 ? Math.floor(recognized) : 0;
+  const streak = Number.isFinite(bestStreak) && bestStreak > 0 ? Math.floor(bestStreak) : 0;
+  const figuresRecognized = l.figuresRecognized + add;
+  const bestRecognitionStreak = Math.max(l.bestRecognitionStreak, streak);
+  if (figuresRecognized === l.figuresRecognized && bestRecognitionStreak === l.bestRecognitionStreak) return state;
+  return { ...state, learning: { ...l, figuresRecognized, bestRecognitionStreak } };
+}

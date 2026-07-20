@@ -88,7 +88,7 @@ describe('migrateProgress', () => {
   it('schéma v6 : compteurs d’apprentissage par défaut et assainis', () => {
     // état v5 sans learning → défaut vide
     const v5 = migrateProgress({ schemaVersion: 5, totalXp: 0 }, T0)!;
-    expect(v5.learning).toEqual({ conceptsExplored: [], worldsExplored: [], falseSignalsSpotted: 0 });
+    expect(v5.learning).toEqual({ conceptsExplored: [], worldsExplored: [], falseSignalsSpotted: 0, figuresRecognized: 0, bestRecognitionStreak: 0 });
     // learning assaini : chaînes dédupliquées, compteur borné
     const m = migrateProgress(
       {
@@ -105,7 +105,21 @@ describe('migrateProgress', () => {
       conceptsExplored: ['marteau', 'doji'],
       worldsExplored: ['world.candles'],
       falseSignalsSpotted: 0,
+      figuresRecognized: 0,
+      bestRecognitionStreak: 0,
     });
+  });
+
+  it('schéma v7 : compteurs de reconnaissance par défaut et assainis', () => {
+    // état v6 (avec learning mais sans les compteurs de reconnaissance) → défauts 0
+    const v6 = migrateProgress({ schemaVersion: 6, totalXp: 0, learning: { conceptsExplored: ['marteau'], worldsExplored: [], falseSignalsSpotted: 1 } }, T0)!;
+    expect(v6.learning!.figuresRecognized).toBe(0);
+    expect(v6.learning!.bestRecognitionStreak).toBe(0);
+    expect(v6.learning!.conceptsExplored).toEqual(['marteau']); // progression conservée
+    // valeurs assainies (négatif / non fini → 0, décimal tronqué)
+    const m = migrateProgress({ totalXp: 0, learning: { figuresRecognized: 12.9, bestRecognitionStreak: -4 } }, T0)!;
+    expect(m.learning!.figuresRecognized).toBe(12);
+    expect(m.learning!.bestRecognitionStreak).toBe(0);
   });
 
   it('schéma v4 : assainit un registre du jour corrompu et les listes', () => {

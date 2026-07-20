@@ -21,6 +21,7 @@ export type AnalyticsEvent =
   | 'hint_requested'
   | 'feedback_viewed'
   | 'false_signal_identified'
+  | 'recognition_completed'
   | 'review_completed'
   | 'mastery_changed'
   | 'checkpoint_completed'
@@ -70,6 +71,7 @@ export const EVENT_CATEGORIES: Record<AnalyticsEvent, AnalyticsCategory> = {
   hint_requested: 'learning',
   feedback_viewed: 'learning',
   false_signal_identified: 'learning',
+  recognition_completed: 'learning',
   review_completed: 'learning',
   mastery_changed: 'learning',
   checkpoint_completed: 'learning',

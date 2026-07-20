@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
-import { learningOf, isFalseSignalExercise, addConceptExplored, addFalseSignalSpotted } from './learningStats';
+import { learningOf, isFalseSignalExercise, addConceptExplored, addFalseSignalSpotted, addRecognitionResult } from './learningStats';
 import { earnedBadges } from './badges';
 import { defaultProgress } from './seed';
 
@@ -9,7 +9,25 @@ const base = defaultProgress(T0);
 describe('learningOf', () => {
   it('renvoie un défaut vide si absent', () => {
     const l = learningOf({ ...base, learning: undefined });
-    expect(l).toEqual({ conceptsExplored: [], worldsExplored: [], falseSignalsSpotted: 0 });
+    expect(l).toEqual({ conceptsExplored: [], worldsExplored: [], falseSignalsSpotted: 0, figuresRecognized: 0, bestRecognitionStreak: 0 });
+  });
+});
+
+describe('addRecognitionResult', () => {
+  it('cumule les figures reconnues et relève la meilleure série', () => {
+    let s = addRecognitionResult(base, 5, 3);
+    expect(learningOf(s).figuresRecognized).toBe(5);
+    expect(learningOf(s).bestRecognitionStreak).toBe(3);
+    s = addRecognitionResult(s, 4, 2); // meilleure série moindre → conservée à 3
+    expect(learningOf(s).figuresRecognized).toBe(9);
+    expect(learningOf(s).bestRecognitionStreak).toBe(3);
+    s = addRecognitionResult(s, 0, 6); // 0 figure mais meilleure série relevée
+    expect(learningOf(s).figuresRecognized).toBe(9);
+    expect(learningOf(s).bestRecognitionStreak).toBe(6);
+  });
+  it('ignore les valeurs invalides et ne change rien si sans effet', () => {
+    const s = addRecognitionResult(base, -2, Number.NaN);
+    expect(s).toBe(base); // aucun changement → même référence
   });
 });
 
@@ -65,5 +83,9 @@ describe('réussites « compréhension » V5', () => {
     ['a', 'b', 'c', 'd', 'e'].forEach((c, i) => (s = addConceptExplored(s, c, worlds[i])));
     expect(earnedBadges(s).has('curious')).toBe(true);
     expect(earnedBadges(s).has('world-cartographer')).toBe(true);
+  });
+  it('badge œil de lecteur à 15 figures reconnues', () => {
+    expect(earnedBadges(addRecognitionResult(base, 14, 4)).has('reader-eye')).toBe(false);
+    expect(earnedBadges(addRecognitionResult(base, 15, 4)).has('reader-eye')).toBe(true);
   });
 });

@@ -30,6 +30,7 @@ export const BADGES: Badge[] = [
   { id: 'false-signal-spotter', name: 'Détecteur de faux signaux', emoji: '🚩', description: 'Repère 3 faux signaux ou invalidations.', family: 'understanding', earned: (s) => learn(s).falseSignalsSpotted >= 3 },
   { id: 'curious', name: 'Curieux', emoji: '🔍', description: 'Explore 5 concepts.', family: 'understanding', earned: (s) => learn(s).conceptsExplored.length >= 5 },
   { id: 'world-cartographer', name: 'Cartographe des mondes', emoji: '🌍', description: 'Explore 3 mondes.', family: 'understanding', earned: (s) => learn(s).worldsExplored.length >= 3 },
+  { id: 'reader-eye', name: 'Œil de lecteur', emoji: '👁️', description: 'Reconnais 15 figures à l’entraîneur.', family: 'understanding', earned: (s) => learn(s).figuresRecognized >= 15 },
 ];
 
 export function earnedBadges(state: ProgressState | null): Set<string> {
