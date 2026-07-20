@@ -34,11 +34,15 @@ describe('buildRevisionDeck', () => {
     expect(buildRevisionDeck(V5_CONCEPTS)).toEqual(deck);
   });
 
-  it('chaque carte porte un signal visuel avec dataset et résumé accessible', () => {
+  it('chaque carte porte un signal visuel avec résumé accessible (dataset sauf rendus dédiés)', () => {
     const cards = [...deck.flashcards, ...deck.quizzes];
+    // Types rendus sans dataset OHLC (rendu dédié) : le datasetKey y est optionnel.
+    const noDatasetTypes = new Set(['option-payoff']);
     for (const c of cards) {
       expect(c.visualSpec).toBeDefined();
-      expect(c.visualSpec!.datasetKey).toBeTruthy();
+      if (!noDatasetTypes.has(c.visualSpec!.type)) {
+        expect(c.visualSpec!.datasetKey).toBeTruthy();
+      }
       expect(c.visualSpec!.accessibilitySummary.trim().length).toBeGreaterThan(0);
     }
   });

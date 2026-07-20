@@ -333,4 +333,5 @@ export const SUPPORTED_VISUAL_TYPES = [
   'market-structure',
   'indicator',
   'risk-reward',
+  'option-payoff',
 ] as const;

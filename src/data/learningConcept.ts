@@ -86,6 +86,7 @@ export interface VisualSpec {
     | 'market-structure'
     | 'indicator'
     | 'risk-reward'
+    | 'option-payoff'
     | 'volume-profile'
     | 'comparison'
     | 'cheat-sheet';

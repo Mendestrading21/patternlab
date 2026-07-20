@@ -4,6 +4,7 @@ import type { VisualSpec } from '../../../data/learningConcept';
 import { datasetByKey } from '../visualDatasets';
 import { figureOverlay } from '../figureOverlays';
 import { CandlestickGlyphs, type Zone } from './CandlestickGlyphs';
+import { OptionPayoff } from './OptionPayoff';
 
 /**
  * Vignette visuelle compacte (Lot 5) — un « signal » de la figure, à glisser sur une carte de
@@ -11,10 +12,18 @@ import { CandlestickGlyphs, type Zone } from './CandlestickGlyphs';
  * par `accessibilityLabel`). Types non-bougie (indicateurs) : la série de prix suffit comme signal.
  */
 export function MiniVisual({ spec, width = 132 }: { spec: VisualSpec; width?: number }) {
+  const summary = spec.accessibilitySummary;
+  // Payoff d'option : pas de dataset OHLC, rendu dédié.
+  if (spec.type === 'option-payoff') {
+    return (
+      <View style={{ width }}>
+        <OptionPayoff kind={spec.variant === 'put' ? 'put' : 'call'} hideLabels accessibilityLabel={summary} />
+      </View>
+    );
+  }
   const candles = datasetByKey(spec.datasetKey);
   if (!candles.length) return null;
   const box = { width, height: Math.round(width * 0.56), padY: 7 };
-  const summary = spec.accessibilitySummary;
 
   if (spec.type === 'chart-pattern') {
     const o = figureOverlay(spec.variant);

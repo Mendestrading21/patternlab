@@ -87,6 +87,13 @@ Les images restent hors périmètre de commit (déjà sur `main`, jamais une dé
   (%K/%D + 80/20)/VWAP/ATR rendus, 0 erreur console. Voir **ADR-047**.
 
 ## Contenu bâti sur la bibliothèque visuelle
+- **Monde Options + visuel payoff — carte 15/15** ✅ : nouveau **type de visuel `option-payoff`**
+  (composant `OptionPayoff`, courbe call/put + strike + seuil + perte=prime, sans dataset OHLC) géré par
+  `VisualCard`/`MiniVisual` (test du deck assoupli : datasetKey optionnel pour rendus dédiés). 2 concepts
+  `needsReview` (call, put) cadrés « notion éducative, sans exécution ni conseil ». `V5_CONCEPTS` **36 → 38**
+  ; **la carte des mondes est complète : 15/15 ouverts**. Validations : lint · typecheck · tests **381** ·
+  validate:content 31 · release:check 14 · build:web. Vérifié en pilotant Chromium : payoff call/put rendus,
+  Parcours 15/15 mondes, 0 erreur. Voir **ADR-053**.
 - **Ouverture Psychologie / Fondations / Price action** ✅ : 4 concepts `needsReview` illustrés (FOMO,
   discipline & plan, marché & prix, price action) + dataset `structure.parabolic.v1` (emballement FOMO).
   `V5_CONCEPTS` **32 → 36** ; la carte des mondes passe de **11/15 à 14/15 ouverts** (seul *Options* reste

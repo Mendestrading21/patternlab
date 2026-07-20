@@ -6,6 +6,7 @@ import { datasetByKey } from '../visualDatasets';
 import { CandlestickGlyphs, type Zone, type Level } from './CandlestickGlyphs';
 import { CandleAnatomy } from './CandleAnatomy';
 import { IndicatorPanel } from './IndicatorPanel';
+import { OptionPayoff } from './OptionPayoff';
 import { figureOverlay } from '../figureOverlays';
 import { indicatorConfig } from '../indicatorConfigs';
 import { riskSetup } from '../riskSetups';
@@ -79,6 +80,9 @@ export function VisualCard({ spec, title, blind = false }: VisualCardProps) {
     } else {
       visual = <CandlestickGlyphs candles={candles} accessibilityLabel={summary} />;
     }
+  } else if (spec.type === 'option-payoff') {
+    // Diagramme de payoff (call/put) — pas de dataset OHLC, rendu dédié.
+    visual = <OptionPayoff kind={spec.variant === 'put' ? 'put' : 'call'} hideLabels={blind} accessibilityLabel={summary} />;
   } else {
     visual = (
       <View style={styles.fallback} accessible accessibilityLabel={summary}>
