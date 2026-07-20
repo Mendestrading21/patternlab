@@ -84,6 +84,17 @@ lot** (fusion `main` → déploiement live). Roadmap 10 lots (voir SKILL.md).
   en pilotant Chromium (390×844) : « 3/15 mondes débloqués », mondes 1–3 avec visuel + « à explorer »,
   jalon « Palier — Fondations posées », mondes 4–15 verrouillés (🔒), **0 erreur console**. Voir
   **ADR-059**.
+- **Exp-Max Lot 7 — Toto & Bobo vivants** ✅ : les mascottes réagissent au contexte avec des
+  **dialogues variés** au lieu de répliques figées. Module pur `dialogue.ts` (`characterLine(ctx,
+  seed)` → `{character, state, text}` ; contextes answer/recognition (+ série), result
+  perfect/pass/retry, mission, concept ; banques de 3–4 variantes, variété **déterministe** par
+  graine). Câblé aux réactions : session (feedback par question + réaction au résultat, avec un
+  **compteur de série** déclenchant l'état `streak`) et quiz visuel (`reconnaissance.tsx`). Les états
+  renvoyés (`streak`/`celebrate-big`/…) activent les micro-animations déjà gérées par la réduction
+  d'animation. Validations : lint · typecheck · tests **410** (+6, `dialogue.test`) ·
+  validate:content 31 · release:check 14 · build:web. Vérifié en pilotant Chromium (390×844) :
+  répliques variées (« Exact, tu progresses ! »), série (« Tu es dans le rythme, continue ! ») après
+  3 bonnes réponses, **0 erreur console**. Voir **ADR-060**.
 
 ## PatternLab V5 — programme précédent (skill `patternlab-v5-master`)
 2026-07-19 — Démarrage du programme **V5** (16 lots, visuel-first, 500+ concepts) par-dessus la v1.

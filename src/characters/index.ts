@@ -24,3 +24,4 @@ export {
   type MascotContext,
   type MascotPresence,
 } from './frequency';
+export { characterLine, type DialogueLine, type DialogueContext } from './dialogue';

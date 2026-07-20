@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, ProgressBar, FeedbackPanel, theme } from '@/design-system';
-import { CharacterScene, MascotFigure } from '@/characters';
+import { CharacterScene, MascotFigure, characterLine } from '@/characters';
 import { ExercisePlayer, gradeExercise, type GradeResult } from '@/engines/exercise';
 import { getExercises, getLessons, skillById, limitCount, isCheckpoint, isFalseSignalExercise, useProgress, buildSessionSummary } from '@/data';
 import { xpForGrade } from '@/engines/learning';
@@ -28,6 +28,7 @@ export default function Session() {
   const lessons = getLessons(resolvedId);
 
   const [index, setIndex] = useState(0);
+  const [streak, setStreak] = useState(0);
   const [result, setResult] = useState<GradeResult | null>(null);
   const [correct, setCorrect] = useState(0);
   // Un point de contrôle (`getLessons` vide) démarre directement en « practice ».
@@ -93,6 +94,7 @@ export default function Session() {
           setIndex(0);
           setResult(null);
           setCorrect(0);
+          setStreak(0);
         }}
       />
     );
@@ -105,6 +107,7 @@ export default function Session() {
     const graded = gradeExercise(exercise, answer);
     setResult(graded);
     if (graded.correct) setCorrect((c) => c + 1);
+    setStreak((s) => (graded.correct ? s + 1 : 0));
     // Erreur → errorTag = id de l'exercice (concept à retravailler ; révision rapprochée).
     recordAnswer(exercise.skillId, graded.correct ? 5 : 2, graded.correct ? undefined : exercise.id);
     // Réussite « compréhension » V5 : un faux signal / une invalidation correctement repéré.
@@ -116,6 +119,9 @@ export default function Session() {
     setIndex((i) => i + 1);
     setResult(null);
   };
+
+  // Réplique contextuelle et variée de Toto/Bobo (varie avec l'index de la question).
+  const feedbackLine = result ? characterLine({ kind: 'answer', correct: result.correct, streak }, index) : null;
 
   return (
     <Screen>
@@ -143,12 +149,14 @@ export default function Session() {
             rule={result.feedback.rule}
             whenItFails={result.feedback.whenItFails}
           />
-          <CharacterScene
-            character={result.correct ? 'toto' : 'bobo'}
-            state={result.correct ? 'celebrate-small' : 'encourage'}
-            size={60}
-            speech={result.correct ? 'Bien joué !' : 'Pas grave — l’important, c’est de comprendre.'}
-          />
+          {feedbackLine ? (
+            <CharacterScene
+              character={feedbackLine.character}
+              state={feedbackLine.state}
+              size={60}
+              speech={feedbackLine.text}
+            />
+          ) : null}
           <Button label={index + 1 >= list.length ? 'Voir mon résultat' : 'Continuer'} onPress={next} />
         </>
       ) : null}
@@ -182,6 +190,8 @@ function Results({
 
   // Barème identique à l'XP réellement enregistré (grade 5 si correct, sinon 2).
   const xp = correct * xpForGrade(5) + (total - correct) * xpForGrade(2);
+  // Réaction contextuelle de Toto/Bobo au résultat (variée selon le score).
+  const reaction = characterLine({ kind: 'result', tier: summary.tier }, correct);
 
   return (
     <Screen>
@@ -206,14 +216,12 @@ function Results({
         </View>
 
         {summary.tier === 'retry' ? (
-          <CharacterScene
-            character="toto"
-            state="encourage"
-            size={72}
-            speech="On y retourne quand tu veux."
-          />
+          <CharacterScene character={reaction.character} state={reaction.state} size={72} speech={reaction.text} />
         ) : (
-          <MascotFigure name="celebrate" gesture="celebrate" height={170} />
+          <>
+            <MascotFigure name="celebrate" gesture="celebrate" height={170} />
+            <CharacterScene character={reaction.character} state={reaction.state} size={56} speech={reaction.text} />
+          </>
         )}
       </Card>
       <Button label="Retour à l’accueil" onPress={onHome} />
