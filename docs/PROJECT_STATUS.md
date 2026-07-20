@@ -105,6 +105,16 @@ lot** (fusion `main` → déploiement live). Roadmap 10 lots (voir SKILL.md).
   (+5, `conceptOfTheDay.test`) · validate:content 31 · release:check 14 · build:web. Vérifié en
   pilotant Chromium (390×844) : accueil « Concept du jour » (Avalement haussier + visuel + lien),
   Réussites « 0/23 » avec les nouveaux badges, **0 erreur console**. Voir **ADR-061**.
+- **Exp-Max Lot 9 — Accueil & navigation attractifs** ✅ : accueil plus vivant, progression en un
+  coup d'œil, fonctionnalités surfacées. Module pur `greeting.ts` (`greetingFor(hour)` →
+  Bonjour/Bon après-midi/Bonsoir/Bonne nuit) → salutation selon l'heure. Carte **« 🚀 Ta
+  progression »** (tuiles : Concepts explorés · Mondes débloqués `worldsUnlocked(buildWorldPath)` ·
+  Badges `earnedBadges`/`BADGES.length` · Série). **Grille « Explorer » élargie** 4 → 6 tuiles
+  (ajout **Quiz visuel** `/reconnaissance` + **Bibliothèque** `/bibliotheque-visuelle`) ; chaque
+  tuile navigue vers une route réelle (zéro bouton mort). Validations : lint · typecheck · tests
+  **417** (+2, `greeting.test`) · validate:content 31 · release:check 14 · build:web. Vérifié en
+  pilotant Chromium (390×844) : « Bonsoir, apprenti ! », carte « Ta progression » (3/15 mondes,
+  0/23 badges…), Explorer avec Quiz visuel + Bibliothèque, **0 erreur console**. Voir **ADR-062**.
 
 ## PatternLab V5 — programme précédent (skill `patternlab-v5-master`)
 2026-07-19 — Démarrage du programme **V5** (16 lots, visuel-first, 500+ concepts) par-dessus la v1.

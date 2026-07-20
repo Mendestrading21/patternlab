@@ -3,13 +3,31 @@ import { View, Pressable, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, Chip, ProgressBar, StateView, theme } from '@/design-system';
 import { CharacterScene, MascotFigure } from '@/characters';
 import { MiniVisual } from '@/engines/visual';
-import { useProgress, SKILLS, buildDailyMission, selectDueReviews, exercisesForMinutes, buildDailyQuests, OBJECTIVES, conceptOfTheDay, V5_CONCEPTS } from '@/data';
+import {
+  useProgress,
+  SKILLS,
+  buildDailyMission,
+  selectDueReviews,
+  exercisesForMinutes,
+  buildDailyQuests,
+  OBJECTIVES,
+  conceptOfTheDay,
+  V5_CONCEPTS,
+  greetingFor,
+  earnedBadges,
+  BADGES,
+  buildWorldPath,
+  worldsUnlocked,
+  WORLDS,
+} from '@/data';
 import { analytics } from '@/analytics';
 import { DISCLAIMER } from '@/lib/config';
 
 const EXPLORE = [
   { icon: '📚', title: 'Leçons', subtitle: 'Le module « Lire un graphique ».', route: '/lecons' as const },
   { icon: '🎯', title: 'Quiz éclair', subtitle: 'Une session d’exercices variés.', route: '/quiz' as const },
+  { icon: '🔍', title: 'Quiz visuel', subtitle: 'Reconnais les figures.', route: '/reconnaissance' as const },
+  { icon: '🖼️', title: 'Bibliothèque', subtitle: 'Les figures illustrées.', route: '/bibliotheque-visuelle' as const },
   { icon: '📖', title: 'Glossaire', subtitle: 'Le vocabulaire des marchés.', route: '/glossaire' as const },
   { icon: '🏅', title: 'Réussites', subtitle: 'Tes badges débloqués.', route: '/reussites' as const },
 ];
@@ -36,6 +54,11 @@ export default function Home() {
   const quests = buildDailyQuests(state, now);
   const questsDone = quests.filter((q) => q.done).length;
   const featured = conceptOfTheDay(V5_CONCEPTS, now);
+  const greeting = greetingFor(new Date(now).getHours());
+  // Aperçu de progression (apprentissage) — sens du chemin parcouru, en un coup d'œil.
+  const explored = state.learning?.conceptsExplored.length ?? 0;
+  const worldsOpen = worldsUnlocked(buildWorldPath(WORLDS, V5_CONCEPTS, state.learning?.conceptsExplored ?? []));
+  const badgesEarned = earnedBadges(state).size;
 
   const startMission = () => {
     if (mission.skillId) {
@@ -48,7 +71,7 @@ export default function Home() {
 
   return (
     <Screen>
-      <Text variant="h1">Bonjour, apprenti ! 👋</Text>
+      <Text variant="h1">{greeting}, apprenti ! 👋</Text>
       <Text variant="body" color={theme.colors.textSecondary}>
         {objectiveLabel
           ? `Objectif : ${objectiveLabel} · ${minutes} min aujourd’hui.`
@@ -86,6 +109,17 @@ export default function Home() {
           <Text variant="caption" color={theme.colors.textMuted}>
             {xpInLevel} / 100 XP vers le niveau {state.level + 1}
           </Text>
+        </View>
+      </Card>
+
+      {/* Aperçu de progression : le chemin parcouru, en un coup d'œil */}
+      <Card>
+        <Text variant="title">🚀 Ta progression</Text>
+        <View style={styles.snapshot}>
+          <SnapTile label="Concepts" value={`${explored}`} color={theme.colors.technical} />
+          <SnapTile label="Mondes" value={`${worldsOpen}/${WORLDS.length}`} color={theme.colors.primary} />
+          <SnapTile label="Badges" value={`${badgesEarned}/${BADGES.length}`} color={theme.colors.reward} />
+          <SnapTile label="Série" value={`${state.streakDays} j`} color={theme.colors.warning} />
         </View>
       </Card>
 
@@ -209,8 +243,32 @@ export default function Home() {
   );
 }
 
+function SnapTile({ label, value, color }: { label: string; value: string; color: string }) {
+  return (
+    <View style={styles.snapTile}>
+      <Text variant="title" color={color} center>
+        {value}
+      </Text>
+      <Text variant="caption" color={theme.colors.textMuted} center>
+        {label}
+      </Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   missionMascot: { alignItems: 'center', marginVertical: theme.spacing.sm },
+  snapshot: { flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.sm },
+  snapTile: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 2,
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.surface,
+  },
   conceptCard: { borderColor: theme.colors.advanced, gap: theme.spacing.xs },
   conceptVisual: { alignItems: 'center', marginVertical: theme.spacing.xs },
   missionMeta: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, marginTop: theme.spacing.sm },
