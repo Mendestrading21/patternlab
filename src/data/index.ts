@@ -9,6 +9,7 @@ export * from './premium';
 export * from './offline';
 export * from './learningConcept';
 export * from './learningContent';
+export * from './patternLibrary';
 export * from './favorites';
 export * from './glossaryUnified';
 export * from './learningStats';

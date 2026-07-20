@@ -29,6 +29,25 @@ montée en charge éditoriale vers 500+ (10), gamification & stats « compréhen
 monétisation démo (13), analytics + journal de transparence (14), accessibilité complète (15), release
 readiness (16). Gate final vert. **Aucun push ni publication sans accord explicite.** ADRs 026 → 041.
 
+## Initiative « un signal visuel partout » (post-V5 — inspirée des 66 images de référence)
+Déclencheur : l'utilisateur a ajouté `Patern Images REF/` (66 figures de trading) comme **inspiration**
+— l'app doit **coder ses propres schémas** pour que chaque figure/carte/concept porte un signal visuel.
+Les images restent hors périmètre de commit (déjà sur `main`, jamais une dépendance runtime).
+- **Lot 1 — Bibliothèque visuelle de chandeliers** ✅ : ~20 nouveaux datasets OHLC déterministes
+  (`visualDatasets.ts` : pendu, marteau inversé, dojis libellule/pierre-tombale, toupie, marubozu ×2,
+  avalement baissier, harami ×2, ligne de perce, couverture en nuage, pincettes ×2, étoiles matin/soir,
+  trois soldats/corbeaux, tendance baissière) ; catalogue pur `patternLibrary.ts` (**29 glyphes**,
+  4 familles, `glyphToVisualSpec` + gardes d'intégrité et de vocabulaire testées) ; garde de vocabulaire
+  factorisée en source unique (`vocabularyIssuesIn`) ; écran galerie **`/bibliotheque-visuelle`**
+  (29 figures groupées par famille, **filtre par direction**, résumés accessibles) relié au Laboratoire.
+  Schémas 100 % générés en code — aucune image de référence copiée/embarquée. Validations : lint ·
+  typecheck · tests **350** (+8) · validate:content 31 · release:check 14 · build:web. Vérifié en pilotant
+  Chromium (390×844) : 29 SVG rendus, 4 familles, filtre 29→baissières, 0 erreur console. Voir **ADR-042**.
+- **Suite (non commencée)** : figures chartistes riches (necklines/trendlines/projections), structure &
+  SMC (CHoCH, supply/demand, FVG, sweep, fakeout), indicateurs (RSI/MACD/volume, Bollinger, Fibonacci),
+  puis câblage d'un signal visuel sur chaque carte de quiz/exercice/révision. Un lot par tour, commit
+  local, **aucun push sans accord**.
+
 ---
 
 ## Date

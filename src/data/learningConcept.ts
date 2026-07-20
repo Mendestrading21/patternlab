@@ -195,6 +195,24 @@ const FORBIDDEN_PHRASES = [
   'liberté financière garantie',
 ];
 
+/**
+ * Garde de vocabulaire générique : retourne les violations dans une liste de textes.
+ * Source unique de vérité réutilisée par les concepts ET la bibliothèque de visuels.
+ */
+export function vocabularyIssuesIn(texts: string[]): string[] {
+  const issues: string[] = [];
+  for (const t of texts) {
+    for (const up of FORBIDDEN_UPPER) {
+      if (new RegExp(`\\b${up}\\b`).test(t)) issues.push(`${up} interdit : « ${t.slice(0, 60)} »`);
+    }
+    const lower = t.toLowerCase();
+    for (const p of FORBIDDEN_PHRASES) {
+      if (lower.includes(p)) issues.push(`« ${p} » interdit : « ${t.slice(0, 60)} »`);
+    }
+  }
+  return issues;
+}
+
 function conceptText(c: LearningConcept): string[] {
   return [
     c.title,
@@ -217,18 +235,7 @@ function conceptText(c: LearningConcept): string[] {
 
 /** Retourne les violations de vocabulaire (vide = conforme). */
 export function conceptVocabularyIssues(c: LearningConcept): string[] {
-  const issues: string[] = [];
-  const texts = conceptText(c);
-  for (const t of texts) {
-    for (const up of FORBIDDEN_UPPER) {
-      if (new RegExp(`\\b${up}\\b`).test(t)) issues.push(`${up} interdit : « ${t.slice(0, 60)} »`);
-    }
-    const lower = t.toLowerCase();
-    for (const p of FORBIDDEN_PHRASES) {
-      if (lower.includes(p)) issues.push(`« ${p} » interdit : « ${t.slice(0, 60)} »`);
-    }
-  }
-  return issues;
+  return vocabularyIssuesIn(conceptText(c));
 }
 
 // ─── Intégrité d'un corpus ───────────────────────────────────────────

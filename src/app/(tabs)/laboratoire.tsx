@@ -222,6 +222,11 @@ export default function Laboratoire() {
         Des schémas originaux, générés en code et accessibles. Ouvre une fiche pour voir le visuel en contexte.
       </Text>
       <VisualCard spec={ANATOMY_SPEC} title="Anatomie d’une bougie" />
+      <Button
+        label="Bibliothèque visuelle — toutes les figures"
+        onPress={() => router.push('/bibliotheque-visuelle')}
+        accessibilityHint="Ouvrir la galerie de toutes les figures illustrées"
+      />
       <Card>
         <Text variant="title">Fiches visuelles</Text>
         <View style={styles.conceptList}>

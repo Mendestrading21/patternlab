@@ -1,6 +1,7 @@
 import { describe, it, expect } from '@jest/globals';
 import { VISUAL_DATASETS, datasetByKey, seriesFromTargets, SUPPORTED_VISUAL_TYPES } from './visualDatasets';
 import { V5_CONCEPTS } from '../../data/learningContent';
+import { PATTERN_LIBRARY } from '../../data/patternLibrary';
 
 describe('datasets déterministes', () => {
   it('seriesFromTargets chaîne open→close et est déterministe', () => {
@@ -30,6 +31,27 @@ describe('datasets déterministes', () => {
     expect(datasetByKey('nope')).toEqual([]);
     expect(datasetByKey(undefined)).toEqual([]);
   });
+
+  it('les figures de chandeliers ont la bonne géométrie', () => {
+    // Marubozu haussier : une seule bougie montante sans mèche.
+    const maru = VISUAL_DATASETS['candle.bullish-marubozu.v1'];
+    expect(maru).toHaveLength(1);
+    expect(maru[0].c).toBeGreaterThan(maru[0].o);
+    expect(maru[0].h).toBe(Math.max(maru[0].o, maru[0].c));
+    expect(maru[0].l).toBe(Math.min(maru[0].o, maru[0].c));
+    // Trois corbeaux : trois bougies toutes baissières et descendantes.
+    const crows = VISUAL_DATASETS['candle.three-black-crows.v1'];
+    expect(crows).toHaveLength(3);
+    expect(crows.every((c) => c.c < c.o)).toBe(true);
+    expect(crows[2].c).toBeLessThan(crows[0].c);
+    // Trois soldats : trois bougies toutes haussières et montantes.
+    const soldiers = VISUAL_DATASETS['candle.three-white-soldiers.v1'];
+    expect(soldiers.every((c) => c.c > c.o)).toBe(true);
+    expect(soldiers[2].c).toBeGreaterThan(soldiers[0].c);
+    // Pincettes hautes : deux bougies au même plus-haut.
+    const tw = VISUAL_DATASETS['candle.tweezer-top.v1'];
+    expect(tw[0].h).toBe(tw[1].h);
+  });
 });
 
 describe('intégrité registre ↔ concepts amorce', () => {
@@ -42,6 +64,15 @@ describe('intégrité registre ↔ concepts amorce', () => {
       if (spec.datasetKey) {
         expect(datasetByKey(spec.datasetKey).length).toBeGreaterThan(0);
       }
+    }
+  });
+});
+
+describe('intégrité registre ↔ bibliothèque de figures', () => {
+  it('chaque glyphe pointe vers un type supporté et un dataset non vide', () => {
+    for (const g of PATTERN_LIBRARY) {
+      expect(SUPPORTED_VISUAL_TYPES).toContain(g.visualType);
+      expect(datasetByKey(g.datasetKey).length).toBeGreaterThan(0);
     }
   });
 });
