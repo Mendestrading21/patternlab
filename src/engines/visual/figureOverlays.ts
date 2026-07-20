@@ -24,6 +24,7 @@ const line = (fromI: number, fromP: number, toI: number, toP: number, color: str
   label,
 });
 const mark = (i: number, price: number, text: string): Marker => ({ i, price, text, color: colors.textSecondary });
+const band = (from: number, to: number, color: string, label?: string): Zone => ({ from, to, color, label });
 
 /** Registre indexé par `variant` (= id de glyphe / de concept). */
 export const FIGURE_OVERLAYS: Record<string, FigureOverlay> = {
@@ -74,6 +75,39 @@ export const FIGURE_OVERLAYS: Record<string, FigureOverlay> = {
 
   // ─── Tasse / arrondis (repère de bord) ─────────────────────────────
   'cup-handle': { guides: [line(1, 57, 10, 57, NECK, 'bord')] },
+
+  // ─── Structure & Smart Money Concepts (Lot 3) ──────────────────────
+  'choch': {
+    guides: [line(1, 48, 6, 48, NECK, 'dernier sommet inférieur')],
+    markers: [mark(6, 50, 'CHoCH')],
+  },
+  'supply-zone': {
+    zones: [band(54, 58, colors.bearish, 'offre')],
+    markers: [mark(2, 56, 'rejet')],
+  },
+  'demand-zone': {
+    zones: [band(44, 48, colors.bullish, 'demande')],
+    markers: [mark(3, 46, 'rebond')],
+  },
+  'order-block': {
+    zones: [band(50, 52.5, colors.advanced, 'order block')],
+    markers: [mark(3, 58, 'impulsion')],
+  },
+  'fair-value-gap': {
+    zones: [band(49, 52, colors.technical, 'FVG (déséquilibre)')],
+  },
+  'liquidity-sweep': {
+    guides: [line(1, 55, 4, 55, NECK, 'hauts égaux')],
+    markers: [mark(5, 58, 'sweep')],
+  },
+  'fakeout': {
+    guides: [line(1, 55, 6, 55, NECK, 'résistance')],
+    markers: [mark(3, 57, 'faux signal')],
+  },
+  'break-retest': {
+    guides: [line(1, 55, 6, 55, NECK, 'niveau cassé')],
+    markers: [mark(4, 54, 'retest')],
+  },
 };
 
 export function figureOverlay(variant?: string): FigureOverlay | undefined {

@@ -52,9 +52,17 @@ Les images restent hors périmètre de commit (déjà sur `main`, jamais une dé
   ligne de cou. Galerie **49 figures**. Validations : lint · typecheck · tests **353** (+3) · validate:content
   31 · release:check 14 · build:web. Vérifié en pilotant Chromium (390×844) : 49 SVG, 13 lignes de cou en
   pointillé + trendlines rendues, 6 figures repères présentes, 0 erreur console. Voir **ADR-043**.
-- **Suite (à faire)** : structure & SMC (CHoCH, supply/demand, FVG, sweep, fakeout — réutilise le moteur
-  d'overlays), indicateurs (RSI/MACD/volume, Bollinger, Fibonacci — nouveau renderer), puis câblage d'un
-  signal visuel sur chaque carte de quiz/exercice/révision. Un lot par tour, commit local, **aucun push sans accord**.
+- **Lot 3 — Structure & Smart Money Concepts** ✅ : **8 concepts SMC** (famille `structure-smc`), rendus
+  en `chart-pattern` via le moteur d'overlays du Lot 2 (aucun nouveau code de rendu) : changement de
+  caractère (CHoCH), zones d'offre/demande (bandes colorées), order block, fair value gap (dataset 3 bougies
+  avec vrai déséquilibre), balayage de liquidité (hauts égaux + sweep), faux signal, cassure-retest. Nouveau
+  helper `band()` pour les zones. Cadrage éducatif, vocabulaire conforme. Galerie **57 figures** / 6 familles.
+  Validations : lint · typecheck · tests **353** · validate:content 31 · release:check 14 · build:web.
+  Vérifié en pilotant Chromium (390×844) : 57 SVG, 8 bandes de zones, repères CHoCH/FVG/sweep/retest/order
+  block/offre/demande rendus dans les SVG, 0 erreur console. Voir **ADR-044**.
+- **Suite (à faire)** : indicateurs (RSI/MACD/volume, Bollinger, Fibonacci — nouveau renderer à
+  sous-panneau), puis câblage d'un signal visuel sur chaque carte de quiz/exercice/révision. Un lot par
+  tour, commit local, **aucun push sans accord**.
 
 ---
 

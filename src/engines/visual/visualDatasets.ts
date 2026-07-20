@@ -150,6 +150,28 @@ const ROUNDING_BOTTOM = seriesFromTargets([58, 53, 49, 46, 45, 46, 49, 53, 58, 6
 // Sommet arrondi : transition douce de hausse à baisse (« ∩ »).
 const ROUNDING_TOP = seriesFromTargets([42, 47, 51, 54, 55, 54, 51, 47, 42, 38]);
 
+// ─── Structure & Smart Money Concepts (Lot 3) ────────────────────────
+// Changement de caractère : tendance baissière (LH/LL) puis cassure au-dessus du dernier sommet inférieur.
+const CHOCH = seriesFromTargets([60, 54, 57, 49, 52, 44, 48, 58]);
+// Zone d'offre : rallye dans une zone haute puis rejet à la baisse.
+const SUPPLY_ZONE = seriesFromTargets([44, 50, 56, 54, 50, 44, 40]);
+// Zone de demande : baisse dans une zone basse puis rebond.
+const DEMAND_ZONE = seriesFromTargets([60, 54, 48, 46, 50, 56, 60]);
+// Order block : dernière bougie baissière avant une forte impulsion haussière.
+const ORDER_BLOCK = seriesFromTargets([56, 52, 50, 58, 55, 62]);
+// Fair value gap : trois bougies dont le haut de la 1re est sous le bas de la 3e (déséquilibre haussier).
+const FAIR_VALUE_GAP: Candle[] = [
+  { o: 46, h: 49, l: 45, c: 48.5 },
+  { o: 49, h: 54, l: 48.8, c: 53.5 },
+  { o: 53.5, h: 56, l: 52, c: 55.5 },
+];
+// Balayage de liquidité : deux hauts égaux, un pic au-dessus (sweep) puis retournement baissier.
+const LIQUIDITY_SWEEP = seriesFromTargets([48, 55, 50, 55, 50, 58, 44]);
+// Faux signal : franchissement bref d'une résistance puis retour sous le niveau.
+const FAKEOUT = seriesFromTargets([46, 52, 55, 57, 52, 48, 50]);
+// Cassure et retest : cassure d'un niveau, retour le tester, puis continuation.
+const BREAK_RETEST = seriesFromTargets([46, 52, 55, 58, 55, 54, 60]);
+
 export const VISUAL_DATASETS: Record<string, Candle[]> = {
   // Chandeliers simples
   'candle.anatomy.v1': ANATOMY,
@@ -205,6 +227,15 @@ export const VISUAL_DATASETS: Record<string, Candle[]> = {
   'pattern.cup-handle.v1': CUP_HANDLE,
   'pattern.rounding-bottom.v1': ROUNDING_BOTTOM,
   'pattern.rounding-top.v1': ROUNDING_TOP,
+  // Structure & SMC (Lot 3)
+  'structure.choch.v1': CHOCH,
+  'structure.supply.v1': SUPPLY_ZONE,
+  'structure.demand.v1': DEMAND_ZONE,
+  'structure.order-block.v1': ORDER_BLOCK,
+  'structure.fvg.v1': FAIR_VALUE_GAP,
+  'structure.liquidity-sweep.v1': LIQUIDITY_SWEEP,
+  'structure.fakeout.v1': FAKEOUT,
+  'structure.break-retest.v1': BREAK_RETEST,
 };
 
 export function datasetByKey(key?: string): Candle[] {

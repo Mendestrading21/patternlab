@@ -16,7 +16,8 @@ export type PatternFamily =
   | 'chandelier-double'
   | 'chandelier-triple'
   | 'figure-chartiste'
-  | 'structure';
+  | 'structure'
+  | 'structure-smc';
 
 export interface FamilyMeta {
   id: PatternFamily;
@@ -32,6 +33,7 @@ export const PATTERN_FAMILIES: FamilyMeta[] = [
   { id: 'chandelier-triple', order: 3, title: 'Chandeliers — trois bougies', subtitle: 'Étoiles, soldats et corbeaux.' },
   { id: 'figure-chartiste', order: 4, title: 'Figures chartistes', subtitle: 'Triangles, biseaux, drapeaux, épaule-tête-épaule…' },
   { id: 'structure', order: 5, title: 'Structure & niveaux', subtitle: 'Tendances, cassures, doubles et zones.' },
+  { id: 'structure-smc', order: 6, title: 'Structure avancée (SMC)', subtitle: 'Zones, order blocks, FVG, liquidité — éducatif.' },
 ];
 
 export interface PatternGlyph {
@@ -360,6 +362,56 @@ export const PATTERN_LIBRARY: PatternGlyph[] = [
     visualType: 'chart-pattern', direction: 'bearish', datasetKey: 'pattern.double-top.v1',
     labels: ['sommet 1', 'sommet 2', 'ligne de cou'],
     summary: 'Deux sommets à un niveau proche séparés par un creux (« M ») ; la cassure du creux confirme la figure.',
+  },
+
+  // ─── Structure avancée (SMC — éducatif) ────────────────────────────
+  {
+    id: 'choch', title: 'Changement de caractère', aliasEn: 'Change of Character (CHoCH)', family: 'structure-smc',
+    visualType: 'chart-pattern', direction: 'bullish', datasetKey: 'structure.choch.v1',
+    labels: ['tendance baissière', 'cassure du dernier sommet'],
+    summary: 'Dans une tendance baissière, le prix casse au-dessus du dernier sommet inférieur : un premier signe de changement de caractère.',
+  },
+  {
+    id: 'supply-zone', title: 'Zone d’offre', aliasEn: 'Supply Zone', family: 'structure-smc',
+    visualType: 'chart-pattern', direction: 'bearish', datasetKey: 'structure.supply.v1',
+    labels: ['zone haute', 'rejet'],
+    summary: 'Une zone d’où le prix a déjà chuté ; un retour dans cette zone d’offre est souvent rejeté vers le bas.',
+  },
+  {
+    id: 'demand-zone', title: 'Zone de demande', aliasEn: 'Demand Zone', family: 'structure-smc',
+    visualType: 'chart-pattern', direction: 'bullish', datasetKey: 'structure.demand.v1',
+    labels: ['zone basse', 'rebond'],
+    summary: 'Une zone d’où le prix est déjà reparti à la hausse ; un retour dans cette zone de demande y trouve souvent un rebond.',
+  },
+  {
+    id: 'order-block', title: 'Order block', aliasEn: 'Order Block', family: 'structure-smc',
+    visualType: 'chart-pattern', direction: 'bullish', datasetKey: 'structure.order-block.v1',
+    labels: ['dernière bougie avant impulsion'],
+    summary: 'La dernière bougie de sens opposé avant une forte impulsion : une zone que le prix revient souvent tester.',
+  },
+  {
+    id: 'fair-value-gap', title: 'Fair value gap', aliasEn: 'Fair Value Gap (FVG)', family: 'structure-smc',
+    visualType: 'chart-pattern', direction: 'neutral', datasetKey: 'structure.fvg.v1',
+    labels: ['déséquilibre', 'trois bougies'],
+    summary: 'Un déséquilibre laissé par une impulsion rapide : le haut de la 1re bougie est sous le bas de la 3e ; le prix vient souvent le combler.',
+  },
+  {
+    id: 'liquidity-sweep', title: 'Balayage de liquidité', aliasEn: 'Liquidity Sweep', family: 'structure-smc',
+    visualType: 'chart-pattern', direction: 'bearish', datasetKey: 'structure.liquidity-sweep.v1',
+    labels: ['hauts égaux', 'pic puis retournement'],
+    summary: 'Le prix dépasse brièvement une zone de hauts égaux (là où reposent des ordres) puis se retourne : un balayage de liquidité.',
+  },
+  {
+    id: 'fakeout', title: 'Faux signal', aliasEn: 'Fakeout', family: 'structure-smc',
+    visualType: 'chart-pattern', direction: 'bearish', datasetKey: 'structure.fakeout.v1',
+    labels: ['franchissement bref', 'retour sous le niveau'],
+    summary: 'Le prix franchit brièvement un niveau puis repasse de l’autre côté : une fausse cassure qui piège les entrées précipitées.',
+  },
+  {
+    id: 'break-retest', title: 'Cassure et retest', aliasEn: 'Break & Retest', family: 'structure-smc',
+    visualType: 'chart-pattern', direction: 'bullish', datasetKey: 'structure.break-retest.v1',
+    labels: ['cassure', 'retest du niveau'],
+    summary: 'Un niveau franchi, puis retesté par l’arrière (l’ancien plafond servant d’appui), avant continuation.',
   },
 ];
 
