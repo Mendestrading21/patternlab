@@ -34,6 +34,19 @@ lot** (fusion `main` → déploiement live). Roadmap 10 lots (voir SKILL.md).
   (390×844) : profil de volume + **POC**, comparaisons (haussière/baissière, tendance/range),
   aide-mémoire (bougies, retournements) rendus ; grille visible sur les charts ; **0 erreur console**.
   Voir **ADR-055**.
+- **Exp-Max Lot 3 — Quiz visuels enrichis** ✅ : l'entraîneur de reconnaissance devient un vrai
+  **« Quiz visuel »** aux questions variées. Générateur pur `visualQuiz.ts` (`buildVisualQuiz`,
+  déterministe) mixant 3 types de questions basées sur l'image — **nom** (« quelle figure ? »),
+  **sens** (« quelle lecture suggère-t-elle ? »), **famille** (« à quelle famille ? ») — pilotés par
+  un **niveau de difficulté** : Facile (sens, 3 options), Moyen (les 3 types, 4 options), Expert
+  (nom/famille, distracteurs de même famille). Chaque question porte une **explication illustrée**.
+  Écran `reconnaissance.tsx` enrichi (sélecteur de difficulté + thème, `prompt`/`explanation` par
+  question, figure révélée après réponse), persistance/score/série/badges inchangés ; entrée « Quiz
+  visuel » depuis l'onglet Quiz. Réutilise `mulberry32`/`shuffle`/`poolForGroup` ;
+  `buildRecognitionSession` laissé intact. Validations : lint · typecheck · tests **399** (+5) ·
+  validate:content 31 · release:check 14 · build:web. Vérifié en pilotant Chromium (390×844) :
+  sélecteurs Facile/Moyen/Expert, question à graphique, feedback illustré (« Réponse : … · Figure :
+  … »), **0 erreur console**. Voir **ADR-056**.
 
 ## PatternLab V5 — programme précédent (skill `patternlab-v5-master`)
 2026-07-19 — Démarrage du programme **V5** (16 lots, visuel-first, 500+ concepts) par-dessus la v1.

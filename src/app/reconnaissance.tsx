@@ -4,22 +4,33 @@ import { useRouter } from 'expo-router';
 import { Screen, Text, Card, Button, theme } from '@/design-system';
 import { CharacterScene } from '@/characters';
 import { VisualCard } from '@/engines/visual';
-import { buildRecognitionSession, poolForGroup, RECOGNITION_GROUPS, useProgress, type RecognitionGroup } from '@/data';
+import {
+  buildVisualQuiz,
+  QUIZ_DIFFICULTIES,
+  RECOGNITION_GROUPS,
+  useProgress,
+  type RecognitionGroup,
+  type QuizDifficulty,
+} from '@/data';
 
 const ROUNDS = 8;
-const OPTIONS = 4;
 
 /**
- * « Reconnais la figure » — entraîneur de reconnaissance gamifié et accessible. La figure est
- * affichée en mode énigme (aucune fuite de la réponse, y compris au lecteur d'écran) ; après le
- * choix, le schéma se révèle (étiquettes + résumé accessible). Déterministe par graine.
+ * « Quiz visuel » — quiz de lecture de figures, gamifié et accessible. Les questions sont VARIÉES
+ * (nom, sens de lecture, famille) selon la difficulté choisie. La figure est affichée en mode énigme
+ * (aucune fuite de la réponse, y compris au lecteur d'écran) ; après le choix, le schéma se révèle
+ * (étiquettes + explication illustrée). Déterministe par graine.
  */
 export default function Reconnaissance() {
   const router = useRouter();
   const { recordRecognition, ready } = useProgress();
   const [seed, setSeed] = useState(2024);
   const [group, setGroup] = useState<RecognitionGroup>('all');
-  const session = useMemo(() => buildRecognitionSession(seed, ROUNDS, OPTIONS, poolForGroup(group)), [seed, group]);
+  const [difficulty, setDifficulty] = useState<QuizDifficulty>('moyen');
+  const session = useMemo(
+    () => buildVisualQuiz(seed, { count: ROUNDS, difficulty, group }),
+    [seed, group, difficulty],
+  );
 
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -38,6 +49,12 @@ export default function Reconnaissance() {
   const chooseGroup = (g: RecognitionGroup) => {
     if (g === group) return;
     setGroup(g);
+    resetSession();
+  };
+
+  const chooseDifficulty = (d: QuizDifficulty) => {
+    if (d === difficulty) return;
+    setDifficulty(d);
     resetSession();
   };
 
@@ -97,14 +114,37 @@ export default function Reconnaissance() {
     </View>
   );
 
+  const difficultyPicker = (
+    <View style={styles.groups} accessibilityRole="tablist">
+      {QUIZ_DIFFICULTIES.map((d) => {
+        const active = difficulty === d.id;
+        return (
+          <Pressable
+            key={d.id}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: active }}
+            accessibilityHint={`Difficulté : ${d.label} — ${d.hint}`}
+            onPress={() => chooseDifficulty(d.id)}
+            style={[styles.pill, active && styles.pillActive]}
+          >
+            <Text variant="caption" color={active ? theme.colors.backgroundDeep : theme.colors.advanced}>
+              {d.label}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+
   if (finished) {
     const ratio = Math.round((score / session.length) * 100);
     return (
       <Screen>
         <Text variant="h1">Résultat 🔍</Text>
+        {difficultyPicker}
         {groupPicker}
         <Card elevated style={styles.result}>
-          <Text variant="h2">{score} / {session.length} figures reconnues</Text>
+          <Text variant="h2">{score} / {session.length} bonnes réponses</Text>
           <Text variant="body" color={theme.colors.textSecondary}>
             Meilleure série : {bestStreak} d’affilée · {ratio}% de réussite.
           </Text>
@@ -124,17 +164,18 @@ export default function Reconnaissance() {
 
   return (
     <Screen>
-      <Text variant="h1">Reconnais la figure 🔍</Text>
+      <Text variant="h1">Quiz visuel 🔍</Text>
+      {difficultyPicker}
       {groupPicker}
       <View style={styles.meta}>
-        <Text variant="caption" color={theme.colors.textMuted}>Figure {index + 1} / {session.length}</Text>
+        <Text variant="caption" color={theme.colors.textMuted}>Question {index + 1} / {session.length}</Text>
         <Text variant="caption" color={theme.colors.technical}>Score {score} · série {streak}</Text>
       </View>
 
-      <VisualCard spec={round!.spec} blind={!answered} title={answered ? round!.title : undefined} />
+      <VisualCard spec={round!.spec} blind={!answered} title={answered ? round!.figureTitle : undefined} />
 
       <Text variant="body" color={theme.colors.textSecondary}>
-        {answered ? 'Réponse révélée — le schéma est annoté ci-dessus.' : 'Quelle figure est-ce ? Choisis son nom.'}
+        {answered ? 'Réponse révélée — le schéma est annoté ci-dessus.' : round!.prompt}
       </Text>
 
       <View style={styles.options}>
@@ -167,10 +208,10 @@ export default function Reconnaissance() {
       {answered ? (
         <Card>
           <Text variant="title" color={isCorrect ? theme.colors.bullish : theme.colors.bearish}>
-            {isCorrect ? 'Bien vu !' : `C’était : ${round!.title}`}
+            {isCorrect ? 'Bien vu !' : `Réponse : ${round!.options[round!.correctIndex]}`}
           </Text>
           <Text variant="body" color={theme.colors.textSecondary}>
-            {round!.spec.accessibilitySummary}
+            Figure : {round!.figureTitle}. {round!.explanation}
           </Text>
           <CharacterScene
             character={isCorrect ? 'toto' : 'bobo'}

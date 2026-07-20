@@ -41,7 +41,7 @@ export interface RecognitionRound {
 }
 
 /** PRNG déterministe (mulberry32) — même graine → même suite. */
-function mulberry32(seed: number): () => number {
+export function mulberry32(seed: number): () => number {
   let a = seed >>> 0;
   return () => {
     a |= 0;
@@ -53,7 +53,7 @@ function mulberry32(seed: number): () => number {
 }
 
 /** Mélange (Fisher-Yates) déterministe : ne mute pas l'entrée. */
-function shuffle<T>(arr: T[], rng: () => number): T[] {
+export function shuffle<T>(arr: T[], rng: () => number): T[] {
   const out = arr.slice();
   for (let i = out.length - 1; i > 0; i--) {
     const j = Math.floor(rng() * (i + 1));
