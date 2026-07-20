@@ -98,6 +98,13 @@ Les images restent hors périmètre de commit (déjà sur `main`, jamais une dé
   Bollinger, divergence, order block, FVG, CHoCH) rendues avec visuels, 0 erreur console. Voir **ADR-050**.
 
 ## Fonctionnalités bâties sur la bibliothèque visuelle
+- **Leçons visual-first des nouveaux concepts** ✅ : 4 leçons `draft` qui enchaînent les concepts en
+  parcours guidés (steps `visual`/`hypothesis` via `conceptRef`) — **Les triangles** (asc./desc./sym.),
+  **Le drapeau haussier** (mât → drapeau → invalidation), **RSI & divergence**, **Structure : CHoCH & order
+  block**. Intégrité garantie par test (chaque `conceptRef` résout vers un concept V5). Surfacées dans
+  l'onglet Leçons. Validations : lint · typecheck · tests **376** · validate:content 31 · release:check 14 ·
+  build:web. Vérifié en pilotant Chromium : leçons rendues (visuels chaînés + « Voir la fiche complète »),
+  listées dans l'onglet Leçons, 0 erreur console. Voir **ADR-032** (modèle visual-first) et **ADR-050**.
 - **Persistance des progrès de reconnaissance + badge** ✅ : schéma de progression **v6 → v7**
   (`figuresRecognized`, `bestRecognitionStreak` cumulatifs ; migration sûre, défaut 0, assainie — aucune
   perte). Logique pure `addRecognitionResult` ; badge **« Œil de lecteur » 👁️** à 15 figures reconnues ;
