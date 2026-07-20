@@ -11,6 +11,7 @@ export * from './learningConcept';
 export * from './learningContent';
 export * from './patternLibrary';
 export * from './recognitionTrainer';
+export * from './visualQuiz';
 export * from './sessionSummary';
 export * from './favorites';
 export * from './glossaryUnified';

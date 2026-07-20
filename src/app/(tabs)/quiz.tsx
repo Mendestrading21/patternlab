@@ -75,10 +75,10 @@ export default function Quiz() {
         accessibilityHint="Lancer les exercices"
       />
       <Button
-        label="Reconnais la figure 🔍"
+        label="Quiz visuel 🔍"
         variant="secondary"
         onPress={() => router.push('/reconnaissance')}
-        accessibilityHint="Entraînement de reconnaissance des figures"
+        accessibilityHint="Quiz de lecture des figures : nom, sens, famille — 3 niveaux de difficulté"
       />
     </Screen>
   );
