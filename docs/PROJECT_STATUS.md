@@ -81,9 +81,13 @@ publication sans accord.
   typées** (`misconceptions.ts` + `summarizeMisconceptions`) surfacées dans **Réviser** (« 🎯 Tes
   points faibles » avec conseils, au lieu d'ids d'exercice). Voir **ADR-071**.
 
-Prochains lots (ordre recommandé) : **Lot 8** Glossaire & bibliothèque premium (recherche unifiée,
-statut de maîtrise, comparaison) → **Lot 9** Toto/Bobo V3 → 10…13. Statut détaillé par lot : voir le
-plan.
+- **Lot 8 — Glossaire & bibliothèque premium** ✅ : **`conceptMastery.ts`** (statut Nouveau /
+  Découvert / Maîtrisé — voir ≠ maîtriser) affiché en puce sur la fiche concept ; **`searchFigures`**
+  (recherche insensible accents/casse par titre/alias/famille) + champ de recherche dans la
+  **bibliothèque visuelle** (recherche désormais cohérente avec le glossaire). Voir **ADR-072**.
+
+Prochains lots (ordre recommandé) : **Lot 9** Toto/Bobo V3 (`MascotMoment`, dialogues liés aux
+erreurs) → **Lot 10** Contenu des 15 mondes → 11…13. Statut détaillé par lot : voir le plan.
 
 ## Programmes terminés (archive)
 

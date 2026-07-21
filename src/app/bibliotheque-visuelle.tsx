@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { View, Pressable, StyleSheet } from 'react-native';
+import { View, Pressable, TextInput, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Screen, Text, Button, theme } from '@/design-system';
 import { VisualCard } from '@/engines/visual';
@@ -7,6 +7,7 @@ import {
   PATTERN_FAMILIES,
   PATTERN_LIBRARY,
   glyphToVisualSpec,
+  searchFigures,
   type Direction,
   type VisualSpec,
 } from '@/data';
@@ -90,11 +91,12 @@ const FILTERS: { id: Filter; label: string }[] = [
 export default function BibliothequeVisuelle() {
   const router = useRouter();
   const [filter, setFilter] = useState<Filter>('all');
+  const [query, setQuery] = useState('');
 
-  const visible = useMemo(
-    () => (filter === 'all' ? PATTERN_LIBRARY : PATTERN_LIBRARY.filter((g) => g.direction === filter)),
-    [filter],
-  );
+  const visible = useMemo(() => {
+    const byDir = filter === 'all' ? PATTERN_LIBRARY : PATTERN_LIBRARY.filter((g) => g.direction === filter);
+    return searchFigures(query, byDir);
+  }, [filter, query]);
 
   return (
     <Screen>
@@ -103,6 +105,17 @@ export default function BibliothequeVisuelle() {
         {PATTERN_LIBRARY.length} figures dessinées en code — chandeliers, structure et figures.
         Chaque schéma est original et accessible (résumé textuel inclus).
       </Text>
+
+      <TextInput
+        style={styles.search}
+        placeholder="Rechercher une figure (marteau, triangle, RSI…)"
+        placeholderTextColor={theme.colors.textMuted}
+        value={query}
+        onChangeText={setQuery}
+        accessibilityLabel="Rechercher une figure par nom ou famille"
+        autoCapitalize="none"
+        autoCorrect={false}
+      />
 
       <View style={styles.filters} accessibilityRole="tablist">
         {FILTERS.map((f) => {
@@ -126,6 +139,16 @@ export default function BibliothequeVisuelle() {
           );
         })}
       </View>
+
+      {visible.length === 0 ? (
+        <Text variant="body" color={theme.colors.textMuted}>
+          Aucune figure ne correspond à « {query} ».
+        </Text>
+      ) : (
+        <Text variant="caption" color={theme.colors.textMuted}>
+          {visible.length} figure{visible.length > 1 ? 's' : ''} affichée{visible.length > 1 ? 's' : ''}
+        </Text>
+      )}
 
       {PATTERN_FAMILIES.map((fam) => {
         const glyphs = visible.filter((g) => g.family === fam.id);
@@ -159,6 +182,16 @@ export default function BibliothequeVisuelle() {
 }
 
 const styles = StyleSheet.create({
+  search: {
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.md,
+    backgroundColor: theme.colors.surface,
+    color: theme.colors.textPrimary,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    marginBottom: theme.spacing.sm,
+  },
   filters: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs, marginBottom: theme.spacing.sm },
   pill: {
     borderWidth: 1,

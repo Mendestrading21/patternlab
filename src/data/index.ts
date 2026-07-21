@@ -29,6 +29,7 @@ export * from './worldPath';
 export * from './learningMap';
 export * from './sessionFlow';
 export * from './misconceptions';
+export * from './conceptMastery';
 export * from './lessonContent';
 export * from './mastery';
 export { ProgressProvider, useProgress } from './progressContext';

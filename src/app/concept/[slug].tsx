@@ -8,6 +8,7 @@ import {
   relatedConcepts,
   worldById,
   categoryById,
+  conceptMasteryStatus,
   useProgress,
 } from '@/data';
 import { VisualCard } from '@/engines/visual';
@@ -16,7 +17,7 @@ import { analytics } from '@/analytics';
 export default function ConceptFiche() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const router = useRouter();
-  const { favorites, toggleFavorite, markRecentlyViewed, markConceptExplored, ready } = useProgress();
+  const { favorites, toggleFavorite, markRecentlyViewed, markConceptExplored, ready, state } = useProgress();
   const concept = conceptBySlug(V5_CONCEPTS, slug ?? '');
   const fav = concept ? favorites.has(concept.slug) : false;
 
@@ -64,6 +65,14 @@ export default function ConceptFiche() {
         <FavoriteButton active={fav} onToggle={() => toggleFavorite(concept.slug)} label={concept.title} size="lg" />
       </View>
       <View style={styles.metaRow}>
+        {(() => {
+          const st = conceptMasteryStatus(concept, {
+            exploredSlugs: state?.learning?.conceptsExplored ?? [],
+            skills: state?.skills ?? {},
+          });
+          const color = st.mastered ? theme.colors.primary : st.explored ? theme.colors.technical : theme.colors.textMuted;
+          return <Chip label={st.label} color={color} />;
+        })()}
         <Chip label={`${tone.label} · ${concept.difficulty}/5`} color={tone.color} />
         {concept.aliases[0] ? <Chip label={concept.aliases[0]} color={theme.colors.textMuted} /> : null}
       </View>
