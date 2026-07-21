@@ -50,10 +50,16 @@ publication sans accord.
   mondes de contenu, états « introuvable » / « verrouillé »). `parcours.tsx` = **un seul** chemin
   vertical des 15 mondes → `/monde/[id]`. **Aucune migration** (dérivé de `completedSkills` +
   `conceptsExplored`). Voir **ADR-066**.
+- **Lot 3 — Session pas-à-pas** ✅ : fin de la « leçon non séquencée ». Modèle pur
+  `src/data/sessionFlow.ts` (`buildLearnSteps` = **contre-exemple garanti** ; `sanitizeResume` =
+  reprise validée, jamais une autre compétence) + `sessionResumeRepository`. La phase Apprendre
+  devient un **stepper** (un step par écran, progression + Retour + un seul CTA) ; **reprise exacte**
+  après fermeture (+ « Recommencer ») ; le résultat affiche la **maîtrise réelle** (Nouveau→Maîtrisé)
+  et la **prochaine révision** au lieu d'un emoji vide. Voir **ADR-067**.
 
-Prochains lots (ordre recommandé) : **Lot 3** Session pas-à-pas (un step par écran, reprise, fin du
-fallback session) → **Lot 4** Fondations interactives (Dividende/PER) → 5…13. Statut détaillé par
-lot : voir le plan.
+Prochains lots (ordre recommandé) : **Lot 4** Fondations interactives (Dividende/PER en concepts
+riches + leçons du monde 1) → **Lot 5** Graphique canonique → 6…13. Statut détaillé par lot : voir
+le plan.
 
 ## Programmes terminés (archive)
 

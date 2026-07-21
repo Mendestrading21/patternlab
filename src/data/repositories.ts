@@ -348,6 +348,41 @@ export class AsyncStorageGlossaryPrefsRepository implements GlossaryPrefsReposit
 
 export const glossaryPrefsRepository: GlossaryPrefsRepository = new AsyncStorageGlossaryPrefsRepository();
 
+// ─── Reprise de session (position exacte, effacée en fin de session) ─
+const SESSION_RESUME_KEY = 'patternlab.session.v1';
+
+export interface SessionResumeRepository {
+  /** Renvoie l'objet brut persisté (assaini/validé par `sanitizeResume` côté appelant). */
+  load(): Promise<unknown | null>;
+  save(state: unknown): Promise<void>;
+  clear(): Promise<void>;
+}
+
+export class AsyncStorageSessionResumeRepository implements SessionResumeRepository {
+  async load(): Promise<unknown | null> {
+    try {
+      const raw = await AsyncStorage.getItem(SESSION_RESUME_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  async save(state: unknown): Promise<void> {
+    try {
+      await AsyncStorage.setItem(SESSION_RESUME_KEY, JSON.stringify(state));
+    } catch {
+      // best-effort : une reprise non sauvegardée ne bloque jamais la session.
+    }
+  }
+
+  async clear(): Promise<void> {
+    await AsyncStorage.removeItem(SESSION_RESUME_KEY);
+  }
+}
+
+export const sessionResumeRepository: SessionResumeRepository = new AsyncStorageSessionResumeRepository();
+
 /** Implémentation mémoire (tests / fallback). */
 export class InMemoryProgressRepository implements ProgressRepository {
   private state: ProgressState | null = null;
