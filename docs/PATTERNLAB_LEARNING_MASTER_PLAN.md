@@ -52,7 +52,7 @@ Experience Max a ajouté (c'est voulu : consolider, pas empiler).
 | 3 | **Session pas-à-pas** | 🟢 fait | Stepper **un step par écran** (progression, Retour, CTA unique) ; **reprise exacte** après fermeture (`sessionFlow`/`sessionResumeRepository`) ; **contre-exemple garanti** (`buildLearnSteps`) ; résultat de **maîtrise réelle** + prochaine révision. (Fallback silencieux : déjà réglé au Lot 0.) Voir **ADR-067**. | moyen |
 | 4 | **Fondations interactives** | 🟢 fait | Dividende & PER en concepts riches + **nouveau visuel `mechanism`** (étapes fléchées) ; step visuel + 2 exercices dans le monde 1 (agrégés au checkpoint) ; concepts 58→60, visuels 10→11. Voir **ADR-068**. | faible-moyen |
 | 5 | **Graphique canonique** | 🟢 fait | Vocabulaire unique des 4 modes (`chartMode.ts`) ; **axe des prix** + **légende** hausse/baisse sur les fiches (`VisualCard`) ; robustesse vide/plat/extrême verrouillée par test. (S'appuie sur grille/volume/replay/mode aveugle existants.) Voir **ADR-069**. | moyen |
-| 6 | **Indicateurs** | 🟡 partiel | **Labs paramétrables** RSI/MACD/Bollinger/MM/volume/VWAP + quiz visuels + faux signaux. (Déjà : fiches + `IndicatorPanel`.) | moyen |
+| 6 | **Indicateurs** | 🟢 fait | `indicatorLab.ts` (RSI/MM/Bollinger paramétrables + faux signaux) ; section « Labs d'indicateurs » au Laboratoire (sélecteurs → `IndicatorPanel` recomposé en direct). Quiz visuels indicateurs déjà présents. Voir **ADR-070**. | moyen |
 | 7 | **Exercices adaptatifs** | 🔴 à faire | **`EXERCISE_FORMAT_REGISTRY`** unique (type/grader/renderer/a11y/statut) ; finaliser ou retirer `drag_drop`/`draw_level`/`timed` ; **misconceptions typées** ; réinsertion adaptative + deck d'erreurs. | moyen |
 | 8 | **Glossaire & bibliothèque premium** | 🟡 partiel | Recherche unifiée ; mini-visuels + **statut de maîtrise** ; favoris/collections ; navigation concept↔pratique ; **comparaison visuelle**. (Déjà : recherche glossaire, favoris, récents.) | faible-moyen |
 | 9 | **Toto/Bobo V3** | 🟡 partiel | **`MascotMoment`** (entrée/geste/pointage/sortie) ; **dialogues liés aux erreurs conceptuelles** ; inventaire d'assets + reduced motion. (Déjà : moteur de dialogue contextuel + réactions.) | faible-moyen |
@@ -78,8 +78,11 @@ Légende : 🔴 à faire · 🟡 partiel (socle existant à consolider) · 🟢 
    `mechanism` + monde 1 (ADR-068).
 6. ~~**Lot 5 — Graphique canonique**~~ ✅ **fait** : 4 modes unifiés + axe/légende + robustesse
    (ADR-069).
-7. **Lot 6 — Indicateurs** *(prochain)* : labs paramétrables RSI/MACD/Bollinger + quiz visuels + faux
-   signaux. Puis Lots 7 → 11 ; Lot 12 (entitlement, sans achat) ; Lot 13 avec tes comptes.
+7. ~~**Lot 6 — Indicateurs**~~ ✅ **fait** : labs paramétrables RSI/MM/Bollinger + faux signaux
+   (ADR-070).
+8. **Lot 7 — Exercices adaptatifs** *(prochain)* : `EXERCISE_FORMAT_REGISTRY`, finaliser/retirer
+   drag_drop/draw_level/timed, misconceptions typées, réinsertion adaptative. Puis Lots 8 → 11 ;
+   Lot 12 (entitlement, sans achat) ; Lot 13 avec tes comptes.
 
 ## Méthode par lot (rappel skill)
 Logique pure + tests d'abord → migration non destructive si le modèle change → données, moteurs,

@@ -69,9 +69,15 @@ publication sans accord.
   aveugle reste étanche. **Robustesse** verrouillée par test (vide/plat/extrême, aucun NaN). Voir
   **ADR-069**.
 
-Prochains lots (ordre recommandé) : **Lot 6** Indicateurs (labs paramétrables RSI/MACD/Bollinger) →
-**Lot 7** Exercices adaptatifs (`EXERCISE_FORMAT_REGISTRY`) → 8…13. Statut détaillé par lot : voir le
-plan.
+- **Lot 6 — Indicateurs (labs paramétrables)** ✅ : `src/engines/visual/indicatorLab.ts` (pur, testé)
+  — 3 labs (**RSI** période, **Moyenne mobile** longueur, **Bollinger** écart-type) avec `configFor`
+  + **faux signal** éducatif. Section **« Labs d'indicateurs »** au Laboratoire : sélecteurs
+  indicateur + paramètre → `IndicatorPanel` **recomposé en direct**, réutilisant le moteur existant
+  sans le modifier. Voir **ADR-070**.
+
+Prochains lots (ordre recommandé) : **Lot 7** Exercices adaptatifs (`EXERCISE_FORMAT_REGISTRY`,
+finaliser/retirer drag_drop/draw_level/timed, misconceptions typées) → **Lot 8** Glossaire &
+bibliothèque premium → 9…13. Statut détaillé par lot : voir le plan.
 
 ## Programmes terminés (archive)
 

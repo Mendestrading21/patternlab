@@ -24,6 +24,7 @@ export { COMPARISONS, comparison, type Comparison, type ComparisonSide } from '.
 export { CHEAT_SHEETS, cheatSheet, type CheatItem } from './cheatSheets';
 export { MECHANISMS, mechanism, type Mechanism, type MechanismStep } from './mechanisms';
 export { CHART_MODES, chartModeOptions, type ChartMode, type ChartModeOptions } from './chartMode';
+export { INDICATOR_LABS, indicatorLabById, type IndicatorLab } from './indicatorLab';
 export { buildVolumeProfile, type VolumeProfile as VolumeProfileData, type VolumeBin } from './volumeProfile';
 export * from './indicatorMath';
 export { INDICATOR_CONFIGS, indicatorConfig, type IndicatorConfig, type IndicatorKind } from './indicatorConfigs';

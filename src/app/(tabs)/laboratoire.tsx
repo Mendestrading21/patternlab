@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { View, Pressable, StyleSheet } from 'react-native';
-import { Screen, Text, Card, Button, Chip, theme } from '@/design-system';
+import { Screen, Text, Card, Button, Chip, SegmentedControl, type SegmentOption, theme } from '@/design-system';
 import { CharacterScene } from '@/characters';
 import {
   InteractiveChart,
@@ -17,7 +17,7 @@ import {
   replayAtEnd,
   replayAtStart,
 } from '@/engines/pattern';
-import { VisualCard } from '@/engines/visual';
+import { VisualCard, IndicatorPanel, INDICATOR_LABS, indicatorLabById, datasetByKey } from '@/engines/visual';
 import { DEMO_PATTERN, V5_CONCEPTS, type VisualSpec } from '@/data';
 import { analytics } from '@/analytics';
 
@@ -48,6 +48,15 @@ export default function Laboratoire() {
   const replayCandles = useMemo(() => generateCandles(777, 24), []);
   const [replay, setReplay] = useState(() => initReplay(replayCandles.length, 6));
   const [replayDone, setReplayDone] = useState(false);
+
+  // Scénario 3 — labs d'indicateurs paramétrables (RSI / MM / Bollinger).
+  const [labId, setLabId] = useState(INDICATOR_LABS[0].id);
+  const [labParam, setLabParam] = useState<number>(INDICATOR_LABS[0].defaultValue);
+  const lab = indicatorLabById(labId) ?? INDICATOR_LABS[0];
+  const labCandles = useMemo(() => datasetByKey(lab.datasetKey), [lab.datasetKey]);
+  const labConfig = lab.configFor(labParam);
+  const labOptions: SegmentOption<string>[] = INDICATOR_LABS.map((l) => ({ id: l.id, label: l.title }));
+  const paramOptions: SegmentOption<string>[] = lab.paramValues.map((v) => ({ id: String(v), label: lab.formatValue(v) }));
 
   useEffect(() => {
     analytics.track('lab_started', { scenario: 'trace_support' });
@@ -217,6 +226,41 @@ export default function Laboratoire() {
         )}
       </Card>
 
+      <Text variant="h2">Labs d’indicateurs</Text>
+      <Text variant="body" color={theme.colors.textSecondary}>
+        Choisis un indicateur, ajuste son paramètre, et observe sa lecture se recomposer.
+      </Text>
+      <Card>
+        <SegmentedControl
+          options={labOptions}
+          value={labId}
+          onChange={(id) => {
+            setLabId(id);
+            const l = indicatorLabById(id);
+            if (l) setLabParam(l.defaultValue);
+            analytics.track('lab_started', { scenario: `indicator:${id}` });
+          }}
+          accessibilityLabel="Choisir un indicateur"
+        />
+        <View style={styles.paramRow}>
+          <Text variant="label" color={theme.colors.textMuted}>
+            {lab.paramLabel}
+          </Text>
+          <SegmentedControl
+            options={paramOptions}
+            value={String(labParam)}
+            onChange={(v) => setLabParam(Number(v))}
+            accessibilityLabel={`${lab.paramLabel} de ${lab.title}`}
+          />
+        </View>
+        <IndicatorPanel
+          candles={labCandles}
+          config={labConfig}
+          accessibilityLabel={`${lab.title} — ${lab.paramLabel} ${lab.formatValue(labParam)}. Ajuste le paramètre pour comparer.`}
+        />
+        <CharacterScene character="bobo" state="false-signal" size={56} reversed speech={lab.falseSignal} />
+      </Card>
+
       <Text variant="h2">Visuels V5 (aperçu)</Text>
       <Text variant="body" color={theme.colors.textSecondary}>
         Des schémas originaux, générés en code et accessibles. Ouvre une fiche pour voir le visuel en contexte.
@@ -274,5 +318,6 @@ const styles = StyleSheet.create({
   debate: { gap: theme.spacing.md },
   conceptList: { gap: theme.spacing.xs, marginTop: theme.spacing.sm },
   conceptRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm, minHeight: 40 },
+  paramRow: { gap: theme.spacing.xs, marginVertical: theme.spacing.sm },
   flex1: { flex: 1 },
 });
