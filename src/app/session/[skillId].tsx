@@ -16,6 +16,7 @@ import {
   conceptBySlug,
   conceptSlugForSkill,
   V5_CONCEPTS,
+  mistakeMoment,
   buildLearnSteps,
   sanitizeResume,
   isResumable,
@@ -244,8 +245,13 @@ export default function Session() {
     setResult(null);
   };
 
-  // Réplique contextuelle et variée de Toto/Bobo (varie avec l'index de la question).
-  const feedbackLine = result ? characterLine({ kind: 'answer', correct: result.correct, streak }, index) : null;
+  // Réaction de Toto/Bobo : réussite → réplique variée de Toto ; erreur → Bobo pointe l'IDÉE FAUSSE
+  // précise (misconception liée à l'exercice), pas un « réessaie » générique (Lot 9).
+  const feedbackLine = result
+    ? result.correct
+      ? characterLine({ kind: 'answer', correct: true, streak }, index)
+      : mistakeMoment(exercise.id)
+    : null;
 
   return (
     <Screen>

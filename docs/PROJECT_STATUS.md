@@ -86,8 +86,14 @@ publication sans accord.
   (recherche insensible accents/casse par titre/alias/famille) + champ de recherche dans la
   **bibliothèque visuelle** (recherche désormais cohérente avec le glossaire). Voir **ADR-072**.
 
-Prochains lots (ordre recommandé) : **Lot 9** Toto/Bobo V3 (`MascotMoment`, dialogues liés aux
-erreurs) → **Lot 10** Contenu des 15 mondes → 11…13. Statut détaillé par lot : voir le plan.
+- **Lot 9 — Toto/Bobo V3** ✅ : **`mascotMoment.ts`** (type `MascotMoment` + `mistakeMoment`) — sur
+  une erreur, **Bobo pointe l'idée fausse précise** (misconception du Lot 7 : libellé + conseil) au
+  lieu d'un encouragement générique ; sur une réussite, Toto garde sa réplique variée. Inventaire
+  d'assets + réduction d'animation documentés (rendu statique honoré). Voir **ADR-073**.
+
+Prochains lots (ordre recommandé) : **Lot 10** Contenu des 15 mondes (75→150 concepts jouables) →
+**Lot 11** Progression & rétention (5 états de maîtrise) → 12…13. Statut détaillé par lot : voir le
+plan.
 
 ## Programmes terminés (archive)
 

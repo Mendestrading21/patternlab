@@ -55,7 +55,7 @@ Experience Max a ajouté (c'est voulu : consolider, pas empiler).
 | 6 | **Indicateurs** | 🟢 fait | `indicatorLab.ts` (RSI/MM/Bollinger paramétrables + faux signaux) ; section « Labs d'indicateurs » au Laboratoire (sélecteurs → `IndicatorPanel` recomposé en direct). Quiz visuels indicateurs déjà présents. Voir **ADR-070**. | moyen |
 | 7 | **Exercices adaptatifs** | 🟢 fait | `EXERCISE_FORMAT_REGISTRY` unique (exhaustif à la compilation) ; orphelins `drag_drop`/`draw_level`/`timed` retirés (13/13) ; **misconceptions typées** (`misconceptions.ts`) surfacées dans Réviser (« points faibles »). Réinsertion de base déjà présente. Voir **ADR-071**. | moyen |
 | 8 | **Glossaire & bibliothèque premium** | 🟢 fait | `conceptMastery.ts` (statut Nouveau/Découvert/Maîtrisé sur la fiche) ; `searchFigures` + recherche dans la bibliothèque visuelle (cohérente avec le glossaire). Favoris/récents déjà là ; collections + comparaison côte à côte = extensions futures. Voir **ADR-072**. | faible-moyen |
-| 9 | **Toto/Bobo V3** | 🟡 partiel | **`MascotMoment`** (entrée/geste/pointage/sortie) ; **dialogues liés aux erreurs conceptuelles** ; inventaire d'assets + reduced motion. (Déjà : moteur de dialogue contextuel + réactions.) | faible-moyen |
+| 9 | **Toto/Bobo V3** | 🟢 fait | `mascotMoment.ts` (`MascotMoment` + `mistakeMoment`) : erreur → Bobo pointe la misconception précise (Lot 7) ; inventaire d'assets + reduced motion documentés. Orchestration d'animation fine = extension future (rendu statique honnête). Voir **ADR-073**. | faible-moyen |
 | 10 | **Contenu des 15 mondes** | 🟡 partiel | Atteindre **75 puis 150 concepts jouables**, chacun relié à leçon + pratique + révision ; checkpoints + prérequis ; revue humaine + provenance. (Déjà : 58 fiches, mais peu reliées à un chemin.) | moyen (volume éditorial) |
 | 11 | **Progression, révision & rétention** | 🔴 à faire | États **Découvert/Pratiqué/Compris/Solide/Maîtrisé** ; révision au niveau concept ; célébrations de badges (toast/modale) ; stats 30 jours ; quêtes hors du CTA principal. | moyen |
 | 12 | **Abonnement réel prêt à brancher** | 🟡 partiel | Une offre **Plus** ; abstraction **entitlement** ; états achat/restauration/offline/expiration. **Aucun achat réel sans tes comptes + autorisation.** | faible (sans achat réel) |
@@ -84,9 +84,10 @@ Légende : 🔴 à faire · 🟡 partiel (socle existant à consolider) · 🟢 
    misconceptions typées (ADR-071).
 9. ~~**Lot 8 — Glossaire & bibliothèque premium**~~ ✅ **fait** : statut d'apprentissage sur les
    fiches + recherche dans la bibliothèque (ADR-072).
-10. **Lot 9 — Toto/Bobo V3** *(prochain)* : `MascotMoment`, dialogues liés aux erreurs conceptuelles,
-    inventaire d'assets + reduced motion. Puis Lots 10 → 11 ; Lot 12 (entitlement, sans achat) ;
-    Lot 13 avec tes comptes.
+10. ~~**Lot 9 — Toto/Bobo V3**~~ ✅ **fait** : `mascotMoment` + dialogues liés aux erreurs (ADR-073).
+11. **Lot 10 — Contenu des 15 mondes** *(prochain)* : atteindre 75 puis 150 concepts jouables reliés à
+    leçon + pratique + révision. Puis Lot 11 ; Lot 12 (entitlement, sans achat) ; Lot 13 avec tes
+    comptes.
 
 ## Méthode par lot (rappel skill)
 Logique pure + tests d'abord → migration non destructive si le modèle change → données, moteurs,
