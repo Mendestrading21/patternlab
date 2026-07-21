@@ -19,7 +19,7 @@ export function ComparisonVisual({ comparison, accessibilityLabel }: ComparisonV
           <Text variant="caption" color={theme.colors.textSecondary} center>
             {s.caption}
           </Text>
-          <CandlestickGlyphs candles={datasetByKey(s.datasetKey)} box={{ width: 150, height: 118, padY: 10 }} />
+          <CandlestickGlyphs candles={datasetByKey(s.datasetKey)} box={{ width: 150, height: 118, padY: 10 }} decorative />
         </View>
       ))}
     </View>

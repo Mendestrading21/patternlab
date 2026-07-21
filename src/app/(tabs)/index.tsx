@@ -245,7 +245,7 @@ export default function Home() {
 
 function SnapTile({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <View style={styles.snapTile}>
+    <View style={styles.snapTile} accessible accessibilityLabel={`${label} : ${value}`}>
       <Text variant="title" color={color} center>
         {value}
       </Text>

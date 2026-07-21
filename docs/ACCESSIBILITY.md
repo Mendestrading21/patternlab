@@ -54,6 +54,24 @@ garanties en place, où elles sont implémentées, et comment elles sont vérifi
   MarketReplayChart, VisualCard, PatternChart), présence des en-têtes, console propre.
 - **Gate CI** : lint · typecheck · tests · validate:content · release:check · build:web.
 
+## Écrans « Experience Max » (Lots 1–10)
+- **Phase « Apprendre » & leçons immersives** : chaque `LessonStepView` visuel porte un résumé ;
+  `LessonReplay` (révélation bougie par bougie) est **statique** (piloté au toucher → reduced-motion
+  safe), avec `accessibilityLabel` de progression et boutons à `accessibilityHint` (état début/fin
+  annoncé, jamais de bouton mort).
+- **Nouveaux visuels** (`VolumeProfile`, `ComparisonVisual`, `CheatSheetVisual`) : chaque carte porte
+  un `accessibilitySummary` ; les schémas imbriqués (comparaison / aide-mémoire) sont marqués
+  `decorative` sur `CandlestickGlyphs` (masqués à l'a11y) pour éviter les annonces d'images doublées —
+  seul le résumé du parent est lu.
+- **Quiz visuel** : sélecteurs difficulté/thème en `role=tab` + état sélectionné ; en mode énigme, le
+  résumé accessible est neutre (aucune fuite de la réponse) ; feedback illustré après réponse.
+- **Parcours vertical (15 mondes)** : nœuds `role=button` avec état `disabled` + indice de déblocage
+  pour les mondes verrouillés ; MiniVisual de monde décoratif (le titre porte le sens).
+- **Mascottes vivantes** : les états `streak`/`celebrate-*` passent par `CharacterAnimationController`,
+  qui **respecte `useReducedMotion`** ; le texte du dialogue est toujours lisible (bulle textuelle).
+- **Accueil** : tuiles de progression (`SnapTile`) et de résultat (`StatTile`) exposées comme un seul
+  élément accessible (« Mondes : 3/15 »), plutôt que deux fragments séparés.
+
 ## Reste à faire
 - Tests d'intégration lecteur d'écran natifs (VoiceOver/TalkBack) sur appareil réel ;
 - audit clavier web exhaustif (ordre de tabulation) au fil des nouveaux écrans.

@@ -232,7 +232,7 @@ function Results({
 
 function StatTile({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <View style={styles.tile}>
+    <View style={styles.tile} accessible accessibilityLabel={`${label} : ${value}`}>
       <Text variant="title" color={color} center>
         {value}
       </Text>
