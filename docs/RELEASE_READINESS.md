@@ -9,7 +9,7 @@ Checklist finale de préparation à la publication (iOS / Android / web). Distin
 |---|---|---|
 | Lint | `npm run lint` | ✅ |
 | Types (TS strict) | `npm run typecheck` | ✅ |
-| Tests unitaires | `npm run test` | ✅ 342 tests |
+| Tests unitaires | `npm run test` | ✅ 417 tests (programme Experience Max inclus) |
 | Validation de contenu | `npm run validate:content` | ✅ 31/31 (+ portail éditorial : idempotence, vocabulaire, needsReview) |
 | Préparation publication | `npm run release:check` | ✅ 14/14 |
 | Build web | `npm run build:web` | ✅ export `dist` |

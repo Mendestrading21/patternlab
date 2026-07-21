@@ -48,6 +48,8 @@ export type CandlestickGlyphsProps = {
   markers?: Marker[];
   /** Grille horizontale subtile (aide à la lecture). Activée par défaut. */
   grid?: boolean;
+  /** Décoratif : masque ce schéma à l'accessibilité (le parent porte le résumé). */
+  decorative?: boolean;
   accessibilityLabel?: string;
 };
 
@@ -63,6 +65,7 @@ export function CandlestickGlyphs({
   guides = [],
   markers = [],
   grid = true,
+  decorative = false,
   accessibilityLabel,
 }: CandlestickGlyphsProps) {
   const W = box.width;
@@ -75,7 +78,13 @@ export function CandlestickGlyphs({
   const xAt = (i: number) => Math.max(0, Math.min(W, i * slot + slot / 2));
 
   return (
-    <View accessible accessibilityRole="image" accessibilityLabel={accessibilityLabel}>
+    <View
+      accessible={!decorative}
+      accessibilityRole={decorative ? undefined : 'image'}
+      accessibilityLabel={decorative ? undefined : accessibilityLabel}
+      accessibilityElementsHidden={decorative}
+      importantForAccessibility={decorative ? 'no-hide-descendants' : undefined}
+    >
       <Svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`}>
         {grid
           ? Array.from({ length: GRID_ROWS + 1 }, (_, i) => {

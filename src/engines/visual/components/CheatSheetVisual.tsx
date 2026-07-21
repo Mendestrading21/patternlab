@@ -15,7 +15,7 @@ export function CheatSheetVisual({ items, accessibilityLabel }: CheatSheetVisual
     <View accessible accessibilityRole="image" accessibilityLabel={accessibilityLabel} style={styles.grid}>
       {items.map((it, i) => (
         <View key={i} style={styles.cell}>
-          <CandlestickGlyphs candles={datasetByKey(it.datasetKey)} box={{ width: 130, height: 78, padY: 8 }} />
+          <CandlestickGlyphs candles={datasetByKey(it.datasetKey)} box={{ width: 130, height: 78, padY: 8 }} decorative />
           <Text variant="caption" color={theme.colors.textMuted}>
             {it.label}
           </Text>

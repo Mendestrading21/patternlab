@@ -115,6 +115,24 @@ lot** (fusion `main` → déploiement live). Roadmap 10 lots (voir SKILL.md).
   **417** (+2, `greeting.test`) · validate:content 31 · release:check 14 · build:web. Vérifié en
   pilotant Chromium (390×844) : « Bonsoir, apprenti ! », carte « Ta progression » (3/15 mondes,
   0/23 badges…), Explorer avec Quiz visuel + Bibliothèque, **0 erreur console**. Voir **ADR-062**.
+- **Exp-Max Lot 10 — Accessibilité, perf & finition release** ✅ (**dernier lot**) : passe de
+  finition. A11y : prop `decorative` sur `CandlestickGlyphs` (masque à l'a11y les schémas imbriqués
+  de `ComparisonVisual`/`CheatSheetVisual` → plus d'image doublée) ; tuiles progression (accueil) et
+  résultat (session) exposées comme **un seul élément accessible** (« Mondes : 3/15 ») ;
+  `ACCESSIBILITY.md` complété (tous les écrans Experience Max). Perf : dérivations pures/statiques/bon
+  marché (O(corpus), au changement d'état seulement), visuels SVG sans animation mesurée → posture
+  documentée. Release : `RELEASE_READINESS.md` à jour (417 tests). Validations : lint · typecheck ·
+  tests **417** · validate:content 31 · release:check 14 · build:web. Vérifié en pilotant Chromium :
+  rôles/labels présents, **0 erreur console**. Voir **ADR-063**.
+
+## 🏁 Programme Experience Max — COMPLET (Lots 1 → 10)
+Skill `patternlab-experience-max` terminé (2026-07-20) : parcours visuel-first (1), graphiques
+parfaits + 3 types de visuels (2), quiz visuels enrichis (3), contenu bibliothèque +20 concepts →
+**58** (4), leçons immersives avec manipulation (5), parcours vertical des 15 mondes vivants (6),
+Toto & Bobo vivants — dialogue contextuel (7), gamification & rétention — concept du jour + badges →
+**23** (8), accueil & navigation attractifs (9), accessibilité/perf/finition release (10). Chaque lot
+publié en live depuis `main`. Gate finale verte : lint · typecheck · **417 tests** · validate:content
+31 · release:check 14 · build:web. ADRs **054 → 063**.
 
 ## PatternLab V5 — programme précédent (skill `patternlab-v5-master`)
 2026-07-19 — Démarrage du programme **V5** (16 lots, visuel-first, 500+ concepts) par-dessus la v1.
