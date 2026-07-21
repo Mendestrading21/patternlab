@@ -10,11 +10,13 @@ import { OptionPayoff } from './OptionPayoff';
 import { VolumeProfile } from './VolumeProfile';
 import { ComparisonVisual } from './ComparisonVisual';
 import { CheatSheetVisual } from './CheatSheetVisual';
+import { MechanismVisual } from './MechanismVisual';
 import { figureOverlay } from '../figureOverlays';
 import { indicatorConfig } from '../indicatorConfigs';
 import { riskSetup } from '../riskSetups';
 import { comparison } from '../comparisons';
 import { cheatSheet } from '../cheatSheets';
+import { mechanism } from '../mechanisms';
 
 export type VisualCardProps = {
   spec: VisualSpec;
@@ -38,6 +40,7 @@ export function VisualCard({ spec, title, blind = false }: VisualCardProps) {
   const summary = blind ? 'Graphique d’une figure à reconnaître.' : spec.accessibilitySummary;
   const cmp = spec.type === 'comparison' ? comparison(spec.variant) : undefined;
   const cheat = spec.type === 'cheat-sheet' ? cheatSheet(spec.variant) : undefined;
+  const mech = spec.type === 'mechanism' ? mechanism(spec.variant) : undefined;
 
   let visual: ReactNode;
   if (spec.type === 'candle-anatomy' && candles[0]) {
@@ -99,6 +102,9 @@ export function VisualCard({ spec, title, blind = false }: VisualCardProps) {
   } else if (spec.type === 'cheat-sheet' && cheat) {
     // Aide-mémoire : grille de mini-schémas légendés.
     visual = <CheatSheetVisual items={cheat} accessibilityLabel={summary} />;
+  } else if (spec.type === 'mechanism' && mech) {
+    // Schéma d'économie/mécanisme (dividende, PER…) : étapes fléchées, pas un graphique.
+    visual = <MechanismVisual mechanism={mech} accessibilityLabel={summary} />;
   } else {
     visual = (
       <View style={styles.fallback} accessible accessibilityLabel={summary}>

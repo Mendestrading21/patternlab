@@ -50,7 +50,7 @@ Experience Max a ajouté (c'est voulu : consolider, pas empiler).
 | 1 | **Navigation & accueil simplifiés** | 🟢 fait | 5 onglets **Accueil · Parcours · Apprendre · Réviser · Profil** ; hub **Apprendre** (`(tabs)/apprendre.tsx`) = biblio, glossaire, quiz visuel, quiz éclair, leçons, **Labo** ; accueil recentré (mission + progression compacte + révision due + concept du jour) ; Quêtes → Réussites. Voir **ADR-065**. | moyen (refonte tab bar + routes) |
 | 2 | **Hiérarchie pédagogique unique** | 🟢 fait | Modèle pur unique `learningMap.ts` (Monde → Module → Compétence ; monde 1 = 4 skills + checkpoint) ; route **`/monde/[id]`** ; `parcours` = un seul chemin ; déblocage par **checkpoint** ; **aucune migration** (dérivé de l'état existant). Voir **ADR-066**. | élevé (modèle + migration) |
 | 3 | **Session pas-à-pas** | 🟢 fait | Stepper **un step par écran** (progression, Retour, CTA unique) ; **reprise exacte** après fermeture (`sessionFlow`/`sessionResumeRepository`) ; **contre-exemple garanti** (`buildLearnSteps`) ; résultat de **maîtrise réelle** + prochaine révision. (Fallback silencieux : déjà réglé au Lot 0.) Voir **ADR-067**. | moyen |
-| 4 | **Fondations interactives** | 🔴 à faire | **Dividende & PER** en `LearningConcept` riches + visuels de mécanisme ; leçons/exercices du **monde 1** ; checkpoint complet. | faible-moyen |
+| 4 | **Fondations interactives** | 🟢 fait | Dividende & PER en concepts riches + **nouveau visuel `mechanism`** (étapes fléchées) ; step visuel + 2 exercices dans le monde 1 (agrégés au checkpoint) ; concepts 58→60, visuels 10→11. Voir **ADR-068**. | faible-moyen |
 | 5 | **Graphique canonique** | 🟡 partiel | Axes/labels/légendes lisibles + volume + overlays + replay ; **4 modes static/guided/interactive/blind** unifiés ; datasets purs ; snapshots + tests vide/plat/extrême. (Déjà : grille, volume, replay, mode aveugle.) | moyen |
 | 6 | **Indicateurs** | 🟡 partiel | **Labs paramétrables** RSI/MACD/Bollinger/MM/volume/VWAP + quiz visuels + faux signaux. (Déjà : fiches + `IndicatorPanel`.) | moyen |
 | 7 | **Exercices adaptatifs** | 🔴 à faire | **`EXERCISE_FORMAT_REGISTRY`** unique (type/grader/renderer/a11y/statut) ; finaliser ou retirer `drag_drop`/`draw_level`/`timed` ; **misconceptions typées** ; réinsertion adaptative + deck d'erreurs. | moyen |
@@ -74,8 +74,11 @@ Légende : 🔴 à faire · 🟡 partiel (socle existant à consolider) · 🟢 
    unique, sans migration (ADR-066).
 4. ~~**Lot 3 — Session pas-à-pas**~~ ✅ **fait** : stepper, reprise exacte, contre-exemple, maîtrise
    réelle (ADR-067).
-5. **Lot 4 — Fondations interactives** *(prochain)* : Dividende/PER en concepts riches + leçons du
-   monde 1. Puis Lots 5 → 11 ; Lot 12 (entitlement, sans achat) ; Lot 13 avec tes comptes.
+5. ~~**Lot 4 — Fondations interactives**~~ ✅ **fait** : Dividende/PER en concepts riches + visuel
+   `mechanism` + monde 1 (ADR-068).
+6. **Lot 5 — Graphique canonique** *(prochain)* : 4 modes static/guided/interactive/blind unifiés,
+   axes/volume/overlays/replay, snapshots. Puis Lots 6 → 11 ; Lot 12 (entitlement, sans achat) ;
+   Lot 13 avec tes comptes.
 
 ## Méthode par lot (rappel skill)
 Logique pure + tests d'abord → migration non destructive si le modèle change → données, moteurs,

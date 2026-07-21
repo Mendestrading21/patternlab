@@ -14,15 +14,15 @@ posture éducative (aucun ordre, signal, portefeuille réel ni conseil personnal
 
 | Élément | Valeur |
 |---|---|
-| Concepts riches V5 | 58 |
+| Concepts riches V5 | 60 |
 | Compétences (parcours pilote) | 4 |
 | Leçons | 15 |
-| Exercices | 28 |
+| Exercices | 30 |
 | Termes de glossaire (v1) | 24 |
 | Badges | 23 |
 | Mondes | 15 |
 | Catégories | 13 |
-| Types de visuels rendables | 10 |
+| Types de visuels rendables | 11 |
 | Formats d'exercice | 16 déclarés / 13 branchés (en attente : `drag_drop`, `draw_level`, `timed`) |
 
 ## Programme en cours — `patternlab-learning-master`
@@ -56,10 +56,15 @@ publication sans accord.
   devient un **stepper** (un step par écran, progression + Retour + un seul CTA) ; **reprise exacte**
   après fermeture (+ « Recommencer ») ; le résultat affiche la **maîtrise réelle** (Nouveau→Maîtrisé)
   et la **prochaine révision** au lieu d'un emoji vide. Voir **ADR-067**.
+- **Lot 4 — Fondations interactives** ✅ : **Dividende** et **PER** promus en concepts riches
+  illustrés par un **nouveau type visuel `mechanism`** (schéma en étapes fléchées, non graphique ;
+  `mechanisms.ts` + `MechanismVisual`, câblé dans `VisualCard`/`MiniVisual`, `SUPPORTED_VISUAL_TYPES`
+  **10→11**). Concepts **58→60** (supersèdent le glossaire), reliés au **monde 1** (step visuel dans
+  la leçon `skill.actions` + **2 exercices** → exercices **28→30**, agrégés au checkpoint). Voir
+  **ADR-068**.
 
-Prochains lots (ordre recommandé) : **Lot 4** Fondations interactives (Dividende/PER en concepts
-riches + leçons du monde 1) → **Lot 5** Graphique canonique → 6…13. Statut détaillé par lot : voir
-le plan.
+Prochains lots (ordre recommandé) : **Lot 5** Graphique canonique (4 modes unifiés) → **Lot 6**
+Indicateurs (labs paramétrables) → 7…13. Statut détaillé par lot : voir le plan.
 
 ## Programmes terminés (archive)
 

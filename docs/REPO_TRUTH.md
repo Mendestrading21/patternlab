@@ -19,15 +19,15 @@ code** (jamais recopiés d'un document). Garantis par **`src/data/repoTruth.test
 
 | Métrique | Registre (code) | Valeur |
 |---|---|---|
-| Concepts riches V5 | `V5_CONCEPTS` | 58 |
+| Concepts riches V5 | `V5_CONCEPTS` | 60 |
 | Compétences (parcours pilote) | `SKILLS` | 4 |
 | Leçons | `LESSONS` (via `getLessons`) | 15 |
-| Exercices | `EXERCISES` (via `getExercises`) | 28 |
+| Exercices | `EXERCISES` (via `getExercises`) | 30 |
 | Termes de glossaire (v1) | `GLOSSARY_TERMS` | 24 |
 | Badges | `BADGES` | 23 |
 | Mondes | `WORLDS` | 15 |
 | Catégories | `CATEGORIES` | 13 |
-| Types de visuels rendables | `SUPPORTED_VISUAL_TYPES` | 10 |
+| Types de visuels rendables | `SUPPORTED_VISUAL_TYPES` | 11 |
 
 ## Formats d'exercice — réconciliation
 

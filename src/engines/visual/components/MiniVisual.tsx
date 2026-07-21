@@ -5,6 +5,8 @@ import { datasetByKey } from '../visualDatasets';
 import { figureOverlay } from '../figureOverlays';
 import { CandlestickGlyphs, type Zone } from './CandlestickGlyphs';
 import { OptionPayoff } from './OptionPayoff';
+import { MechanismVisual } from './MechanismVisual';
+import { mechanism } from '../mechanisms';
 
 /**
  * Vignette visuelle compacte (Lot 5) — un « signal » de la figure, à glisser sur une carte de
@@ -20,6 +22,15 @@ export function MiniVisual({ spec, width = 132 }: { spec: VisualSpec; width?: nu
         <OptionPayoff kind={spec.variant === 'put' ? 'put' : 'call'} hideLabels accessibilityLabel={summary} />
       </View>
     );
+  }
+  // Mécanisme (dividende, PER…) : schéma en étapes, pas de dataset OHLC.
+  if (spec.type === 'mechanism') {
+    const m = mechanism(spec.variant);
+    return m ? (
+      <View style={{ width }}>
+        <MechanismVisual mechanism={m} compact accessibilityLabel={summary} />
+      </View>
+    ) : null;
   }
   const candles = datasetByKey(spec.datasetKey);
   if (!candles.length) return null;

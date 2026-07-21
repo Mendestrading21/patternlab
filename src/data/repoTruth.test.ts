@@ -76,7 +76,7 @@ describe('repoTruth — vérité du dépôt', () => {
     expect(REPO_TRUTH.skills).toBe(4);
     expect(REPO_TRUTH.worlds).toBe(15);
     expect(REPO_TRUTH.categories).toBe(13);
-    expect(REPO_TRUTH.visualTypes).toBe(10);
+    expect(REPO_TRUTH.visualTypes).toBe(11);
   });
 
   it('repoTruthLines produit une ligne lisible non vide par métrique', () => {
