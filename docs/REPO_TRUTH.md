@@ -19,7 +19,7 @@ code** (jamais recopiés d'un document). Garantis par **`src/data/repoTruth.test
 
 | Métrique | Registre (code) | Valeur |
 |---|---|---|
-| Concepts riches V5 | `V5_CONCEPTS` | 60 |
+| Concepts riches V5 | `V5_CONCEPTS` | 67 |
 | Compétences (parcours pilote) | `SKILLS` | 4 |
 | Leçons | `LESSONS` (via `getLessons`) | 15 |
 | Exercices | `EXERCISES` (via `getExercises`) | 30 |

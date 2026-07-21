@@ -14,7 +14,7 @@ posture éducative (aucun ordre, signal, portefeuille réel ni conseil personnal
 
 | Élément | Valeur |
 |---|---|
-| Concepts riches V5 | 60 |
+| Concepts riches V5 | 67 |
 | Compétences (parcours pilote) | 4 |
 | Leçons | 15 |
 | Exercices | 30 |
@@ -91,9 +91,16 @@ publication sans accord.
   lieu d'un encouragement générique ; sur une réussite, Toto garde sa réplique variée. Inventaire
   d'assets + réduction d'animation documentés (rendu statique honoré). Voir **ADR-073**.
 
-Prochains lots (ordre recommandé) : **Lot 10** Contenu des 15 mondes (75→150 concepts jouables) →
-**Lot 11** Progression & rétention (5 états de maîtrise) → 12…13. Statut détaillé par lot : voir le
-plan.
+- **Lot 10 — Contenu des 15 mondes (incrément 1)** 🟡 : **+7 concepts riches** `needsReview`
+  équilibrant les mondes minces (anatomie, price-action, supports/résistances, wyckoff, faux
+  signaux), chacun sur un dataset existant + catégorie valide → **60→67** (vers 75). Portail
+  `contentFactory` vert. Reste itératif vers 75 puis 150. Voir **ADR-074**.
+
+> **Programme publié en live** : les Lots 0→9 sont fusionnés dans `main` (merge `50d7add`) et
+> déployés (run Pages `50d7addf` vert). Le Lot 10 (incrément 1) est sur `dev`, à publier sur accord.
+
+Prochains lots (ordre recommandé) : poursuivre **Lot 10** (incréments vers 75/150) et/ou **Lot 11**
+Progression & rétention (5 états de maîtrise) → 12…13. Statut détaillé par lot : voir le plan.
 
 ## Programmes terminés (archive)
 
