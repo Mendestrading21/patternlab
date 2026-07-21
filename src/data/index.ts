@@ -26,6 +26,7 @@ export * from './sessionPlan';
 export * from './worldMap';
 export * from './worldOverview';
 export * from './worldPath';
+export * from './learningMap';
 export * from './lessonContent';
 export * from './mastery';
 export { ProgressProvider, useProgress } from './progressContext';

@@ -42,9 +42,18 @@ publication sans accord.
   la barre, `href:null`) ; **accueil recentré** sur la mission (progression compacte + révision due
   + concept du jour) — grille « Explorer », snapshot redondant et conseils décoratifs retirés ; la
   carte **Quêtes du jour** est déplacée dans **Réussites** (hors du CTA principal). Voir **ADR-065**.
+- **Lot 2 — Hiérarchie pédagogique unique** ✅ : fin des **deux parcours concurrents** et du
+  déblocage « à la visite ». Modèle pur unique `src/data/learningMap.ts` (`GUIDED_MODULES` : le
+  **monde 1** accueille le module « Lire un graphique » = 4 compétences + checkpoint ;
+  `buildLearningPath` → **monde N ouvert seulement si le monde N-1 est terminé**, par checkpoint pour
+  un monde guidé). Nouvelle route **`/monde/[id]`** (trail guidé pour le monde 1, fiches pour les
+  mondes de contenu, états « introuvable » / « verrouillé »). `parcours.tsx` = **un seul** chemin
+  vertical des 15 mondes → `/monde/[id]`. **Aucune migration** (dérivé de `completedSkills` +
+  `conceptsExplored`). Voir **ADR-066**.
 
-Prochains lots (ordre recommandé) : **Lot 2** Hiérarchie unique (Monde → Module → Compétence +
-migration) → **Lot 3** Session pas-à-pas → 4…13. Statut détaillé par lot : voir le plan.
+Prochains lots (ordre recommandé) : **Lot 3** Session pas-à-pas (un step par écran, reprise, fin du
+fallback session) → **Lot 4** Fondations interactives (Dividende/PER) → 5…13. Statut détaillé par
+lot : voir le plan.
 
 ## Programmes terminés (archive)
 

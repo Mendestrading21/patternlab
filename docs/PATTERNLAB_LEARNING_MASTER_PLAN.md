@@ -48,7 +48,7 @@ Experience Max a ajouté (c'est voulu : consolider, pas empiler).
 |---|---|---|---|---|
 | 0 | **Vérité du dépôt** | 🟢 fait | Source unique `src/data/repoTruth.ts` (+ test de dérive) ; réconciliation des formats (16/13) ; fin du repli silencieux de session ; doc courante séparée de l'historique (`PROJECT_STATUS_ARCHIVE.md`). Voir **ADR-064**. | faible |
 | 1 | **Navigation & accueil simplifiés** | 🟢 fait | 5 onglets **Accueil · Parcours · Apprendre · Réviser · Profil** ; hub **Apprendre** (`(tabs)/apprendre.tsx`) = biblio, glossaire, quiz visuel, quiz éclair, leçons, **Labo** ; accueil recentré (mission + progression compacte + révision due + concept du jour) ; Quêtes → Réussites. Voir **ADR-065**. | moyen (refonte tab bar + routes) |
-| 2 | **Hiérarchie pédagogique unique** | 🔴 à faire | Ajouter **Module + Compétence** au modèle des 15 mondes ; migrer les 4 skills pilotes dans le **monde 1** ; route **détail Monde** ; déblocage par **checkpoints** ; migration de progression non destructive. | élevé (modèle + migration) |
+| 2 | **Hiérarchie pédagogique unique** | 🟢 fait | Modèle pur unique `learningMap.ts` (Monde → Module → Compétence ; monde 1 = 4 skills + checkpoint) ; route **`/monde/[id]`** ; `parcours` = un seul chemin ; déblocage par **checkpoint** ; **aucune migration** (dérivé de l'état existant). Voir **ADR-066**. | élevé (modèle + migration) |
 | 3 | **Session pas-à-pas** | 🔴 à faire | **Un step par écran** (stepper, retour, CTA unique, progression) ; **reprise de session** après fermeture ; résultat de **maîtrise réelle** ; **contre-exemple obligatoire** ; fin du fallback silencieux. | moyen |
 | 4 | **Fondations interactives** | 🔴 à faire | **Dividende & PER** en `LearningConcept` riches + visuels de mécanisme ; leçons/exercices du **monde 1** ; checkpoint complet. | faible-moyen |
 | 5 | **Graphique canonique** | 🟡 partiel | Axes/labels/légendes lisibles + volume + overlays + replay ; **4 modes static/guided/interactive/blind** unifiés ; datasets purs ; snapshots + tests vide/plat/extrême. (Déjà : grille, volume, replay, mode aveugle.) | moyen |
@@ -70,10 +70,11 @@ Légende : 🔴 à faire · 🟡 partiel (socle existant à consolider) · 🟢 
    doc courante/historique séparées (ADR-064).
 2. ~~**Lot 1 — Navigation & accueil**~~ ✅ **fait** : 5 onglets + hub Apprendre + accueil recentré
    (ADR-065).
-3. **Lot 2 — Hiérarchie unique** *(prochain)* : le changement structurant central (monde → module →
-   compétence + migration). Après lui, les leçons/mondes/stats ont une seule source de vérité.
-4. Puis Lots 3 → 11 dans l'ordre ; Lot 12 (entitlement prêt, sans achat) ; Lot 13 seulement avec tes
-   comptes.
+3. ~~**Lot 2 — Hiérarchie unique**~~ ✅ **fait** : `learningMap` + route `/monde/[id]` + parcours
+   unique, sans migration (ADR-066).
+4. **Lot 3 — Session pas-à-pas** *(prochain)* : un step par écran, reprise de session, résultat de
+   maîtrise, contre-exemple obligatoire. Puis Lots 4 → 11 ; Lot 12 (entitlement, sans achat) ; Lot 13
+   avec tes comptes.
 
 ## Méthode par lot (rappel skill)
 Logique pure + tests d'abord → migration non destructive si le modèle change → données, moteurs,
