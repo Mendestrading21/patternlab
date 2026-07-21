@@ -10,11 +10,14 @@ import { OptionPayoff } from './OptionPayoff';
 import { VolumeProfile } from './VolumeProfile';
 import { ComparisonVisual } from './ComparisonVisual';
 import { CheatSheetVisual } from './CheatSheetVisual';
+import { MechanismVisual } from './MechanismVisual';
 import { figureOverlay } from '../figureOverlays';
 import { indicatorConfig } from '../indicatorConfigs';
 import { riskSetup } from '../riskSetups';
 import { comparison } from '../comparisons';
 import { cheatSheet } from '../cheatSheets';
+import { mechanism } from '../mechanisms';
+import { chartModeOptions, type ChartMode } from '../chartMode';
 
 export type VisualCardProps = {
   spec: VisualSpec;
@@ -26,6 +29,11 @@ export type VisualCardProps = {
    * (y compris au lecteur d'écran). Le résumé est révélé après réponse par l'écran appelant.
    */
   blind?: boolean;
+  /**
+   * Mode canonique du graphique (Lot 5). `static` (défaut) : axes + libellés ; `guided` : + overlays ;
+   * `blind` : énigme. Rétro-compat : `blind` force le mode énigme.
+   */
+  mode?: ChartMode;
 };
 
 /**
@@ -33,17 +41,24 @@ export type VisualCardProps = {
  * est visible ET porté par `accessibilityLabel` (information jamais transmise par la seule couleur).
  * Les types non encore couverts affichent un repli lisible.
  */
-export function VisualCard({ spec, title, blind = false }: VisualCardProps) {
+export function VisualCard({ spec, title, blind: blindProp = false, mode = 'static' }: VisualCardProps) {
+  const o = chartModeOptions(blindProp ? 'blind' : mode);
+  // `blind` unifié : le prop `blind` OU le mode énigme donnent le même comportement partout.
+  const blind = o.blind;
   const candles = datasetByKey(spec.datasetKey);
   const summary = blind ? 'Graphique d’une figure à reconnaître.' : spec.accessibilitySummary;
   const cmp = spec.type === 'comparison' ? comparison(spec.variant) : undefined;
   const cheat = spec.type === 'cheat-sheet' ? cheatSheet(spec.variant) : undefined;
+  const mech = spec.type === 'mechanism' ? mechanism(spec.variant) : undefined;
+  // Types graphiques (bougies) qui bénéficient d'un axe des prix + légende hausse/baisse.
+  const CANDLE_TYPES = new Set(['candle-anatomy', 'candlestick-pattern', 'chart-pattern', 'market-structure', 'indicator', 'risk-reward']);
+  const showLegend = o.showLabels && CANDLE_TYPES.has(spec.type) && candles.length > 0;
 
   let visual: ReactNode;
   if (spec.type === 'candle-anatomy' && candles[0]) {
     visual = <CandleAnatomy candle={candles[0]} accessibilityLabel={summary} />;
   } else if (spec.type === 'candlestick-pattern' && candles.length) {
-    visual = <CandlestickGlyphs candles={candles} accessibilityLabel={summary} />;
+    visual = <CandlestickGlyphs candles={candles} axis={o.showAxis} accessibilityLabel={summary} />;
   } else if (spec.type === 'chart-pattern' && candles.length) {
     // Les figures chartistes portent des tracés (ligne de cou, tendances, canaux) via le registre.
     // En mode énigme, on garde la géométrie mais on retire les textes révélateurs (labels, repères).
@@ -52,7 +67,7 @@ export function VisualCard({ spec, title, blind = false }: VisualCardProps) {
     const zones = blind ? overlay?.zones?.map((z) => ({ ...z, label: undefined })) : overlay?.zones;
     const markers = blind ? undefined : overlay?.markers;
     visual = (
-      <CandlestickGlyphs candles={candles} guides={guides} zones={zones} markers={markers} accessibilityLabel={summary} />
+      <CandlestickGlyphs candles={candles} guides={guides} zones={zones} markers={markers} axis={o.showAxis} accessibilityLabel={summary} />
     );
   } else if (spec.type === 'market-structure' && candles.length) {
     const min = Math.min(...candles.map((c) => c.l));
@@ -62,13 +77,13 @@ export function VisualCard({ spec, title, blind = false }: VisualCardProps) {
       { from: min, to: min + range * 0.06, label: blind ? undefined : 'support', color: theme.colors.bullish },
       { from: max - range * 0.06, to: max, label: blind ? undefined : 'résistance', color: theme.colors.bearish },
     ];
-    visual = <CandlestickGlyphs candles={candles} zones={zones} accessibilityLabel={summary} />;
+    visual = <CandlestickGlyphs candles={candles} zones={zones} axis={o.showAxis} accessibilityLabel={summary} />;
   } else if (spec.type === 'indicator' && candles.length) {
     const config = indicatorConfig(spec.variant);
     visual = config ? (
       <IndicatorPanel candles={candles} config={config} accessibilityLabel={summary} />
     ) : (
-      <CandlestickGlyphs candles={candles} accessibilityLabel={summary} />
+      <CandlestickGlyphs candles={candles} axis={o.showAxis} accessibilityLabel={summary} />
     );
   } else if (spec.type === 'risk-reward' && candles.length) {
     // Schéma risque/rendement : entrée, stop (risque, rouge), cible (rendement, vert) + zones.
@@ -83,9 +98,9 @@ export function VisualCard({ spec, title, blind = false }: VisualCardProps) {
         { from: rs.stop, to: rs.entry, color: theme.colors.bearish },
         { from: rs.entry, to: rs.target, color: theme.colors.bullish },
       ];
-      visual = <CandlestickGlyphs candles={candles} levels={levels} zones={zones} accessibilityLabel={summary} />;
+      visual = <CandlestickGlyphs candles={candles} levels={levels} zones={zones} axis={o.showAxis} accessibilityLabel={summary} />;
     } else {
-      visual = <CandlestickGlyphs candles={candles} accessibilityLabel={summary} />;
+      visual = <CandlestickGlyphs candles={candles} axis={o.showAxis} accessibilityLabel={summary} />;
     }
   } else if (spec.type === 'option-payoff') {
     // Diagramme de payoff (call/put) — pas de dataset OHLC, rendu dédié.
@@ -99,6 +114,9 @@ export function VisualCard({ spec, title, blind = false }: VisualCardProps) {
   } else if (spec.type === 'cheat-sheet' && cheat) {
     // Aide-mémoire : grille de mini-schémas légendés.
     visual = <CheatSheetVisual items={cheat} accessibilityLabel={summary} />;
+  } else if (spec.type === 'mechanism' && mech) {
+    // Schéma d'économie/mécanisme (dividende, PER…) : étapes fléchées, pas un graphique.
+    visual = <MechanismVisual mechanism={mech} accessibilityLabel={summary} />;
   } else {
     visual = (
       <View style={styles.fallback} accessible accessibilityLabel={summary}>
@@ -126,6 +144,18 @@ export function VisualCard({ spec, title, blind = false }: VisualCardProps) {
           ))}
         </View>
       ) : null}
+      {showLegend ? (
+        <View style={styles.legend}>
+          <View style={styles.legendItem}>
+            <View style={[styles.dot, { backgroundColor: theme.colors.bullish }]} />
+            <Text variant="caption" color={theme.colors.textMuted}>hausse</Text>
+          </View>
+          <View style={styles.legendItem}>
+            <View style={[styles.dot, { backgroundColor: theme.colors.bearish }]} />
+            <Text variant="caption" color={theme.colors.textMuted}>baisse</Text>
+          </View>
+        </View>
+      ) : null}
       {!blind ? (
         <Text variant="caption" color={theme.colors.textMuted}>
           {summary}
@@ -137,6 +167,9 @@ export function VisualCard({ spec, title, blind = false }: VisualCardProps) {
 
 const styles = StyleSheet.create({
   frame: { marginVertical: theme.spacing.sm },
+  legend: { flexDirection: 'row', gap: theme.spacing.md, marginBottom: theme.spacing.xs },
+  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  dot: { width: 8, height: 8, borderRadius: 4 },
   fallback: { minHeight: 120, alignItems: 'center', justifyContent: 'center' },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs, marginBottom: theme.spacing.xs },
   chip: {

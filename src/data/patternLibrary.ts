@@ -10,6 +10,7 @@
  * `patternLibraryVocabularyIssues` (réutilise la garde de vocabulaire des concepts).
  */
 import { vocabularyIssuesIn, type Direction, type VisualSpec } from './learningConcept';
+import { normalizeSearch } from './glossarySearch';
 
 export type PatternFamily =
   | 'chandelier-simple'
@@ -555,4 +556,19 @@ export function patternLibraryIntegrity(list: PatternGlyph[] = PATTERN_LIBRARY):
 /** Garde de vocabulaire : aucun BUY/SELL ni promesse dans les textes visibles. */
 export function patternLibraryVocabularyIssues(list: PatternGlyph[] = PATTERN_LIBRARY): string[] {
   return vocabularyIssuesIn(list.flatMap((g) => [g.title, g.aliasEn, g.summary, ...g.labels]));
+}
+
+/**
+ * Recherche de figures (Lot 8) — insensible aux accents/casse, sur le titre, l'alias anglais et la
+ * famille. Requête vide → toutes les figures. Réutilise `normalizeSearch` du glossaire (source unique).
+ */
+export function searchFigures(query: string, list: PatternGlyph[] = PATTERN_LIBRARY): PatternGlyph[] {
+  const q = normalizeSearch(query.trim());
+  if (!q) return list;
+  return list.filter(
+    (g) =>
+      normalizeSearch(g.title).includes(q) ||
+      normalizeSearch(g.aliasEn).includes(q) ||
+      normalizeSearch(g.family).includes(q),
+  );
 }

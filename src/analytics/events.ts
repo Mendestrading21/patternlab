@@ -3,6 +3,7 @@ export type AnalyticsEvent =
   // cycle de vie
   | 'app_opened'
   | 'app_error'
+  | 'session_not_found'
   // onboarding
   | 'onboarding_started'
   | 'goal_selected'
@@ -55,6 +56,7 @@ export type AnalyticsCategory =
 export const EVENT_CATEGORIES: Record<AnalyticsEvent, AnalyticsCategory> = {
   app_opened: 'lifecycle',
   app_error: 'lifecycle',
+  session_not_found: 'lifecycle',
   onboarding_started: 'onboarding',
   goal_selected: 'onboarding',
   diagnostic_completed: 'onboarding',

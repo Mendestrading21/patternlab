@@ -1,12 +1,15 @@
 import { View, StyleSheet } from 'react-native';
-import { Screen, Text, Card, Chip, ProgressBar, theme } from '@/design-system';
+import { Screen, Text, Card, Button, Chip, ProgressBar, theme } from '@/design-system';
 import { MascotFigure } from '@/characters';
-import { BADGES, earnedBadges, streakInfo, STREAK_MILESTONE_REWARD, useProgress } from '@/data';
+import { BADGES, earnedBadges, streakInfo, STREAK_MILESTONE_REWARD, buildDailyQuests, useProgress } from '@/data';
 
 export default function Reussites() {
-  const { state } = useProgress();
+  const { state, claimQuest } = useProgress();
   const earned = earnedBadges(state);
   const streak = streakInfo(state?.streakDays ?? 0);
+  // Quêtes du jour — déplacées ici depuis l'accueil (Lot 1 : hors du CTA principal).
+  const quests = state ? buildDailyQuests(state, Date.now()) : [];
+  const questsDone = quests.filter((q) => q.done).length;
   // Progression vers le prochain jalon depuis le jalon précédent atteint.
   const prevMilestone = streak.reachedMilestones.at(-1) ?? 0;
   const span = streak.next ? streak.next - prevMilestone : 1;
@@ -45,6 +48,51 @@ export default function Reussites() {
         </View>
         <ProgressBar value={earned.size / BADGES.length} color={theme.colors.reward} accessibilityLabel="Badges obtenus" />
       </Card>
+
+      {quests.length ? (
+        <Card>
+          <View style={styles.row}>
+            <Text variant="title" style={styles.flex1}>
+              🏹 Quêtes du jour
+            </Text>
+            <Text variant="caption" color={theme.colors.textMuted}>
+              {questsDone} / {quests.length}
+            </Text>
+          </View>
+          <View style={styles.quests}>
+            {quests.map((q) => (
+              <View key={q.id} style={styles.quest}>
+                <View style={styles.questHead}>
+                  <Text variant="body" style={styles.flex1}>
+                    {q.icon} {q.label}
+                  </Text>
+                  {q.claimable ? (
+                    <Button
+                      label={`Réclamer +${q.reward} 🪙`}
+                      variant="reward"
+                      fullWidth={false}
+                      onPress={() => claimQuest(q.id)}
+                      accessibilityHint={`Réclamer la récompense : ${q.reward} pièces`}
+                    />
+                  ) : (
+                    <Text variant="caption" color={q.claimed ? theme.colors.primary : theme.colors.textMuted}>
+                      {q.claimed ? 'Réclamé ✓' : `${q.progress}/${q.target}`}
+                    </Text>
+                  )}
+                </View>
+                <ProgressBar
+                  value={q.target ? q.progress / q.target : 0}
+                  color={q.done ? theme.colors.primary : theme.colors.reward}
+                  accessibilityLabel={`${q.label} : ${q.progress} sur ${q.target}`}
+                />
+              </View>
+            ))}
+          </View>
+          <Text variant="caption" color={theme.colors.textMuted}>
+            Les quêtes se renouvellent chaque jour. Les pièces récompensent ta régularité, jamais un pari.
+          </Text>
+        </Card>
+      ) : null}
 
       <Text variant="h2" style={styles.sectionTitle}>
         Progression
@@ -88,4 +136,9 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md },
   badge: { flexGrow: 1, flexBasis: '44%', alignItems: 'center', gap: theme.spacing.xs },
   locked: { opacity: 0.55 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+  flex1: { flex: 1 },
+  quests: { gap: theme.spacing.md, marginVertical: theme.spacing.sm },
+  quest: { gap: theme.spacing.xs },
+  questHead: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm, minHeight: 32 },
 });

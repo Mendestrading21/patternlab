@@ -337,4 +337,5 @@ export const SUPPORTED_VISUAL_TYPES = [
   'volume-profile',
   'comparison',
   'cheat-sheet',
+  'mechanism',
 ] as const;

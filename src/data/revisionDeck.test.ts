@@ -37,7 +37,7 @@ describe('buildRevisionDeck', () => {
   it('chaque carte porte un signal visuel avec résumé accessible (dataset sauf rendus dédiés)', () => {
     const cards = [...deck.flashcards, ...deck.quizzes];
     // Types rendus sans dataset OHLC (rendu dédié) : le datasetKey y est optionnel.
-    const noDatasetTypes = new Set(['option-payoff']);
+    const noDatasetTypes = new Set(['option-payoff', 'mechanism']);
     for (const c of cards) {
       expect(c.visualSpec).toBeDefined();
       if (!noDatasetTypes.has(c.visualSpec!.type)) {

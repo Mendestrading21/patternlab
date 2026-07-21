@@ -89,7 +89,8 @@ export interface VisualSpec {
     | 'option-payoff'
     | 'volume-profile'
     | 'comparison'
-    | 'cheat-sheet';
+    | 'cheat-sheet'
+    | 'mechanism';
   variant: string;
   direction?: Direction;
   labels: VisualLabel[];
