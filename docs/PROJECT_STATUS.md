@@ -1,6 +1,6 @@
 # État du projet
 
-## PatternLab Experience Max — en cours (skill `patternlab-experience-max`)
+## PatternLab Experience Max — COMPLET (Lots 1 → 10, skill `patternlab-experience-max`)
 2026-07-20 — Nouveau programme « app parfaite » : bibliothèque de trading immersive, un signal
 visuel partout, graphiques parfaits, quiz visuels, 15 mondes vivants. Skill enregistré sous
 `.claude/skills/patternlab-experience-max/` (référencé dans `CLAUDE.md`). Publication **à chaque
