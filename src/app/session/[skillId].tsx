@@ -17,15 +17,19 @@ export default function Session() {
   const router = useRouter();
   const { recordAnswer, completeSession, recordFalseSignal } = useProgress();
 
-  const resolvedId = skillId && getExercises(skillId).length ? skillId : 'skill.actions';
-  const all = getExercises(resolvedId);
+  // Session valide = un id qui correspond à un contenu réel (compétence avec exercices, ou point
+  // de contrôle dont `getExercises` agrège des exercices réels). AUCUN repli silencieux : un id
+  // inconnu affiche un état « Session introuvable » (plus bas), jamais un autre contenu enseigné.
+  const resolvedId = typeof skillId === 'string' ? skillId : '';
+  const all = resolvedId ? getExercises(resolvedId) : [];
+  const known = all.length > 0;
   // `count` (facultatif) provient de la mission du jour : longueur modulée par le temps quotidien.
   const target = count != null ? Number.parseInt(count, 10) : null;
   const list = all.slice(0, limitCount(all.length, target));
   const skillName = skillById(resolvedId)?.name ?? 'Session';
   // Leçons de la compétence : la phase « Apprendre » les montre AVANT les exercices,
   // pour que le nouvel utilisateur voie tout de suite le visuel (bougies, graphique).
-  const lessons = getLessons(resolvedId);
+  const lessons = known ? getLessons(resolvedId) : [];
 
   const [index, setIndex] = useState(0);
   const [streak, setStreak] = useState(0);
@@ -34,7 +38,37 @@ export default function Session() {
   // Un point de contrôle (`getLessons` vide) démarre directement en « practice ».
   const [phase, setPhase] = useState<'learn' | 'practice'>(lessons.length ? 'learn' : 'practice');
 
+  // Journalise l'accès à une session inexistante (transparence ; jamais de repli muet).
+  useEffect(() => {
+    if (!known) analytics.track('session_not_found', { requested: resolvedId || '(vide)' });
+  }, [known, resolvedId]);
+
   const finished = index >= list.length;
+
+  if (!known) {
+    return (
+      <Screen>
+        <Text variant="caption" color={theme.colors.textMuted}>
+          SESSION
+        </Text>
+        <Text variant="h2">Session introuvable</Text>
+        <CharacterScene
+          character="bobo"
+          state="review"
+          size={60}
+          speech="Cette session n’existe pas (ou plus). Reprenons depuis le parcours."
+        />
+        <Card>
+          <Text variant="body" color={theme.colors.textMuted}>
+            Le contenu demandé est introuvable. Choisis une compétence depuis le parcours pour
+            continuer ton apprentissage.
+          </Text>
+        </Card>
+        <Button label="Voir le parcours" onPress={() => router.replace('/parcours')} />
+        <Button label="Accueil" variant="ghost" onPress={() => router.replace('/(tabs)')} />
+      </Screen>
+    );
+  }
 
   if (phase === 'learn') {
     const primary = lessons[0];

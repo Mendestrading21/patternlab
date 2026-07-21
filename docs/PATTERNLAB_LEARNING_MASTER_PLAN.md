@@ -13,9 +13,9 @@ avec `main`, dernier merge `902e4dd`). **Aucun code touché** tant que chaque lo
 | Compétences runtime | **4** (actions, trend, candles, patterns) |
 | Leçons / exercices (`seed.ts`) | **15** / **28** |
 | Formats d'exercice | **16 déclarés** / **13 graders** enregistrés (incohérence) |
-| Glossaire v1 | **25** termes |
+| Glossaire v1 | **24** termes |
 | Badges | 23 |
-| Gate | déclarée verte (417 tests) — à ré-exécuter au 1er lot |
+| Gate | verte — compteurs désormais générés par `src/data/repoTruth.ts` (Lot 0) |
 
 ## Verdict de l'audit
 Le socle est solide (stack moderne, moteurs purs testés, conformité éducative, visuels SVG
@@ -46,7 +46,7 @@ Experience Max a ajouté (c'est voulu : consolider, pas empiler).
 
 | # | Lot | Statut | Ce que ça change | Risque |
 |---|---|---|---|---|
-| 0 | **Vérité du dépôt** | 🟡 partiel | Baseline verte + compteurs générés (fait) ; reste : registre unique routes/contenus/formats, purge des chiffres écrits à la main, archivage des vieilles sections `PROJECT_STATUS`. | faible |
+| 0 | **Vérité du dépôt** | 🟢 fait | Source unique `src/data/repoTruth.ts` (+ test de dérive) ; réconciliation des formats (16/13) ; fin du repli silencieux de session ; doc courante séparée de l'historique (`PROJECT_STATUS_ARCHIVE.md`). Voir **ADR-064**. | faible |
 | 1 | **Navigation & accueil simplifiés** | 🔴 à faire | 5 onglets **Accueil · Parcours · Apprendre · Réviser · Profil** ; **Labo → hub Apprendre** (biblio, glossaire, quiz visuel, leçons, labs) ; accueil réduit à mission + progression compacte + révision/concept du jour. | moyen (refonte tab bar + routes) |
 | 2 | **Hiérarchie pédagogique unique** | 🔴 à faire | Ajouter **Module + Compétence** au modèle des 15 mondes ; migrer les 4 skills pilotes dans le **monde 1** ; route **détail Monde** ; déblocage par **checkpoints** ; migration de progression non destructive. | élevé (modèle + migration) |
 | 3 | **Session pas-à-pas** | 🔴 à faire | **Un step par écran** (stepper, retour, CTA unique, progression) ; **reprise de session** après fermeture ; résultat de **maîtrise réelle** ; **contre-exemple obligatoire** ; fin du fallback silencieux. | moyen |
@@ -66,9 +66,10 @@ Légende : 🔴 à faire · 🟡 partiel (socle existant à consolider) · 🟢 
 ---
 
 ## Séquence recommandée
-1. **Lot 0 (finition)** — rapide : archiver les vieilles sections de `PROJECT_STATUS`, générer les
-   compteurs, poser un registre routes/contenus. *(peut être fusionné au Lot 1.)*
-2. **Lot 1 — Navigation & accueil** : premier flux visible, prépare tout le reste (hub Apprendre).
+1. ~~**Lot 0 — Vérité du dépôt**~~ ✅ **fait** : source unique `repoTruth`, fin du repli silencieux,
+   doc courante/historique séparées (ADR-064).
+2. **Lot 1 — Navigation & accueil** *(prochain)* : premier flux visible, prépare tout le reste (hub
+   Apprendre).
 3. **Lot 2 — Hiérarchie unique** : le changement structurant central (monde → module → compétence +
    migration). Après lui, les leçons/mondes/stats ont une seule source de vérité.
 4. Puis Lots 3 → 11 dans l'ordre ; Lot 12 (entitlement prêt, sans achat) ; Lot 13 seulement avec tes

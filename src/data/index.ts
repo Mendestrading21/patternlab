@@ -9,6 +9,7 @@ export * from './premium';
 export * from './offline';
 export * from './learningConcept';
 export * from './learningContent';
+export * from './repoTruth';
 export * from './patternLibrary';
 export * from './recognitionTrainer';
 export * from './visualQuiz';
