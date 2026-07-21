@@ -63,8 +63,15 @@ publication sans accord.
   la leçon `skill.actions` + **2 exercices** → exercices **28→30**, agrégés au checkpoint). Voir
   **ADR-068**.
 
-Prochains lots (ordre recommandé) : **Lot 5** Graphique canonique (4 modes unifiés) → **Lot 6**
-Indicateurs (labs paramétrables) → 7…13. Statut détaillé par lot : voir le plan.
+- **Lot 5 — Graphique canonique** ✅ : vocabulaire unique des **4 modes** (`chartMode.ts` :
+  static/guided/interactive/blind + `chartModeOptions`) ; **axe des prix** opt-in (max/milieu/min) sur
+  `CandlestickGlyphs`, activé pour les fiches via `VisualCard` + **légende** hausse/baisse ; le mode
+  aveugle reste étanche. **Robustesse** verrouillée par test (vide/plat/extrême, aucun NaN). Voir
+  **ADR-069**.
+
+Prochains lots (ordre recommandé) : **Lot 6** Indicateurs (labs paramétrables RSI/MACD/Bollinger) →
+**Lot 7** Exercices adaptatifs (`EXERCISE_FORMAT_REGISTRY`) → 8…13. Statut détaillé par lot : voir le
+plan.
 
 ## Programmes terminés (archive)
 

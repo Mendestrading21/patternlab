@@ -23,6 +23,7 @@ export { RISK_SETUPS, riskSetup, type RiskSetup } from './riskSetups';
 export { COMPARISONS, comparison, type Comparison, type ComparisonSide } from './comparisons';
 export { CHEAT_SHEETS, cheatSheet, type CheatItem } from './cheatSheets';
 export { MECHANISMS, mechanism, type Mechanism, type MechanismStep } from './mechanisms';
+export { CHART_MODES, chartModeOptions, type ChartMode, type ChartModeOptions } from './chartMode';
 export { buildVolumeProfile, type VolumeProfile as VolumeProfileData, type VolumeBin } from './volumeProfile';
 export * from './indicatorMath';
 export { INDICATOR_CONFIGS, indicatorConfig, type IndicatorConfig, type IndicatorKind } from './indicatorConfigs';

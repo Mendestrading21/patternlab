@@ -48,10 +48,17 @@ export type CandlestickGlyphsProps = {
   markers?: Marker[];
   /** Grille horizontale subtile (aide à la lecture). Activée par défaut. */
   grid?: boolean;
+  /** Axe des prix : repères max / milieu / min au bord droit (opt-in, Lot 5). */
+  axis?: boolean;
   /** Décoratif : masque ce schéma à l'accessibilité (le parent porte le résumé). */
   decorative?: boolean;
   accessibilityLabel?: string;
 };
+
+/** Format court d'un prix pour l'axe (0 décimale si l'amplitude est large, sinon 1). */
+function formatAxisPrice(price: number, range: number): string {
+  return range >= 20 ? String(Math.round(price)) : price.toFixed(1);
+}
 
 /** Nombre d'intervalles de la grille horizontale. */
 const GRID_ROWS = 4;
@@ -65,6 +72,7 @@ export function CandlestickGlyphs({
   guides = [],
   markers = [],
   grid = true,
+  axis = false,
   decorative = false,
   accessibilityLabel,
 }: CandlestickGlyphsProps) {
@@ -204,6 +212,17 @@ export function CandlestickGlyphs({
             {m.text}
           </SvgText>
         ))}
+        {axis && candles.length
+          ? [
+              { price: scale.max, y: padY + 8 },
+              { price: (scale.max + scale.min) / 2, y: H / 2 + 3 },
+              { price: scale.min, y: H - padY - 3 },
+            ].map((a, i) => (
+              <SvgText key={`ax-${i}`} x={W - 3} y={a.y} fill={colors.textMuted} fontSize={9} textAnchor="end">
+                {formatAxisPrice(a.price, scale.range)}
+              </SvgText>
+            ))
+          : null}
       </Svg>
     </View>
   );

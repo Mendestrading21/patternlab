@@ -51,7 +51,7 @@ Experience Max a ajouté (c'est voulu : consolider, pas empiler).
 | 2 | **Hiérarchie pédagogique unique** | 🟢 fait | Modèle pur unique `learningMap.ts` (Monde → Module → Compétence ; monde 1 = 4 skills + checkpoint) ; route **`/monde/[id]`** ; `parcours` = un seul chemin ; déblocage par **checkpoint** ; **aucune migration** (dérivé de l'état existant). Voir **ADR-066**. | élevé (modèle + migration) |
 | 3 | **Session pas-à-pas** | 🟢 fait | Stepper **un step par écran** (progression, Retour, CTA unique) ; **reprise exacte** après fermeture (`sessionFlow`/`sessionResumeRepository`) ; **contre-exemple garanti** (`buildLearnSteps`) ; résultat de **maîtrise réelle** + prochaine révision. (Fallback silencieux : déjà réglé au Lot 0.) Voir **ADR-067**. | moyen |
 | 4 | **Fondations interactives** | 🟢 fait | Dividende & PER en concepts riches + **nouveau visuel `mechanism`** (étapes fléchées) ; step visuel + 2 exercices dans le monde 1 (agrégés au checkpoint) ; concepts 58→60, visuels 10→11. Voir **ADR-068**. | faible-moyen |
-| 5 | **Graphique canonique** | 🟡 partiel | Axes/labels/légendes lisibles + volume + overlays + replay ; **4 modes static/guided/interactive/blind** unifiés ; datasets purs ; snapshots + tests vide/plat/extrême. (Déjà : grille, volume, replay, mode aveugle.) | moyen |
+| 5 | **Graphique canonique** | 🟢 fait | Vocabulaire unique des 4 modes (`chartMode.ts`) ; **axe des prix** + **légende** hausse/baisse sur les fiches (`VisualCard`) ; robustesse vide/plat/extrême verrouillée par test. (S'appuie sur grille/volume/replay/mode aveugle existants.) Voir **ADR-069**. | moyen |
 | 6 | **Indicateurs** | 🟡 partiel | **Labs paramétrables** RSI/MACD/Bollinger/MM/volume/VWAP + quiz visuels + faux signaux. (Déjà : fiches + `IndicatorPanel`.) | moyen |
 | 7 | **Exercices adaptatifs** | 🔴 à faire | **`EXERCISE_FORMAT_REGISTRY`** unique (type/grader/renderer/a11y/statut) ; finaliser ou retirer `drag_drop`/`draw_level`/`timed` ; **misconceptions typées** ; réinsertion adaptative + deck d'erreurs. | moyen |
 | 8 | **Glossaire & bibliothèque premium** | 🟡 partiel | Recherche unifiée ; mini-visuels + **statut de maîtrise** ; favoris/collections ; navigation concept↔pratique ; **comparaison visuelle**. (Déjà : recherche glossaire, favoris, récents.) | faible-moyen |
@@ -76,9 +76,10 @@ Légende : 🔴 à faire · 🟡 partiel (socle existant à consolider) · 🟢 
    réelle (ADR-067).
 5. ~~**Lot 4 — Fondations interactives**~~ ✅ **fait** : Dividende/PER en concepts riches + visuel
    `mechanism` + monde 1 (ADR-068).
-6. **Lot 5 — Graphique canonique** *(prochain)* : 4 modes static/guided/interactive/blind unifiés,
-   axes/volume/overlays/replay, snapshots. Puis Lots 6 → 11 ; Lot 12 (entitlement, sans achat) ;
-   Lot 13 avec tes comptes.
+6. ~~**Lot 5 — Graphique canonique**~~ ✅ **fait** : 4 modes unifiés + axe/légende + robustesse
+   (ADR-069).
+7. **Lot 6 — Indicateurs** *(prochain)* : labs paramétrables RSI/MACD/Bollinger + quiz visuels + faux
+   signaux. Puis Lots 7 → 11 ; Lot 12 (entitlement, sans achat) ; Lot 13 avec tes comptes.
 
 ## Méthode par lot (rappel skill)
 Logique pure + tests d'abord → migration non destructive si le modèle change → données, moteurs,
