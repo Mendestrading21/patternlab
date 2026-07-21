@@ -29,19 +29,21 @@ export default function TabsLayout() {
         options={{ title: 'Parcours', tabBarIcon: () => <TabIcon emoji="🗺️" /> }}
       />
       <Tabs.Screen
-        name="laboratoire"
-        options={{ title: 'Labo', tabBarIcon: () => <TabIcon emoji="🧪" /> }}
+        name="apprendre"
+        options={{ title: 'Apprendre', tabBarIcon: () => <TabIcon emoji="📚" /> }}
       />
       <Tabs.Screen
         name="revisions"
-        options={{ title: 'Révisions', tabBarIcon: () => <TabIcon emoji="🔁" /> }}
+        options={{ title: 'Réviser', tabBarIcon: () => <TabIcon emoji="🔁" /> }}
       />
       <Tabs.Screen
         name="profil"
         options={{ title: 'Profil', tabBarIcon: () => <TabIcon emoji="🐂" /> }}
       />
 
-      {/* Écrans conservés, accessibles par navigation, mais hors barre d'onglets. */}
+      {/* Écrans conservés, accessibles par navigation, mais hors barre d'onglets.
+          Le Laboratoire est désormais une entrée du hub « Apprendre » (plus un onglet). */}
+      <Tabs.Screen name="laboratoire" options={{ href: null }} />
       <Tabs.Screen name="lecons" options={{ href: null }} />
       <Tabs.Screen name="quiz" options={{ href: null }} />
     </Tabs>

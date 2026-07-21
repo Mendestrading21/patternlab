@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, Chip, ProgressBar, StateView, theme } from '@/design-system';
-import { CharacterScene, MascotFigure } from '@/characters';
+import { MascotFigure } from '@/characters';
 import { MiniVisual } from '@/engines/visual';
 import {
   useProgress,
@@ -9,32 +9,23 @@ import {
   buildDailyMission,
   selectDueReviews,
   exercisesForMinutes,
-  buildDailyQuests,
   OBJECTIVES,
   conceptOfTheDay,
   V5_CONCEPTS,
   greetingFor,
-  earnedBadges,
-  BADGES,
-  buildWorldPath,
-  worldsUnlocked,
-  WORLDS,
 } from '@/data';
 import { analytics } from '@/analytics';
 import { DISCLAIMER } from '@/lib/config';
 
-const EXPLORE = [
-  { icon: '📚', title: 'Leçons', subtitle: 'Le module « Lire un graphique ».', route: '/lecons' as const },
-  { icon: '🎯', title: 'Quiz éclair', subtitle: 'Une session d’exercices variés.', route: '/quiz' as const },
-  { icon: '🔍', title: 'Quiz visuel', subtitle: 'Reconnais les figures.', route: '/reconnaissance' as const },
-  { icon: '🖼️', title: 'Bibliothèque', subtitle: 'Les figures illustrées.', route: '/bibliotheque-visuelle' as const },
-  { icon: '📖', title: 'Glossaire', subtitle: 'Le vocabulaire des marchés.', route: '/glossaire' as const },
-  { icon: '🏅', title: 'Réussites', subtitle: 'Tes badges débloqués.', route: '/reussites' as const },
-];
-
+/**
+ * Accueil recentré (Learning-Master Lot 1) : une action principale (mission du jour) + progression
+ * compacte + révision due + concept du jour. Le catalogue d'apprentissage vit dans l'onglet
+ * « Apprendre » ; les quêtes vivent dans « Réussites ». L'accueil ne porte plus de grille de
+ * raccourcis ni de blocs concurrents.
+ */
 export default function Home() {
   const router = useRouter();
-  const { state, ready, profile, claimQuest } = useProgress();
+  const { state, ready, profile } = useProgress();
 
   if (!ready || !state) {
     return (
@@ -51,14 +42,8 @@ export default function Home() {
   const minutes = profile?.dailyMinutes ?? 5;
   const sessionCount = exercisesForMinutes(minutes);
   const objectiveLabel = OBJECTIVES.find((o) => o.value === profile?.objective)?.label;
-  const quests = buildDailyQuests(state, now);
-  const questsDone = quests.filter((q) => q.done).length;
   const featured = conceptOfTheDay(V5_CONCEPTS, now);
   const greeting = greetingFor(new Date(now).getHours());
-  // Aperçu de progression (apprentissage) — sens du chemin parcouru, en un coup d'œil.
-  const explored = state.learning?.conceptsExplored.length ?? 0;
-  const worldsOpen = worldsUnlocked(buildWorldPath(WORLDS, V5_CONCEPTS, state.learning?.conceptsExplored ?? []));
-  const badgesEarned = earnedBadges(state).size;
 
   const startMission = () => {
     if (mission.skillId) {
@@ -78,7 +63,7 @@ export default function Home() {
           : 'Cinq minutes suffisent. Voici ta mission du jour.'}
       </Text>
 
-      {/* Action principale unique : la mission du jour */}
+      {/* Action principale unique : la mission du jour (progression compacte incluse) */}
       <Card elevated>
         <Text variant="label" color={theme.colors.primaryBright}>
           🎯 MISSION DU JOUR
@@ -112,16 +97,22 @@ export default function Home() {
         </View>
       </Card>
 
-      {/* Aperçu de progression : le chemin parcouru, en un coup d'œil */}
-      <Card>
-        <Text variant="title">🚀 Ta progression</Text>
-        <View style={styles.snapshot}>
-          <SnapTile label="Concepts" value={`${explored}`} color={theme.colors.technical} />
-          <SnapTile label="Mondes" value={`${worldsOpen}/${WORLDS.length}`} color={theme.colors.primary} />
-          <SnapTile label="Badges" value={`${badgesEarned}/${BADGES.length}`} color={theme.colors.reward} />
-          <SnapTile label="Série" value={`${state.streakDays} j`} color={theme.colors.warning} />
-        </View>
-      </Card>
+      {/* Révision due : pointeur compact vers l'onglet Réviser */}
+      <Pressable accessibilityRole="button" accessibilityHint="Ouvrir les révisions" onPress={() => router.push('/revisions')}>
+        <Card style={dueCount ? styles.reviewDue : undefined}>
+          <View style={styles.row}>
+            <Text variant="title" style={styles.flex1}>
+              🔁 Révisions
+            </Text>
+            <Text variant="title" color={dueCount ? theme.colors.warning : theme.colors.textMuted}>
+              {dueCount ? `${dueCount} due${dueCount > 1 ? 's' : ''} ›` : 'À jour ✅ ›'}
+            </Text>
+          </View>
+          <Text variant="caption" color={theme.colors.textMuted}>
+            La répétition espacée ramène chaque compétence au bon moment.
+          </Text>
+        </Card>
+      </Pressable>
 
       {/* Concept du jour : hook de rétention + signal visuel (rotation déterministe) */}
       {featured ? (
@@ -150,92 +141,6 @@ export default function Home() {
         </Pressable>
       ) : null}
 
-      {/* Révisions : pointeur compact vers l'onglet dédié */}
-      <Pressable accessibilityRole="button" accessibilityHint="Ouvrir les révisions" onPress={() => router.push('/revisions')}>
-        <Card style={dueCount ? styles.reviewDue : undefined}>
-          <View style={styles.row}>
-            <Text variant="title" style={styles.flex1}>
-              🔁 Révisions
-            </Text>
-            <Text variant="title" color={dueCount ? theme.colors.warning : theme.colors.textMuted}>
-              {dueCount ? `${dueCount} due${dueCount > 1 ? 's' : ''} ›` : 'À jour ✅ ›'}
-            </Text>
-          </View>
-          <Text variant="caption" color={theme.colors.textMuted}>
-            La répétition espacée ramène chaque compétence au bon moment.
-          </Text>
-        </Card>
-      </Pressable>
-
-      <Card>
-        <View style={styles.row}>
-          <Text variant="title" style={styles.flex1}>
-            🏹 Quêtes du jour
-          </Text>
-          <Text variant="caption" color={theme.colors.textMuted}>
-            {questsDone} / {quests.length}
-          </Text>
-        </View>
-        <View style={styles.quests}>
-          {quests.map((q) => (
-            <View key={q.id} style={styles.quest}>
-              <View style={styles.questHead}>
-                <Text variant="body" style={styles.flex1}>
-                  {q.icon} {q.label}
-                </Text>
-                {q.claimable ? (
-                  <Button
-                    label={`Réclamer +${q.reward} 🪙`}
-                    variant="reward"
-                    fullWidth={false}
-                    onPress={() => claimQuest(q.id)}
-                    accessibilityHint={`Réclamer la récompense : ${q.reward} pièces`}
-                  />
-                ) : (
-                  <Text
-                    variant="caption"
-                    color={q.claimed ? theme.colors.primary : theme.colors.textMuted}
-                  >
-                    {q.claimed ? 'Réclamé ✓' : `${q.progress}/${q.target}`}
-                  </Text>
-                )}
-              </View>
-              <ProgressBar
-                value={q.target ? q.progress / q.target : 0}
-                color={q.done ? theme.colors.primary : theme.colors.reward}
-                accessibilityLabel={`${q.label} : ${q.progress} sur ${q.target}`}
-              />
-            </View>
-          ))}
-        </View>
-        <Text variant="caption" color={theme.colors.textMuted}>
-          Les quêtes se renouvellent chaque jour. Les pièces récompensent ta régularité, jamais un pari.
-        </Text>
-      </Card>
-
-      <Text variant="h2">Explorer</Text>
-      <View style={styles.grid}>
-        {EXPLORE.map((e) => (
-          <Pressable key={e.route} style={styles.flex1} accessibilityRole="button" onPress={() => router.push(e.route)}>
-            <Card style={styles.explore}>
-              <Text variant="h2">{e.icon}</Text>
-              <Text variant="title">{e.title}</Text>
-              <Text variant="caption" color={theme.colors.textSecondary}>
-                {e.subtitle}
-              </Text>
-            </Card>
-          </Pressable>
-        ))}
-      </View>
-
-      <Card>
-        <Text variant="title">Conseils de Toto &amp; Bobo</Text>
-        <View style={styles.advice}>
-          <CharacterScene character="toto" state="explain" size={64} speech="La patience est ton meilleur investissement." />
-          <CharacterScene character="bobo" state="warning" size={64} reversed speech="Mais garde toujours un œil sur les risques !" />
-        </View>
-      </Card>
-
       <Text variant="caption" color={theme.colors.textMuted} center>
         {DISCLAIMER}
       </Text>
@@ -243,32 +148,8 @@ export default function Home() {
   );
 }
 
-function SnapTile({ label, value, color }: { label: string; value: string; color: string }) {
-  return (
-    <View style={styles.snapTile} accessible accessibilityLabel={`${label} : ${value}`}>
-      <Text variant="title" color={color} center>
-        {value}
-      </Text>
-      <Text variant="caption" color={theme.colors.textMuted} center>
-        {label}
-      </Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   missionMascot: { alignItems: 'center', marginVertical: theme.spacing.sm },
-  snapshot: { flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.sm },
-  snapTile: {
-    flex: 1,
-    alignItems: 'center',
-    gap: 2,
-    paddingVertical: theme.spacing.sm,
-    borderRadius: theme.radius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: theme.colors.surface,
-  },
   conceptCard: { borderColor: theme.colors.advanced, gap: theme.spacing.xs },
   conceptVisual: { alignItems: 'center', marginVertical: theme.spacing.xs },
   missionMeta: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, marginTop: theme.spacing.sm },
@@ -277,11 +158,5 @@ const styles = StyleSheet.create({
   chips: { flexDirection: 'row', gap: theme.spacing.sm, marginBottom: theme.spacing.xs },
   row: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
   reviewDue: { borderColor: theme.colors.warning },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md },
-  advice: { gap: theme.spacing.md, marginTop: theme.spacing.sm },
-  quests: { gap: theme.spacing.md, marginVertical: theme.spacing.sm },
-  quest: { gap: theme.spacing.xs },
-  questHead: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm, minHeight: 32 },
   flex1: { flex: 1 },
-  explore: { alignItems: 'flex-start', gap: 2, minHeight: 120 },
 });

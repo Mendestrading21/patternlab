@@ -36,10 +36,15 @@ publication sans accord.
   un id inconnu affiche « Session introuvable » + CTA Parcours + évènement `session_not_found`,
   au lieu d'enseigner discrètement `skill.actions` ; documentation courante séparée de l'historique
   (`docs/PROJECT_STATUS_ARCHIVE.md`). Voir **ADR-064**.
+- **Lot 1 — Navigation & accueil simplifiés** ✅ : barre à 5 onglets **Accueil · Parcours ·
+  Apprendre · Réviser · Profil** ; nouveau **hub `Apprendre`** (`(tabs)/apprendre.tsx`) regroupant
+  leçons, quiz éclair, quiz visuel, bibliothèque visuelle, glossaire et **Laboratoire** (qui quitte
+  la barre, `href:null`) ; **accueil recentré** sur la mission (progression compacte + révision due
+  + concept du jour) — grille « Explorer », snapshot redondant et conseils décoratifs retirés ; la
+  carte **Quêtes du jour** est déplacée dans **Réussites** (hors du CTA principal). Voir **ADR-065**.
 
-Prochains lots (ordre recommandé) : **Lot 1** Navigation & accueil (5 onglets
-Accueil·Parcours·Apprendre·Réviser·Profil ; Labo → hub Apprendre) → **Lot 2** Hiérarchie unique
-(Monde → Module → Compétence + migration) → 3…13. Statut détaillé par lot : voir le plan.
+Prochains lots (ordre recommandé) : **Lot 2** Hiérarchie unique (Monde → Module → Compétence +
+migration) → **Lot 3** Session pas-à-pas → 4…13. Statut détaillé par lot : voir le plan.
 
 ## Programmes terminés (archive)
 

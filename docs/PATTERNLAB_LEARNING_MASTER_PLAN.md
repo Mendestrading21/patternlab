@@ -47,7 +47,7 @@ Experience Max a ajouté (c'est voulu : consolider, pas empiler).
 | # | Lot | Statut | Ce que ça change | Risque |
 |---|---|---|---|---|
 | 0 | **Vérité du dépôt** | 🟢 fait | Source unique `src/data/repoTruth.ts` (+ test de dérive) ; réconciliation des formats (16/13) ; fin du repli silencieux de session ; doc courante séparée de l'historique (`PROJECT_STATUS_ARCHIVE.md`). Voir **ADR-064**. | faible |
-| 1 | **Navigation & accueil simplifiés** | 🔴 à faire | 5 onglets **Accueil · Parcours · Apprendre · Réviser · Profil** ; **Labo → hub Apprendre** (biblio, glossaire, quiz visuel, leçons, labs) ; accueil réduit à mission + progression compacte + révision/concept du jour. | moyen (refonte tab bar + routes) |
+| 1 | **Navigation & accueil simplifiés** | 🟢 fait | 5 onglets **Accueil · Parcours · Apprendre · Réviser · Profil** ; hub **Apprendre** (`(tabs)/apprendre.tsx`) = biblio, glossaire, quiz visuel, quiz éclair, leçons, **Labo** ; accueil recentré (mission + progression compacte + révision due + concept du jour) ; Quêtes → Réussites. Voir **ADR-065**. | moyen (refonte tab bar + routes) |
 | 2 | **Hiérarchie pédagogique unique** | 🔴 à faire | Ajouter **Module + Compétence** au modèle des 15 mondes ; migrer les 4 skills pilotes dans le **monde 1** ; route **détail Monde** ; déblocage par **checkpoints** ; migration de progression non destructive. | élevé (modèle + migration) |
 | 3 | **Session pas-à-pas** | 🔴 à faire | **Un step par écran** (stepper, retour, CTA unique, progression) ; **reprise de session** après fermeture ; résultat de **maîtrise réelle** ; **contre-exemple obligatoire** ; fin du fallback silencieux. | moyen |
 | 4 | **Fondations interactives** | 🔴 à faire | **Dividende & PER** en `LearningConcept` riches + visuels de mécanisme ; leçons/exercices du **monde 1** ; checkpoint complet. | faible-moyen |
@@ -68,10 +68,10 @@ Légende : 🔴 à faire · 🟡 partiel (socle existant à consolider) · 🟢 
 ## Séquence recommandée
 1. ~~**Lot 0 — Vérité du dépôt**~~ ✅ **fait** : source unique `repoTruth`, fin du repli silencieux,
    doc courante/historique séparées (ADR-064).
-2. **Lot 1 — Navigation & accueil** *(prochain)* : premier flux visible, prépare tout le reste (hub
-   Apprendre).
-3. **Lot 2 — Hiérarchie unique** : le changement structurant central (monde → module → compétence +
-   migration). Après lui, les leçons/mondes/stats ont une seule source de vérité.
+2. ~~**Lot 1 — Navigation & accueil**~~ ✅ **fait** : 5 onglets + hub Apprendre + accueil recentré
+   (ADR-065).
+3. **Lot 2 — Hiérarchie unique** *(prochain)* : le changement structurant central (monde → module →
+   compétence + migration). Après lui, les leçons/mondes/stats ont une seule source de vérité.
 4. Puis Lots 3 → 11 dans l'ordre ; Lot 12 (entitlement prêt, sans achat) ; Lot 13 seulement avec tes
    comptes.
 
