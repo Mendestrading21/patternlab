@@ -53,7 +53,7 @@ Experience Max a ajouté (c'est voulu : consolider, pas empiler).
 | 4 | **Fondations interactives** | 🟢 fait | Dividende & PER en concepts riches + **nouveau visuel `mechanism`** (étapes fléchées) ; step visuel + 2 exercices dans le monde 1 (agrégés au checkpoint) ; concepts 58→60, visuels 10→11. Voir **ADR-068**. | faible-moyen |
 | 5 | **Graphique canonique** | 🟢 fait | Vocabulaire unique des 4 modes (`chartMode.ts`) ; **axe des prix** + **légende** hausse/baisse sur les fiches (`VisualCard`) ; robustesse vide/plat/extrême verrouillée par test. (S'appuie sur grille/volume/replay/mode aveugle existants.) Voir **ADR-069**. | moyen |
 | 6 | **Indicateurs** | 🟢 fait | `indicatorLab.ts` (RSI/MM/Bollinger paramétrables + faux signaux) ; section « Labs d'indicateurs » au Laboratoire (sélecteurs → `IndicatorPanel` recomposé en direct). Quiz visuels indicateurs déjà présents. Voir **ADR-070**. | moyen |
-| 7 | **Exercices adaptatifs** | 🔴 à faire | **`EXERCISE_FORMAT_REGISTRY`** unique (type/grader/renderer/a11y/statut) ; finaliser ou retirer `drag_drop`/`draw_level`/`timed` ; **misconceptions typées** ; réinsertion adaptative + deck d'erreurs. | moyen |
+| 7 | **Exercices adaptatifs** | 🟢 fait | `EXERCISE_FORMAT_REGISTRY` unique (exhaustif à la compilation) ; orphelins `drag_drop`/`draw_level`/`timed` retirés (13/13) ; **misconceptions typées** (`misconceptions.ts`) surfacées dans Réviser (« points faibles »). Réinsertion de base déjà présente. Voir **ADR-071**. | moyen |
 | 8 | **Glossaire & bibliothèque premium** | 🟡 partiel | Recherche unifiée ; mini-visuels + **statut de maîtrise** ; favoris/collections ; navigation concept↔pratique ; **comparaison visuelle**. (Déjà : recherche glossaire, favoris, récents.) | faible-moyen |
 | 9 | **Toto/Bobo V3** | 🟡 partiel | **`MascotMoment`** (entrée/geste/pointage/sortie) ; **dialogues liés aux erreurs conceptuelles** ; inventaire d'assets + reduced motion. (Déjà : moteur de dialogue contextuel + réactions.) | faible-moyen |
 | 10 | **Contenu des 15 mondes** | 🟡 partiel | Atteindre **75 puis 150 concepts jouables**, chacun relié à leçon + pratique + révision ; checkpoints + prérequis ; revue humaine + provenance. (Déjà : 58 fiches, mais peu reliées à un chemin.) | moyen (volume éditorial) |
@@ -80,9 +80,11 @@ Légende : 🔴 à faire · 🟡 partiel (socle existant à consolider) · 🟢 
    (ADR-069).
 7. ~~**Lot 6 — Indicateurs**~~ ✅ **fait** : labs paramétrables RSI/MM/Bollinger + faux signaux
    (ADR-070).
-8. **Lot 7 — Exercices adaptatifs** *(prochain)* : `EXERCISE_FORMAT_REGISTRY`, finaliser/retirer
-   drag_drop/draw_level/timed, misconceptions typées, réinsertion adaptative. Puis Lots 8 → 11 ;
-   Lot 12 (entitlement, sans achat) ; Lot 13 avec tes comptes.
+8. ~~**Lot 7 — Exercices adaptatifs**~~ ✅ **fait** : registre unique + orphelins retirés +
+   misconceptions typées (ADR-071).
+9. **Lot 8 — Glossaire & bibliothèque premium** *(prochain)* : recherche unifiée, statut de maîtrise,
+   favoris/collections, comparaison visuelle. Puis Lots 9 → 11 ; Lot 12 (entitlement, sans achat) ;
+   Lot 13 avec tes comptes.
 
 ## Méthode par lot (rappel skill)
 Logique pure + tests d'abord → migration non destructive si le modèle change → données, moteurs,

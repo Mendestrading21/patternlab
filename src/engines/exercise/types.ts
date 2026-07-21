@@ -8,14 +8,11 @@ export type ExerciseType =
   | 'true_false'
   | 'match'
   | 'order'
-  | 'drag_drop'
   | 'select_chart_zone'
-  | 'draw_level'
   | 'identify_pattern'
   | 'find_error'
   | 'scenario'
   | 'numeric'
-  | 'timed'
   // Formats graphiques V5 (Lot 6)
   | 'place_invalidation'
   | 'label_chart'
@@ -23,19 +20,22 @@ export type ExerciseType =
   // Reconnaissance de figure sur visuel du moteur (bibliothèque)
   | 'identify_figure';
 
+/**
+ * Tous les formats DÉCLARÉS = tous les formats BRANCHÉS (un grader enregistré).
+ * Learning-Master Lot 7 : `drag_drop`, `draw_level` et `timed` (déclarés sans grader ni renderer)
+ * ont été retirés — plus d'incohérence 16/13. Ajouter un format = l'ajouter ici, enregistrer son
+ * grader et le décrire dans `EXERCISE_FORMAT_REGISTRY`.
+ */
 export const ALL_EXERCISE_TYPES: ExerciseType[] = [
   'mcq',
   'true_false',
   'match',
   'order',
-  'drag_drop',
   'select_chart_zone',
-  'draw_level',
   'identify_pattern',
   'find_error',
   'scenario',
   'numeric',
-  'timed',
   'place_invalidation',
   'label_chart',
   'sequence_market_structure',

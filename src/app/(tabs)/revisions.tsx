@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, ProgressBar, Chip, StateView, theme } from '@/design-system';
 import { CharacterScene, mascotPresence } from '@/characters';
-import { useProgress, SKILLS, selectDueReviews, MASTERY_LABEL } from '@/data';
+import { useProgress, SKILLS, selectDueReviews, MASTERY_LABEL, summarizeMisconceptions } from '@/data';
 import { isDue, masteryStatus, errorCount, type MasteryStatus } from '@/engines/learning';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -38,6 +38,15 @@ export default function Revisions() {
   const due = selectDueReviews(state, SKILLS, now);
   const started = SKILLS.filter((s) => state.completedSkills.includes(s.id));
 
+  // Points faibles : agrège les erreurs de toutes les compétences en misconceptions typées.
+  const allErrorTags: Record<string, number> = {};
+  for (const sp of Object.values(state.skills)) {
+    for (const [tag, n] of Object.entries(sp.errorTags ?? {})) {
+      allErrorTags[tag] = (allErrorTags[tag] ?? 0) + n;
+    }
+  }
+  const weakSpots = summarizeMisconceptions(allErrorTags);
+
   return (
     <Screen>
       <Text variant="h1">Révisions 🔁</Text>
@@ -72,6 +81,30 @@ export default function Revisions() {
           </Text>
         )}
       </Card>
+
+      {weakSpots.length ? (
+        <Card>
+          <Text variant="title">🎯 Tes points faibles</Text>
+          <Text variant="caption" color={theme.colors.textMuted}>
+            Les idées fausses qui reviennent le plus — vise-les en priorité.
+          </Text>
+          <View style={styles.weakList}>
+            {weakSpots.slice(0, 4).map((w) => (
+              <View key={w.misconception.id} style={styles.weakItem}>
+                <View style={styles.row}>
+                  <Text variant="body" style={styles.flex1}>
+                    {w.misconception.label}
+                  </Text>
+                  <Chip label={`×${w.count}`} color={theme.colors.warning} />
+                </View>
+                <Text variant="caption" color={theme.colors.textMuted}>
+                  {w.misconception.hint}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </Card>
+      ) : null}
 
       <Text variant="h2">Vue d’ensemble</Text>
       {started.length === 0 ? (
@@ -146,6 +179,8 @@ export default function Revisions() {
 
 const styles = StyleSheet.create({
   dueCard: { borderColor: theme.colors.warning },
+  weakList: { gap: theme.spacing.sm, marginTop: theme.spacing.sm },
+  weakItem: { gap: 2 },
   row: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
   flex1: { flex: 1 },

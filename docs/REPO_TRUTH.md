@@ -28,16 +28,19 @@ code** (jamais recopiés d'un document). Garantis par **`src/data/repoTruth.test
 | Mondes | `WORLDS` | 15 |
 | Catégories | `CATEGORIES` | 13 |
 | Types de visuels rendables | `SUPPORTED_VISUAL_TYPES` | 11 |
+| Formats d'exercice | `ALL_EXERCISE_TYPES` = `supportedTypes()` | 13 / 13 |
 
 ## Formats d'exercice — réconciliation
 
-- **Déclarés** (`ALL_EXERCISE_TYPES`) : **16**.
+- **Déclarés** (`ALL_EXERCISE_TYPES`) : **13**.
 - **Branchés** (`supportedTypes()`, un grader enregistré) : **13**.
-- **En attente** (déclarés sans grader ni renderer canonique) : `drag_drop`, `draw_level`, `timed`.
+- **En attente** : aucun.
 
-Ces trois formats seront finalisés ou retirés au **Lot 7** (registre unique
-`EXERCISE_FORMAT_REGISTRY`). D'ici là, `gradeExercise` lève une erreur explicite si l'un d'eux est
-soumis — jamais de correction silencieuse.
+Depuis le **Lot 7**, les trois formats orphelins (`drag_drop`, `draw_level`, `timed`) — déclarés sans
+grader ni renderer — ont été **retirés** : déclarés === branchés. Le registre unique
+**`EXERCISE_FORMAT_REGISTRY`** (`src/engines/exercise/formatRegistry.ts`) décrit chaque format
+(libellé, interactif, a11y, statut) ; le type `Record<ExerciseType, …>` garantit l'exhaustivité à la
+compilation.
 
 ## Obtenir les compteurs
 

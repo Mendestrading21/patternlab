@@ -49,14 +49,15 @@ describe('repoTruth — vérité du dépôt', () => {
     expect(dupes([...SUPPORTED_VISUAL_TYPES])).toEqual([]);
   });
 
-  it('réconciliation des formats d’exercice : déclarés vs branchés (incohérence explicitée)', () => {
+  it('réconciliation des formats d’exercice : tous déclarés sont branchés (Lot 7)', () => {
     const { declared, implemented, unimplemented } = exerciseFormatReconciliation();
-    expect(declared.length).toBe(16);
+    expect(declared.length).toBe(13);
     expect(implemented.length).toBe(13);
-    // Les 3 formats déclarés sans grader ni renderer canonique (à finaliser/retirer au Lot 7).
-    expect(unimplemented).toEqual(['drag_drop', 'draw_level', 'timed']);
-    // Tout format branché est bien déclaré.
+    // Plus aucun format déclaré sans grader (drag_drop/draw_level/timed retirés au Lot 7).
+    expect(unimplemented).toEqual([]);
+    // Tout format branché est bien déclaré, et réciproquement.
     for (const t of implemented) expect(declared).toContain(t);
+    for (const t of declared) expect(implemented).toContain(t);
   });
 
   it('intégrité du parcours : chaque compétence a leçon + exercices ; les liens concept résolvent', () => {
@@ -83,6 +84,6 @@ describe('repoTruth — vérité du dépôt', () => {
     const lines = repoTruthLines();
     expect(lines.length).toBe(10);
     for (const l of lines) expect(l.length).toBeGreaterThan(0);
-    expect(lines.join('\n')).toContain('16 déclarés / 13 branchés');
+    expect(lines.join('\n')).toContain('13 déclarés / 13 branchés');
   });
 });

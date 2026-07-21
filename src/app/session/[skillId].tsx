@@ -3,7 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, ProgressBar, StateView, FeedbackPanel, theme } from '@/design-system';
 import { CharacterScene, MascotFigure, characterLine } from '@/characters';
-import { ExercisePlayer, gradeExercise, type GradeResult } from '@/engines/exercise';
+import { ExercisePlayer, gradeExercise, exerciseFormatLabel, type GradeResult } from '@/engines/exercise';
 import {
   getExercises,
   getLessons,
@@ -259,7 +259,7 @@ export default function Session() {
 
       <Card>
         <Text variant="caption" color={theme.colors.primary}>
-          {LABELS[exercise.type] ?? 'Exercice'}
+          {exerciseFormatLabel(exercise.type)}
         </Text>
         <Text variant="title">{exercise.prompt}</Text>
         <ExercisePlayer exercise={exercise} result={result} onValidate={validate} />
@@ -384,21 +384,6 @@ function StatTile({ label, value, color }: { label: string; value: string; color
 /** Étiquette de repli pour la tuile Maîtrise quand la compétence n'a pas de progression propre
  *  (ex. point de contrôle qui agrège plusieurs compétences). */
 const TIER_FALLBACK: Record<string, string> = { perfect: 'Excellent', pass: 'Validé', retry: 'À revoir' };
-
-const LABELS: Record<string, string> = {
-  mcq: 'Choix multiple',
-  true_false: 'Vrai ou faux',
-  numeric: 'Réponse numérique',
-  order: 'Mets dans l’ordre',
-  match: 'Associe',
-  find_error: 'Trouve l’erreur',
-  identify_pattern: 'Reconnais la figure',
-  scenario: 'Scénario',
-  select_chart_zone: 'Zone du graphique',
-  place_invalidation: 'Place l’invalidation',
-  label_chart: 'Étiquette le graphique',
-  sequence_market_structure: 'Ordonne la structure',
-};
 
 const styles = StyleSheet.create({
   header: { gap: theme.spacing.sm },

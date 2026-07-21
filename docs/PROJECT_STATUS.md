@@ -23,7 +23,7 @@ posture éducative (aucun ordre, signal, portefeuille réel ni conseil personnal
 | Mondes | 15 |
 | Catégories | 13 |
 | Types de visuels rendables | 11 |
-| Formats d'exercice | 16 déclarés / 13 branchés (en attente : `drag_drop`, `draw_level`, `timed`) |
+| Formats d'exercice | 13 déclarés / 13 branchés (orphelins retirés au Lot 7) |
 
 ## Programme en cours — `patternlab-learning-master`
 
@@ -75,9 +75,15 @@ publication sans accord.
   indicateur + paramètre → `IndicatorPanel` **recomposé en direct**, réutilisant le moteur existant
   sans le modifier. Voir **ADR-070**.
 
-Prochains lots (ordre recommandé) : **Lot 7** Exercices adaptatifs (`EXERCISE_FORMAT_REGISTRY`,
-finaliser/retirer drag_drop/draw_level/timed, misconceptions typées) → **Lot 8** Glossaire &
-bibliothèque premium → 9…13. Statut détaillé par lot : voir le plan.
+- **Lot 7 — Exercices adaptatifs** ✅ : **incohérence 16/13 résolue** — `drag_drop`/`draw_level`/
+  `timed` retirés (déclarés === branchés === 13) ; registre unique **`EXERCISE_FORMAT_REGISTRY`**
+  (`formatRegistry.ts`, exhaustif à la compilation) d'où la session tire ses libellés. **Misconceptions
+  typées** (`misconceptions.ts` + `summarizeMisconceptions`) surfacées dans **Réviser** (« 🎯 Tes
+  points faibles » avec conseils, au lieu d'ids d'exercice). Voir **ADR-071**.
+
+Prochains lots (ordre recommandé) : **Lot 8** Glossaire & bibliothèque premium (recherche unifiée,
+statut de maîtrise, comparaison) → **Lot 9** Toto/Bobo V3 → 10…13. Statut détaillé par lot : voir le
+plan.
 
 ## Programmes terminés (archive)
 
