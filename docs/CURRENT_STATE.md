@@ -54,7 +54,13 @@ par lots ; `main` n'est jamais modifié directement ; livrable = une PR vers `ma
   `ProgressRing` et `IconButton` ajoutés au design system ; `icons.test.ts` verrouille le registre.
   Voir **ADR-077**.
 
-Prochain lot : **Lot 3 — navigation & architecture des cinq espaces**.
+- **Lot 3 — Navigation & cinq espaces** ✅ : barre canonique **Accueil · Apprendre · Bibliothèque ·
+  Laboratoire · Profil** pilotée par une source unique `src/lib/navigation.ts` (+ `navigation.test.ts`).
+  Le Laboratoire redevient un onglet ; Réviser est intégré à l'Accueil/Profil. Hub « Bibliothèque »
+  à icônes Trademy (fin des emojis de nav) ; composant `Disclaimer` unifié. Aucune route perdue,
+  aucun renommage d'URL. Voir **ADR-078**.
+
+Prochain lot : **Lot 4 — Onboarding & Accueil (Toto/Bobo, reprise, objectif du jour)**.
 
 ## Gate canonique
 

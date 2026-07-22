@@ -3,7 +3,8 @@ import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Button, BrandLogo, theme } from '@/design-system';
 import { MascotFigure } from '@/characters';
 import { useProgress } from '@/data';
-import { APP, DISCLAIMER } from '@/lib/config';
+import { Disclaimer } from '@/components/Disclaimer';
+import { APP } from '@/lib/config';
 
 export default function Landing() {
   const router = useRouter();
@@ -44,9 +45,7 @@ export default function Landing() {
           disabled
           disabledReason="Comptes & connexion : prévus en P2."
         />
-        <Text variant="caption" color={theme.colors.textMuted} center>
-          {DISCLAIMER}
-        </Text>
+        <Disclaimer />
       </View>
     </Screen>
   );

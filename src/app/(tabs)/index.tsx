@@ -15,7 +15,7 @@ import {
   greetingFor,
 } from '@/data';
 import { analytics } from '@/analytics';
-import { DISCLAIMER } from '@/lib/config';
+import { Disclaimer } from '@/components/Disclaimer';
 import { useNow } from '@/lib/useNow';
 
 /**
@@ -142,9 +142,7 @@ export default function Home() {
         </Pressable>
       ) : null}
 
-      <Text variant="caption" color={theme.colors.textMuted} center>
-        {DISCLAIMER}
-      </Text>
+      <Disclaimer />
     </Screen>
   );
 }

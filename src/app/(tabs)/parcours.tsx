@@ -63,9 +63,9 @@ export default function Parcours() {
   return (
     <Screen>
       <Text variant="label" color={theme.colors.technical}>
-        TON PARCOURS
+        APPRENDRE
       </Text>
-      <Text variant="h1">La carte des mondes 🗺️</Text>
+      <Text variant="h1">Ton parcours</Text>
       <Text variant="body" color={theme.colors.textSecondary}>
         Un seul chemin : gravis un monde à la fois. Chaque monde s’ouvre quand tu as terminé le
         précédent.
