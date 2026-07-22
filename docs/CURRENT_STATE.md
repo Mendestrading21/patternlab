@@ -101,7 +101,13 @@ par lots ; `main` n'est jamais modifié directement ; livrable = une PR vers `ma
   responsive vérifié à **320 / 390 / 430 px** en Chromium ; contraste AA et reduced-motion verrouillés.
   Voir **ADR-087**.
 
-Prochain lot : **Lot 13 — Validation finale & PR vers main (captures avant/après)**.
+- **Lot 13 — Validation finale & PR** ✅ : `npm run check` **vert** (lint · typecheck · 503 tests ·
+  validate:content · release:check · build:web) ; `expo-doctor` 18/20 (2 échecs réseau-seul) ; captures
+  **avant/après** produites (Chromium). **PR #3** ouverte vers `main`
+  (`feat/trademy-complete-redesign`).
+
+> **Refonte Trademy — terminée** (Lots 1→12), livrée en PR #3 vers `main`. `main` n'a pas été modifié
+> directement ; la fusion et le déploiement restent à la décision humaine.
 
 ## Gate canonique
 
