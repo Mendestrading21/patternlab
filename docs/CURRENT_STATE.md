@@ -96,7 +96,12 @@ par lots ; `main` n'est jamais modifié directement ; livrable = une PR vers `ma
   unique). Concepts phares « Marché expliqué » enrichis ; surfacés sur la fiche (puce durée + bloc
   Toto/Bobo) et la Bibliothèque. Correspondance canon→schéma documentée. Voir **ADR-086**.
 
-Prochain lot : **Lot 12 — Accessibilité, responsive, performances & finitions**.
+- **Lot 12 — A11y, responsive & finitions** ✅ : audit propre (0 couleur en dur dans les écrans,
+  0 « PatternLab » visible, 0 vocabulaire interdit hors gardes) ; garde-fou `noHardcodedColors.test.ts` ;
+  responsive vérifié à **320 / 390 / 430 px** en Chromium ; contraste AA et reduced-motion verrouillés.
+  Voir **ADR-087**.
+
+Prochain lot : **Lot 13 — Validation finale & PR vers main (captures avant/après)**.
 
 ## Gate canonique
 
