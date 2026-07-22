@@ -14,7 +14,7 @@ export default function Landing() {
     <Screen scroll={false}>
       <View style={styles.top}>
         <Text variant="caption" color={theme.colors.primary} center>
-          PATTERNLAB
+          {APP.name.toUpperCase()}
         </Text>
         <Text variant="display" center>
           Apprends à lire{'\n'}les marchés

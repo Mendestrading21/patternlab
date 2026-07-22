@@ -118,7 +118,7 @@ export default function Profil() {
           />
         </View>
         <Text variant="body" color={theme.colors.textSecondary}>
-          PatternLab fonctionne entièrement hors-ligne. Ta progression est enregistrée sur cet
+          Trademy fonctionne entièrement hors-ligne. Ta progression est enregistrée sur cet
           appareil, sans dépendance réseau.
         </Text>
         <Text variant="caption" color={theme.colors.textMuted}>
@@ -162,7 +162,7 @@ export default function Profil() {
       <Card elevated>
         <View style={styles.skillHead}>
           <Text variant="title" style={styles.flex1}>
-            PatternLab Premium ✨
+            Trademy Premium ✨
           </Text>
           {premium.active ? <Chip label="Actif" color={theme.colors.reward} /> : null}
         </View>

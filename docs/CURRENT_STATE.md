@@ -35,6 +35,21 @@ incrément du Lot 10 sont dans `main`. La prochaine évolution produit doit pour
 à la fois : enrichissement éditorial revu humainement, puis progression/rétention, sans rouvrir les
 anciens programmes archivés.
 
+## Refonte Trademy — en cours (branche `feat/trademy-complete-redesign`)
+
+Transformation complète vers l'identité **Trademy** guidée par les documents canoniques (vision,
+Trademy Learning Glass, Toto/Bobo, architecture 500+, plan d'exécution — PR #2 fusionnée). Exécution
+par lots ; `main` n'est jamais modifié directement ; livrable = une PR vers `main`.
+
+- **Lot 1 — Identité & tokens** ✅ : marque publique **Trademy** partout (app.json, appInfo,
+  manifeste PWA, `+html`, écrans Accueil/Profil/Premium, label éditorial), signature
+  « Ne parie pas. Comprends. ». Design system **Trademy Learning Glass** installé dans
+  `src/design-system/tokens.ts` : marque **violette** (CTA), marché vert/rouge, or (zones), cyan
+  (annotations), feedback pédagogique **distinct** du marché, bloc `motion`. Contraste WCAG AA
+  reverrouillé ; nouveau `tokens.test.ts` garde l'identité. Voir **ADR-076**.
+
+Prochain lot : **Lot 2 — composants partagés & jeu d'icônes Trademy**.
+
 ## Gate canonique
 
 ```bash

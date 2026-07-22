@@ -15,7 +15,7 @@ const learn = (s: ProgressState) => s.learning ?? emptyLearning();
 const skillMastery = (s: ProgressState, id: string) => s.skills[id]?.mastery ?? 0;
 
 export const BADGES: Badge[] = [
-  { id: 'first-step', name: 'Premier pas', emoji: '👣', description: 'Tu as démarré PatternLab.', family: 'progress', earned: (s) => s.onboarded },
+  { id: 'first-step', name: 'Premier pas', emoji: '👣', description: 'Tu as démarré Trademy.', family: 'progress', earned: (s) => s.onboarded },
   { id: 'first-skill', name: 'Première compétence', emoji: '🎓', description: 'Termine ta première compétence.', family: 'progress', earned: (s) => s.completedSkills.length >= 1 },
   { id: 'streak-3', name: 'Série de 3', emoji: '🔥', description: 'Reviens 3 jours d’affilée.', family: 'progress', earned: (s) => s.streakDays >= 3 },
   { id: 'explorer', name: 'Explorateur', emoji: '🧭', description: 'Atteins le niveau 2.', family: 'progress', earned: (s) => s.level >= 2 },

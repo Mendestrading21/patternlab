@@ -19,6 +19,7 @@ contrat (`CLAUDE.md`) priment sur un ancien programme.
 | Dialogues Toto/Bobo | [ADR-073](./ADR-073-mascot-moments-error-dialogue.md) |
 | Contenu des 15 mondes | [ADR-074](./ADR-074-content-15-worlds-batch1.md) |
 | Fondation du dépôt TradeMy | [ADR-075](./ADR-075-repository-foundation.md) |
+| Identité Trademy & tokens Learning Glass | [ADR-076](./ADR-076-trademy-identity-tokens.md) |
 
 ## Fondations toujours actives
 

@@ -8,7 +8,7 @@ const publicAsset = (fileName: string) => `${webBasePath}/${fileName}`;
 
 /**
  * Document HTML racine (web only) — injecté au build statique par Expo Router.
- * Rend PatternLab installable comme app plein écran (PWA standalone) :
+ * Rend Trademy installable comme app plein écran (PWA standalone) :
  * - manifest + icônes (add to home screen)
  * - meta apple-mobile-web-app (plein écran iOS, sans barre Safari)
  * - viewport-fit=cover + hauteur 100% pour occuper tout l'écran
@@ -24,15 +24,15 @@ export default function Root({ children }: PropsWithChildren) {
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
         />
 
-        <meta name="theme-color" content="#0B1119" />
+        <meta name="theme-color" content="#0A0D16" />
         <meta name="color-scheme" content="dark" />
 
         {/* Installable / plein écran */}
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="PatternLab" />
-        <meta name="application-name" content="PatternLab" />
+        <meta name="apple-mobile-web-app-title" content="Trademy" />
+        <meta name="application-name" content="Trademy" />
 
         <link rel="manifest" href={publicAsset('manifest.json')} />
         <link rel="apple-touch-icon" href={publicAsset('apple-touch-icon.png')} />
@@ -50,7 +50,7 @@ export default function Root({ children }: PropsWithChildren) {
 const responsiveBackground = `
 html, body, #root {
   height: 100%;
-  background-color: #0B1119;
+  background-color: #0A0D16;
 }
 body {
   overscroll-behavior: none;
@@ -66,7 +66,7 @@ body {
   body {
     display: flex;
     justify-content: center;
-    background-color: #080C12;
+    background-color: #05070E;
   }
   #root {
     width: 460px;
