@@ -64,7 +64,11 @@ par lots ; `main` n'est jamais modifié directement ; livrable = une PR vers `ma
   chips iconifiées (niveau/série), **rangée Révisions + Favoris**, **intervention de Bobo** (les deux
   mascottes présentes), rappel via `Disclaimer` ; onboarding : sélection à icône `check`. Voir **ADR-079**.
 
-Prochain lot : **Lot 5 — Parcours Apprendre (roadmap, chapitres, états de progression)**.
+- **Lot 5 — Parcours Apprendre** ✅ : roadmap à **niveaux** (Débutant/Intermédiaire/Avancé via
+  `LEVEL_BANDS`), **cinq états** avec légende (verrouillé/disponible/en cours/terminé/**maîtrisé**),
+  badges `TrademyIcon` (cadenas/coche/trophée), prérequis visibles. Modèle pur + tests. Voir **ADR-080**.
+
+Prochain lot : **Lot 6 — Bibliothèque & glossaire (recherche, filtres, favoris)**.
 
 ## Gate canonique
 

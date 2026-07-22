@@ -52,6 +52,30 @@ export function isGuidedWorld(worldId: string): boolean {
   return guidedModulesForWorld(worldId).length > 0;
 }
 
+/** Niveaux du parcours (canon Trademy) : les 15 mondes en trois bandes de cinq. */
+export type LevelBand = 'debutant' | 'intermediaire' | 'avance';
+
+export interface LevelBandDef {
+  band: LevelBand;
+  label: string;
+  minOrder: number;
+  maxOrder: number;
+}
+
+export const LEVEL_BANDS: LevelBandDef[] = [
+  { band: 'debutant', label: 'Débutant', minOrder: 1, maxOrder: 5 },
+  { band: 'intermediaire', label: 'Intermédiaire', minOrder: 6, maxOrder: 10 },
+  { band: 'avance', label: 'Avancé', minOrder: 11, maxOrder: 15 },
+];
+
+/** Bande de niveau d'un monde d'après son ordre (le dernier palier capte les ordres élevés). */
+export function levelBandForOrder(order: number): LevelBandDef {
+  return (
+    LEVEL_BANDS.find((b) => order >= b.minOrder && order <= b.maxOrder) ??
+    LEVEL_BANDS[LEVEL_BANDS.length - 1]
+  );
+}
+
 export type WorldStatus = 'done' | 'current' | 'unlocked' | 'locked';
 
 /** Progression dérivée d'un monde dans le chemin unique. */
@@ -63,6 +87,8 @@ export interface WorldEntry {
   /** 0–1. Monde guidé : (compétences validées + checkpoint) / (compétences + 1). Contenu : explorés/total. */
   progress: number;
   status: WorldStatus;
+  /** Terminé ET toutes les fiches du monde maîtrisées (compétence liée solide). */
+  mastered: boolean;
   /** Un visuel représentatif (signal visuel du nœud). */
   sampleSpec?: VisualSpec;
   /** Raison du verrou (écran détail). */
@@ -73,6 +99,8 @@ export interface WorldEntry {
 export interface LearningProgressInput {
   completedSkills: string[];
   exploredSlugs: string[];
+  /** Slugs de concepts maîtrisés (compétence liée solide) — pour l'état « maîtrisé » d'un monde. */
+  masteredSlugs?: string[];
 }
 
 /** Un monde guidé est terminé quand son checkpoint est validé ; sinon, quand toutes ses fiches sont vues. */
@@ -127,6 +155,7 @@ export function buildLearningPath(
 ): WorldEntry[] {
   const sorted = [...worlds].sort((a, b) => a.order - b.order);
   const entries: WorldEntry[] = [];
+  const masteredSet = new Set(input.masteredSlugs ?? []);
   let currentAssigned = false;
 
   for (let i = 0; i < sorted.length; i++) {
@@ -152,6 +181,7 @@ export function buildLearningPath(
     }
 
     const cs = conceptsByWorld(concepts, world.id);
+    const mastered = done && cs.length > 0 && cs.every((c) => masteredSet.has(c.slug));
     entries.push({
       world,
       guided,
@@ -159,6 +189,7 @@ export function buildLearningPath(
       exploredCount,
       progress,
       status,
+      mastered,
       sampleSpec: cs.find((c) => c.visualSpec)?.visualSpec,
       lockReason,
     });
