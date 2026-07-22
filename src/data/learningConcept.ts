@@ -13,6 +13,12 @@
 import type { GlossaryTerm, GlossaryCategory } from './glossary';
 
 export type Difficulty = 1 | 2 | 3 | 4 | 5;
+
+/** Interventions de mascottes attachées à un concept (Toto = hypothèse, Bobo = prudence). */
+export interface ConceptDialogue {
+  toto: string;
+  bobo: string;
+}
 export type Direction = 'bullish' | 'bearish' | 'neutral';
 export type Locale = 'fr-CH' | 'fr-FR';
 export type ConceptStatus = 'imported' | 'draft' | 'needsReview' | 'approved' | 'published' | 'archived';
@@ -140,6 +146,10 @@ export interface LearningConcept {
   prerequisites: string[];
   tags: string[];
   learningObjective: string;
+  /** Durée estimée de lecture/pratique en minutes (canon « durée »). Optionnel — enrichi itérativement. */
+  estimatedMinutes?: number;
+  /** Interventions de Toto et Bobo pour ce concept (canon Toto/Bobo). Optionnel — enrichi itérativement. */
+  dialogue?: ConceptDialogue;
   definitionShort: string;
   definitionDetailed: string;
   howToRecognize: string[];

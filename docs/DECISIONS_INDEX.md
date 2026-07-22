@@ -29,6 +29,7 @@ contrat (`CLAUDE.md`) priment sur un ancien programme.
 | Quiz, flashcards & feedback canoniques | [ADR-083](./ADR-083-trademy-quiz-feedback.md) |
 | Progression, XP & Profil | [ADR-084](./ADR-084-trademy-progression-profil.md) |
 | Toto/Bobo : états & animations | [ADR-085](./ADR-085-trademy-toto-bobo-animations.md) |
+| Schéma canonique de concept & enrichissement | [ADR-086](./ADR-086-trademy-concept-schema.md) |
 
 ## Fondations toujours actives
 

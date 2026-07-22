@@ -157,6 +157,7 @@ export default function Bibliotheque() {
                 <Text variant="title">{c.title}</Text>
                 <Text variant="caption" color={theme.colors.textMuted}>
                   {cat?.label} · {difficultyLabel(c.difficulty)}
+                  {c.estimatedMinutes ? ` · ${c.estimatedMinutes} min` : ''}
                 </Text>
                 <Text variant="body" color={theme.colors.textSecondary} style={styles.summary}>
                   {c.definitionShort}

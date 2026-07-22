@@ -541,6 +541,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.uptrend',
     slug: 'tendance-haussiere',
+    estimatedMinutes: 4,
+    dialogue: {
+      toto: 'Des creux de plus en plus hauts : la demande garde la main, setup haussier.',
+      bobo: 'Un seul creux sous le précédent et la structure haussière est invalidée.',
+    },
     title: 'Tendance haussière',
     shortTitle: 'Tendance',
     aliases: ['Uptrend'],
@@ -2106,6 +2111,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.market-basics',
     slug: 'marche-et-prix',
+    estimatedMinutes: 4,
+    dialogue: {
+      toto: 'Le prix, c’est le dernier accord trouvé entre acheteurs et vendeurs.',
+      bobo: 'Un prix qui bouge sans volume derrière lui reste fragile — demande la preuve.',
+    },
     title: 'Marché et prix',
     shortTitle: 'Marché & prix',
     aliases: ['Market basics'],

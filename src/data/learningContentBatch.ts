@@ -893,6 +893,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.break-and-retest',
     slug: 'cassure-retest',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Une cassure qui tient son retest est un setup haussier plus solide.',
+      bobo: 'Sans retest tenu, méfie-toi d’un faux breakout.',
+    },
     title: 'Cassure et retest',
     shortTitle: 'Cassure-retest',
     aliases: ['Break and Retest'],
@@ -1503,6 +1508,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.faux-breakout',
     slug: 'faux-breakout',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Ça ressemblait à une cassure haussière…',
+      bobo: '…mais le rejet immédiat invalide le scénario. Faux signal typique.',
+    },
     title: 'Faux breakout',
     shortTitle: 'Fakeout',
     aliases: ['Faux breakout', 'Fakeout', 'Fausse cassure'],

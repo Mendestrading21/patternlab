@@ -91,7 +91,12 @@ par lots ; `main` n'est jamais modifié directement ; livrable = une PR vers `ma
   au repos, **rendu statique si reduced-motion**, présence sur tous les écrans). Ajout de l'état
   canonique **`point`** (Toto pointe le graphique annoté au Laboratoire) + couverture testée. Voir **ADR-085**.
 
-Prochain lot : **Lot 11 — Migration & enrichissement du contenu (schéma canonique)**.
+- **Lot 11 — Schéma canonique & enrichissement** ✅ : le type `LearningConcept` gagne `estimatedMinutes`
+  (durée) et `dialogue` (interventions Toto/Bobo), **optionnels**, portés par le concept (source
+  unique). Concepts phares « Marché expliqué » enrichis ; surfacés sur la fiche (puce durée + bloc
+  Toto/Bobo) et la Bibliothèque. Correspondance canon→schéma documentée. Voir **ADR-086**.
+
+Prochain lot : **Lot 12 — Accessibilité, responsive, performances & finitions**.
 
 ## Gate canonique
 
