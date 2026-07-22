@@ -78,7 +78,12 @@ par lots ; `main` n'est jamais modifié directement ; livrable = une PR vers `ma
   **révélation progressive** + **bascule annotations affichées/masquées** + Toto/Bobo ; bouton mort
   supprimé. Voir **ADR-082**.
 
-Prochain lot : **Lot 8 — Quiz, flashcards & feedback**.
+- **Lot 8 — Quiz & feedback** ✅ : `AnswerOption` (QuizOption) marque correct/incorrect via icônes
+  Trademy (`check`/`close`) ; `FeedbackPanel` gagne une icône de statut + un emplacement visuel/mascotte ;
+  la session **intègre la mascotte dans le panneau de correction** (Toto réussite / Bobo idée fausse).
+  Voir **ADR-083**.
+
+Prochain lot : **Lot 9 — Progression, XP, séries & badges (Profil)**.
 
 ## Gate canonique
 

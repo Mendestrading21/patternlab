@@ -26,6 +26,7 @@ contrat (`CLAUDE.md`) priment sur un ancien programme.
 | Parcours Apprendre : niveaux & maîtrise | [ADR-080](./ADR-080-trademy-parcours-apprendre.md) |
 | Bibliothèque : index cherchable | [ADR-081](./ADR-081-trademy-bibliotheque.md) |
 | Laboratoire : lecture guidée de graphique | [ADR-082](./ADR-082-trademy-laboratoire.md) |
+| Quiz, flashcards & feedback canoniques | [ADR-083](./ADR-083-trademy-quiz-feedback.md) |
 
 ## Fondations toujours actives
 

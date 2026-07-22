@@ -279,15 +279,16 @@ export default function Session() {
             message={result.correct ? result.feedback.correct : result.feedback.incorrect}
             rule={result.feedback.rule}
             whenItFails={result.feedback.whenItFails}
-          />
-          {feedbackLine ? (
-            <CharacterScene
-              character={feedbackLine.character}
-              state={feedbackLine.state}
-              size={60}
-              speech={feedbackLine.text}
-            />
-          ) : null}
+          >
+            {feedbackLine ? (
+              <CharacterScene
+                character={feedbackLine.character}
+                state={feedbackLine.state}
+                size={60}
+                speech={feedbackLine.text}
+              />
+            ) : null}
+          </FeedbackPanel>
           <Button label={index + 1 >= list.length ? 'Voir mon résultat' : 'Continuer'} onPress={next} />
         </>
       ) : null}

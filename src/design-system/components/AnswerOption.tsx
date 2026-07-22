@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { theme } from '../theme';
 import { Text } from './Text';
+import { TrademyIcon } from '../icons/TrademyIcon';
 
 export type AnswerState = 'idle' | 'selected' | 'correct' | 'incorrect';
 
@@ -46,8 +47,8 @@ export function AnswerOption({ label, onPress, state = 'idle', disabled, index }
       <Text variant="body" style={styles.label}>
         {label}
       </Text>
-      {state === 'correct' ? <Text variant="body">✅</Text> : null}
-      {state === 'incorrect' ? <Text variant="body">❌</Text> : null}
+      {state === 'correct' ? <TrademyIcon name="check" size={20} color={theme.colors.feedbackCorrect} /> : null}
+      {state === 'incorrect' ? <TrademyIcon name="close" size={20} color={theme.colors.feedbackIncorrect} /> : null}
     </Pressable>
   );
 }
