@@ -19,6 +19,7 @@ import {
   type NodeStatus,
 } from '@/data';
 import { analytics } from '@/analytics';
+import { useNow } from '@/lib/useNow';
 
 const NODE_COLORS: Record<NodeStatus, string> = {
   done: theme.colors.primary,
@@ -201,8 +202,9 @@ function GuidedModuleView({
   onDiscover: (slug: string) => void;
 }) {
   const { state } = useProgress();
+  const now = useNow();
   if (!state) return null;
-  const map = buildWorldMap(state, SKILLS, moduleTitle, Date.now());
+  const map = buildWorldMap(state, SKILLS, moduleTitle, now);
 
   return (
     <>

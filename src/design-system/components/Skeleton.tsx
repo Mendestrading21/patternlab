@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { Animated, StyleSheet, type DimensionValue, type ViewStyle } from 'react-native';
 import { theme } from '../theme';
 import { useReducedMotion } from '../useReducedMotion';
@@ -16,7 +16,7 @@ export type SkeletonProps = {
  */
 export function Skeleton({ width = '100%', height = 16, radius = theme.radius.sm, style }: SkeletonProps) {
   const reduced = useReducedMotion();
-  const opacity = useRef(new Animated.Value(0.55)).current;
+  const [opacity] = useState(() => new Animated.Value(0.55));
 
   useEffect(() => {
     if (reduced) {

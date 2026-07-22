@@ -2,13 +2,15 @@ import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, Chip, ProgressBar, theme } from '@/design-system';
 import { MascotFigure } from '@/characters';
 import { BADGES, earnedBadges, streakInfo, STREAK_MILESTONE_REWARD, buildDailyQuests, useProgress } from '@/data';
+import { useNow } from '@/lib/useNow';
 
 export default function Reussites() {
   const { state, claimQuest } = useProgress();
+  const now = useNow();
   const earned = earnedBadges(state);
   const streak = streakInfo(state?.streakDays ?? 0);
   // Quêtes du jour — déplacées ici depuis l'accueil (Lot 1 : hors du CTA principal).
-  const quests = state ? buildDailyQuests(state, Date.now()) : [];
+  const quests = state ? buildDailyQuests(state, now) : [];
   const questsDone = quests.filter((q) => q.done).length;
   // Progression vers le prochain jalon depuis le jalon précédent atteint.
   const prevMilestone = streak.reachedMilestones.at(-1) ?? 0;
