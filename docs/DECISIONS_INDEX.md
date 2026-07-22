@@ -25,6 +25,7 @@ contrat (`CLAUDE.md`) priment sur un ancien programme.
 | Onboarding & Accueil Trademy | [ADR-079](./ADR-079-trademy-onboarding-accueil.md) |
 | Parcours Apprendre : niveaux & maîtrise | [ADR-080](./ADR-080-trademy-parcours-apprendre.md) |
 | Bibliothèque : index cherchable | [ADR-081](./ADR-081-trademy-bibliotheque.md) |
+| Laboratoire : lecture guidée de graphique | [ADR-082](./ADR-082-trademy-laboratoire.md) |
 
 ## Fondations toujours actives
 

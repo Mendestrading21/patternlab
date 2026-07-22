@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { View, Pressable, StyleSheet } from 'react-native';
-import { Screen, Text, Card, Button, Chip, SegmentedControl, type SegmentOption, theme } from '@/design-system';
+import { Screen, Text, Card, Button, Chip, SegmentedControl, TrademyIcon, type SegmentOption, theme } from '@/design-system';
 import { CharacterScene } from '@/characters';
 import {
   InteractiveChart,
@@ -18,7 +18,7 @@ import {
   replayAtStart,
 } from '@/engines/pattern';
 import { VisualCard, IndicatorPanel, INDICATOR_LABS, indicatorLabById, datasetByKey } from '@/engines/visual';
-import { DEMO_PATTERN, V5_CONCEPTS, type VisualSpec } from '@/data';
+import { DEMO_PATTERN, V5_CONCEPTS, CHART_SCENARIOS, chartScenarioById, type VisualSpec } from '@/data';
 import { analytics } from '@/analytics';
 
 /** Aperçu du moteur de visuels V5 : anatomie d'une bougie (statique, accessible). */
@@ -57,6 +57,24 @@ export default function Laboratoire() {
   const labConfig = lab.configFor(labParam);
   const labOptions: SegmentOption<string>[] = INDICATOR_LABS.map((l) => ({ id: l.id, label: l.title }));
   const paramOptions: SegmentOption<string>[] = lab.paramValues.map((v) => ({ id: String(v), label: lab.formatValue(v) }));
+
+  // Scénario 0 — lecture guidée : annotations affichables/masquables + révélation progressive.
+  const [scenarioId, setScenarioId] = useState(CHART_SCENARIOS[0].id);
+  const scenario = chartScenarioById(scenarioId) ?? CHART_SCENARIOS[0];
+  const scenarioCandles = useMemo(() => datasetByKey(scenario.datasetKey), [scenario.datasetKey]);
+  const [showAnnotations, setShowAnnotations] = useState(true);
+  const [scenReplay, setScenReplay] = useState(() =>
+    initReplay(scenarioCandles.length, Math.min(6, scenarioCandles.length)),
+  );
+  const scenarioOptions: SegmentOption<string>[] = CHART_SCENARIOS.map((s) => ({ id: s.id, label: s.title }));
+  const annotationOptions: SegmentOption<string>[] = [
+    { id: 'on', label: 'Annotations affichées' },
+    { id: 'off', label: 'Masquées' },
+  ];
+  const scenNext = () => setScenReplay((s) => stepReplay(s, 1));
+  const scenPrev = () => setScenReplay((s) => stepReplay(s, -1));
+  const scenAll = () => setScenReplay((s) => revealAll(s));
+  const scenReset = () => setScenReplay((s) => resetReplay(s));
 
   useEffect(() => {
     analytics.track('lab_started', { scenario: 'trace_support' });
@@ -99,11 +117,85 @@ export default function Laboratoire() {
 
   return (
     <Screen>
-      <Text variant="h1">Laboratoire 🧪</Text>
+      <Text variant="h1">Laboratoire</Text>
       <Text variant="body" color={theme.colors.textSecondary}>
         Manipule un vrai graphique. Ici, tout est un scénario pédagogique — aucun conseil,
         aucun signal.
       </Text>
+
+      <Card elevated>
+        <View style={styles.chartHead}>
+          <Text variant="title">Lis un graphique, étape par étape</Text>
+          <Chip iconName="chart" label="scénario" color={theme.colors.technical} />
+        </View>
+        <SegmentedControl
+          options={scenarioOptions}
+          value={scenarioId}
+          onChange={(id) => {
+            setScenarioId(id);
+            const next = chartScenarioById(id) ?? CHART_SCENARIOS[0];
+            const nextCandles = datasetByKey(next.datasetKey);
+            setScenReplay(initReplay(nextCandles.length, Math.min(6, nextCandles.length)));
+            analytics.track('lab_started', { scenario: `read:${id}` });
+          }}
+          accessibilityLabel="Choisir un scénario de lecture"
+        />
+        <Text variant="body" color={theme.colors.textSecondary}>
+          {scenario.question}
+        </Text>
+
+        <View style={styles.chart}>
+          <MarketReplayChart candles={scenarioCandles} visibleCount={scenReplay.visible} width={300} height={170} />
+        </View>
+
+        <View style={styles.controls}>
+          <Button label="⏮ Début" variant="secondary" fullWidth={false} disabled={replayAtStart(scenReplay)} onPress={scenReset} accessibilityHint="Première bougie" />
+          <Button label="◀ Préc." variant="secondary" fullWidth={false} disabled={replayAtStart(scenReplay)} onPress={scenPrev} accessibilityHint="Bougie précédente" />
+          <Button label="Suiv. ▶" variant="secondary" fullWidth={false} disabled={replayAtEnd(scenReplay)} onPress={scenNext} accessibilityHint="Bougie suivante" />
+        </View>
+        {!replayAtEnd(scenReplay) ? (
+          <Button label="Tout révéler ⏭" variant="secondary" onPress={scenAll} accessibilityHint="Révéler toute la séquence" />
+        ) : null}
+
+        <View style={styles.annotationToggle}>
+          <SegmentedControl
+            options={annotationOptions}
+            value={showAnnotations ? 'on' : 'off'}
+            onChange={(v) => setShowAnnotations(v === 'on')}
+            accessibilityLabel="Afficher ou masquer les annotations"
+          />
+        </View>
+
+        {showAnnotations ? (
+          <View style={styles.annotations}>
+            {scenario.annotations.map((a) => (
+              <View key={a.label} style={styles.annotationRow}>
+                <TrademyIcon name="target" size={14} color={theme.colors.technical} />
+                <View style={styles.flex1}>
+                  <Text variant="label" color={theme.colors.technical}>
+                    {a.label}
+                  </Text>
+                  <Text variant="caption" color={theme.colors.textSecondary}>
+                    {a.detail}
+                  </Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <Text variant="caption" color={theme.colors.textMuted}>
+            Annotations masquées — lis le graphique par toi-même, puis réaffiche-les pour comparer.
+          </Text>
+        )}
+
+        <View style={styles.debate}>
+          <CharacterScene character="toto" state="explain" size={56} speech={scenario.toto} />
+          <CharacterScene character="bobo" state="false-signal" size={56} reversed speech={scenario.bobo} />
+        </View>
+        <Text variant="caption" color={theme.colors.textMuted}>
+          Scénario éducatif sur données déterministes — jamais un signal en temps réel.
+        </Text>
+      </Card>
 
       <Card elevated>
         <View style={styles.chartHead}>
@@ -299,11 +391,6 @@ export default function Laboratoire() {
         onPress={() => router.push('/lesson/lesson.double-bottom')}
         accessibilityHint="Ouvrir la leçon associée"
       />
-      <Button
-        label="Zones, lignes de tendance & annotations"
-        disabled
-        disabledReason="Sélection de zone rectangulaire, ligne de tendance et annotations : prochaines itérations du moteur de graphiques (voir ADR-030)."
-      />
     </Screen>
   );
 }
@@ -319,5 +406,8 @@ const styles = StyleSheet.create({
   conceptList: { gap: theme.spacing.xs, marginTop: theme.spacing.sm },
   conceptRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm, minHeight: 40 },
   paramRow: { gap: theme.spacing.xs, marginVertical: theme.spacing.sm },
+  annotationToggle: { marginTop: theme.spacing.sm },
+  annotations: { gap: theme.spacing.sm, marginVertical: theme.spacing.sm },
+  annotationRow: { flexDirection: 'row', gap: theme.spacing.sm, alignItems: 'flex-start' },
   flex1: { flex: 1 },
 });

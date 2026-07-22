@@ -73,7 +73,12 @@ par lots ; `main` n'est jamais modifié directement ; livrable = une PR vers `ma
   par famille (compte) et par statut de maîtrise, cartes → fiche avec favori. Outils de référence
   conservés. Voir **ADR-081**.
 
-Prochain lot : **Lot 7 — Laboratoire & kit de graphiques pédagogiques**.
+- **Lot 7 — Laboratoire** ✅ : section **« Lis un graphique, étape par étape »** — scénarios
+  (`src/data/chartLab.ts`, pur + testé : tendance, cassure-retest, faux breakout, liquidité),
+  **révélation progressive** + **bascule annotations affichées/masquées** + Toto/Bobo ; bouton mort
+  supprimé. Voir **ADR-082**.
+
+Prochain lot : **Lot 8 — Quiz, flashcards & feedback**.
 
 ## Gate canonique
 
