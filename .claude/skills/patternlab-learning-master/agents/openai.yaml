@@ -1,4 +1,4 @@
 interface:
   display_name: "PatternLab Learning Master"
   short_description: "Auditer et développer PatternLab de bout en bout"
-  default_prompt: "Use $patternlab-learning-master to audit PatternLab, simplify its learning journey, and implement the next validated product lot."
+  default_prompt: "Use $patternlab-learning-master, read docs/CURRENT_STATE.md first, and implement only the next validated PatternLab product lot."

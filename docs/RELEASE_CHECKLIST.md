@@ -9,12 +9,7 @@ portée de l'agent, nécessite une autorisation explicite).
 Porte de validation complète :
 
 ```bash
-npm run lint
-npm run typecheck
-npm test -- --runInBand
-npm run validate:content
-npm run release:check   # ← nouveau : invariants de publication
-npm run build:web
+npm run check
 ```
 
 `release:check` vérifie (logique pure `src/release/releaseCheck.ts`, testée) :
@@ -29,7 +24,7 @@ npm run build:web
 
 Autres éléments prêts :
 
-- [x] Splash + icônes (adaptive Android, `.icon` iOS, favicon web) référencés et présents
+- [x] Splash + icônes Toto/Bobo (adaptive Android, PNG iOS, favicon/PWA) référencés et vérifiés
 - [x] Couleurs de marque appliquées (splash / adaptive icon / `backgroundColor` / `primaryColor`)
 - [x] Compliance chiffrement iOS déclarée (`ITSAppUsesNonExemptEncryption: false`)
 - [x] Écran « À propos & mentions légales » (`/a-propos`) + politique de confidentialité (`docs/PRIVACY.md`)

@@ -1,7 +1,7 @@
 /**
- * Carte des figures Toto & Bobo (rendus 3D HD fournis, damier retiré → PNG transparents).
- * Générées par `scripts/prepare-characters/optimize.mjs` (mode `singles`) depuis
- * `assets/characters/source/singles/`. Metro hashe ces require() et applique le baseUrl.
+ * Carte des figures Toto & Bobo (exports runtime 3D sur fond transparent).
+ * Les sources de production restent dans l'archive design privée ; le dépôt ne conserve que les
+ * PNG optimisés décrits dans `assets/characters/README.md`. Metro hashe ces require().
  */
 
 /** Figures détourées (fond transparent) — personnages posés sans cadre. */

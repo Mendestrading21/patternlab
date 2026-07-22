@@ -1,8 +1,11 @@
 # PatternLab Learning Master — Audit & Plan des 14 lots
 
+> **Document de trajectoire.** Sa baseline décrit le début du programme. Pour l’état et les compteurs
+> actuels, utiliser `docs/CURRENT_STATE.md` et `src/data/repoTruth.ts`.
+
 Skill : `patternlab-learning-master`. Programme d'**audit + consolidation** (pas une refonte
-technique). Établi le 2026-07-21 sur la branche `claude/connexion-application-1n30su` (dépôt à jour
-avec `main`, dernier merge `902e4dd`). **Aucun code touché** tant que chaque lot n'est pas validé.
+technique), initialement établi le 21 juillet 2026. Les lots déjà livrés sont consignés plus bas ;
+ne jamais réexécuter une ancienne étape sans comparer le code à `docs/CURRENT_STATE.md`.
 
 ## Baseline — vérifiée par le code (pas recopiée d'un doc)
 

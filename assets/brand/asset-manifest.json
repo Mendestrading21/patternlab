@@ -1,0 +1,48 @@
+{
+  "canonicalSource": "assets/brand/app-icon-source.jpeg",
+  "canonicalSourceSha256": "dc3ddc37557492a43cc89037e2540f8bf72e237cae71585b1521c405db5dda21",
+  "assets": [
+    {
+      "path": "assets/images/icon.png",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "ceab426c17d07d134789d0d8de68c3bc5ac00192286829f1eccc749364e84cc9"
+    },
+    {
+      "path": "assets/images/favicon.png",
+      "width": 48,
+      "height": 48,
+      "sha256": "e9686e2bd570312535760e1424a0c37d48c7f6f3c2b6cc74c8cf4debfb77a33d"
+    },
+    {
+      "path": "assets/images/android-icon-foreground.png",
+      "width": 432,
+      "height": 432,
+      "sha256": "cfcf8a8ccdc3a18cb304da3c2678e0e513fd36a206338c7f7a64b05955726c62"
+    },
+    {
+      "path": "assets/images/splash-icon.png",
+      "width": 640,
+      "height": 640,
+      "sha256": "34f4c831dab673456d32f5e50eab2d392f174441b7375788377b60e825a2d4a5"
+    },
+    {
+      "path": "public/icon-512.png",
+      "width": 512,
+      "height": 512,
+      "sha256": "dc000cfab71002e3e91546f956ceb0e379364d4967c9fa3e32fa5bd93f6e918b"
+    },
+    {
+      "path": "public/icon-192.png",
+      "width": 192,
+      "height": 192,
+      "sha256": "431599324397604e9b1028eeef4b44f19c76b7469bf598914988a7c42a685eba"
+    },
+    {
+      "path": "public/apple-touch-icon.png",
+      "width": 180,
+      "height": 180,
+      "sha256": "0bdab5942dd6ec6aa65e0c3f01c4e59d4d5e38ef9d6ab3c9643a807baa71f675"
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 /**
  * PatternLab — Design tokens (V2 « Instrument Glass »).
  * Direction : surfaces mates graphite/bleu nuit, verre sombre contrôlé, couleur
- * fonctionnelle parcimonieuse (≈ 70 / 20 / 10). Réf. skill : patternlab-product-growth
- * « Direction visuelle » + reference/04-design-system.md.
+ * fonctionnelle parcimonieuse (≈ 70 / 20 / 10). Référence canonique :
+ * `docs/design/VISUAL_DIRECTION.md`.
  *
  * IMPORTANT (règle kit) : distinguer la sémantique PÉDAGOGIQUE (correct/incorrect)
  * de la sémantique FINANCIÈRE (bullish/bearish). Dans un exercice de marché, une
