@@ -1,22 +1,30 @@
 import { View, StyleSheet } from 'react-native';
 import { theme } from '../theme';
 import { Text } from './Text';
+import { TrademyIcon, type TrademyIconName } from '../icons/TrademyIcon';
 
 export type ChipProps = {
+  /** Icône fonctionnelle du système Trademy (préférée pour un indicateur/statut). */
+  iconName?: TrademyIconName;
+  /** Emoji de contenu (décoratif) — utiliser `iconName` pour une icône fonctionnelle. */
   icon?: string;
   label: string;
   color?: string;
   accessibilityLabel?: string;
 };
 
-/** Petite pastille pour XP, série (streak), pièces, niveau… */
-export function Chip({ icon, label, color, accessibilityLabel }: ChipProps) {
+/** Petite pastille pour XP, série (streak), pièces, niveau, statut… */
+export function Chip({ iconName, icon, label, color, accessibilityLabel }: ChipProps) {
   return (
     <View
       accessibilityLabel={accessibilityLabel ?? label}
       style={[styles.chip, color ? { borderColor: color } : null]}
     >
-      {icon ? <Text variant="caption">{icon}</Text> : null}
+      {iconName ? (
+        <TrademyIcon name={iconName} size={14} color={color ?? theme.colors.textPrimary} strokeWidth={2.2} />
+      ) : icon ? (
+        <Text variant="caption">{icon}</Text>
+      ) : null}
       <Text variant="label" color={color ?? theme.colors.textPrimary}>
         {label}
       </Text>

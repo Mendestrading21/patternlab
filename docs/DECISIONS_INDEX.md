@@ -22,6 +22,7 @@ contrat (`CLAUDE.md`) priment sur un ancien programme.
 | Identité Trademy & tokens Learning Glass | [ADR-076](./ADR-076-trademy-identity-tokens.md) |
 | Icônes & composants partagés Trademy | [ADR-077](./ADR-077-trademy-components-icons.md) |
 | Navigation & cinq espaces Trademy | [ADR-078](./ADR-078-trademy-navigation.md) |
+| Onboarding & Accueil Trademy | [ADR-079](./ADR-079-trademy-onboarding-accueil.md) |
 
 ## Fondations toujours actives
 

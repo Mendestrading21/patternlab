@@ -60,7 +60,11 @@ par lots ; `main` n'est jamais modifié directement ; livrable = une PR vers `ma
   à icônes Trademy (fin des emojis de nav) ; composant `Disclaimer` unifié. Aucune route perdue,
   aucun renommage d'URL. Voir **ADR-078**.
 
-Prochain lot : **Lot 4 — Onboarding & Accueil (Toto/Bobo, reprise, objectif du jour)**.
+- **Lot 4 — Onboarding & Accueil** ✅ : `Chip` accepte les icônes Trademy (`iconName`) ; Accueil à
+  chips iconifiées (niveau/série), **rangée Révisions + Favoris**, **intervention de Bobo** (les deux
+  mascottes présentes), rappel via `Disclaimer` ; onboarding : sélection à icône `check`. Voir **ADR-079**.
+
+Prochain lot : **Lot 5 — Parcours Apprendre (roadmap, chapitres, états de progression)**.
 
 ## Gate canonique
 
