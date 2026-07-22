@@ -20,6 +20,7 @@ contrat (`CLAUDE.md`) priment sur un ancien programme.
 | Contenu des 15 mondes | [ADR-074](./ADR-074-content-15-worlds-batch1.md) |
 | Fondation du dépôt TradeMy | [ADR-075](./ADR-075-repository-foundation.md) |
 | Identité Trademy & tokens Learning Glass | [ADR-076](./ADR-076-trademy-identity-tokens.md) |
+| Icônes & composants partagés Trademy | [ADR-077](./ADR-077-trademy-components-icons.md) |
 
 ## Fondations toujours actives
 

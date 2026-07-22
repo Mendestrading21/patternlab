@@ -48,7 +48,13 @@ par lots ; `main` n'est jamais modifié directement ; livrable = une PR vers `ma
   (annotations), feedback pédagogique **distinct** du marché, bloc `motion`. Contraste WCAG AA
   reverrouillé ; nouveau `tokens.test.ts` garde l'identité. Voir **ADR-076**.
 
-Prochain lot : **Lot 2 — composants partagés & jeu d'icônes Trademy**.
+- **Lot 2 — Composants & icônes** ✅ : système d'icônes **Trademy** original
+  (`src/design-system/icons/TrademyIcon.tsx`, ≥ 24 vecteurs monochromes) câblé dans la barre
+  d'onglets (fin des emojis de navigation) ; `BrandLogo` (mark + wordmark) sur l'Accueil ;
+  `ProgressRing` et `IconButton` ajoutés au design system ; `icons.test.ts` verrouille le registre.
+  Voir **ADR-077**.
+
+Prochain lot : **Lot 3 — navigation & architecture des cinq espaces**.
 
 ## Gate canonique
 

@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
-import { Screen, Text, Button, theme } from '@/design-system';
+import { Screen, Text, Button, BrandLogo, theme } from '@/design-system';
 import { MascotFigure } from '@/characters';
 import { useProgress } from '@/data';
 import { APP, DISCLAIMER } from '@/lib/config';
@@ -13,9 +13,9 @@ export default function Landing() {
   return (
     <Screen scroll={false}>
       <View style={styles.top}>
-        <Text variant="caption" color={theme.colors.primary} center>
-          {APP.name.toUpperCase()}
-        </Text>
+        <View style={styles.brand}>
+          <BrandLogo size={30} />
+        </View>
         <Text variant="display" center>
           Apprends à lire{'\n'}les marchés
         </Text>
@@ -54,6 +54,7 @@ export default function Landing() {
 
 const styles = StyleSheet.create({
   top: { gap: theme.spacing.sm, marginTop: theme.spacing.xxl },
+  brand: { alignItems: 'center', marginBottom: theme.spacing.xs },
   duo: {
     flex: 1,
     flexDirection: 'row',

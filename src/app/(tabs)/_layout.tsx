@@ -1,9 +1,20 @@
 import { Tabs } from 'expo-router';
-import { Text } from 'react-native';
-import { theme } from '@/design-system';
+import { type ColorValue } from 'react-native';
+import { theme, TrademyIcon, type TrademyIconName } from '@/design-system';
 
-function TabIcon({ emoji }: { emoji: string }) {
-  return <Text style={{ fontSize: 20 }}>{emoji}</Text>;
+function tabIcon(name: TrademyIconName) {
+  function TabBarIcon({ color, focused }: { color: ColorValue; focused: boolean }) {
+    return (
+      <TrademyIcon
+        name={name}
+        color={typeof color === 'string' ? color : theme.colors.textMuted}
+        size={24}
+        strokeWidth={focused ? 2.4 : 2}
+      />
+    );
+  }
+  TabBarIcon.displayName = `TabBarIcon(${name})`;
+  return TabBarIcon;
 }
 
 export default function TabsLayout() {
@@ -22,23 +33,23 @@ export default function TabsLayout() {
     >
       <Tabs.Screen
         name="index"
-        options={{ title: 'Accueil', tabBarIcon: () => <TabIcon emoji="🏠" /> }}
+        options={{ title: 'Accueil', tabBarIcon: tabIcon('home') }}
       />
       <Tabs.Screen
         name="parcours"
-        options={{ title: 'Parcours', tabBarIcon: () => <TabIcon emoji="🗺️" /> }}
+        options={{ title: 'Parcours', tabBarIcon: tabIcon('learn') }}
       />
       <Tabs.Screen
         name="apprendre"
-        options={{ title: 'Apprendre', tabBarIcon: () => <TabIcon emoji="📚" /> }}
+        options={{ title: 'Apprendre', tabBarIcon: tabIcon('library') }}
       />
       <Tabs.Screen
         name="revisions"
-        options={{ title: 'Réviser', tabBarIcon: () => <TabIcon emoji="🔁" /> }}
+        options={{ title: 'Réviser', tabBarIcon: tabIcon('refresh') }}
       />
       <Tabs.Screen
         name="profil"
-        options={{ title: 'Profil', tabBarIcon: () => <TabIcon emoji="🐂" /> }}
+        options={{ title: 'Profil', tabBarIcon: tabIcon('profile') }}
       />
 
       {/* Écrans conservés, accessibles par navigation, mais hors barre d'onglets.

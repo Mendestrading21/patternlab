@@ -11,8 +11,18 @@ export {
   WCAG_AA_NORMAL,
   WCAG_AA_LARGE,
 } from './contrast';
+export {
+  TrademyIcon,
+  TRADEMY_ICON_NAMES,
+  type TrademyIconName,
+  type TrademyIconProps,
+  BrandLogo,
+  type BrandLogoProps,
+} from './icons';
 export { Text, type AppTextProps } from './components/Text';
 export { Button, type ButtonProps } from './components/Button';
+export { IconButton, type IconButtonProps } from './components/IconButton';
+export { ProgressRing, type ProgressRingProps } from './components/ProgressRing';
 export { Card, type CardProps } from './components/Card';
 export { GlassCard, type GlassCardProps } from './components/GlassCard';
 export { ProgressBar, type ProgressBarProps } from './components/ProgressBar';
