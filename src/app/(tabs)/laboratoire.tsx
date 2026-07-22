@@ -189,7 +189,7 @@ export default function Laboratoire() {
         )}
 
         <View style={styles.debate}>
-          <CharacterScene character="toto" state="explain" size={56} speech={scenario.toto} />
+          <CharacterScene character="toto" state={showAnnotations ? 'point' : 'explain'} size={56} speech={scenario.toto} />
           <CharacterScene character="bobo" state="false-signal" size={56} reversed speech={scenario.bobo} />
         </View>
         <Text variant="caption" color={theme.colors.textMuted}>

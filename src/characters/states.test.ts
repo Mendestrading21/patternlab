@@ -3,7 +3,7 @@ import { CHARACTER_STATES, STATE_TO_EXPRESSION, mascotFor } from './states';
 
 const EXPRESSIONS = ['happy', 'excited', 'thinking', 'concerned', 'sad', 'neutral'];
 const CANONICAL = [
-  'idle', 'welcome', 'explain', 'observe', 'think', 'debate', 'encourage', 'confused',
+  'idle', 'welcome', 'explain', 'observe', 'think', 'point', 'debate', 'encourage', 'confused',
   'warning', 'wrong', 'false-signal', 'level-up', 'streak', 'review', 'rest', 'loading',
   'offline', 'premium', 'celebrate-small', 'celebrate-big',
 ] as const;

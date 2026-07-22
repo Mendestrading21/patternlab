@@ -87,7 +87,11 @@ par lots ; `main` n'est jamais modifié directement ; livrable = une PR vers `ma
   (XPBar niveau/XP, chips à icônes série/points/**concepts maîtrisés**, **révisions recommandées** →
   Réviser) ; carte conditionnelle **« Tes erreurs fréquentes »** (misconceptions). Voir **ADR-084**.
 
-Prochain lot : **Lot 10 — Toto/Bobo & animations (états, prefers-reduced-motion)**.
+- **Lot 10 — Toto/Bobo & animations** ✅ : système déjà mûr (24 états, pop évènementiel + flottement
+  au repos, **rendu statique si reduced-motion**, présence sur tous les écrans). Ajout de l'état
+  canonique **`point`** (Toto pointe le graphique annoté au Laboratoire) + couverture testée. Voir **ADR-085**.
+
+Prochain lot : **Lot 11 — Migration & enrichissement du contenu (schéma canonique)**.
 
 ## Gate canonique
 
