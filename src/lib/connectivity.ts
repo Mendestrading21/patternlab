@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import { Platform } from 'react-native';
 
 /**
@@ -73,12 +73,15 @@ function ensureBound(): void {
 }
 
 /** Hook React : état de connectivité courant, branché sur le magasin singleton. */
+function subscribeConnectivity(listener: ConnectivityListener): () => void {
+  ensureBound();
+  return connectivity.subscribe(listener);
+}
+
+function getConnectivitySnapshot(): boolean {
+  return connectivity.get();
+}
+
 export function useConnectivity(): boolean {
-  const [online, setOnline] = useState(() => connectivity.get());
-  useEffect(() => {
-    ensureBound();
-    setOnline(connectivity.get());
-    return connectivity.subscribe(setOnline);
-  }, []);
-  return online;
+  return useSyncExternalStore(subscribeConnectivity, getConnectivitySnapshot, getConnectivitySnapshot);
 }

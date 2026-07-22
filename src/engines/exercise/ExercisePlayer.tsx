@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { View, TextInput, Pressable, StyleSheet } from 'react-native';
 import Svg, { Line, Rect, Polygon } from 'react-native-svg';
 import { Text, Button, AnswerOption, theme } from '../../design-system';
@@ -164,9 +164,6 @@ function ZonePlayer({
   onPick: (i: number) => void;
 }) {
   const [picked, setPicked] = useState<number | null>(null);
-  useEffect(() => {
-    if (!locked) setPicked(null);
-  }, [locked]);
 
   const W = 300;
   const H = 160;
@@ -235,9 +232,6 @@ function PlaceInvalidationPlayer({
   const scale = priceScale(candles, H);
   const step = scale.range * 0.02;
   const [userPrice, setUserPrice] = useState<number | null>(null);
-  useEffect(() => {
-    if (!locked) setUserPrice(null);
-  }, [locked]);
 
   const nudge = (dir: -1 | 1) =>
     setUserPrice((p) => {
@@ -366,9 +360,6 @@ function ReorderList({
   onValidate: (order: number[]) => void;
 }) {
   const [order, setOrder] = useState<number[]>(items.map((_, i) => i));
-  useEffect(() => {
-    if (!locked) setOrder(items.map((_, i) => i));
-  }, [locked, items]);
 
   const move = (pos: number, dir: -1 | 1) => {
     const next = pos + dir;
@@ -408,9 +399,6 @@ function ChoicePlayer({
   onPick: (i: number) => void;
 }) {
   const [picked, setPicked] = useState<number | null>(null);
-  useEffect(() => {
-    if (!locked) setPicked(null);
-  }, [locked]);
 
   const stateFor = (i: number): AnswerState => {
     if (!locked) return picked === i ? 'selected' : 'idle';
@@ -448,9 +436,6 @@ function NumericPlayer({
   onValidate: (answer: unknown) => void;
 }) {
   const [value, setValue] = useState('');
-  useEffect(() => {
-    if (!locked) setValue('');
-  }, [locked]);
 
   return (
     <View style={styles.stack}>
@@ -507,9 +492,6 @@ function MatchPlayer({
   onValidate: (answer: unknown) => void;
 }) {
   const [picks, setPicks] = useState<number[]>(exercise.left.map(() => -1));
-  useEffect(() => {
-    if (!locked) setPicks(exercise.left.map(() => -1));
-  }, [locked, exercise.left]);
 
   const setPick = (leftIdx: number, rightIdx: number) => {
     const copy = [...picks];

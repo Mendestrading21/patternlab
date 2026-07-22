@@ -5,6 +5,7 @@ import { Screen, Text, Card, Button, Chip, ProgressBar, theme } from '@/design-s
 import { useProgress, SKILLS, computeStats, isPremium, MASTERY_ORDER, MASTERY_LABEL, type ActivityPoint } from '@/data';
 import type { MasteryStatus } from '@/engines/learning';
 import { analytics } from '@/analytics';
+import { useNow } from '@/lib/useNow';
 
 const STATUS_COLOR: Record<MasteryStatus, string> = {
   new: theme.colors.textMuted,
@@ -24,6 +25,7 @@ function weekdayLabel(date: string): string {
 export default function Statistiques() {
   const router = useRouter();
   const { state, premium } = useProgress();
+  const now = useNow();
   const premiumActive = isPremium(premium);
 
   useEffect(() => {
@@ -35,7 +37,7 @@ export default function Statistiques() {
     if (!premiumActive) analytics.track('premium_gate_hit', { feature: 'stats' });
   }, [premiumActive]);
 
-  const stats = state ? computeStats(state, SKILLS, Date.now()) : null;
+  const stats = state ? computeStats(state, SKILLS, now) : null;
 
   if (!stats) {
     return (

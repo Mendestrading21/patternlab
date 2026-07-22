@@ -44,3 +44,10 @@ example
 
 # captures de preuve locales
 .shots/
+
+# imports et sources de design conservés hors du dépôt applicatif
+/APP-main.zip
+/Patern Images REF/
+/assets/characters/source/
+/assets/visual-references/
+/private-imports/

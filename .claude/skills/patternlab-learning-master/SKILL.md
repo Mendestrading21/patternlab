@@ -1,6 +1,6 @@
 ---
 name: patternlab-learning-master
-description: Auditer, simplifier et développer de bout en bout l’application PatternLab du dépôt Mendestrading21/patternlab. Utiliser ce skill pour corriger la trajectoire produit, l’architecture pédagogique, les écrans Expo/React Native, les leçons, quiz, glossaire, graphiques interactifs, indicateurs RSI/MACD/Bollinger, contenus Dividende/PER, progression, révisions, abonnement et animations de Toto/Bobo, avec exécution par lots testés sans réécrire inutilement l’existant.
+description: Auditer, simplifier et développer de bout en bout l’application PatternLab du dépôt Mendestrading21/TradeMy. Utiliser ce skill pour faire évoluer l’architecture pédagogique, les écrans Expo/React Native, les leçons, quiz, glossaire, graphiques interactifs, indicateurs, progression, révisions, abonnement et animations de Toto/Bobo, avec un lot testé à la fois sans réécrire inutilement l’existant.
 ---
 
 # PatternLab Learning Master
@@ -43,7 +43,7 @@ Lire uniquement celles nécessaires au lot :
 2. Inspecter `git status`, la branche, les changements utilisateur et les derniers commits. Ne jamais écraser une modification non liée.
 3. Cartographier les routes, sources de contenu, moteurs, persistance, analytics, premium, personnages, tests et scripts.
 4. Vérifier les chiffres par le code. Ne jamais recopier un nombre ancien depuis la documentation.
-5. Exécuter la baseline : lint, typecheck, tests, validation du contenu, release check et build web. Distinguer clairement « vérifié maintenant » de « indiqué dans la documentation ».
+5. Exécuter la baseline canonique avec `npm run check`. Distinguer clairement « vérifié maintenant » de « indiqué dans la documentation ».
 6. Comparer le dépôt à `references/01-audit-repository.md`. Mettre l’audit à jour si le code a évolué.
 7. Présenter un plan exécutable centré sur un résultat utilisateur, les fichiers touchés, les migrations, les tests et les risques.
 8. Si la demande inclut l’implémentation, poursuivre avec le premier lot cohérent après le plan ; ne pas s’arrêter à une liste d’idées.
@@ -76,7 +76,7 @@ Parcours
             └── Révision espacée
 ```
 
-Utiliser cette hiérarchie comme source de vérité pour les routes, verrous, statistiques et contenus. Supprimer progressivement la concurrence actuelle entre le trail pilote et la carte des 15 mondes.
+Utiliser cette hiérarchie déjà en place comme source de vérité pour les routes, verrous, statistiques et contenus. Ne pas recréer un second parcours concurrent.
 
 ## Navigation cible
 
@@ -146,12 +146,7 @@ Ne jamais rendre toute une leçon longue dans un seul écran défilant. Un écra
 ## Gate obligatoire
 
 ```bash
-npm run lint
-npm run typecheck
-npm test -- --runInBand
-npm run validate:content
-npm run release:check
-npm run build:web
+npm run check
 ```
 
 Ajouter les tests ciblés du lot et un contrôle de dérive documentaire. Pour les changements natifs, compléter par iOS et Android réels ou annoncer explicitement la limite.

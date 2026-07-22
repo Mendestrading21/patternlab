@@ -1,8 +1,14 @@
 # Audit du dépôt PatternLab — baseline du 21 juillet 2026
 
+> **Baseline historique, pas état courant.** Les problèmes décrits ici ont servi à construire les
+> lots 0 à 10 et plusieurs sont désormais corrigés. Avant toute décision, consulter
+> `docs/CURRENT_STATE.md`, `docs/PROJECT_STATUS.md` et le code. Le dépôt canonique actuel est
+> `Mendestrading21/TradeMy`.
+
 ## Source et niveau de confiance
 
-Audit établi depuis le dépôt GitHub `Mendestrading21/patternlab`, branche par défaut `main`, dernier commit observé `902e4dd83972219ba800714af8901555f4f1c168` du 21 juillet 2026 à 05:36 UTC.
+Audit initialement établi quand le dépôt était encore référencé sous `Mendestrading21/patternlab`,
+branche `main`, commit `902e4dd83972219ba800714af8901555f4f1c168` du 21 juillet 2026.
 
 La documentation et les messages de commit annoncent une gate verte de 417 tests, 31 validations de contenu, 14 contrôles release et un build web réussi. Ces résultats n’ont pas été reproduits localement pendant l’audit ; les traiter comme déclarés par le dépôt jusqu’à nouvelle exécution.
 

@@ -1,0 +1,40 @@
+# Index des décisions
+
+Les ADR sont conservés pour la traçabilité. En cas de conflit, l’ADR le plus récent et le présent
+contrat (`CLAUDE.md`) priment sur un ancien programme.
+
+## Décisions courantes à lire en priorité
+
+| Sujet | Décision |
+|---|---|
+| Vérité du dépôt | [ADR-064](./ADR-064-repo-truth.md) |
+| Navigation à cinq entrées | [ADR-065](./ADR-065-navigation-hub-apprendre.md) |
+| Hiérarchie pédagogique unique | [ADR-066](./ADR-066-single-learning-hierarchy.md) |
+| Session pas-à-pas et reprise | [ADR-067](./ADR-067-session-step-by-step.md) |
+| Fondations Dividende/PER | [ADR-068](./ADR-068-foundations-mechanism-visuals.md) |
+| Graphique canonique | [ADR-069](./ADR-069-canonical-chart.md) |
+| Laboratoires d’indicateurs | [ADR-070](./ADR-070-indicator-labs.md) |
+| Exercices adaptatifs | [ADR-071](./ADR-071-adaptive-exercises.md) |
+| Glossaire et bibliothèque | [ADR-072](./ADR-072-glossary-library-premium.md) |
+| Dialogues Toto/Bobo | [ADR-073](./ADR-073-mascot-moments-error-dialogue.md) |
+| Contenu des 15 mondes | [ADR-074](./ADR-074-content-15-worlds-batch1.md) |
+| Fondation du dépôt TradeMy | [ADR-075](./ADR-075-repository-foundation.md) |
+
+## Fondations toujours actives
+
+- ADR-001 à ADR-005 : stack Expo, dépôt simple, stockage local, animations et progression.
+- ADR-026 à ADR-041 : modèle V5, design, graphiques, contenu, offline, analytics et release ; à lire
+  lorsque le sujet n’a pas été remplacé par ADR-064 à ADR-074.
+- ADR-042 à ADR-053 : bibliothèque de figures et enrichissements visuels.
+- ADR-054 à ADR-063 : fonctionnalités Experience Max désormais livrées ; le programme d’exécution
+  est archivé, mais les décisions de produit restent applicables sauf remplacement explicite.
+
+## Historique
+
+- ADR-006 à ADR-025 décrivent la première trajectoire produit.
+- Les programmes complets associés sont sous `docs/archive/agent-programs/` et ne sont pas des
+  instructions d’exécution.
+- Le journal chronologique détaillé reste dans `docs/PROJECT_STATUS_ARCHIVE.md`.
+
+Toute nouvelle décision structurante reçoit un nouvel ADR. Ne jamais réécrire silencieusement une
+ancienne décision pour faire disparaître l’historique.

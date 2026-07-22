@@ -25,6 +25,13 @@ posture éducative (aucun ordre, signal, portefeuille réel ni conseil personnal
 | Types de visuels rendables | 11 |
 | Formats d'exercice | 13 déclarés / 13 branchés (orphelins retirés au Lot 7) |
 
+## Fondation du dépôt — 22 juillet 2026
+
+Le dépôt `Mendestrading21/TradeMy` possède désormais une configuration unique de déploiement, une
+gate `npm run check`, l’identité Toto/Bobo sur toutes les icônes, un seul skill Claude actif et une
+séparation nette entre runtime, éditorial, design et archives. Voir **ADR-075** et
+`docs/CURRENT_STATE.md`.
+
 ## Programme en cours — `patternlab-learning-master`
 
 Audit + consolidation (14 lots). Plan complet : `docs/PATTERNLAB_LEARNING_MASTER_PLAN.md`.
@@ -96,8 +103,9 @@ publication sans accord.
   signaux), chacun sur un dataset existant + catégorie valide → **60→67** (vers 75). Portail
   `contentFactory` vert. Reste itératif vers 75 puis 150. Voir **ADR-074**.
 
-> **Programme publié en live** : les Lots 0→9 sont fusionnés dans `main` (merge `50d7add`) et
-> déployés (run Pages `50d7addf` vert). Le Lot 10 (incrément 1) est sur `dev`, à publier sur accord.
+> **Programme dans `main`** : les Lots 0→9 et le premier incrément du Lot 10 sont fusionnés. Le
+> déploiement public doit être revérifié après la fondation `/TradeMy` avant toute annonce de mise en
+> ligne.
 
 Prochains lots (ordre recommandé) : poursuivre **Lot 10** (incréments vers 75/150) et/ou **Lot 11**
 Progression & rétention (5 états de maîtrise) → 12…13. Statut détaillé par lot : voir le plan.
@@ -114,12 +122,7 @@ Journal chronologique complet dans **`docs/PROJECT_STATUS_ARCHIVE.md`** :
 ## Gate (à ré-exécuter à chaque lot)
 
 ```bash
-npm run lint
-npm run typecheck
-npm test -- --runInBand
-npm run validate:content
-npm run release:check
-npm run build:web
+npm run check
 ```
 
 ## Hors périmètre agent (autorisation humaine requise)
@@ -128,7 +131,10 @@ npm run build:web
   analytics/crash externe, source native NetInfo — voir `docs/RELEASE_READINESS.md`.
 - Aucune poussée, fusion, déploiement ni activation d'achat réel sans accord explicite.
 
-## Branche
+## Dépôt et branche
 
-Travail sur `claude/connexion-application-1n30su` ; distant `origin`
-(`Mendestrading21/patternlab`). Conteneur éphémère : committer tôt.
+Dépôt canonique : `Mendestrading21/TradeMy`. La fondation du 22 juillet 2026 est préparée sur
+`cleanup/repository-foundation`, depuis `main` au commit `5f34d57`.
+
+Les programmes terminés sont conservés sous `docs/archive/agent-programs/` ; ils ne sont plus des
+skills actifs.

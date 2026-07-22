@@ -1,5 +1,9 @@
 # Roadmap d’ingénierie
 
+> **Trajectoire historique.** Les lots 0 à 9 sont terminés et le Lot 10 a commencé. Ne pas les
+> relancer depuis cette liste : utiliser les statuts de `docs/PROJECT_STATUS.md`, puis exécuter un
+> seul prochain lot validé.
+
 Exécuter dans l’ordre, un flux complet à la fois. Ne pas publier automatiquement.
 
 ## Lot 0 — Vérité du dépôt

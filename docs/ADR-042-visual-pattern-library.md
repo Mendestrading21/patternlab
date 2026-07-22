@@ -49,3 +49,9 @@ réutilise le renderer existant (aucune modification du moteur de rendu), plus u
   projections dans le moteur), structure & SMC (CHoCH, supply/demand, FVG, sweep, fakeout), indicateurs
   (sous-graphe RSI/MACD/volume, bandes, Fibonacci), puis **câblage** d'un signal visuel sur chaque carte
   de quiz / exercice / révision. Aucun push ni publication sans accord explicite.
+
+## Mise à jour opérationnelle — 2026-07-22
+
+Les 66 images brutes ont rempli leur rôle d’inspiration et ont été retirées de l’arbre courant. La
+bibliothèque codée, ses datasets et ses tests restent la seule implémentation distribuée. La direction
+synthétisée est documentée dans `docs/design/VISUAL_DIRECTION.md`.

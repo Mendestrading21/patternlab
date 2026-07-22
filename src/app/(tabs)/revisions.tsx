@@ -4,6 +4,7 @@ import { Screen, Text, Card, Button, ProgressBar, Chip, StateView, theme } from 
 import { CharacterScene, mascotPresence } from '@/characters';
 import { useProgress, SKILLS, selectDueReviews, MASTERY_LABEL, summarizeMisconceptions } from '@/data';
 import { isDue, masteryStatus, errorCount, type MasteryStatus } from '@/engines/learning';
+import { useNow } from '@/lib/useNow';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -25,6 +26,7 @@ const STATUS_COLOR: Record<MasteryStatus, string> = {
 export default function Revisions() {
   const router = useRouter();
   const { state, ready } = useProgress();
+  const now = useNow();
 
   if (!ready || !state) {
     return (
@@ -34,7 +36,6 @@ export default function Revisions() {
     );
   }
 
-  const now = Date.now();
   const due = selectDueReviews(state, SKILLS, now);
   const started = SKILLS.filter((s) => state.completedSkills.includes(s.id));
 

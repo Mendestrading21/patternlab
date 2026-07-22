@@ -1,5 +1,8 @@
 # PatternLab V5 — Plan maître (audit + exécution)
 
+> **Archive de trajectoire V5.** Ce programme est terminé. Il ne doit pas être utilisé comme
+> instruction active ; consulter `docs/CURRENT_STATE.md` et `docs/DECISIONS_INDEX.md`.
+
 > Skill `patternlab-v5-master` · mode plan-puis-exécution · 16 lots.
 > Application éducative. Aucun contenu ne constitue un conseil financier. Le trading comporte un risque de perte.
 

@@ -1,0 +1,11 @@
+{
+  "name": "PatternLab — Apprendre les marchés",
+  "short_name": "PatternLab",
+  "description": "Application éducative pour apprendre à lire et comprendre les marchés avec Toto et Bobo.",
+  "lang": "fr",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0B1119",
+  "theme_color": "#0B1119",
+  "categories": ["education", "finance"]
+}

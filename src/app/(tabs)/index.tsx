@@ -16,6 +16,7 @@ import {
 } from '@/data';
 import { analytics } from '@/analytics';
 import { DISCLAIMER } from '@/lib/config';
+import { useNow } from '@/lib/useNow';
 
 /**
  * Accueil recentré (Learning-Master Lot 1) : une action principale (mission du jour) + progression
@@ -26,6 +27,7 @@ import { DISCLAIMER } from '@/lib/config';
 export default function Home() {
   const router = useRouter();
   const { state, ready, profile } = useProgress();
+  const now = useNow();
 
   if (!ready || !state) {
     return (
@@ -35,7 +37,6 @@ export default function Home() {
     );
   }
 
-  const now = Date.now();
   const xpInLevel = state.totalXp % 100;
   const mission = buildDailyMission(state, SKILLS, now);
   const dueCount = selectDueReviews(state, SKILLS, now).length;

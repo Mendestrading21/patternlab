@@ -1,24 +1,23 @@
 {
   "name": "patternlab",
+  "type": "module",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "packageManager": "npm@11.9.0",
+  "engines": {
+    "node": ">=24.0.0 <25",
+    "npm": ">=11.0.0 <12"
+  },
   "dependencies": {
-    "@expo/ui": "~57.0.6",
     "@react-native-async-storage/async-storage": "^2.2.0",
-    "expo": "~57.0.6",
-    "expo-constants": "~57.0.5",
-    "expo-device": "~57.0.1",
-    "expo-font": "~57.0.1",
-    "expo-glass-effect": "~57.0.1",
+    "expo": "~57.0.7",
+    "expo-constants": "~57.0.6",
     "expo-image": "~57.0.1",
     "expo-linking": "~57.0.3",
-    "expo-router": "~57.0.6",
+    "expo-router": "~57.0.7",
     "expo-splash-screen": "~57.0.4",
     "expo-status-bar": "~57.0.1",
-    "expo-symbols": "~57.0.1",
     "expo-system-ui": "~57.0.1",
-    "expo-web-browser": "~57.0.1",
-    "lottie-react-native": "^7.3.8",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.86.0",
@@ -31,11 +30,12 @@
     "react-native-worklets": "0.10.0"
   },
   "devDependencies": {
+    "@jest/globals": "^29.7.0",
     "@types/jest": "^29.5.14",
     "@types/react": "~19.2.2",
     "ajv": "^8.20.0",
     "eslint": "^9.39.5",
-    "eslint-config-expo": "^10.0.0",
+    "eslint-config-expo": "~57.0.0",
     "jest": "~29.7.0",
     "jest-expo": "~57.0.0",
     "typescript": "~6.0.3"
@@ -50,13 +50,20 @@
     "test": "jest",
     "validate:content": "node ./scripts/validate-content/index.mjs",
     "import:app": "node ./scripts/import-app/index.mjs",
-    "release:check": "node ./scripts/release-check.mjs",
-    "build:web": "expo export --platform web"
+    "prepare:web": "node ./scripts/prepare-web-assets.mjs",
+    "finalize:web": "node ./scripts/finalize-web-build.mjs",
+    "verify:deployment": "node ./scripts/verify-deployment-config.mjs",
+    "verify:brand": "node ./scripts/verify-brand-assets.mjs",
+    "verify:docs": "node ./scripts/verify-doc-links.mjs",
+    "verify:web": "node ./scripts/verify-web-build.mjs",
+    "release:check": "node ./scripts/release-check.mjs && npm run verify:deployment && npm run verify:brand && npm run verify:docs",
+    "build:web": "npm run prepare:web && expo export --platform web && npm run finalize:web && npm run verify:web",
+    "check": "npm run lint && npm run typecheck && npm test -- --runInBand && npm run validate:content && npm run release:check && npm run build:web"
   },
   "jest": {
     "preset": "jest-expo",
     "setupFiles": [
-      "<rootDir>/jest.setup.js"
+      "<rootDir>/jest.setup.cjs"
     ],
     "testMatch": [
       "**/src/**/*.test.ts",

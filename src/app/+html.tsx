@@ -1,6 +1,11 @@
 import { ScrollViewStyleReset } from 'expo-router/html';
 import { type PropsWithChildren } from 'react';
 
+import deployment from '../../config/deployment.json';
+
+const webBasePath = deployment.webBasePath.replace(/\/$/, '');
+const publicAsset = (fileName: string) => `${webBasePath}/${fileName}`;
+
 /**
  * Document HTML racine (web only) — injecté au build statique par Expo Router.
  * Rend PatternLab installable comme app plein écran (PWA standalone) :
@@ -29,9 +34,9 @@ export default function Root({ children }: PropsWithChildren) {
         <meta name="apple-mobile-web-app-title" content="PatternLab" />
         <meta name="application-name" content="PatternLab" />
 
-        <link rel="manifest" href="/patternlab/manifest.json" />
-        <link rel="apple-touch-icon" href="/patternlab/apple-touch-icon.png" />
-        <link rel="icon" type="image/png" sizes="192x192" href="/patternlab/icon-192.png" />
+        <link rel="manifest" href={publicAsset('manifest.json')} />
+        <link rel="apple-touch-icon" href={publicAsset('apple-touch-icon.png')} />
+        <link rel="icon" type="image/png" sizes="192x192" href={publicAsset('icon-192.png')} />
 
         <ScrollViewStyleReset />
 

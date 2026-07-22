@@ -3,16 +3,16 @@
 Checklist finale de préparation à la publication (iOS / Android / web). Distingue ce qui est
 **automatisé et vérifié en CI** de ce qui reste **manuel** (soumission store, hébergement, revue).
 
-## 1. Portes automatisées (CI-équivalent) — toutes vertes
+## 1. Porte automatisée canonique
 
-| Porte | Commande | État |
-|---|---|---|
-| Lint | `npm run lint` | ✅ |
-| Types (TS strict) | `npm run typecheck` | ✅ |
-| Tests unitaires | `npm run test` | ✅ 417 tests (programme Experience Max inclus) |
-| Validation de contenu | `npm run validate:content` | ✅ 31/31 (+ portail éditorial : idempotence, vocabulaire, needsReview) |
-| Préparation publication | `npm run release:check` | ✅ 14/14 |
-| Build web | `npm run build:web` | ✅ export `dist` |
+```bash
+npm ci
+npm run check
+```
+
+Cette gate couvre lint, TypeScript, tests, validation du contenu, configuration de release, identité
+de marque, build web et résolution réelle des ressources sous le chemin GitHub Pages. Le statut vert
+doit être prouvé dans le commit/PR courant ; les anciens nombres de tests ne valent pas validation.
 
 ## 2. Invariants produit garantis par test
 
@@ -51,7 +51,6 @@ contenu V5 en revue.
 
 ## 5. Go / No-Go
 
-**Go côté ingénierie** : toutes les portes automatisées sont vertes ; les invariants de conformité,
-d'accessibilité, d'offline et de non-publication automatique sont garantis par test. La publication
-effective dépend des étapes manuelles §4 (build signé, fiches store, revue humaine) et de l'accord
-explicite (aucun push ni publication sans accord).
+**Go côté ingénierie** seulement si `npm run check` passe sur la révision candidate et si les
+invariants de conformité, d’accessibilité, d’offline et de non-publication automatique restent verts.
+La publication effective dépend des étapes manuelles §4 et de l’accord explicite d’Elio.

@@ -16,16 +16,12 @@ Un concept passe de l'éditorial à l'application après **revue humaine** ; rie
 auto-publié. La conformité (vocabulaire, schéma, idempotence) est vérifiée par
 `npm run validate:content` et par les tests jest.
 
-## Snapshot (Lot 10)
+## État courant
 
-- **Corpus en application** : 12 concepts (anatomie, marteau, doji, étoile filante, avalement
-  haussier, double creux, double sommet, tendance, cassure de structure, range, polarité,
-  support/résistance) — 5 mondes ouverts / 15.
-- **Corpus éditorial (brouillons)** : 10 concepts sur 7 mondes (candles, support-résistance,
-  volume ×2, indicateurs ×2, risk ×2, psychologie, wyckoff).
-- **Progression vers les jalons** : 12/150 en application (8 %) ; l'ambition totale des cibles
-  par catégorie (`CATEGORIES.target`) dépasse 800 emplacements — le cap 500+ est atteint par
-  lots éditoriaux successifs.
+Les nombres historiques de ce document ne sont plus une source de vérité. Le corpus en application
+est dérivé par `src/data/repoTruth.ts` et le corpus éditorial est recalculé par
+`npm run validate:content`. Toute interface de progression doit consommer ces résultats plutôt qu’un
+nombre recopié dans la documentation.
 
 ## Cibles par catégorie (`CATEGORIES`)
 

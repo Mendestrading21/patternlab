@@ -26,6 +26,7 @@ import {
 import { xpForGrade, masteryStatus } from '@/engines/learning';
 import { LessonStepView } from '@/components/LessonStepView';
 import { analytics } from '@/analytics';
+import { useNow } from '@/lib/useNow';
 
 /** Seuil de réussite d'une session (déblocage de la compétence). */
 const PASS_RATIO = 0.7;
@@ -268,7 +269,7 @@ export default function Session() {
           {exerciseFormatLabel(exercise.type)}
         </Text>
         <Text variant="title">{exercise.prompt}</Text>
-        <ExercisePlayer exercise={exercise} result={result} onValidate={validate} />
+        <ExercisePlayer key={exercise.id} exercise={exercise} result={result} onValidate={validate} />
       </Card>
 
       {result ? (
@@ -310,6 +311,7 @@ function Results({
   onRetry: () => void;
 }) {
   const { state } = useProgress();
+  const now = useNow();
   const summary = buildSessionSummary(correct, total, PASS_RATIO);
   const success = summary.passed;
   const done = useRef(false);
@@ -326,7 +328,7 @@ function Results({
   // Maîtrise RÉELLE de la compétence (pas un emoji décoratif) + prochaine révision.
   const sp = state?.skills[skillId];
   const masteryLabel = sp ? MASTERY_LABEL[masteryStatus(sp)] : null;
-  const dueDays = sp ? Math.max(0, Math.ceil((sp.review.dueAt - Date.now()) / DAY_MS)) : null;
+  const dueDays = sp ? Math.max(0, Math.ceil((sp.review.dueAt - now) / DAY_MS)) : null;
   const nextReview = dueDays == null ? null : dueDays <= 0 ? 'aujourd’hui' : dueDays === 1 ? 'demain' : `dans ${dueDays} j`;
   // Réaction contextuelle de Toto/Bobo au résultat (variée selon le score).
   const reaction = characterLine({ kind: 'result', tier: summary.tier }, correct);
