@@ -27,6 +27,7 @@ contrat (`CLAUDE.md`) priment sur un ancien programme.
 | Bibliothèque : index cherchable | [ADR-081](./ADR-081-trademy-bibliotheque.md) |
 | Laboratoire : lecture guidée de graphique | [ADR-082](./ADR-082-trademy-laboratoire.md) |
 | Quiz, flashcards & feedback canoniques | [ADR-083](./ADR-083-trademy-quiz-feedback.md) |
+| Progression, XP & Profil | [ADR-084](./ADR-084-trademy-progression-profil.md) |
 
 ## Fondations toujours actives
 

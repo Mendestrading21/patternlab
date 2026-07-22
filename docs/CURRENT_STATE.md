@@ -83,7 +83,11 @@ par lots ; `main` n'est jamais modifié directement ; livrable = une PR vers `ma
   la session **intègre la mascotte dans le panneau de correction** (Toto réussite / Bobo idée fausse).
   Voir **ADR-083**.
 
-Prochain lot : **Lot 9 — Progression, XP, séries & badges (Profil)**.
+- **Lot 9 — Progression & Profil** ✅ : composant **`XPBar`** ; carte « Ta progression »
+  (XPBar niveau/XP, chips à icônes série/points/**concepts maîtrisés**, **révisions recommandées** →
+  Réviser) ; carte conditionnelle **« Tes erreurs fréquentes »** (misconceptions). Voir **ADR-084**.
+
+Prochain lot : **Lot 10 — Toto/Bobo & animations (états, prefers-reduced-motion)**.
 
 ## Gate canonique
 

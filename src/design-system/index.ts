@@ -23,6 +23,7 @@ export { Text, type AppTextProps } from './components/Text';
 export { Button, type ButtonProps } from './components/Button';
 export { IconButton, type IconButtonProps } from './components/IconButton';
 export { ProgressRing, type ProgressRingProps } from './components/ProgressRing';
+export { XPBar, type XPBarProps } from './components/XPBar';
 export { Card, type CardProps } from './components/Card';
 export { GlassCard, type GlassCardProps } from './components/GlassCard';
 export { ProgressBar, type ProgressBarProps } from './components/ProgressBar';
