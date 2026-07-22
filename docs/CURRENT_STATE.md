@@ -68,7 +68,12 @@ par lots ; `main` n'est jamais modifié directement ; livrable = une PR vers `ma
   `LEVEL_BANDS`), **cinq états** avec légende (verrouillé/disponible/en cours/terminé/**maîtrisé**),
   badges `TrademyIcon` (cadenas/coche/trophée), prérequis visibles. Modèle pur + tests. Voir **ADR-080**.
 
-Prochain lot : **Lot 6 — Bibliothèque & glossaire (recherche, filtres, favoris)**.
+- **Lot 6 — Bibliothèque** ✅ : l'espace devient un **index de concepts cherchable**
+  (`src/data/conceptLibrary.ts`, pur + testé) : recherche, collections Tous/Favoris/Récents, filtre
+  par famille (compte) et par statut de maîtrise, cartes → fiche avec favori. Outils de référence
+  conservés. Voir **ADR-081**.
+
+Prochain lot : **Lot 7 — Laboratoire & kit de graphiques pédagogiques**.
 
 ## Gate canonique
 

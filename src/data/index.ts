@@ -30,6 +30,7 @@ export * from './learningMap';
 export * from './sessionFlow';
 export * from './misconceptions';
 export * from './conceptMastery';
+export * from './conceptLibrary';
 export * from './mascotMoment';
 export * from './lessonContent';
 export * from './mastery';
