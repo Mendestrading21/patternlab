@@ -107,6 +107,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.double-bottom',
     slug: 'double-creux',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Deux creux au même niveau, un « W » qui se dessine : la demande a défendu le plancher, setup haussier possible.',
+      bobo: 'Rien n’est acquis avant le franchissement de la ligne de cou : une clôture nette sous les deux creux invalide la figure.',
+    },
     title: 'Double creux',
     shortTitle: 'Double creux',
     aliases: ['Double Bottom', 'W'],
@@ -508,6 +513,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.double-top',
     slug: 'double-sommet',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Ça butait deux fois sur le même plafond, un « M »…',
+      bobo: 'Les acheteurs ont échoué deux fois, mais attends la cassure de la ligne de cou : au-dessus des deux sommets, la figure est invalidée.',
+    },
     title: 'Double sommet',
     shortTitle: 'Double sommet',
     aliases: ['Double Top', 'M'],
@@ -841,6 +851,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.ascending-triangle',
     slug: 'triangle-ascendant',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Résistance plate et creux de plus en plus hauts qui compriment le prix : la pression acheteuse monte, setup haussier.',
+      bobo: 'Encore faut-il le franchissement confirmé de la résistance : une cassure sous la ligne des creux montants renverse l’idée.',
+    },
     title: 'Triangle ascendant',
     shortTitle: 'Triangle ascendant',
     aliases: ['Ascending triangle'],
@@ -903,6 +918,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.head-shoulders',
     slug: 'epaule-tete-epaule',
+    estimatedMinutes: 6,
+    dialogue: {
+      toto: 'Ça montait fort, la tête a même fait un nouveau sommet…',
+      bobo: 'Trois sommets, une tête au centre, une ligne de cou : le basculement se joue à la cassure du cou. Ne trace pas la figure sur trois sommets quelconques — au-dessus de la tête, c’est invalidé.',
+    },
     title: 'Épaule-tête-épaule',
     shortTitle: 'ÉTÉ',
     aliases: ['Head and shoulders'],
@@ -966,6 +986,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.bull-flag',
     slug: 'drapeau-haussier',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Un mât haussier puis une petite consolidation en canal : la tendance reprend son souffle, continuation possible.',
+      bobo: 'Un drapeau est bref : ne le confonds pas avec un retournement. Sous le bas du drapeau, une bonne part du mât s’efface et l’hypothèse tombe.',
+    },
     title: 'Drapeau haussier',
     shortTitle: 'Drapeau haussier',
     aliases: ['Bull flag'],
@@ -1209,6 +1234,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.descending-triangle',
     slug: 'triangle-descendant',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Support plat sous des sommets de plus en plus bas…',
+      bobo: 'La compression penche côté vendeurs : la cassure confirmée du support tranche. Au-dessus de la ligne des sommets descendants, l’idée est invalidée.',
+    },
     title: 'Triangle descendant',
     shortTitle: 'Triangle descendant',
     aliases: ['Descending triangle'],
@@ -1271,6 +1301,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.symmetrical-triangle',
     slug: 'triangle-symetrique',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Sommets descendants et creux montants qui convergent : ça se comprime, ça va sortir fort.',
+      bobo: 'Justement, aucun biais net : ne devine pas le sens avant la sortie confirmée. Une fausse sortie repasse aussitôt dans le triangle.',
+    },
     title: 'Triangle symétrique',
     shortTitle: 'Triangle symétrique',
     aliases: ['Symmetrical triangle'],
@@ -1333,6 +1368,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.falling-wedge',
     slug: 'biseau-descendant',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Deux droites descendantes qui convergent : la baisse ralentit, un rebond se prépare peut-être.',
+      bobo: 'Ne confonds pas un biseau (convergent) avec un simple canal baissier (parallèle) : une accélération sous la trendline inférieure invalide le scénario.',
+    },
     title: 'Biseau descendant',
     shortTitle: 'Biseau descendant',
     aliases: ['Falling wedge'],

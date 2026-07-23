@@ -612,6 +612,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.rising-wedge',
     slug: 'biseau-ascendant',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Ça monte encore, deux droites qui convergent vers le haut…',
+      bobo: 'Une hausse qui s’essouffle : la structure se resserre. N’anticipe pas la cassure avant qu’elle ait lieu ; un nouveau plus haut hors du biseau l’invalide.',
+    },
     title: 'Biseau ascendant',
     shortTitle: 'Biseau asc.',
     aliases: ['Rising Wedge'],
@@ -667,6 +672,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.bear-flag',
     slug: 'drapeau-baissier',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Après la forte baisse, une petite consolidation oblique : juste une pause ?',
+      bobo: 'Oui, un drapeau baissier est une pause, pas un retournement : ne les confonds pas. Un retour au-dessus du haut du drapeau annule l’hypothèse.',
+    },
     title: 'Drapeau baissier',
     shortTitle: 'Drapeau baiss.',
     aliases: ['Bear Flag'],
@@ -722,6 +732,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.cup-handle',
     slug: 'tasse-anse',
+    estimatedMinutes: 6,
+    dialogue: {
+      toto: 'Un grand arrondi en « U » puis une petite anse : la base s’est reconstruite, setup haussier.',
+      bobo: 'Encore faut-il une vraie tasse structurée, pas n’importe quelle base : une cassure sous le bas de l’anse invalide la figure.',
+    },
     title: 'Tasse avec anse',
     shortTitle: 'Tasse-anse',
     aliases: ['Cup and Handle'],
@@ -777,6 +792,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.triple-bottom',
     slug: 'triple-creux',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Un plancher défendu trois fois de suite : les acheteurs tiennent le niveau.',
+      bobo: 'Ça reste une hypothèse tant que la ligne de cou n’est pas franchie : une cassure nette sous le plancher renverse tout.',
+    },
     title: 'Triple creux',
     shortTitle: 'Triple creux',
     aliases: ['Triple Bottom'],
@@ -832,6 +852,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.inverse-head-shoulders',
     slug: 'etei-inversee',
+    estimatedMinutes: 6,
+    dialogue: {
+      toto: 'Trois creux avec un central plus bas : une épaule-tête-épaule inversée, retournement haussier possible.',
+      bobo: 'Ne vois pas une ÉTÉ partout : sans ligne de cou nette, la figure ne vaut rien. Un nouveau plus bas sous la tête l’invalide.',
+    },
     title: 'Épaule-tête-épaule inversée',
     shortTitle: 'ÉTÉ inversée',
     aliases: ['Inverse Head and Shoulders'],

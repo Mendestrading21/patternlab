@@ -28,7 +28,7 @@ visuel et le plus gros monde — restait sans durée ni interventions Toto/Bobo.
 - Le monde des chandeliers est enrichi de bout en bout : chaque fiche affiche puce durée + bloc
   Toto/Bobo (rendus câblés au Lot 11) — **aucune UI ajoutée**.
 - `conceptEnrichment.test.ts` gagne un verrou `BATCH_2` (14 slugs enrichis et bien formés).
-- Corpus enrichi : 30/67 → **44/67**. Paquets suivants : figures (`world.patterns`, 13), puis SMC,
+- Corpus enrichi : 16/67 → **30/67**. Paquets suivants : figures (`world.patterns`, 13), puis SMC,
   indicateurs, volume, etc.
 - Gate exécutée (lint · typecheck · tests · validate:content · release:check · build:web) ; résultat
   exact au rapport de PR.

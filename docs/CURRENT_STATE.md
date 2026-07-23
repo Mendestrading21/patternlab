@@ -122,8 +122,10 @@ poursuit **un paquet à la fois, revu humainement**, sans jamais gonfler le corp
   dérivé du code, jamais recopié ici.
 - **Batch 2 — monde des chandeliers** ✅ : `world.candles` (14 concepts) enrichi de bout en bout
   (durée + dialogue Toto/Bobo). Verrou `conceptEnrichment.test.ts` (`BATCH_2`). Voir **ADR-089**.
-- **Suite** : paquets suivants dans l'ordre canonique (`docs/CONTENT_COVERAGE.md`) — `world.patterns`
-  (13), puis SMC, indicateurs, volume, etc., jusqu'à couvrir les 67 concepts.
+- **Batch 3 — monde des figures chartistes** ✅ : `world.patterns` (13 concepts) enrichi de bout en
+  bout (durée + dialogue Toto/Bobo). Verrou `conceptEnrichment.test.ts` (`BATCH_3`). Voir **ADR-090**.
+- **Suite** : dernier paquet (Batch 4) — SMC, indicateurs, volume, risk, price action, psychologie,
+  wyckoff, options (24) → enrichissement complet des 67 concepts.
 
 ## Gate canonique
 
