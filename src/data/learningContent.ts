@@ -12,6 +12,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.hammer',
     slug: 'marteau',
+    estimatedMinutes: 4,
+    dialogue: {
+      toto: 'Longue mèche basse sur le support : les acheteurs ont repris la main, setup haussier possible.',
+      bobo: 'Un marteau isolé ne dit rien : sans confirmation au-dessus de son plus haut, ne conclus pas — et ne le confonds pas avec un pendu.',
+    },
     title: 'Marteau',
     shortTitle: 'Marteau',
     aliases: ['Hammer'],
@@ -299,6 +304,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.doji',
     slug: 'doji',
+    estimatedMinutes: 4,
+    dialogue: {
+      toto: 'Ouverture et clôture collées : personne ne domine. Après cette hausse, ça pourrait basculer.',
+      bobo: 'Un doji, c’est de l’indécision, pas un retournement automatique : c’est la bougie suivante qui tranche.',
+    },
     title: 'Doji',
     shortTitle: 'Doji',
     aliases: ['Doji'],
@@ -360,6 +370,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.shooting-star',
     slug: 'etoile-filante',
+    estimatedMinutes: 4,
+    dialogue: {
+      toto: 'Grosse mèche haute sous la résistance : les prix hauts ont été rejetés.',
+      bobo: 'Miroir du marteau, mais après une hausse : sans confirmation sous son plus bas, ce n’est qu’un rejet, pas un retournement.',
+    },
     title: 'Étoile filante',
     shortTitle: 'Étoile filante',
     aliases: ['Shooting star'],
@@ -426,6 +441,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.bullish-engulfing',
     slug: 'avalement-haussier',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'La bougie verte avale entièrement la rouge précédente sur le support : les acheteurs reprennent la main.',
+      bobo: 'Vérifie que le corps englobe vraiment le précédent, pas juste une grande bougie : sous le plus bas de la figure, l’idée est invalidée.',
+    },
     title: 'Avalement haussier',
     shortTitle: 'Avalement haussier',
     aliases: ['Bullish engulfing'],

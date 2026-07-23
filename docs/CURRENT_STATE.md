@@ -120,8 +120,10 @@ poursuit **un paquet à la fois, revu humainement**, sans jamais gonfler le corp
   Toto/Bobo sur les 12 concepts restants → 16/16). Aucune UI ajoutée (rendus câblés au Lot 11) ; verrou
   `conceptEnrichment.test.ts` (`BATCH_1`). Voir **ADR-088**. Le nombre exact de concepts enrichis reste
   dérivé du code, jamais recopié ici.
-- **Suite** : paquets suivants dans l'ordre canonique (`docs/CONTENT_COVERAGE.md`) — `world.candles`
-  (14), puis `world.patterns` (13), etc., jusqu'à couvrir les 67 concepts.
+- **Batch 2 — monde des chandeliers** ✅ : `world.candles` (14 concepts) enrichi de bout en bout
+  (durée + dialogue Toto/Bobo). Verrou `conceptEnrichment.test.ts` (`BATCH_2`). Voir **ADR-089**.
+- **Suite** : paquets suivants dans l'ordre canonique (`docs/CONTENT_COVERAGE.md`) — `world.patterns`
+  (13), puis SMC, indicateurs, volume, etc., jusqu'à couvrir les 67 concepts.
 
 ## Gate canonique
 
