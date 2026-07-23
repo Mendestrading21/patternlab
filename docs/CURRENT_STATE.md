@@ -169,6 +169,22 @@ destructif (aucun champ persistant ajouté). Voir **ADR-093**.
 - **Compatibilité** ✅ : anciennes données relues plus honnêtement, sans perte ; schéma et clés
   `patternlab.*` inchangés.
 
+## Progression par cible persistée P0 — en cours (même branche, après revue PR #8)
+
+Achève l'architecture par cible (ADR-094). Change le modèle **persisté** → migration non destructive
+(schéma v8).
+
+- **Progression par cible persistée** ✅ : `targets` (objectiveId → SM-2 propre) ; au plus une
+  transition par cible et par session ; deux objectifs d'une compétence avancent indépendamment.
+- **Maîtrise par couverture** ✅ : chaque exercice porte une cible ; la maîtrise exige la couverture
+  complète des objectifs exerçables du concept (fin de l'approximation au niveau compétence).
+- **Reprise de checkpoint fidèle** ✅ : réponses (avec cible) persistées et restaurées ; reprise ==
+  session continue, sans double comptage.
+- **Rotation persistante robuste** ✅ : compteur `rotation` qui avance même après un échec ;
+  variantes différentes ; indépendant de SM-2.
+- **Preuve CI** ✅ : `ci.yml` exécute la gate sur chaque pull request vers `main` (npm ci · git diff
+  --check · npm run check) ; déploiement réservé à `main`.
+
 ## Gate canonique
 
 ```bash
