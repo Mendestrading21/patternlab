@@ -8,6 +8,7 @@ export {
   type CharacterAnimationControllerProps,
 } from './CharacterAnimationController';
 export { CharacterScene, type CharacterSceneProps } from './CharacterScene';
+export { MascotEventScene, type MascotEventSceneProps } from './MascotEventScene';
 export { GuideSelectionCard, type GuideSelectionCardProps } from './GuideSelectionCard';
 export { GUIDE_ROLE, GUIDE_PRESENT_STATE } from './guideRoles';
 export { useReducedMotion } from './useReducedMotion';

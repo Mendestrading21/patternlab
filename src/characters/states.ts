@@ -72,7 +72,7 @@ export const CHARACTER_STATES: Record<CharacterState, CharacterStateSpec> = {
   review: { expression: 'thinking', defaultCharacter: null, category: 'progress', intensity: 'subtle', tone: 'on consolide', trigger: 'checkpoint_started / révision', priority: 25, duration: 'standard', interruptible: true, returnsToIdle: false, accessibleText: 'Séance de révision.' },
   premium: { expression: 'excited', defaultCharacter: 'toto', category: 'progress', intensity: 'lively', tone: 'contenu avancé', trigger: 'contenu avancé', priority: 26, duration: 'expressive', interruptible: true, returnsToIdle: true, accessibleText: 'Contenu avancé.' },
   rest: { expression: 'neutral', defaultCharacter: null, category: 'system', intensity: 'still', tone: 'au repos', trigger: 'inactivité', priority: 0, duration: 'instant', interruptible: true, returnsToIdle: false, accessibleText: 'Guide au repos.' },
-  offline: { expression: 'concerned', defaultCharacter: null, category: 'system', intensity: 'still', tone: 'hors ligne', trigger: 'offline_detected', priority: 90, duration: 'instant', interruptible: false, returnsToIdle: false, accessibleText: 'Hors ligne : le contenu reste disponible.' },
+  offline: { expression: 'concerned', defaultCharacter: 'bobo', category: 'system', intensity: 'still', tone: 'hors ligne', trigger: 'offline_detected', priority: 90, duration: 'instant', interruptible: false, returnsToIdle: false, accessibleText: 'Hors ligne : le contenu reste disponible.' },
   loading: { expression: 'neutral', defaultCharacter: null, category: 'system', intensity: 'still', tone: 'un instant…', trigger: 'chargement', priority: 5, duration: 'instant', interruptible: true, returnsToIdle: false, accessibleText: 'Chargement.' },
 };
 

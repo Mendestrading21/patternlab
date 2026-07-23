@@ -78,6 +78,9 @@ describe('resolveMascotState — événement → état', () => {
     const off = resolveMascotState({ type: 'offline_detected' });
     expect(off.state).toBe('offline');
     expect(CHARACTER_STATES.offline.intensity).toBe('still');
+    // Bobo (prudence / système) porte l'état hors-ligne, pas Toto.
+    expect(off.character).toBe('bobo');
+    expect(off.interruptible).toBe(false);
   });
 });
 

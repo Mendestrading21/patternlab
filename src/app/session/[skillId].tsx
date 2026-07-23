@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, ProgressBar, StateView, FeedbackPanel, theme } from '@/design-system';
-import { CharacterScene, MascotFigure, characterLine } from '@/characters';
+import { CharacterScene, MascotEventScene, MascotFigure, characterLine } from '@/characters';
+import { useConnectivity } from '@/lib/connectivity';
 import { ExercisePlayer, gradeExercise, exerciseFormatLabel, type GradeResult } from '@/engines/exercise';
 import {
   getExercises,
@@ -40,6 +41,9 @@ export default function Session() {
   const { skillId, count } = useLocalSearchParams<{ skillId: string; count?: string }>();
   const router = useRouter();
   const { recordAnswer, recordSessionReview, completeSession, recordFalseSignal, state } = useProgress();
+  // Connectivité (magasin local-first, sans dépendance réseau). Sert la réaction hors-ligne
+  // ci-dessous — appelée AVANT tout retour anticipé (règles des hooks).
+  const online = useConnectivity();
 
   // Session valide = un id qui correspond à un contenu réel (compétence avec exercices, ou point
   // de contrôle dont `getExercises` agrège des exercices réels). AUCUN repli silencieux : un id
@@ -313,6 +317,18 @@ export default function Session() {
         </Text>
         <ProgressBar value={index / list.length} accessibilityLabel="Progression de la session" />
       </View>
+
+      {/* Réaction hors-ligne pilotée par l'orchestrateur (événement → état). Additif : n'apparaît
+          que hors ligne et ne touche à aucune logique de progression. Bobo (prudence) rassure sur la
+          continuité — l'avatar est un vecteur inline, aucun asset réseau requis. */}
+      {!online ? (
+        <MascotEventScene
+          event={{ type: 'offline_detected' }}
+          size={52}
+          showName={false}
+          speech="Hors ligne : tout le contenu de la session est déjà sur ton appareil. On continue."
+        />
+      ) : null}
 
       <Card>
         <Text variant="caption" color={theme.colors.primary}>
