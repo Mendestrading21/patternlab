@@ -63,7 +63,12 @@ export default function Apprendre() {
 
   const exploredSlugs = state.learning?.conceptsExplored ?? [];
   const masteredSlugs = V5_CONCEPTS.filter(
-    (c) => conceptMasteryStatus(c, { exploredSlugs, skills: state.skills ?? {} }).mastered,
+    (c) =>
+      conceptMasteryStatus(c, {
+        exploredSlugs,
+        skills: state.skills ?? {},
+        completedSkills: state.completedSkills ?? [],
+      }).mastered,
   ).map((c) => c.slug);
 
   const path = buildLearningPath(WORLDS, V5_CONCEPTS, {

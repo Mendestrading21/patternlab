@@ -72,9 +72,16 @@ export default function ConceptFiche() {
           const st = conceptMasteryStatus(concept, {
             exploredSlugs: state?.learning?.conceptsExplored ?? [],
             skills: state?.skills ?? {},
+            completedSkills: state?.completedSkills ?? [],
           });
-          const color = st.mastered ? theme.colors.primary : st.explored ? theme.colors.technical : theme.colors.textMuted;
-          return <Chip label={st.label} color={color} />;
+          const color = st.mastered
+            ? theme.colors.primary
+            : st.state === 'strong'
+              ? theme.colors.technical
+              : st.explored
+                ? theme.colors.technical
+                : theme.colors.textMuted;
+          return <Chip label={st.stateLabel} color={color} />;
         })()}
         <Chip label={`${tone.label} · ${concept.difficulty}/5`} color={tone.color} />
         {concept.estimatedMinutes ? <Chip label={`${concept.estimatedMinutes} min`} color={theme.colors.neutral} /> : null}
