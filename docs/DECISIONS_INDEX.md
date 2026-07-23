@@ -32,6 +32,7 @@ contrat (`CLAUDE.md`) priment sur un ancien programme.
 | Schéma canonique de concept & enrichissement | [ADR-086](./ADR-086-trademy-concept-schema.md) |
 | Accessibilité, responsive & finitions | [ADR-087](./ADR-087-trademy-finitions.md) |
 | Enrichissement éditorial · Batch 1 (premier parcours) | [ADR-088](./ADR-088-trademy-enrichissement-batch-1.md) |
+| Enrichissement éditorial · Batch 2 (chandeliers) | [ADR-089](./ADR-089-trademy-enrichissement-batch-2.md) |
 
 ## Fondations toujours actives
 

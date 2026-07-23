@@ -21,6 +21,25 @@ const BATCH_1 = [
   'faux-signal',
 ];
 
+// Batch 2 d'enrichissement éditorial (ADR-089) : le monde des chandeliers (world.candles) enrichi
+// de bout en bout — 14 concepts, durée + dialogue Toto/Bobo.
+const BATCH_2 = [
+  'marteau',
+  'doji',
+  'etoile-filante',
+  'avalement-haussier',
+  'marubozu',
+  'pendu',
+  'marteau-inverse',
+  'avalement-baissier',
+  'harami',
+  'etoile-du-matin',
+  'etoile-du-soir',
+  'trois-soldats',
+  'trois-corbeaux',
+  'pincettes',
+];
+
 /**
  * Verrou de l'enrichissement canonique (Lot 11) : les champs `estimatedMinutes` (durée) et
  * `dialogue` (interventions Toto/Bobo) sont optionnels mais, là où ils existent, bien formés et
@@ -52,6 +71,16 @@ describe('concepts — enrichissement canonique (durée + Toto/Bobo)', () => {
 
   it('le premier parcours débutant (Batch 1) est enrichi de bout en bout', () => {
     for (const slug of BATCH_1) {
+      const c = V5_CONCEPTS.find((x) => x.slug === slug);
+      expect(c).toBeDefined();
+      expect(c!.estimatedMinutes).toBeGreaterThan(0);
+      expect((c!.dialogue?.toto ?? '').trim().length).toBeGreaterThan(0);
+      expect((c!.dialogue?.bobo ?? '').trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it('le monde des chandeliers (Batch 2) est enrichi de bout en bout', () => {
+    for (const slug of BATCH_2) {
       const c = V5_CONCEPTS.find((x) => x.slug === slug);
       expect(c).toBeDefined();
       expect(c!.estimatedMinutes).toBeGreaterThan(0);

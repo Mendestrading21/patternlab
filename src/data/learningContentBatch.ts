@@ -11,6 +11,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.marubozu',
     slug: 'marubozu',
+    estimatedMinutes: 4,
+    dialogue: {
+      toto: 'Un corps plein sans mèche à la cassure : la pression acheteuse n’a pas lâché de toute la séance.',
+      bobo: 'Une seule bougie ne fait pas une tendance : un marubozu isolé en plein range ne prouve rien. Attends la continuation.',
+    },
     title: 'Marubozu',
     shortTitle: 'Marubozu',
     aliases: ['Marubozu'],
@@ -66,6 +71,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.hanging-man',
     slug: 'pendu',
+    estimatedMinutes: 4,
+    dialogue: {
+      toto: 'Longue mèche basse : des acheteurs défendent encore le niveau.',
+      bobo: 'Regarde le contexte : après une hausse, cette forme est un pendu, pas un marteau — un avertissement baissier si la bougie suivante clôture sous son corps.',
+    },
     title: 'Pendu',
     shortTitle: 'Pendu',
     aliases: ['Hanging Man'],
@@ -121,6 +131,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.inverted-hammer',
     slug: 'marteau-inverse',
+    estimatedMinutes: 4,
+    dialogue: {
+      toto: 'Longue mèche haute après la baisse, sur le support : les acheteurs ont tenté de reprendre la main.',
+      bobo: 'Sans confirmation au-dessus de son plus haut, cette mèche peut n’être qu’un rejet — et ne le confonds pas avec une étoile filante.',
+    },
     title: 'Marteau inversé',
     shortTitle: 'Marteau inv.',
     aliases: ['Inverted Hammer'],
@@ -176,6 +191,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.bearish-engulfing',
     slug: 'avalement-baissier',
+    estimatedMinutes: 4,
+    dialogue: {
+      toto: 'La tendance montait, je cherchais la suite haussière.',
+      bobo: 'Mais une grande rouge vient d’avaler la verte sous la résistance : la pression bascule côté vendeurs. Un retour au-dessus du plus haut de la figure l’invalide.',
+    },
     title: 'Avalement baissier',
     shortTitle: 'Aval. baissier',
     aliases: ['Bearish Engulfing'],
@@ -231,6 +251,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.harami',
     slug: 'harami',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'La grande bougie poussait fort dans la tendance…',
+      bobo: 'Et la petite qui suit tient dans son corps : l’élan se contracte, c’est un ralentissement, pas encore un retournement. Attends la sortie de la petite bougie.',
+    },
     title: 'Harami',
     shortTitle: 'Harami',
     aliases: ['Harami'],
@@ -286,6 +311,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.morning-star',
     slug: 'etoile-du-matin',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Après la baisse, la petite bougie d’indécision puis une belle verte qui reprend : les acheteurs basculent, setup haussier.',
+      bobo: 'Tout dépend de la troisième bougie : si elle ne reprend pas au-dessus du milieu de la première, la figure ne vaut rien. Sous le plus bas, c’est invalidé.',
+    },
     title: 'Étoile du matin',
     shortTitle: 'Étoile matin',
     aliases: ['Morning Star'],
@@ -341,6 +371,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.evening-star',
     slug: 'etoile-du-soir',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Ça montait, l’indécision au centre m’intriguait.',
+      bobo: 'La troisième bougie casse sous le milieu de la première après la hausse : basculement vers les vendeurs. Un nouveau plus haut au-dessus de l’étoile l’invalide.',
+    },
     title: 'Étoile du soir',
     shortTitle: 'Étoile soir',
     aliases: ['Evening Star'],
@@ -396,6 +431,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.three-white-soldiers',
     slug: 'trois-soldats',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Trois vertes d’affilée qui clôturent plus haut en sortie de range : la poussée acheteuse est nette.',
+      bobo: 'Si elle arrive après une hausse déjà étirée, méfie-toi de l’excès : de longues mèches hautes trahiraient un rejet.',
+    },
     title: 'Trois soldats blancs',
     shortTitle: '3 soldats',
     aliases: ['Three White Soldiers'],
@@ -451,6 +491,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.three-black-crows',
     slug: 'trois-corbeaux',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Ça tenait bien en haut, je guettais la suite…',
+      bobo: 'Trois rouges qui clôturent plus bas en sortie de sommet : la pression vendeuse est continue. Chasser la figure après une longue baisse, c’est arriver trop tard.',
+    },
     title: 'Trois corbeaux noirs',
     shortTitle: '3 corbeaux',
     aliases: ['Three Black Crows'],
@@ -506,6 +551,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.tweezer',
     slug: 'pincettes',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Deux bougies butent sur le même plus haut, à la résistance : le niveau a été défendu deux fois.',
+      bobo: 'Sans niveau clair, cette coïncidence ne vaut rien — on voit des pincettes partout sinon. Attends la sortie du niveau pour confirmer.',
+    },
     title: 'Pincettes',
     shortTitle: 'Pincettes',
     aliases: ['Tweezer'],
