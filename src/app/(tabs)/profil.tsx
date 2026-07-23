@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, Chip, ProgressBar, XPBar, TrademyIcon, theme } from '@/design-system';
-import { useReducedMotion, CharacterAnimationController } from '@/characters';
+import { useReducedMotion, CharacterAnimationController, GuideSelectionCard } from '@/characters';
 import {
   useProgress,
   DEMO_SKILL,
@@ -23,7 +23,7 @@ import { useNow } from '@/lib/useNow';
 
 export default function Profil() {
   const router = useRouter();
-  const { state, profile, premium, analyticsEnabled, setAnalyticsEnabled, reset } = useProgress();
+  const { state, profile, premium, analyticsEnabled, setAnalyticsEnabled, setGuide, reset } = useProgress();
   const reduced = useReducedMotion();
   const online = useConnectivity();
   const offline = offlineCapabilities();
@@ -202,6 +202,16 @@ export default function Profil() {
           {offline.visualDatasets} visuels · {offline.worlds} mondes. Les visuels sont générés en code,
           jamais téléchargés.
         </Text>
+      </Card>
+
+      <Card>
+        <Text variant="title">Ton guide</Text>
+        <Text variant="body" color={theme.colors.textSecondary}>
+          Toto ou Bobo t’accompagne sur les introductions et les encouragements. Quoi qu’il arrive,
+          Toto explique et célèbre tes réussites, et Bobo reste ton repère sur le risque et les faux
+          signaux.
+        </Text>
+        <GuideSelectionCard selected={profile?.guide ?? null} onSelect={setGuide} />
       </Card>
 
       <Card>

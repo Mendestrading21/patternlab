@@ -129,6 +129,24 @@ describe('reactionMachine — reprise & checkpoints', () => {
   });
 });
 
+describe('reactionMachine — pur : ne modifie jamais autre chose que sa propre réaction', () => {
+  it('sendEvent ne mute pas l’état d’entrée (aucun effet de bord sur la progression/le graphique)', () => {
+    const before = sendEvent(initialReactionState(), { type: 'answer_correct' }, 0);
+    const snapshot = JSON.stringify(before);
+    const after = sendEvent(before, { type: 'answer_incorrect' }, 1);
+    expect(JSON.stringify(before)).toBe(snapshot); // l'entrée est intacte (immutable)
+    expect(after).not.toBe(before); // une nouvelle réaction est renvoyée, rien n'est écrit ailleurs
+  });
+
+  it('la réaction ne transporte que des métadonnées d’affichage (aucun champ progression/graphique)', () => {
+    const allowed = new Set(['accessibleText', 'character', 'interruptible', 'priority', 'returnsToIdle', 'state', 'haptic']);
+    for (const ev of [{ type: 'answer_correct' }, { type: 'misconception_detected' }, { type: 'offline_detected' }] as const) {
+      const r = sendEvent(initialReactionState(), ev, 0).active!;
+      for (const k of Object.keys(r)) expect(allowed.has(k)).toBe(true);
+    }
+  });
+});
+
 describe('reactionMachine — guide choisi (moments neutres) vs rôles canoniques', () => {
   it('le guide choisi porte les introductions/observations/encouragements neutres', () => {
     expect(resolveWithGuide({ type: 'lesson_started' }, 'bobo').character).toBe('bobo'); // welcome
