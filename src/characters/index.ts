@@ -40,3 +40,13 @@ export {
   type MascotEventType,
   type MascotReaction,
 } from './orchestrator';
+export {
+  initialReactionState,
+  sendEvent,
+  tick,
+  durationMs,
+  resolveWithGuide,
+  GUIDE_CARRIED_STATES,
+  type ReactionState,
+} from './reactionMachine';
+export { useMascotReactions, type MascotController } from './useMascotReactions';
