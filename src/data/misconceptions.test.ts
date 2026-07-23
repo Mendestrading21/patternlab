@@ -1,5 +1,7 @@
 import { describe, it, expect } from '@jest/globals';
-import { summarizeMisconceptions, misconceptionIdForExercise, MISCONCEPTIONS } from './misconceptions';
+import { summarizeMisconceptions, misconceptionIdForExercise, MISCONCEPTIONS, remediationForExercise } from './misconceptions';
+import { V5_CONCEPTS } from './learningContent';
+import { objectiveByIdIn } from './learningTarget';
 
 describe('misconceptions — erreurs typées', () => {
   it('rattache un exercice précis à sa misconception (override)', () => {
@@ -36,5 +38,39 @@ describe('misconceptions — erreurs typées', () => {
       expect(m.label.length).toBeGreaterThan(0);
       expect(m.hint.length).toBeGreaterThan(0);
     }
+  });
+});
+
+describe('remédiation liée au bon objectif', () => {
+  const resolve = (objectiveId: string) => {
+    const o = objectiveByIdIn(V5_CONCEPTS, objectiveId);
+    return o ? { label: o.label, conceptSlug: o.conceptSlug } : undefined;
+  };
+
+  it('un exercice ciblé pointe l’objectif réel du concept (pas un conseil générique)', () => {
+    const rem = remediationForExercise(
+      { id: 'ex.trend.identify', target: { objectiveId: 'concept.uptrend::recognize' } },
+      resolve,
+    );
+    expect(rem.objectiveLabel).toBeTruthy();
+    expect(rem.conceptSlug).toBe('tendance-haussiere');
+    // le conseil misconception reste présent (double filet)
+    expect(rem.misconception.hint.length).toBeGreaterThan(0);
+  });
+
+  it('un exercice sans cible retombe proprement sur la misconception', () => {
+    const rem = remediationForExercise({ id: 'ex.trend.mcq' }, resolve);
+    expect(rem.objectiveLabel).toBeNull();
+    expect(rem.conceptSlug).toBeNull();
+    expect(rem.misconception.id).toBe('niveau-certitude');
+  });
+
+  it('une cible orpheline ne casse pas la remédiation (fallback misconception)', () => {
+    const rem = remediationForExercise(
+      { id: 'ex.actions.green-candle', target: { objectiveId: 'concept.fantome::recognize' } },
+      resolve,
+    );
+    expect(rem.objectiveLabel).toBeNull();
+    expect(rem.misconception.id).toBe('couleur-seule');
   });
 });

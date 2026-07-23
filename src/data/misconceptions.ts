@@ -45,6 +45,33 @@ export function misconceptionIdForExercise(exerciseId: string): string {
   return (skill && MISCONCEPTION_BY_SKILL[skill]) || 'a-revoir';
 }
 
+/** Remédiation d'une erreur : l'objectif précis à retravailler + le conseil misconception. */
+export interface Remediation {
+  /** Objectif ciblé par l'exercice (libellé), si l'exercice porte une cible ; sinon null. */
+  objectiveLabel: string | null;
+  /** Slug du concept concerné (pour router vers la fiche), si connu. */
+  conceptSlug: string | null;
+  /** Conseil issu de la misconception (toujours présent). */
+  misconception: Misconception;
+}
+
+/**
+ * Relie une erreur à la remédiation du BON objectif. Quand l'exercice porte une
+ * cible (conceptId + objectiveId), la remédiation pointe l'objectif réel du
+ * concept plutôt qu'un conseil générique ; sinon on retombe sur la misconception.
+ */
+export function remediationForExercise(
+  exercise: { id: string; target?: { objectiveId: string } },
+  objectiveLabelOf: (objectiveId: string) => { label: string; conceptSlug: string } | undefined,
+): Remediation {
+  const misconception = BY_ID.get(misconceptionIdForExercise(exercise.id)) ?? MISCONCEPTIONS[MISCONCEPTIONS.length - 1];
+  if (exercise.target) {
+    const obj = objectiveLabelOf(exercise.target.objectiveId);
+    if (obj) return { objectiveLabel: obj.label, conceptSlug: obj.conceptSlug, misconception };
+  }
+  return { objectiveLabel: null, conceptSlug: null, misconception };
+}
+
 export interface MisconceptionSummary {
   misconception: Misconception;
   count: number;
