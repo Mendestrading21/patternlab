@@ -1053,6 +1053,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.rsi',
     slug: 'rsi',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'RSI sous 30 après la baisse : le marché est peut-être survendu, un rebond possible.',
+      bobo: '70/30 ne sont pas des ordres automatiques : en tendance forte, le RSI reste à l’extrême longtemps. Attends la confirmation par la structure.',
+    },
     title: 'RSI',
     shortTitle: 'RSI',
     aliases: ['Relative Strength Index'],
@@ -1113,6 +1118,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.divergence',
     slug: 'divergence',
+    estimatedMinutes: 6,
+    dialogue: {
+      toto: 'Prix en plus-hauts croissants mais oscillateur en plus-hauts décroissants : l’élan faiblit, un essoufflement.',
+      bobo: 'N’entre pas sur la seule divergence : sans confirmation de structure, le prix peut poursuivre et l’oscillateur repartir avec lui.',
+    },
     title: 'Divergence',
     shortTitle: 'Divergence',
     aliases: ['Divergence'],
@@ -1174,6 +1184,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.order-block',
     slug: 'order-block',
+    estimatedMinutes: 6,
+    dialogue: {
+      toto: 'La dernière bougie opposée avant l’impulsion : le prix revient souvent la revisiter, zone d’observation.',
+      bobo: 'Sans contexte de structure, on voit des order blocks partout : une clôture nette au-delà de la zone sans réaction l’invalide.',
+    },
     title: 'Order block',
     shortTitle: 'Order block',
     aliases: ['Order block'],
@@ -1432,6 +1447,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.macd',
     slug: 'macd',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'L’histogramme repasse positif, les moyennes se croisent : l’élan bascule à la hausse.',
+      bobo: 'Un croisement n’est pas un ordre d’entrée : le MACD retarde. Si le prix contredit franchement le signal, ignore-le.',
+    },
     title: 'MACD',
     shortTitle: 'MACD',
     aliases: ['Moving Average Convergence Divergence'],
@@ -1493,6 +1513,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.bollinger',
     slug: 'bandes-de-bollinger',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Le prix touche la bande basse après une compression : un retour vers la moyenne se prépare peut-être.',
+      bobo: 'Le contact d’une bande n’est pas un signal automatique de retour : en tendance, le prix « marche » le long de la bande. Vérifie le contexte.',
+    },
     title: 'Bandes de Bollinger',
     shortTitle: 'Bollinger',
     aliases: ['Bollinger Bands'],
@@ -1554,6 +1579,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.fair-value-gap',
     slug: 'fair-value-gap',
+    estimatedMinutes: 6,
+    dialogue: {
+      toto: 'Un déséquilibre à trois bougies : le prix pourrait revenir combler ce vide.',
+      bobo: 'Le comblement n’a rien d’automatique ni d’immédiat : si le prix s’éloigne durablement sans revenir, l’idée tombe.',
+    },
     title: 'Fair value gap',
     shortTitle: 'FVG',
     aliases: ['Fair value gap', 'Imbalance'],
@@ -1612,6 +1642,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.change-of-character',
     slug: 'changement-de-caractere',
+    estimatedMinutes: 6,
+    dialogue: {
+      toto: 'Première cassure à contre-tendance : le caractère du marché change peut-être.',
+      bobo: 'Encore faut-il une vraie cassure, pas un simple retracement : un nouveau plus-bas qui reprend la tendance baissière annule le signal.',
+    },
     title: 'Changement de caractère (CHoCH)',
     shortTitle: 'CHoCH',
     aliases: ['Change of Character', 'CHoCH'],
@@ -1672,6 +1707,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.volume',
     slug: 'volume',
+    estimatedMinutes: 4,
+    dialogue: {
+      toto: 'La cassure s’accompagne d’un volume nettement plus élevé : la participation confirme le mouvement.',
+      bobo: 'Lis le volume en relatif, pas en absolu : un mouvement sans participation s’essouffle vite. Compare à la moyenne récente.',
+    },
     title: 'Volume',
     shortTitle: 'Volume',
     aliases: ['Volume'],
@@ -1729,6 +1769,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.vwap',
     slug: 'vwap',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Le prix repasse au-dessus du VWAP en séance : les acheteurs reprennent la référence intraday.',
+      bobo: 'N’oublie pas que le VWAP se réinitialise chaque séance : hors contexte, s’en éloigner durablement fragilise l’idée.',
+    },
     title: 'VWAP',
     shortTitle: 'VWAP',
     aliases: ['Volume Weighted Average Price'],
@@ -1786,6 +1831,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.wyckoff-accumulation',
     slug: 'wyckoff-accumulation',
+    estimatedMinutes: 6,
+    dialogue: {
+      toto: 'Une longue base où l’offre s’épuise : une sortie par le haut se prépare peut-être.',
+      bobo: 'Ne vois pas de l’accumulation dans tout range : sans contexte ni participation, c’est spéculatif. Une cassure nette sous le plancher l’invalide.',
+    },
     title: 'Accumulation (Wyckoff)',
     shortTitle: 'Accumulation',
     aliases: ['Wyckoff accumulation'],
@@ -1909,6 +1959,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.risk-reward',
     slug: 'risque-rendement',
+    estimatedMinutes: 4,
+    dialogue: {
+      toto: 'Entrée près du stop et cible plus loin : le rapport risque/rendement est favorable sur ce setup.',
+      bobo: 'Ne fixe pas la cible d’abord pour bricoler un beau ratio : c’est la structure qui place le stop. S’il est atteint, la perte est bornée.',
+    },
     title: 'Rapport risque / rendement',
     shortTitle: 'Risque/rendement',
     aliases: ['Risk/reward'],
@@ -1970,6 +2025,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.stop-loss',
     slug: 'stop-loss',
+    estimatedMinutes: 4,
+    dialogue: {
+      toto: 'Je place mon invalidation sous le dernier creux : au-delà, mon idée n’a plus de sens.',
+      bobo: 'Bien — mais colle le stop à la structure, pas à un pourcentage arbitraire. Franchi, il annule l’idée et borne la perte.',
+    },
     title: 'Stop (invalidation)',
     shortTitle: 'Stop',
     aliases: ['Stop-loss'],
@@ -2028,6 +2088,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.position-sizing',
     slug: 'taille-de-position',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Je calcule la taille pour que la distance au stop ne coûte qu’une petite part du capital.',
+      bobo: 'Ne choisis jamais la taille « parce qu’on y croit » : c’est le risque qui décide, pas la conviction. Sinon la règle saute.',
+    },
     title: 'Taille de position',
     shortTitle: 'Taille de position',
     aliases: ['Position sizing'],
@@ -2087,6 +2152,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.fomo',
     slug: 'fomo',
+    estimatedMinutes: 4,
+    dialogue: {
+      toto: 'Ça part sans moi… j’ai envie d’entrer pour ne pas rater le mouvement.',
+      bobo: 'C’est le FOMO : entrer près d’un extrême juste pour ne pas rater, c’est arriver trop tard. Reste sur un niveau logique.',
+    },
     title: 'FOMO (peur de rater)',
     shortTitle: 'FOMO',
     aliases: ['Fear of missing out'],
@@ -2144,6 +2214,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.trading-discipline',
     slug: 'discipline',
+    estimatedMinutes: 4,
+    dialogue: {
+      toto: 'J’ai mon plan : entrée, invalidation, taille. Je m’y tiens, quoi qu’il arrive.',
+      bobo: 'Bien — et juge une décision sur le processus, pas sur le seul résultat. Improviser sous le coup de l’émotion, c’est sortir du plan.',
+    },
     title: 'Discipline et plan',
     shortTitle: 'Discipline',
     aliases: ['Trading discipline'],
@@ -2263,6 +2338,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.price-action-intro',
     slug: 'price-action',
+    estimatedMinutes: 4,
+    dialogue: {
+      toto: 'Je lis la structure directement — bougies, niveaux, réactions — sans dépendre d’un indicateur.',
+      bobo: 'Ne cherche pas un signal dans chaque bougie : une bougie isolée hors contexte ne dit rien. C’est l’enchaînement qui parle.',
+    },
     title: 'Price action',
     shortTitle: 'Price action',
     aliases: ['Price action'],
@@ -2322,6 +2402,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.options-basics',
     slug: 'option-call',
+    estimatedMinutes: 6,
+    dialogue: {
+      toto: 'Le call donne le droit — pas l’obligation — d’acheter au strike : le risque se limite à la prime payée.',
+      bobo: 'Justement, c’est un droit, pas une obligation : sous le strike à l’échéance, la prime est perdue. La perte est bornée, mais réelle.',
+    },
     title: 'Option d’achat (call)',
     shortTitle: 'Call',
     aliases: ['Call option'],
@@ -2379,6 +2464,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.put-option',
     slug: 'option-put',
+    estimatedMinutes: 6,
+    dialogue: {
+      toto: 'Le put donne le droit de vendre au strike contre une prime : utile pour se protéger.',
+      bobo: 'Un put est un droit, pas une obligation de vendre : au-dessus du strike à l’échéance, la prime est perdue. Perte bornée à la prime.',
+    },
     title: 'Option de vente (put)',
     shortTitle: 'Put',
     aliases: ['Put option'],

@@ -124,8 +124,10 @@ poursuit **un paquet à la fois, revu humainement**, sans jamais gonfler le corp
   (durée + dialogue Toto/Bobo). Verrou `conceptEnrichment.test.ts` (`BATCH_2`). Voir **ADR-089**.
 - **Batch 3 — monde des figures chartistes** ✅ : `world.patterns` (13 concepts) enrichi de bout en
   bout (durée + dialogue Toto/Bobo). Verrou `conceptEnrichment.test.ts` (`BATCH_3`). Voir **ADR-090**.
-- **Suite** : dernier paquet (Batch 4) — SMC, indicateurs, volume, risk, price action, psychologie,
-  wyckoff, options (24) → enrichissement complet des 67 concepts.
+- **Batch 4 — reste du corpus** ✅ : SMC, indicateurs, volume, risk, price action, psychologie,
+  wyckoff, options (24 concepts) enrichis. Verrous `BATCH_4` + assertion d'exhaustivité. Voir **ADR-091**.
+
+> **Enrichissement éditorial — complet : les 67 concepts** portent durée + dialogue Toto/Bobo.
 
 ## Gate canonique
 
