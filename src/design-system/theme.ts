@@ -1,5 +1,5 @@
 /**
- * PatternLab — Thème.
+ * Trademy — Thème.
  * P0.1 : un seul thème « sombre premium » (l'identité de la marque).
  * Le thème clair est prévu mais différé (voir docs/PROJECT_STATUS.md).
  */

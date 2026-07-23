@@ -1,12 +1,12 @@
 {
-  "name": "PatternLab — Apprendre les marchés",
-  "short_name": "PatternLab",
+  "name": "Trademy — Apprendre les marchés",
+  "short_name": "Trademy",
   "description": "Application éducative pour apprendre à lire et comprendre les marchés avec Toto et Bobo.",
   "lang": "fr",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0B1119",
-  "theme_color": "#0B1119",
+  "background_color": "#0A0D16",
+  "theme_color": "#0A0D16",
   "categories": [
     "education",
     "finance"

@@ -19,6 +19,7 @@ export type CharacterState =
   | 'observe'
   | 'inspect'
   | 'think'
+  | 'point'
   | 'agree'
   | 'disagree'
   | 'debate'

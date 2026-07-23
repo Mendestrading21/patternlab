@@ -29,6 +29,7 @@ export const CHARACTER_STATES: Record<CharacterState, CharacterStateSpec> = {
   observe: { expression: 'thinking', defaultCharacter: null, category: 'guidance', intensity: 'subtle', tone: 'regarde bien' },
   inspect: { expression: 'thinking', defaultCharacter: 'bobo', category: 'guidance', intensity: 'subtle', tone: 'examinons' },
   think: { expression: 'thinking', defaultCharacter: null, category: 'guidance', intensity: 'subtle', tone: 'réfléchissons' },
+  point: { expression: 'excited', defaultCharacter: 'toto', category: 'guidance', intensity: 'subtle', tone: 'regarde ici' },
   agree: { expression: 'happy', defaultCharacter: 'toto', category: 'debate', intensity: 'subtle', tone: 'plausible' },
   disagree: { expression: 'concerned', defaultCharacter: 'bobo', category: 'debate', intensity: 'subtle', tone: 'qu’est-ce qui manque ?' },
   debate: { expression: 'concerned', defaultCharacter: null, category: 'debate', intensity: 'subtle', tone: 'confrontons les scénarios' },

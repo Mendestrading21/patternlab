@@ -1,9 +1,21 @@
 import { Tabs } from 'expo-router';
-import { Text } from 'react-native';
-import { theme } from '@/design-system';
+import { type ColorValue } from 'react-native';
+import { theme, TrademyIcon, type TrademyIconName } from '@/design-system';
+import { PRIMARY_SPACES, HIDDEN_TAB_ROUTES } from '@/lib/navigation';
 
-function TabIcon({ emoji }: { emoji: string }) {
-  return <Text style={{ fontSize: 20 }}>{emoji}</Text>;
+function tabIcon(name: TrademyIconName) {
+  function TabBarIcon({ color, focused }: { color: ColorValue; focused: boolean }) {
+    return (
+      <TrademyIcon
+        name={name}
+        color={typeof color === 'string' ? color : theme.colors.textMuted}
+        size={24}
+        strokeWidth={focused ? 2.4 : 2}
+      />
+    );
+  }
+  TabBarIcon.displayName = `TabBarIcon(${name})`;
+  return TabBarIcon;
 }
 
 export default function TabsLayout() {
@@ -20,32 +32,19 @@ export default function TabsLayout() {
         },
       }}
     >
-      <Tabs.Screen
-        name="index"
-        options={{ title: 'Accueil', tabBarIcon: () => <TabIcon emoji="🏠" /> }}
-      />
-      <Tabs.Screen
-        name="parcours"
-        options={{ title: 'Parcours', tabBarIcon: () => <TabIcon emoji="🗺️" /> }}
-      />
-      <Tabs.Screen
-        name="apprendre"
-        options={{ title: 'Apprendre', tabBarIcon: () => <TabIcon emoji="📚" /> }}
-      />
-      <Tabs.Screen
-        name="revisions"
-        options={{ title: 'Réviser', tabBarIcon: () => <TabIcon emoji="🔁" /> }}
-      />
-      <Tabs.Screen
-        name="profil"
-        options={{ title: 'Profil', tabBarIcon: () => <TabIcon emoji="🐂" /> }}
-      />
+      {PRIMARY_SPACES.map((space) => (
+        <Tabs.Screen
+          key={space.name}
+          name={space.name}
+          options={{ title: space.title, tabBarIcon: tabIcon(space.icon) }}
+        />
+      ))}
 
-      {/* Écrans conservés, accessibles par navigation, mais hors barre d'onglets.
-          Le Laboratoire est désormais une entrée du hub « Apprendre » (plus un onglet). */}
-      <Tabs.Screen name="laboratoire" options={{ href: null }} />
-      <Tabs.Screen name="lecons" options={{ href: null }} />
-      <Tabs.Screen name="quiz" options={{ href: null }} />
+      {/* Écrans conservés, accessibles par navigation, hors barre d'onglets.
+          Réviser est intégré à l'Accueil / au Profil (accès rapide). */}
+      {HIDDEN_TAB_ROUTES.map((name) => (
+        <Tabs.Screen key={name} name={name} options={{ href: null }} />
+      ))}
     </Tabs>
   );
 }

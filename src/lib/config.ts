@@ -15,5 +15,5 @@ export const PILLARS = [
   { id: 'progress', emoji: '🏆', title: 'Progresser', text: 'Gagne des récompenses et monte en niveau.' },
 ] as const;
 
-/** Rappel réglementaire : PatternLab est un média/jeu éducatif, pas un conseiller. */
+/** Rappel réglementaire : Trademy est un média/jeu éducatif, pas un conseiller. */
 export const DISCLAIMER = APP_INFO.disclaimer;

@@ -1,58 +1,79 @@
 /**
- * PatternLab — Design tokens (V2 « Instrument Glass »).
- * Direction : surfaces mates graphite/bleu nuit, verre sombre contrôlé, couleur
- * fonctionnelle parcimonieuse (≈ 70 / 20 / 10). Référence canonique :
- * `docs/design/VISUAL_DIRECTION.md`.
+ * Trademy — Design tokens « Trademy Learning Glass ».
+ * Référence canonique : `docs/design/TRADEMY_LEARNING_GLASS.md`.
  *
- * IMPORTANT (règle kit) : distinguer la sémantique PÉDAGOGIQUE (correct/incorrect)
- * de la sémantique FINANCIÈRE (bullish/bearish). Dans un exercice de marché, une
- * bougie verte n'est PAS « la bonne réponse ». Les tokens `feedback*` sont donc
- * séparés de `bullish/bearish` pour permettre aux exercices de patterns de les surcharger.
+ * Direction : académie sombre premium, surfaces de verre discrètes, halos maîtrisés,
+ * bordures fines. La couleur est SÉMANTIQUE et ne se réinterprète jamais localement :
+ *   - violet  = marque et action (CTA) ;
+ *   - vert    = marché HAUSSIER uniquement ;
+ *   - rouge   = marché BAISSIER uniquement ;
+ *   - or      = zones importantes ;
+ *   - cyan    = annotations techniques.
  *
- * Accessibilité : les paires texte/surface visent le contraste WCAG AA (≥ 4.5).
- * Vérifié par `contrast.test.ts` — ne pas assombrir `textMuted` sans revalider.
+ * IMPORTANT (règle kit) : la sémantique PÉDAGOGIQUE (correct/incorrect) est distincte de
+ * la sémantique de MARCHÉ (haussier/baissier). Une bonne réponse n'est PAS une bougie verte :
+ * les tokens `feedback*` utilisent des teintes propres (menthe/rose), séparées de `bullish/bearish`.
+ *
+ * Accessibilité : les paires texte/surface visent le contraste WCAG AA (≥ 4.5), y compris
+ * la marque violette comme texte coloré. Vérifié par `contrast.test.ts` — ne pas assombrir
+ * un texte ni éclaircir une surface sans revalider.
  */
 
 export const palette = {
-  // Surfaces mates (bleu nuit / graphite) — V5 : fond profond aligné #070B11
-  backgroundDeep: '#070B11',
-  bg: '#0B1119',
-  surface: '#111A24',
-  surfaceElevated: '#172331',
-  surfaceInteractive: '#1C2A39',
-  surfaceSunken: '#080C12',
+  // Surfaces nuit premium (canvas ≈ #080A12, cartes ≈ #101421) — Trademy Learning Glass
+  backgroundDeep: '#05070E',
+  bg: '#0A0D16',
+  surface: '#101421',
+  surfaceElevated: '#171C2B',
+  surfaceInteractive: '#1F2536',
+  surfaceSunken: '#05070C',
 
   // Bordures / verre contrôlé
-  borderSubtle: '#253343',
-  borderStrong: '#364A60',
-  hairline: 'rgba(244, 247, 250, 0.06)',
-  // Verre sombre contrôlé (≈ 20 % de l'identité V5) : voile translucide + liseré clair.
-  glass: 'rgba(23, 35, 49, 0.72)',
-  glassBorder: 'rgba(244, 247, 250, 0.12)',
+  borderSubtle: '#232B3F',
+  borderStrong: '#38435E',
+  hairline: 'rgba(247, 248, 252, 0.06)',
+  // Verre : voile clair très léger + liseré fin (≈ 7 % d'opacité).
+  glass: 'rgba(255, 255, 255, 0.06)',
+  glassBorder: 'rgba(255, 255, 255, 0.12)',
 
-  // Texte (textMuted éclairci vs la palette indicative pour tenir l'AA sur surfaces élevées)
-  textPrimary: '#F4F7FA',
-  textSecondary: '#AAB7C6',
-  textMuted: '#8B99AB',
+  // Texte (AA sur toutes les surfaces, y compris fonds profonds — cf. contrast.test.ts)
+  textPrimary: '#F7F8FC',
+  textSecondary: '#AEB6C7',
+  textMuted: '#9098AC',
 
-  // Couleur fonctionnelle
-  green: '#26C281',
-  greenBright: '#3BD695',
-  greenDim: '#1C8F5E',
-  red: '#F05A67',
-  redBright: '#F5727D',
-  technical: '#42B7E8',
-  amber: '#F3B94E',
-  gold: '#E8B94F',
-  neutral: '#8292A6',
-  // Concepts avancés (V5) : violet distinct des sémantiques financière/pédagogique.
-  advanced: '#9B7CF6',
+  // Marque (violet) — CTA / action. Ni marché, ni bonne réponse.
+  // Teinte AA-ajustée de la référence #8B5CF6 : lisible comme TEXTE sur carte ET comme
+  // fond de bouton (texte sombre `onViolet`).
+  violet: '#9270F0',
+  violetBright: '#A78BFA',
+  violetDim: '#6D48D0',
+  onViolet: '#16082C',
+
+  // Marché : vert = haussier, rouge = baissier (jamais réutilisés comme correct/incorrect)
+  green: '#2DD4A7',
+  greenBright: '#4EE7BE',
+  greenDim: '#1F9E7C',
+  red: '#FF5D73',
+  redBright: '#FF8091',
+
+  // Annotation technique (cyan) + zones importantes (or)
+  technical: '#22D3EE',
+  amber: '#F6C453',
+  gold: '#F6C453',
+  neutral: '#93A0B4',
+  // Concepts avancés (difficulté 4–5) : orchidée distincte de la marque violette.
+  advanced: '#C084FC',
+
+  // Feedback pédagogique — teintes propres, distinctes du marché.
+  feedbackCorrect: '#66E3A4',
+  feedbackWrong: '#FF8798',
+  feedbackInfo: '#6EA8FE',
 
   white: '#FFFFFF',
   black: '#000000',
-  onGreen: '#06210F',
+  onGreen: '#04231A',
   onGold: '#2A1E05',
-  onAdvanced: '#1A1030',
+  onAdvanced: '#2A1044',
 } as const;
 
 export const colors = {
@@ -73,14 +94,16 @@ export const colors = {
   textSecondary: palette.textSecondary,
   textMuted: palette.textMuted,
 
-  // UI semantics
-  primary: palette.green,
-  primaryBright: palette.greenBright,
-  primaryDim: palette.greenDim,
-  success: palette.green,
+  // UI semantics — la marque est VIOLETTE (action/CTA)
+  primary: palette.violet,
+  primaryBright: palette.violetBright,
+  primaryDim: palette.violetDim,
+  /** Succès pédagogique / état positif — teinte propre, distincte d'une bougie haussière. */
+  success: palette.feedbackCorrect,
   danger: palette.red,
   warning: palette.amber,
-  info: palette.technical,
+  /** Information (bleu) — distinct du cyan d'annotation technique. */
+  info: palette.feedbackInfo,
   technical: palette.technical,
   reward: palette.gold,
   neutral: palette.neutral,
@@ -92,10 +115,10 @@ export const colors = {
   bearish: palette.red,
 
   // Pedagogical feedback — intentionally distinct from bullish/bearish
-  feedbackCorrect: palette.green,
-  feedbackIncorrect: palette.red,
+  feedbackCorrect: palette.feedbackCorrect,
+  feedbackIncorrect: palette.feedbackWrong,
 
-  onPrimary: palette.onGreen,
+  onPrimary: palette.onViolet,
   onReward: palette.onGold,
   onAdvanced: palette.onAdvanced,
 } as const;
@@ -111,11 +134,11 @@ export const spacing = {
 } as const;
 
 export const radius = {
-  sm: 8,
-  md: 12,
+  sm: 10,
+  md: 14,
   lg: 16,
   xl: 20,
-  xxl: 28,
+  xxl: 26,
   pill: 999,
 } as const;
 
@@ -153,3 +176,16 @@ export const typography = {
 } as const;
 
 export type TypographyVariant = keyof typeof typography;
+
+/**
+ * Durées de mouvement (Trademy Learning Glass). Le mouvement EXPLIQUE (apparition d'une zone,
+ * progression, réaction mascotte) ; jamais de boucle décorative permanente. Sous
+ * `prefers-reduced-motion`, préférer un changement instantané ou un fondu léger.
+ */
+export const motion = {
+  micro: 150,
+  transition: 260,
+  celebration: 720,
+} as const;
+
+export type MotionToken = keyof typeof motion;

@@ -35,6 +35,7 @@ export type AnalyticsEvent =
   | 'achievement_unlocked'
   | 'stats_viewed'
   | 'glossary_searched'
+  | 'library_searched'
   | 'concept_viewed'
   | 'favorite_added'
   | 'world_opened'
@@ -85,6 +86,7 @@ export const EVENT_CATEGORIES: Record<AnalyticsEvent, AnalyticsCategory> = {
   achievement_unlocked: 'engagement',
   stats_viewed: 'engagement',
   glossary_searched: 'engagement',
+  library_searched: 'engagement',
   concept_viewed: 'engagement',
   favorite_added: 'engagement',
   world_opened: 'engagement',

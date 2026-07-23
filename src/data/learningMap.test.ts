@@ -8,6 +8,8 @@ import {
   worldsOpen,
   worldsDone,
   worldEntryById,
+  LEVEL_BANDS,
+  levelBandForOrder,
   type LearningProgressInput,
 } from './learningMap';
 import { WORLDS, conceptsByWorld } from './learningConcept';
@@ -71,5 +73,34 @@ describe('learningMap — hiérarchie unique', () => {
     const slugs = conceptsByWorld(V5_CONCEPTS, 'world.foundations').map((c) => c.slug);
     // Explorer toutes les fiches du monde 1 ne suffit pas : il faut le checkpoint.
     expect(isWorldDone(foundations, V5_CONCEPTS, { completedSkills: [], exploredSlugs: slugs })).toBe(false);
+  });
+});
+
+describe('learningMap — niveaux & maîtrise', () => {
+  it('trois bandes de niveau couvrent les 15 mondes', () => {
+    expect(LEVEL_BANDS.map((b) => b.band)).toEqual(['debutant', 'intermediaire', 'avance']);
+    const covered = LEVEL_BANDS.reduce((n, b) => n + (b.maxOrder - b.minOrder + 1), 0);
+    expect(covered).toBe(WORLDS.length);
+    expect(levelBandForOrder(1).band).toBe('debutant');
+    expect(levelBandForOrder(5).band).toBe('debutant');
+    expect(levelBandForOrder(6).band).toBe('intermediaire');
+    expect(levelBandForOrder(10).band).toBe('intermediaire');
+    expect(levelBandForOrder(11).band).toBe('avance');
+    expect(levelBandForOrder(15).band).toBe('avance');
+  });
+
+  it('un monde n’est « maîtrisé » que s’il est terminé ET ses fiches maîtrisées', () => {
+    const fSlugs = conceptsByWorld(V5_CONCEPTS, 'world.foundations').map((c) => c.slug);
+    expect(fSlugs.length).toBeGreaterThan(0);
+
+    // Terminé (checkpoint) mais aucune maîtrise déclarée → non maîtrisé.
+    const doneOnly = buildLearningPath(WORLDS, V5_CONCEPTS, WORLD1_DONE);
+    const feDone = worldEntryById(doneOnly, 'world.foundations')!;
+    expect(feDone.status).toBe('done');
+    expect(feDone.mastered).toBe(false);
+
+    // Terminé ET toutes les fiches maîtrisées → maîtrisé.
+    const mastered = buildLearningPath(WORLDS, V5_CONCEPTS, { ...WORLD1_DONE, masteredSlugs: fSlugs });
+    expect(worldEntryById(mastered, 'world.foundations')!.mastered).toBe(true);
   });
 });

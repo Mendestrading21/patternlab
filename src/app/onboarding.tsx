@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { View, Pressable, StyleSheet } from 'react-native';
-import { Screen, Text, Button, Card, Chip, ProgressBar, theme } from '@/design-system';
+import { Screen, Text, Button, Card, Chip, ProgressBar, TrademyIcon, theme } from '@/design-system';
 import { CharacterScene, MascotFigure } from '@/characters';
 import { MiniVisual } from '@/engines/visual';
 import {
@@ -305,11 +305,7 @@ function OptionCard({
               </Text>
             ) : null}
           </View>
-          {selected ? (
-            <Text variant="title" color={theme.colors.primary}>
-              ✓
-            </Text>
-          ) : null}
+          {selected ? <TrademyIcon name="check" size={20} color={theme.colors.primary} /> : null}
         </View>
       </Card>
     </Pressable>

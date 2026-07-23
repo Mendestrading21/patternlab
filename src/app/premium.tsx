@@ -33,7 +33,7 @@ export default function Premium() {
     const plan = planById(premium.plan);
     return (
       <Screen>
-        <Text variant="h1">PatternLab Premium ✨</Text>
+        <Text variant="h1">Trademy Premium ✨</Text>
         <MascotFigure name="celebrate" gesture="celebrate" height={140} decorative />
         <Card elevated>
           <Text variant="title" color={theme.colors.reward}>
@@ -80,7 +80,7 @@ export default function Premium() {
   return (
     <Screen>
       <Text variant="caption" color={theme.colors.reward}>
-        PATTERNLAB PREMIUM ✨
+        TRADEMY PREMIUM ✨
       </Text>
       <Text variant="h1">Va plus loin, à ton rythme</Text>
       <Text variant="body" color={theme.colors.textSecondary}>

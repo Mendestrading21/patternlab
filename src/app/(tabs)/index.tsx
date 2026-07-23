@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { View, Pressable, StyleSheet } from 'react-native';
-import { Screen, Text, Card, Button, Chip, ProgressBar, StateView, theme } from '@/design-system';
-import { MascotFigure } from '@/characters';
+import { Screen, Text, Card, Button, Chip, ProgressBar, StateView, TrademyIcon, theme } from '@/design-system';
+import { MascotFigure, CharacterScene } from '@/characters';
 import { MiniVisual } from '@/engines/visual';
 import {
   useProgress,
@@ -15,7 +15,7 @@ import {
   greetingFor,
 } from '@/data';
 import { analytics } from '@/analytics';
-import { DISCLAIMER } from '@/lib/config';
+import { Disclaimer } from '@/components/Disclaimer';
 import { useNow } from '@/lib/useNow';
 
 /**
@@ -79,7 +79,7 @@ export default function Home() {
         {mission.skillId ? (
           <View style={styles.missionMeta}>
             <Chip icon="⏱️" label={`~${minutes} min`} color={theme.colors.technical} />
-            <Chip icon="📝" label={`${sessionCount} exercice${sessionCount > 1 ? 's' : ''}`} color={theme.colors.neutral} />
+            <Chip iconName="book" label={`${sessionCount} exercice${sessionCount > 1 ? 's' : ''}`} color={theme.colors.neutral} />
           </View>
         ) : null}
         <View style={styles.cta}>
@@ -87,8 +87,8 @@ export default function Home() {
         </View>
         <View style={styles.progressStrip}>
           <View style={styles.chips}>
-            <Chip icon="⭐" label={`Niv. ${state.level}`} color={theme.colors.primary} />
-            <Chip icon="🔥" label={`${state.streakDays} j`} color={theme.colors.warning} />
+            <Chip iconName="star" label={`Niv. ${state.level}`} color={theme.colors.primary} />
+            <Chip iconName="flame" label={`${state.streakDays} j`} color={theme.colors.warning} />
             <Chip icon="🪙" label={`${state.coins}`} color={theme.colors.reward} />
           </View>
           <ProgressBar value={xpInLevel / 100} accessibilityLabel={`${xpInLevel} sur 100 XP`} />
@@ -98,22 +98,46 @@ export default function Home() {
         </View>
       </Card>
 
-      {/* Révision due : pointeur compact vers l'onglet Réviser */}
-      <Pressable accessibilityRole="button" accessibilityHint="Ouvrir les révisions" onPress={() => router.push('/revisions')}>
-        <Card style={dueCount ? styles.reviewDue : undefined}>
-          <View style={styles.row}>
-            <Text variant="title" style={styles.flex1}>
-              🔁 Révisions
+      {/* Accès rapide : révisions dues + favoris (Réviser n'est plus un onglet) */}
+      <View style={styles.quickRow}>
+        <Pressable
+          style={styles.flex1}
+          accessibilityRole="button"
+          accessibilityHint="Ouvrir les révisions"
+          onPress={() => router.push('/revisions')}
+        >
+          <Card style={dueCount ? styles.reviewDue : undefined}>
+            <View style={styles.quickHead}>
+              <TrademyIcon name="refresh" size={20} color={dueCount ? theme.colors.warning : theme.colors.primaryBright} />
+              <Text variant="title" style={styles.flex1}>
+                Révisions
+              </Text>
+            </View>
+            <Text variant="caption" color={dueCount ? theme.colors.warning : theme.colors.textMuted}>
+              {dueCount ? `${dueCount} carte${dueCount > 1 ? 's' : ''} à revoir` : 'À jour — reviens plus tard'}
             </Text>
-            <Text variant="title" color={dueCount ? theme.colors.warning : theme.colors.textMuted}>
-              {dueCount ? `${dueCount} due${dueCount > 1 ? 's' : ''} ›` : 'À jour ✅ ›'}
+          </Card>
+        </Pressable>
+
+        <Pressable
+          style={styles.flex1}
+          accessibilityRole="button"
+          accessibilityHint="Ouvrir tes favoris dans la bibliothèque"
+          onPress={() => router.push('/glossaire')}
+        >
+          <Card>
+            <View style={styles.quickHead}>
+              <TrademyIcon name="star" size={20} color={theme.colors.reward} />
+              <Text variant="title" style={styles.flex1}>
+                Favoris
+              </Text>
+            </View>
+            <Text variant="caption" color={theme.colors.textMuted}>
+              Tes fiches épinglées, dans la Bibliothèque.
             </Text>
-          </View>
-          <Text variant="caption" color={theme.colors.textMuted}>
-            La répétition espacée ramène chaque compétence au bon moment.
-          </Text>
-        </Card>
-      </Pressable>
+          </Card>
+        </Pressable>
+      </View>
 
       {/* Concept du jour : hook de rétention + signal visuel (rotation déterministe) */}
       {featured ? (
@@ -142,9 +166,14 @@ export default function Home() {
         </Pressable>
       ) : null}
 
-      <Text variant="caption" color={theme.colors.textMuted} center>
-        {DISCLAIMER}
-      </Text>
+      <CharacterScene
+        character="bobo"
+        state="think"
+        size={56}
+        speech="Un pas par jour suffit. On vérifie, on ne devine pas."
+      />
+
+      <Disclaimer />
     </Screen>
   );
 }
@@ -157,7 +186,8 @@ const styles = StyleSheet.create({
   cta: { marginVertical: theme.spacing.md },
   progressStrip: { gap: theme.spacing.xs },
   chips: { flexDirection: 'row', gap: theme.spacing.sm, marginBottom: theme.spacing.xs },
-  row: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+  quickRow: { flexDirection: 'row', gap: theme.spacing.md, alignItems: 'stretch' },
+  quickHead: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm, marginBottom: 2 },
   reviewDue: { borderColor: theme.colors.warning },
   flex1: { flex: 1 },
 });

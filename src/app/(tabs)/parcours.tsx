@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { View, StyleSheet, Pressable } from 'react-native';
-import { Screen, Text, Card, Chip, ProgressBar, StateView, theme } from '@/design-system';
+import { Screen, Text, Card, Chip, ProgressBar, StateView, TrademyIcon, theme } from '@/design-system';
 import { MascotFigure } from '@/characters';
 import { MiniVisual } from '@/engines/visual';
 import {
@@ -9,16 +9,19 @@ import {
   buildLearningPath,
   worldsOpen,
   worldsDone,
+  levelBandForOrder,
+  conceptMasteryStatus,
   useProgress,
   type WorldEntry,
   type WorldStatus,
+  type LevelBandDef,
 } from '@/data';
 
 /**
- * Parcours — chemin UNIQUE (Learning-Master Lot 2). Une seule hiérarchie Monde → Module →
- * Compétence : la page rend un chemin vertical des 15 mondes. Chaque monde ouvre son détail
- * (`/monde/[id]`) ; le déblocage est fondé sur la maîtrise (checkpoint du monde guidé, ou toutes
- * les fiches consultées pour un monde de contenu), plus sur la simple visite.
+ * Espace « Apprendre » — chemin UNIQUE (roadmap des 15 mondes), organisé en trois niveaux
+ * (Débutant / Intermédiaire / Avancé). États canoniques : verrouillé, disponible, en cours,
+ * terminé, maîtrisé. Déblocage fondé sur la maîtrise (checkpoint du monde guidé, ou toutes les
+ * fiches consultées) ; un monde est « maîtrisé » quand ses fiches sont maîtrisées (compétence solide).
  */
 const WORLD_COLORS: Record<WorldStatus, string> = {
   done: theme.colors.primary,
@@ -27,21 +30,26 @@ const WORLD_COLORS: Record<WorldStatus, string> = {
   locked: theme.colors.textMuted,
 };
 
+const nodeColor = (entry: WorldEntry) =>
+  entry.mastered ? theme.colors.reward : WORLD_COLORS[entry.status];
+
 /** Jalons (« paliers ») affichés après certains mondes. */
 const MILESTONES: Record<number, string> = {
-  3: 'Palier — Fondations posées 🎯',
-  7: 'Palier — Tu lis le prix 📈',
-  11: 'Palier — Concepts avancés 🧠',
-  15: 'Palier — Tour complet des mondes 🏆',
+  3: 'Fondations posées',
+  7: 'Tu lis le prix',
+  11: 'Concepts avancés',
+  15: 'Tour complet des mondes',
 };
 
-function worldIcon(entry: WorldEntry): string {
-  if (entry.status === 'locked') return '🔒';
-  if (entry.status === 'done') return '✓';
-  return String(entry.world.order);
-}
+const LEGEND: { label: string; color: string }[] = [
+  { label: 'Disponible', color: theme.colors.technical },
+  { label: 'En cours', color: theme.colors.primaryBright },
+  { label: 'Terminé', color: theme.colors.primary },
+  { label: 'Maîtrisé', color: theme.colors.reward },
+  { label: 'Verrouillé', color: theme.colors.textMuted },
+];
 
-export default function Parcours() {
+export default function Apprendre() {
   const router = useRouter();
   const { state, ready } = useProgress();
 
@@ -53,9 +61,15 @@ export default function Parcours() {
     );
   }
 
+  const exploredSlugs = state.learning?.conceptsExplored ?? [];
+  const masteredSlugs = V5_CONCEPTS.filter(
+    (c) => conceptMasteryStatus(c, { exploredSlugs, skills: state.skills ?? {} }).mastered,
+  ).map((c) => c.slug);
+
   const path = buildLearningPath(WORLDS, V5_CONCEPTS, {
     completedSkills: state.completedSkills,
-    exploredSlugs: state.learning?.conceptsExplored ?? [],
+    exploredSlugs,
+    masteredSlugs,
   });
   const open = worldsOpen(path);
   const done = worldsDone(path);
@@ -63,12 +77,12 @@ export default function Parcours() {
   return (
     <Screen>
       <Text variant="label" color={theme.colors.technical}>
-        TON PARCOURS
+        APPRENDRE
       </Text>
-      <Text variant="h1">La carte des mondes 🗺️</Text>
+      <Text variant="h1">Ton parcours</Text>
       <Text variant="body" color={theme.colors.textSecondary}>
-        Un seul chemin : gravis un monde à la fois. Chaque monde s’ouvre quand tu as terminé le
-        précédent.
+        Un seul chemin, du niveau zéro à l’analyse autonome. Chaque monde s’ouvre quand tu as terminé
+        le précédent.
       </Text>
 
       <View style={styles.headerMascot}>
@@ -81,18 +95,58 @@ export default function Parcours() {
         </Text>
       </View>
 
-      <View style={styles.trail}>
-        {path.map((entry) => (
-          <WorldNode key={entry.world.id} entry={entry} onOpen={() => router.push(`/monde/${entry.world.id}`)} />
+      <View style={styles.legend}>
+        {LEGEND.map((l) => (
+          <View key={l.label} style={styles.legendItem}>
+            <View style={[styles.legendDot, { backgroundColor: l.color }]} />
+            <Text variant="caption" color={theme.colors.textMuted}>
+              {l.label}
+            </Text>
+          </View>
         ))}
+      </View>
+
+      <View style={styles.trail}>
+        {path.map((entry, i) => {
+          const band = levelBandForOrder(entry.world.order);
+          const prevBand = i > 0 ? levelBandForOrder(path[i - 1].world.order) : null;
+          const showHeader = !prevBand || prevBand.band !== band.band;
+          return (
+            <View key={entry.world.id}>
+              {showHeader ? <BandHeader def={band} /> : null}
+              <WorldNode entry={entry} onOpen={() => router.push(`/monde/${entry.world.id}`)} />
+            </View>
+          );
+        })}
       </View>
     </Screen>
   );
 }
 
+function BandHeader({ def }: { def: LevelBandDef }) {
+  return (
+    <View style={styles.bandHeader}>
+      <Text variant="label" color={theme.colors.textSecondary}>
+        {def.label.toUpperCase()}
+      </Text>
+      <View style={styles.bandLine} />
+    </View>
+  );
+}
+
+function StatusChip({ entry }: { entry: WorldEntry }) {
+  if (entry.mastered) return <Chip iconName="trophy" label="Maîtrisé" color={theme.colors.reward} />;
+  if (entry.status === 'done') return <Chip iconName="check" label="Terminé" color={theme.colors.primary} />;
+  if (entry.status === 'current') return <Chip label="En cours" color={theme.colors.primaryBright} />;
+  if (entry.status === 'locked') return <Chip iconName="lock" label="Verrouillé" color={theme.colors.textMuted} />;
+  if (entry.guided) return <Chip label="Guidé" color={theme.colors.technical} />;
+  return <Chip label="Disponible" color={theme.colors.technical} />;
+}
+
 function WorldNode({ entry, onOpen }: { entry: WorldEntry; onOpen: () => void }) {
-  const color = WORLD_COLORS[entry.status];
+  const color = nodeColor(entry);
   const locked = entry.status === 'locked';
+  const filled = entry.status === 'done' || entry.mastered;
   const milestone = MILESTONES[entry.world.order];
 
   return (
@@ -104,10 +158,18 @@ function WorldNode({ entry, onOpen }: { entry: WorldEntry; onOpen: () => void })
           ) : (
             <View style={styles.connector} />
           )}
-          <View style={[styles.badge, { borderColor: color, backgroundColor: entry.status === 'done' ? color : theme.colors.surface }]}>
-            <Text variant="label" color={entry.status === 'done' ? theme.colors.onPrimary : color}>
-              {worldIcon(entry)}
-            </Text>
+          <View style={[styles.badge, { borderColor: color, backgroundColor: filled ? color : theme.colors.surface }]}>
+            {locked ? (
+              <TrademyIcon name="lock" size={20} color={color} />
+            ) : entry.mastered ? (
+              <TrademyIcon name="trophy" size={20} color={theme.colors.onReward} />
+            ) : entry.status === 'done' ? (
+              <TrademyIcon name="check" size={20} color={theme.colors.onPrimary} />
+            ) : (
+              <Text variant="label" color={color}>
+                {entry.world.order}
+              </Text>
+            )}
           </View>
         </View>
 
@@ -128,15 +190,7 @@ function WorldNode({ entry, onOpen }: { entry: WorldEntry; onOpen: () => void })
                     {entry.world.subtitle}
                   </Text>
                 </View>
-                {entry.status === 'done' ? (
-                  <Chip label="terminé ✓" color={theme.colors.primary} />
-                ) : entry.status === 'current' ? (
-                  <Chip label="en cours" color={theme.colors.primaryBright} />
-                ) : entry.guided ? (
-                  <Chip label="guidé" color={theme.colors.technical} />
-                ) : locked ? (
-                  <Chip label="🔒" color={theme.colors.textMuted} />
-                ) : null}
+                <StatusChip entry={entry} />
               </View>
 
               {!locked && entry.sampleSpec ? (
@@ -173,8 +227,9 @@ function WorldNode({ entry, onOpen }: { entry: WorldEntry; onOpen: () => void })
 
       {milestone ? (
         <View style={styles.milestone}>
-          <Text variant="caption" color={theme.colors.reward} center>
-            {milestone}
+          <TrademyIcon name="target" size={16} color={theme.colors.reward} />
+          <Text variant="caption" color={theme.colors.reward}>
+            Palier — {milestone}
           </Text>
         </View>
       ) : null}
@@ -186,8 +241,13 @@ const RAIL_W = 52;
 const styles = StyleSheet.create({
   headerMascot: { alignItems: 'center' },
   progressBlock: { gap: theme.spacing.xs },
+  legend: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md, marginTop: theme.spacing.xs },
+  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  legendDot: { width: 10, height: 10, borderRadius: 5 },
   flex1: { flex: 1 },
   trail: { marginTop: theme.spacing.sm },
+  bandHeader: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm, marginTop: theme.spacing.sm, marginBottom: theme.spacing.sm },
+  bandLine: { flex: 1, height: 1, backgroundColor: theme.colors.border },
   trailRow: { flexDirection: 'row', gap: theme.spacing.md, alignItems: 'stretch' },
   rail: { width: RAIL_W, alignItems: 'center' },
   connector: { width: 3, flex: 1, minHeight: theme.spacing.md, backgroundColor: 'transparent', borderRadius: 2 },
@@ -198,6 +258,10 @@ const styles = StyleSheet.create({
   worldVisual: { alignItems: 'center', marginTop: theme.spacing.xs },
   worldProgress: { gap: 2 },
   milestone: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
     marginLeft: RAIL_W + theme.spacing.md,
     marginBottom: theme.spacing.md,
     paddingVertical: theme.spacing.xs,

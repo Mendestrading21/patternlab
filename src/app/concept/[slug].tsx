@@ -12,6 +12,7 @@ import {
   useProgress,
 } from '@/data';
 import { VisualCard } from '@/engines/visual';
+import { CharacterScene } from '@/characters';
 import { analytics } from '@/analytics';
 
 export default function ConceptFiche() {
@@ -74,6 +75,7 @@ export default function ConceptFiche() {
           return <Chip label={st.label} color={color} />;
         })()}
         <Chip label={`${tone.label} · ${concept.difficulty}/5`} color={tone.color} />
+        {concept.estimatedMinutes ? <Chip label={`${concept.estimatedMinutes} min`} color={theme.colors.neutral} /> : null}
         {concept.aliases[0] ? <Chip label={concept.aliases[0]} color={theme.colors.textMuted} /> : null}
       </View>
 
@@ -85,6 +87,13 @@ export default function ConceptFiche() {
         </Text>
         <Text variant="body">{concept.definitionShort}</Text>
       </GlassCard>
+
+      {concept.dialogue ? (
+        <View style={styles.dialogue}>
+          <CharacterScene character="toto" state="explain" size={56} speech={concept.dialogue.toto} />
+          <CharacterScene character="bobo" state="false-signal" size={56} reversed speech={concept.dialogue.bobo} />
+        </View>
+      ) : null}
 
       <Card>
         <Text variant="label" color={theme.colors.textMuted}>
@@ -184,6 +193,7 @@ const styles = StyleSheet.create({
   headRow: { flexDirection: 'row', alignItems: 'flex-start', gap: theme.spacing.sm },
   flex1: { flex: 1 },
   metaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
+  dialogue: { gap: theme.spacing.md },
   list: { gap: theme.spacing.xs, marginTop: theme.spacing.xs },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, marginTop: theme.spacing.xs },
   relatedChip: {

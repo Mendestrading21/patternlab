@@ -19,6 +19,18 @@ contrat (`CLAUDE.md`) priment sur un ancien programme.
 | Dialogues Toto/Bobo | [ADR-073](./ADR-073-mascot-moments-error-dialogue.md) |
 | Contenu des 15 mondes | [ADR-074](./ADR-074-content-15-worlds-batch1.md) |
 | Fondation du dépôt TradeMy | [ADR-075](./ADR-075-repository-foundation.md) |
+| Identité Trademy & tokens Learning Glass | [ADR-076](./ADR-076-trademy-identity-tokens.md) |
+| Icônes & composants partagés Trademy | [ADR-077](./ADR-077-trademy-components-icons.md) |
+| Navigation & cinq espaces Trademy | [ADR-078](./ADR-078-trademy-navigation.md) |
+| Onboarding & Accueil Trademy | [ADR-079](./ADR-079-trademy-onboarding-accueil.md) |
+| Parcours Apprendre : niveaux & maîtrise | [ADR-080](./ADR-080-trademy-parcours-apprendre.md) |
+| Bibliothèque : index cherchable | [ADR-081](./ADR-081-trademy-bibliotheque.md) |
+| Laboratoire : lecture guidée de graphique | [ADR-082](./ADR-082-trademy-laboratoire.md) |
+| Quiz, flashcards & feedback canoniques | [ADR-083](./ADR-083-trademy-quiz-feedback.md) |
+| Progression, XP & Profil | [ADR-084](./ADR-084-trademy-progression-profil.md) |
+| Toto/Bobo : états & animations | [ADR-085](./ADR-085-trademy-toto-bobo-animations.md) |
+| Schéma canonique de concept & enrichissement | [ADR-086](./ADR-086-trademy-concept-schema.md) |
+| Accessibilité, responsive & finitions | [ADR-087](./ADR-087-trademy-finitions.md) |
 
 ## Fondations toujours actives
 
