@@ -6,10 +6,12 @@
  * (les 4 compétences pilotes + le checkpoint). Les autres mondes exposent leurs concepts jusqu'à ce
  * qu'un module guidé leur soit ajouté (Lots 4/10).
  *
- * Déblocage fondé sur la MAÎTRISE, pas la visite : un monde guidé se termine par son checkpoint ;
- * un monde de contenu se termine quand toutes ses fiches ont été consultées. Le monde N s'ouvre
- * seulement quand le monde N-1 est terminé. Tout est dérivé de l'état déjà persisté
- * (`completedSkills` + `learning.conceptsExplored`) → aucune migration.
+ * Déblocage fondé sur la PROGRESSION, pas seulement la visite. P0 : consulter les fiches d'un monde
+ * de contenu le marque « exploré » (assez pour avancer vers le monde suivant), mais JAMAIS
+ * « terminé » — « terminé » exige une preuve d'apprentissage (checkpoint d'un module guidé). Un monde
+ * de contenu sans pratique n'est donc jamais « terminé » par la seule lecture. Le monde N s'ouvre
+ * quand le monde N-1 est exploré (contenu) ou terminé (guidé). Tout est dérivé de l'état déjà
+ * persisté (`completedSkills` + `learning.conceptsExplored`) → aucune migration.
  */
 import {
   conceptsByWorld,
@@ -76,7 +78,7 @@ export function levelBandForOrder(order: number): LevelBandDef {
   );
 }
 
-export type WorldStatus = 'done' | 'current' | 'unlocked' | 'locked';
+export type WorldStatus = 'done' | 'explored' | 'current' | 'unlocked' | 'locked';
 
 /** Progression dérivée d'un monde dans le chemin unique. */
 export interface WorldEntry {
@@ -103,16 +105,36 @@ export interface LearningProgressInput {
   masteredSlugs?: string[];
 }
 
-/** Un monde guidé est terminé quand son checkpoint est validé ; sinon, quand toutes ses fiches sont vues. */
+/**
+ * TERMINÉ = preuve d'apprentissage, jamais la simple consultation.
+ * Monde guidé : son checkpoint est validé. Monde de contenu (sans module guidé) :
+ * jamais « terminé » par la seule lecture des fiches — au mieux « exploré »
+ * (voir `isWorldExplored`). Empêche qu'un monde soit terminé en ouvrant les fiches.
+ */
 export function isWorldDone(
   world: World,
-  concepts: LearningConcept[],
+  _concepts: LearningConcept[],
   input: LearningProgressInput,
 ): boolean {
   const modules = guidedModulesForWorld(world.id);
   if (modules.length > 0) {
     return modules.every((m) => input.completedSkills.includes(m.checkpointId));
   }
+  return false;
+}
+
+/**
+ * EXPLORÉ / prêt à avancer : assez de progression pour ouvrir le monde suivant.
+ * Monde guidé : identique à « terminé » (le checkpoint reste requis). Monde de
+ * contenu : toutes les fiches consultées. La consultation permet donc d'avancer,
+ * mais ne vaut jamais « terminé ».
+ */
+export function isWorldExplored(
+  world: World,
+  concepts: LearningConcept[],
+  input: LearningProgressInput,
+): boolean {
+  if (isGuidedWorld(world.id)) return isWorldDone(world, concepts, input);
   const cs = conceptsByWorld(concepts, world.id);
   if (cs.length === 0) return false;
   const explored = new Set(input.exploredSlugs);
@@ -163,16 +185,22 @@ export function buildLearningPath(
     const guided = isGuidedWorld(world.id);
     const { progress, conceptCount, exploredCount } = worldProgress(world, concepts, input);
     const prev = sorted[i - 1];
-    const unlocked = i === 0 || (prev ? isWorldDone(prev, concepts, input) : true);
+    // On ouvre le monde suivant dès que le précédent est exploré (contenu) ou terminé (guidé) :
+    // la lecture permet d'avancer, sans jamais faire croire que le monde est « terminé ».
+    const unlocked = i === 0 || (prev ? isWorldExplored(prev, concepts, input) : true);
     const done = isWorldDone(world, concepts, input);
+    const explored = isWorldExplored(world, concepts, input);
 
     let status: WorldStatus;
     let lockReason: string | undefined;
     if (!unlocked) {
       status = 'locked';
-      lockReason = prev ? `Termine « ${prev.title} » pour débloquer ce monde.` : undefined;
+      lockReason = prev ? `Explore « ${prev.title} » pour débloquer ce monde.` : undefined;
     } else if (done) {
       status = 'done';
+    } else if (explored) {
+      // Monde de contenu entièrement consulté : « exploré », PAS « terminé ».
+      status = 'explored';
     } else if (!currentAssigned) {
       status = 'current';
       currentAssigned = true;

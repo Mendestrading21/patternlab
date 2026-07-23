@@ -4,6 +4,7 @@ import {
   isGuidedWorld,
   guidedModulesForWorld,
   isWorldDone,
+  isWorldExplored,
   buildLearningPath,
   worldsOpen,
   worldsDone,
@@ -59,20 +60,41 @@ describe('learningMap — hiérarchie unique', () => {
     expect(second.status === 'current' || second.status === 'unlocked').toBe(true);
   });
 
-  it('monde de contenu : terminé seulement quand toutes ses fiches sont vues', () => {
+  it('P0 : un monde de contenu n’est JAMAIS terminé par la seule consultation des fiches', () => {
     const content = WORLDS.find(
       (w) => !isGuidedWorld(w.id) && conceptsByWorld(V5_CONCEPTS, w.id).length > 0,
     )!;
     const slugs = conceptsByWorld(V5_CONCEPTS, content.id).map((c) => c.slug);
-    expect(isWorldDone(content, V5_CONCEPTS, { completedSkills: [], exploredSlugs: [] })).toBe(false);
-    expect(isWorldDone(content, V5_CONCEPTS, { completedSkills: [], exploredSlugs: slugs.slice(0, -1) })).toBe(false);
-    expect(isWorldDone(content, V5_CONCEPTS, { completedSkills: [], exploredSlugs: slugs })).toBe(true);
+    // Toutes les fiches vues → « exploré » (prêt à avancer), mais jamais « terminé ».
+    expect(isWorldExplored(content, V5_CONCEPTS, { completedSkills: [], exploredSlugs: slugs })).toBe(true);
+    expect(isWorldDone(content, V5_CONCEPTS, { completedSkills: [], exploredSlugs: slugs })).toBe(false);
+    // Fiches partiellement vues → même pas exploré.
+    expect(isWorldExplored(content, V5_CONCEPTS, { completedSkills: [], exploredSlugs: slugs.slice(0, -1) })).toBe(false);
+  });
+
+  it('consulter toutes les fiches d’un monde de contenu = statut « exploré » (pas « terminé »), et débloque la suite', () => {
+    const sorted = [...WORLDS].sort((a, b) => a.order - b.order);
+    // Monde 1 terminé (checkpoint) + monde 2 (contenu) entièrement consulté.
+    const world2 = sorted[1];
+    const world2Slugs = conceptsByWorld(V5_CONCEPTS, world2.id).map((c) => c.slug);
+    const input: LearningProgressInput = {
+      completedSkills: [...SKILLS.map((s) => s.id), CHECKPOINT_ID],
+      exploredSlugs: world2Slugs,
+    };
+    const path = buildLearningPath(WORLDS, V5_CONCEPTS, input);
+    const e2 = worldEntryById(path, world2.id)!;
+    expect(e2.status).toBe('explored'); // exploré, pas terminé
+    expect(e2.mastered).toBe(false); // un monde de contenu ne se maîtrise pas par la lecture
+    // Le monde 3 est débloqué (l'exploration permet d'avancer, sans mentir sur « terminé »).
+    const e3 = worldEntryById(path, sorted[2].id)!;
+    expect(e3.status).not.toBe('locked');
   });
 
   it('la visite seule ne valide jamais le monde guidé (maîtrise ≠ visite)', () => {
     const slugs = conceptsByWorld(V5_CONCEPTS, 'world.foundations').map((c) => c.slug);
     // Explorer toutes les fiches du monde 1 ne suffit pas : il faut le checkpoint.
     expect(isWorldDone(foundations, V5_CONCEPTS, { completedSkills: [], exploredSlugs: slugs })).toBe(false);
+    expect(isWorldExplored(foundations, V5_CONCEPTS, { completedSkills: [], exploredSlugs: slugs })).toBe(false);
   });
 });
 

@@ -25,6 +25,7 @@ import {
  */
 const WORLD_COLORS: Record<WorldStatus, string> = {
   done: theme.colors.primary,
+  explored: theme.colors.technical,
   current: theme.colors.primaryBright,
   unlocked: theme.colors.technical,
   locked: theme.colors.textMuted,
@@ -142,6 +143,7 @@ function BandHeader({ def }: { def: LevelBandDef }) {
 function StatusChip({ entry }: { entry: WorldEntry }) {
   if (entry.mastered) return <Chip iconName="trophy" label="Maîtrisé" color={theme.colors.reward} />;
   if (entry.status === 'done') return <Chip iconName="check" label="Terminé" color={theme.colors.primary} />;
+  if (entry.status === 'explored') return <Chip iconName="check" label="Exploré" color={theme.colors.technical} />;
   if (entry.status === 'current') return <Chip label="En cours" color={theme.colors.primaryBright} />;
   if (entry.status === 'locked') return <Chip iconName="lock" label="Verrouillé" color={theme.colors.textMuted} />;
   if (entry.guided) return <Chip label="Guidé" color={theme.colors.technical} />;
