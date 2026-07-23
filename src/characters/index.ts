@@ -12,11 +12,14 @@ export { useReducedMotion } from './useReducedMotion';
 export { type CharacterId, type CharacterState, type Expression, CHARACTER_NAME } from './types';
 export {
   STATE_TO_EXPRESSION,
+  STATE_TO_DURATION,
   CHARACTER_STATES,
   mascotFor,
+  statePriority,
   type CharacterStateSpec,
   type StateCategory,
   type Intensity,
+  type HapticKind,
 } from './states';
 export {
   mascotPresence,

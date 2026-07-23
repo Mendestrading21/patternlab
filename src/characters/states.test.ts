@@ -1,5 +1,6 @@
 import { describe, it, expect } from '@jest/globals';
-import { CHARACTER_STATES, STATE_TO_EXPRESSION, mascotFor } from './states';
+import { CHARACTER_STATES, STATE_TO_EXPRESSION, STATE_TO_DURATION, mascotFor, statePriority } from './states';
+import { motion } from '../design-system/tokens';
 
 const EXPRESSIONS = ['happy', 'excited', 'thinking', 'concerned', 'sad', 'neutral'];
 const CANONICAL = [
@@ -29,6 +30,50 @@ describe('registre d’états Toto/Bobo V2', () => {
     for (const s of ['idle', 'loading', 'offline', 'rest'] as const) {
       expect(CHARACTER_STATES[s].intensity).toBe('still');
     }
+  });
+});
+
+describe('métadonnées d’orchestration (LOT 2)', () => {
+  it('chaque état porte trigger, priorité, durée-token, interruptible, retour-idle et texte accessible', () => {
+    for (const [state, spec] of Object.entries(CHARACTER_STATES)) {
+      expect(spec.trigger.length).toBeGreaterThan(0);
+      expect(typeof spec.priority).toBe('number');
+      expect(spec.priority).toBeGreaterThanOrEqual(0);
+      expect(Object.keys(motion)).toContain(spec.duration); // durée = token motion réel
+      expect(typeof spec.interruptible).toBe('boolean');
+      expect(typeof spec.returnsToIdle).toBe('boolean');
+      expect(spec.accessibleText.length).toBeGreaterThan(0);
+      // texte accessible : jamais « image de » (règle canon)
+      expect(spec.accessibleText.toLowerCase()).not.toContain('image de');
+      // audio toujours absent par défaut (jamais de voix automatique)
+      expect(spec.audio).toBeUndefined();
+      expect(state in STATE_TO_DURATION).toBe(true);
+    }
+  });
+
+  it('offline est prioritaire sur tout et non interruptible (système critique)', () => {
+    const others = Object.entries(CHARACTER_STATES).filter(([s]) => s !== 'offline');
+    for (const [, spec] of others) expect(CHARACTER_STATES.offline.priority).toBeGreaterThan(spec.priority);
+    expect(CHARACTER_STATES.offline.interruptible).toBe(false);
+  });
+
+  it('les grandes célébrations se jouent jusqu’au bout (non interruptibles)', () => {
+    for (const s of ['celebrate-big', 'streak', 'level-up'] as const) {
+      expect(CHARACTER_STATES[s].interruptible).toBe(false);
+      expect(CHARACTER_STATES[s].duration).toBe('celebration');
+    }
+  });
+
+  it('la célébration forte est plus prioritaire que la petite (proportionnalité)', () => {
+    expect(statePriority('celebrate-big')).toBeGreaterThan(statePriority('celebrate-small'));
+    expect(statePriority('level-up')).toBeGreaterThan(statePriority('streak'));
+  });
+
+  it('les réactions ponctuelles reviennent à idle ; les contextes maintenus non', () => {
+    expect(CHARACTER_STATES['celebrate-small'].returnsToIdle).toBe(true);
+    expect(CHARACTER_STATES.wrong.returnsToIdle).toBe(true);
+    expect(CHARACTER_STATES.explain.returnsToIdle).toBe(false); // contexte maintenu
+    expect(CHARACTER_STATES.review.returnsToIdle).toBe(false);
   });
 });
 

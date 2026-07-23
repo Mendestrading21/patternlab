@@ -35,6 +35,15 @@ describe('Trademy Learning Glass — sémantique des tokens', () => {
     expect(motion.celebration).toBeLessThan(900);
   });
 
+  it('échelle canonique de mouvement : instant < fast < standard < expressive < celebration', () => {
+    expect(motion.instant).toBeLessThanOrEqual(120); // retour immédiat < 120 ms
+    expect(motion.instant).toBeLessThan(motion.fast);
+    expect(motion.fast).toBeLessThan(motion.standard);
+    expect(motion.standard).toBeLessThan(motion.expressive);
+    expect(motion.expressive).toBeLessThan(motion.celebration);
+    expect(motion.celebration).toBeLessThanOrEqual(1200); // plafond célébration
+  });
+
   it('identité publique = Trademy avec sa signature', () => {
     expect(APP_INFO.name).toBe('Trademy');
     expect(APP_INFO.signature).toBe('Ne parie pas. Comprends.');

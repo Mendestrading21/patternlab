@@ -183,8 +183,19 @@ export type TypographyVariant = keyof typeof typography;
  * `prefers-reduced-motion`, préférer un changement instantané ou un fondu léger.
  */
 export const motion = {
+  // Aliases historiques (conservés pour compatibilité des consommateurs existants).
   micro: 150,
   transition: 260,
+  // Échelle canonique (Toto/Bobo motion system) — le mouvement EXPLIQUE, jamais décoratif.
+  /** Retour visuel/tactile immédiat (< 120 ms) : sélection, tap. */
+  instant: 100,
+  /** Réaction courte : pop d'état, apparition d'annotation. */
+  fast: 200,
+  /** Transition standard : changement de scène mascotte, révélation. */
+  standard: 300,
+  /** Réaction expressive : bonne réponse, encouragement. */
+  expressive: 550,
+  /** Célébration forte (checkpoint, niveau) — plafonnée. */
   celebration: 720,
 } as const;
 
