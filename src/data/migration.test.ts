@@ -137,6 +137,33 @@ describe('migrateProgress', () => {
     expect(m.claimedStreakMilestones).toEqual([3, 7]);
   });
 
+  it('schéma v8 : progression par cible + rotation par défaut {} et assainies', () => {
+    // état v7 (sans targets ni rotation) → défauts {}
+    const v7 = migrateProgress({ schemaVersion: 7, totalXp: 0 }, T0)!;
+    expect(v7.schemaVersion).toBe(PROGRESS_SCHEMA_VERSION);
+    expect(v7.targets).toEqual({});
+    expect(v7.rotation).toEqual({});
+
+    // targets assainis : nombres bornés, review réparée, conceptId conservé
+    const m = migrateProgress(
+      {
+        totalXp: 0,
+        targets: {
+          'concept.x::recognize': { objectiveId: 'concept.x::recognize', conceptId: 'concept.x', attempts: 4, correct: 3, sessions: 2, lastCorrect: true, review: { repetitions: 2, easiness: 2.5, intervalDays: 6, dueAt: T0 } },
+          'concept.y::interpret': { attempts: -5, correct: 'x', review: null }, // assaini
+        },
+        rotation: { 'skill.a': 3, 'skill.b': -2, 'skill.c': 'x' }, // -2 et 'x' écartés
+      },
+      T0,
+    )!;
+    expect(m.targets!['concept.x::recognize'].correct).toBe(3);
+    expect(m.targets!['concept.x::recognize'].review.repetitions).toBe(2);
+    expect(m.targets!['concept.y::interpret'].attempts).toBe(0); // négatif → 0
+    expect(m.targets!['concept.y::interpret'].objectiveId).toBe('concept.y::interpret'); // clé de repli
+    expect(m.targets!['concept.y::interpret'].review.dueAt).toBe(T0); // review réparée
+    expect(m.rotation).toEqual({ 'skill.a': 3 });
+  });
+
   it('schéma v3 : errorTags par défaut {} et assainis', () => {
     // ancien état v2 sans errorTags → {}
     const legacy = migrateProgress(

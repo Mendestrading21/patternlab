@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { initialReview, levelForXp, type SkillProgress } from '../engines/learning';
 import { migrateOnboardingProfile, type OnboardingProfile } from './onboardingProfile';
 import { emptyPremium, migratePremium, type PremiumState } from './premium';
+import type { TargetProgress } from './targetProgress';
 
 /** Registre d'activité du jour (base des quêtes ; remis à zéro chaque jour). */
 export interface DailyActivity {
@@ -67,10 +68,15 @@ export interface ProgressState {
   history: DailySnapshot[];
   /** Compteurs d'apprentissage cumulatifs (schéma v6) — réussites « compréhension » V5. */
   learning?: LearningStats;
+  /** Progression par cible pédagogique (schéma v8) : objectiveId → progression SM-2 propre. */
+  targets?: Record<string, TargetProgress>;
+  /** Compteur de rotation par compétence/checkpoint (schéma v8) : monotone, indépendant des
+   * répétitions SM-2 (qu'un échec remet à zéro) → les variantes tournent même après un échec. */
+  rotation?: Record<string, number>;
   schemaVersion: number;
 }
 
-export const PROGRESS_SCHEMA_VERSION = 7;
+export const PROGRESS_SCHEMA_VERSION = 8;
 
 export interface ProgressRepository {
   load(): Promise<ProgressState | null>;
@@ -143,8 +149,44 @@ export function migrateProgress(raw: unknown, now: number): ProgressState | null
       : [],
     history: migrateHistory(p.history),
     learning: migrateLearning(p.learning),
+    targets: migrateTargets(p.targets, now),
+    rotation: migrateRotation(p.rotation),
     schemaVersion: PROGRESS_SCHEMA_VERSION,
   };
+}
+
+/** Assainit la progression par cible (schéma v8) ; défaut {} ; nombres bornés, review valide. */
+function migrateTargets(raw: unknown, now: number): Record<string, TargetProgress> {
+  if (!raw || typeof raw !== 'object') return {};
+  const out: Record<string, TargetProgress> = {};
+  const nat = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) && v >= 0 ? Math.floor(v) : 0);
+  for (const [id, value] of Object.entries(raw as Record<string, unknown>)) {
+    const t = (value ?? {}) as Partial<TargetProgress>;
+    const review = t.review;
+    out[id] = {
+      objectiveId: typeof t.objectiveId === 'string' ? t.objectiveId : id,
+      conceptId: typeof t.conceptId === 'string' ? t.conceptId : '',
+      attempts: nat(t.attempts),
+      correct: nat(t.correct),
+      sessions: nat(t.sessions),
+      lastCorrect: Boolean(t.lastCorrect),
+      review:
+        review && typeof review.dueAt === 'number' && typeof review.easiness === 'number'
+          ? review
+          : initialReview(now),
+    };
+  }
+  return out;
+}
+
+/** Assainit le compteur de rotation (schéma v8) ; défaut {} ; entiers ≥ 0. */
+function migrateRotation(raw: unknown): Record<string, number> {
+  if (!raw || typeof raw !== 'object') return {};
+  const out: Record<string, number> = {};
+  for (const [id, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (typeof value === 'number' && Number.isFinite(value) && value >= 0) out[id] = Math.floor(value);
+  }
+  return out;
 }
 
 /** Assainit les compteurs d'apprentissage (schéma v6) ; défaut vide, chaînes/nombres valides. */
