@@ -12,6 +12,7 @@ export { MascotEventScene, type MascotEventSceneProps } from './MascotEventScene
 export { GuideSelectionCard, type GuideSelectionCardProps } from './GuideSelectionCard';
 export { GUIDE_ROLE, GUIDE_PRESENT_STATE } from './guideRoles';
 export { useReducedMotion } from './useReducedMotion';
+export { motionPlan, popScale, loopsFloat, type MotionPlan } from './motionPlan';
 export { type CharacterId, type CharacterState, type Expression, CHARACTER_NAME } from './types';
 export {
   STATE_TO_EXPRESSION,

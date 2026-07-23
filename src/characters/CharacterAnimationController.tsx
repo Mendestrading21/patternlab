@@ -12,6 +12,7 @@ import Animated, {
 import { MascotAvatar } from './MascotAvatar';
 import { useReducedMotion } from './useReducedMotion';
 import { CHARACTER_STATES } from './states';
+import { motionPlan } from './motionPlan';
 import { motion } from '../design-system/tokens';
 import type { CharacterId, CharacterState } from './types';
 
@@ -41,13 +42,17 @@ export function CharacterAnimationController({
   const scale = useSharedValue(1);
   const translateY = useSharedValue(0);
 
-  // Intensité + libellé accessible pilotés par le registre d'états (source unique).
-  const spec = CHARACTER_STATES[state];
-  const intensity = spec?.intensity ?? 'subtle';
-  const accessibleText = spec?.accessibleText ?? '';
+  // Libellé accessible piloté par le registre (source unique) ; plan de mouvement dérivé du
+  // noyau PUR `motionPlan` (reduced-motion, échelle du pop, boucle idle) — testable sans Reanimated.
+  // On extrait des primitives (narrow-safe) pour un tableau de dépendances honnête.
+  const accessibleText = CHARACTER_STATES[state]?.accessibleText ?? '';
+  const plan = motionPlan(state, reduced);
+  const isStatic = plan.kind === 'static';
+  const popTarget = plan.kind === 'animated' ? plan.popScale : 1;
+  const loopFloat = plan.kind === 'animated' ? plan.loopFloat : false;
 
   useEffect(() => {
-    if (reduced) {
+    if (isStatic) {
       cancelAnimation(scale);
       cancelAnimation(translateY);
       scale.value = 1;
@@ -55,19 +60,20 @@ export function CharacterAnimationController({
       return;
     }
     // réaction ponctuelle au changement d'état, dosée par l'intensité ; pop bref (< 120 ms).
-    const pop = intensity === 'lively' ? 1.14 : intensity === 'still' ? 1.0 : 1.06;
-    scale.value = withSequence(withTiming(pop, { duration: motion.instant }), withSpring(1));
-    // flottement doux uniquement au repos
-    if (state === 'idle') {
+    scale.value = withSequence(withTiming(popTarget, { duration: motion.instant }), withSpring(1));
+    // flottement doux UNIQUEMENT au repos (seule boucle entretenue).
+    if (loopFloat) {
       translateY.value = withRepeat(withSequence(withTiming(-3, { duration: 1100 }), withTiming(0, { duration: 1100 })), -1, true);
     } else {
       cancelAnimation(translateY);
       translateY.value = withTiming(0, { duration: 200 });
     }
+    // Démontage / changement d'état : on annule la boucle pour ne laisser aucun timer actif.
     return () => {
       cancelAnimation(translateY);
+      cancelAnimation(scale);
     };
-  }, [state, reduced, intensity, scale, translateY]);
+  }, [isStatic, popTarget, loopFloat, scale, translateY]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }, { scale: scale.value }],
