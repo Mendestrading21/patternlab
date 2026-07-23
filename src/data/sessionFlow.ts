@@ -26,6 +26,19 @@ export function buildLearnSteps(steps: LessonStep[], counterExampleBody?: string
 
 export type SessionPhase = 'learn' | 'practice';
 
+/**
+ * Réponse validée d'une session, conservant sa cible pédagogique. Persistée avec
+ * la reprise pour qu'un checkpoint multi-compétences agrège EXACTEMENT les mêmes
+ * réponses avec ou sans fermeture intermédiaire.
+ */
+export interface AnsweredRecord {
+  exerciseId: string;
+  skillId: string;
+  conceptId?: string;
+  objectiveId?: string;
+  correct: boolean;
+}
+
 /** Position exacte d'une session, persistée pour reprise après fermeture. */
 export interface SessionResume {
   skillId: string;
@@ -35,6 +48,8 @@ export interface SessionResume {
   correct: number;
   streak: number;
   count: number | null;
+  /** Réponses déjà validées (avec leur cible), pour une agrégation fidèle après reprise. */
+  answered: AnsweredRecord[];
 }
 
 /**
@@ -57,11 +72,70 @@ export function sanitizeResume(raw: unknown, opts: { skillId: string }): Session
     correct: nat(r.correct),
     streak: nat(r.streak),
     count,
+    answered: sanitizeAnswered(r.answered),
   };
+}
+
+/** Assainit la liste des réponses persistées (garde exerciseId + skillId + cible + résultat). */
+function sanitizeAnswered(raw: unknown): AnsweredRecord[] {
+  if (!Array.isArray(raw)) return [];
+  const out: AnsweredRecord[] = [];
+  for (const a of raw) {
+    if (!a || typeof a !== 'object') continue;
+    const rec = a as Partial<AnsweredRecord>;
+    if (typeof rec.exerciseId !== 'string' || typeof rec.skillId !== 'string') continue;
+    out.push({
+      exerciseId: rec.exerciseId,
+      skillId: rec.skillId,
+      conceptId: typeof rec.conceptId === 'string' ? rec.conceptId : undefined,
+      objectiveId: typeof rec.objectiveId === 'string' ? rec.objectiveId : undefined,
+      correct: Boolean(rec.correct),
+    });
+  }
+  return out;
 }
 
 /** Une reprise vaut la peine d'être proposée si elle a dépassé le tout début. */
 export function isResumable(resume: SessionResume | null): boolean {
   if (!resume) return false;
   return resume.phase === 'practice' || resume.learnStep > 0 || resume.index > 0 || resume.correct > 0;
+}
+
+export interface PerSkillResult {
+  skillId: string;
+  correct: number;
+  total: number;
+}
+export interface PerTargetResult {
+  objectiveId: string;
+  conceptId: string;
+  correct: number;
+  total: number;
+}
+
+/**
+ * Agrège les réponses validées d'une session, par compétence ET par cible.
+ * Fonction pure et partagée : l'écran et les tests l'utilisent, si bien qu'une
+ * session reprise (réponses restaurées via `sanitizeResume`) produit exactement
+ * la même agrégation qu'une session continue.
+ */
+export function aggregateAnswered(answered: AnsweredRecord[]): {
+  perSkill: PerSkillResult[];
+  perTarget: PerTargetResult[];
+} {
+  const skill: Record<string, PerSkillResult> = {};
+  const target: Record<string, PerTargetResult> = {};
+  for (const a of answered) {
+    const s = skill[a.skillId] ?? { skillId: a.skillId, correct: 0, total: 0 };
+    s.total += 1;
+    if (a.correct) s.correct += 1;
+    skill[a.skillId] = s;
+    if (a.objectiveId) {
+      const t = target[a.objectiveId] ?? { objectiveId: a.objectiveId, conceptId: a.conceptId ?? '', correct: 0, total: 0 };
+      t.total += 1;
+      if (a.correct) t.correct += 1;
+      target[a.objectiveId] = t;
+    }
+  }
+  return { perSkill: Object.values(skill), perTarget: Object.values(target) };
 }

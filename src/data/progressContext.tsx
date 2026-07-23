@@ -35,7 +35,10 @@ interface ProgressContextValue {
   completeOnboarding: (profile: OnboardingProfile) => void;
   recordAnswer: (skillId: string, grade: Grade, tag?: string) => void;
   /** Planifie la révision espacée UNE fois par session (par compétence), depuis la précision. */
-  recordSessionReview: (perSkill: { skillId: string; correct: number; total: number }[]) => void;
+  recordSessionReview: (
+    perSkill: { skillId: string; correct: number; total: number }[],
+    perTarget?: { objectiveId: string; conceptId: string; correct: number; total: number }[],
+  ) => void;
   /** `passed` : la session est-elle réussie ? Seule une réussite débloque la compétence. */
   completeSession: (skillId?: string, passed?: boolean) => void;
   /** Réclame la récompense d'une quête du jour terminée (idempotent). */
@@ -216,7 +219,10 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   // Révision espacée : planifiée UNE fois par session (par compétence), pas par réponse.
   // Évite l'inflation d'intervalle intra-session et fait suivre le calendrier la précision réelle.
   const recordSessionReview = useCallback(
-    (perSkill: { skillId: string; correct: number; total: number }[]) => {
+    (
+      perSkill: { skillId: string; correct: number; total: number }[],
+      perTarget: { objectiveId: string; conceptId: string; correct: number; total: number }[] = [],
+    ) => {
       setState((prev) => {
         if (!prev) return prev;
         const now = Date.now();
@@ -231,6 +237,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
             if (prevStatus !== nextStatus) analytics.track('mastery_changed', { skillId, status: nextStatus });
           }
         }
+        // Révision espacée PAR CIBLE (une transition par cible) — source de la couverture/maîtrise.
+        next = progressLogic.recordTargetSessionReview(next, perTarget, now);
         if (next === prev) return prev;
         void progressRepository.save(next);
         announceBadges(prev, next);

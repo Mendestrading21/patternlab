@@ -49,17 +49,35 @@ describe('sanitizeResume — reprise exacte, jamais une autre session', () => {
     expect(r.count).toBeNull();
   });
 
-  it('accepte une reprise valide', () => {
+  it('accepte une reprise valide (answered [] par défaut)', () => {
     const r = sanitizeResume(OK, { skillId: 'skill.actions' })!;
-    expect(r).toEqual({ skillId: 'skill.actions', phase: 'practice', learnStep: 2, index: 3, correct: 2, streak: 1, count: 5 });
+    expect(r).toEqual({ skillId: 'skill.actions', phase: 'practice', learnStep: 2, index: 3, correct: 2, streak: 1, count: 5, answered: [] });
+  });
+
+  it('restaure les réponses validées avec leur cible (exerciseId/skillId/conceptId/objectiveId/correct)', () => {
+    const raw = {
+      ...OK,
+      answered: [
+        { exerciseId: 'ex.a', skillId: 'skill.actions', conceptId: 'concept.x', objectiveId: 'concept.x::recognize', correct: true },
+        { exerciseId: 'ex.b', skillId: 'skill.actions', correct: false }, // cible absente tolérée
+        { skillId: 'skill.actions', correct: true }, // sans exerciseId → écarté
+        'bruit', // non-objet → écarté
+      ],
+    };
+    const r = sanitizeResume(raw, { skillId: 'skill.actions' })!;
+    expect(r.answered).toEqual([
+      { exerciseId: 'ex.a', skillId: 'skill.actions', conceptId: 'concept.x', objectiveId: 'concept.x::recognize', correct: true },
+      { exerciseId: 'ex.b', skillId: 'skill.actions', conceptId: undefined, objectiveId: undefined, correct: false },
+    ]);
   });
 });
 
 describe('isResumable', () => {
+  const base = { skillId: 's', phase: 'learn' as const, learnStep: 0, index: 0, correct: 0, streak: 0, count: null, answered: [] };
   it('faux au tout début, vrai dès qu’on a avancé', () => {
     expect(isResumable(null)).toBe(false);
-    expect(isResumable({ skillId: 's', phase: 'learn', learnStep: 0, index: 0, correct: 0, streak: 0, count: null })).toBe(false);
-    expect(isResumable({ skillId: 's', phase: 'learn', learnStep: 1, index: 0, correct: 0, streak: 0, count: null })).toBe(true);
-    expect(isResumable({ skillId: 's', phase: 'practice', learnStep: 0, index: 0, correct: 0, streak: 0, count: null })).toBe(true);
+    expect(isResumable(base)).toBe(false);
+    expect(isResumable({ ...base, learnStep: 1 })).toBe(true);
+    expect(isResumable({ ...base, phase: 'practice' })).toBe(true);
   });
 });

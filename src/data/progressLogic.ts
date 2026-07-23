@@ -23,6 +23,7 @@ import {
   type SkillProgress,
 } from '../engines/learning';
 import type { ProgressState } from './repositories';
+import { applyTargetSessionResults, type TargetSessionResult } from './targetProgress';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -82,6 +83,22 @@ export function recordSessionReview(
   const current: SkillProgress = state.skills[skillId] ?? initialProgress(skillId, now);
   const updated = applySessionGrade(current, gradeForSession(correct, total), now);
   return { ...state, skills: { ...state.skills, [skillId]: updated } };
+}
+
+/**
+ * Planifie la révision espacée par CIBLE pédagogique (schéma v8) : au plus une
+ * transition par cible et par session. C'est la source de la couverture des
+ * objectifs (donc de la maîtrise). Deux objectifs d'une même compétence, et deux
+ * concepts partageant un skillId, avancent ainsi indépendamment.
+ */
+export function recordTargetSessionReview(
+  state: ProgressState,
+  results: TargetSessionResult[],
+  now: number,
+): ProgressState {
+  if (!results.length) return state;
+  const targets = applyTargetSessionResults(state.targets ?? {}, results, now);
+  return { ...state, targets };
 }
 
 /** Résultat d'une fin de session : le nouvel état + si une compétence vient d'être débloquée. */

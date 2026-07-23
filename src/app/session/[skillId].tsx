@@ -22,8 +22,10 @@ import {
   buildLearnSteps,
   sanitizeResume,
   isResumable,
+  aggregateAnswered,
   sessionResumeRepository,
   MASTERY_LABEL,
+  type AnsweredRecord,
 } from '@/data';
 import { xpForGrade, masteryStatus } from '@/engines/learning';
 import { LessonStepView } from '@/components/LessonStepView';
@@ -78,7 +80,7 @@ export default function Session() {
   // Réponses RÉELLEMENT validées de la session (commit à « Continuer »), pour planifier la
   // révision espacée une seule fois par compétence à la fin. Idempotent : une réponse commitée
   // ne l'est jamais deux fois (la reprise repart de la 1re question non commitée).
-  const answeredRef = useRef<{ skillId: string; correct: boolean }[]>([]);
+  const answeredRef = useRef<AnsweredRecord[]>([]);
   // Garde-fou : la note de session (maîtrise + planification de révision) n'est appliquée qu'UNE fois.
   const sessionScoredRef = useRef(false);
 
@@ -96,6 +98,9 @@ export default function Session() {
           setIndex(resume.index);
           setCorrect(resume.correct);
           setStreak(resume.streak);
+          // Restaure les réponses déjà validées (avec leur cible) : la fin de session agrège
+          // EXACTEMENT les mêmes réponses qu'une session continue (pré- et post-fermeture).
+          answeredRef.current = resume.answered;
         }
       }
       if (!cancelled) setHydrated(true);
@@ -114,7 +119,16 @@ export default function Session() {
   useEffect(() => {
     if (!known || !hydrated) return;
     if (index >= list.length) return;
-    sessionResumeRepository.save({ skillId: resolvedId, phase, learnStep, index, correct, streak, count: target });
+    sessionResumeRepository.save({
+      skillId: resolvedId,
+      phase,
+      learnStep,
+      index,
+      correct,
+      streak,
+      count: target,
+      answered: answeredRef.current,
+    });
   }, [known, hydrated, phase, learnStep, index, correct, streak, resolvedId, list.length, target]);
 
   // Session terminée → efface la reprise (rien à restaurer).
@@ -240,24 +254,11 @@ export default function Session() {
         onComplete={(passed) => {
           if (sessionScoredRef.current) return;
           sessionScoredRef.current = true;
-          // Révision espacée planifiée UNE fois : par compétence réelle pour un point de contrôle
-          // (exercices de plusieurs compétences), sinon sur la compétence de la session — via la
-          // précision (correct/total), robuste à la reprise.
-          const perSkill = isCheckpoint(resolvedId)
-            ? Object.values(
-                answeredRef.current.reduce<Record<string, { skillId: string; correct: number; total: number }>>(
-                  (acc, a) => {
-                    const g = acc[a.skillId] ?? { skillId: a.skillId, correct: 0, total: 0 };
-                    g.total += 1;
-                    if (a.correct) g.correct += 1;
-                    acc[a.skillId] = g;
-                    return acc;
-                  },
-                  {},
-                ),
-              )
-            : [{ skillId: resolvedId, correct, total: list.length }];
-          if (perSkill.length) recordSessionReview(perSkill);
+          // Agrégation UNE fois depuis les réponses réellement validées (persistées avec la reprise) :
+          // par compétence (révision de compétence) ET par cible (couverture/maîtrise). Le résultat est
+          // donc identique avec ou sans fermeture intermédiaire, sans double comptage.
+          const { perSkill, perTarget } = aggregateAnswered(answeredRef.current);
+          if (perSkill.length) recordSessionReview(perSkill, perTarget);
           completeSession(resolvedId, passed);
           if (isCheckpoint(resolvedId)) analytics.track('checkpoint_completed', { passed });
         }}
@@ -287,7 +288,13 @@ export default function Session() {
       setStreak((s) => (result.correct ? s + 1 : 0));
       recordAnswer(exercise.skillId, result.correct ? 5 : 2, result.correct ? undefined : exercise.id);
       if (result.correct && isFalseSignalExercise(exercise.type)) recordFalseSignal();
-      answeredRef.current.push({ skillId: exercise.skillId, correct: result.correct });
+      answeredRef.current.push({
+        exerciseId: exercise.id,
+        skillId: exercise.skillId,
+        conceptId: exercise.target?.conceptId,
+        objectiveId: exercise.target?.objectiveId,
+        correct: result.correct,
+      });
     }
     setIndex((i) => i + 1);
     setResult(null);
