@@ -5,9 +5,12 @@
 import type { Lesson, Skill } from '../engines/learning';
 import { initialProgress } from '../engines/learning';
 import type { Exercise } from '../engines/exercise';
+import { buildDirectionExercise } from '../engines/exercise';
 import type { Pattern } from '../engines/pattern';
 import { generateCandles, supportLevel, resistanceLevel } from '../engines/pattern';
 import { PROGRESS_SCHEMA_VERSION, emptyLearning, type ProgressState } from './repositories';
+import { rotateExercises, buildCheckpoint } from './exerciseRotation';
+import { objectiveId, type ObjectiveKind } from './learningTarget';
 
 export interface ContentModule {
   id: string;
@@ -369,10 +372,19 @@ const LABEL_SEED = 451;
 const labelCandles = generateCandles(LABEL_SEED, 30);
 const LABEL_MARKER = labelCandles.reduce((best, c, i) => (c.h > labelCandles[best].h ? i : best), 0); // plus haut atteint
 
-const EXERCISES: Record<string, Exercise[]> = {
+const RAW_EXERCISES: Record<string, Exercise[]> = {
   'skill.actions': [
     { id: 'ex.actions.mcq', type: 'mcq', skillId: 'skill.actions', prompt: 'Que représente une action ?', options: ['Un prêt à une entreprise', 'Une part d’une entreprise', 'Une monnaie numérique'], validation: { correctIndex: 1 }, difficulty: 'easy', feedback: fb('Exact — une action, c’est une part d’entreprise.', 'Une action n’est ni un prêt ni une monnaie.', 'Action = part d’entreprise.', 'Un prêt à une entreprise, c’est une obligation.') },
-    { id: 'ex.actions.chart-direction', type: 'identify_pattern', skillId: 'skill.actions', prompt: 'Voici le prix d’une action affiché en bougies. Quelle est sa direction générale ?', chartSeed: 2024, options: ['Plutôt à la hausse', 'Plutôt à la baisse', 'Sans direction nette'], validation: { correctIndex: 0 }, difficulty: 'easy', feedback: fb('Bien vu : la structure d’ensemble progresse vers le haut.', 'Regarde l’ensemble des bougies : la structure monte.', 'Le prix se lit sur un graphique en bougies ; la tendance se lit sur la structure globale.', 'Une seule bougie ne fait pas la tendance : c’est l’ensemble qui compte.') },
+    buildDirectionExercise({
+      id: 'ex.actions.chart-direction',
+      skillId: 'skill.actions',
+      target: { conceptId: 'concept.market-basics', objectiveId: 'concept.market-basics::recognize' },
+      chartSeed: 7,
+      prompt: 'Voici le prix d’une action affiché en bougies. Quelle est sa direction générale ?',
+      options: ['Plutôt à la hausse', 'Plutôt à la baisse', 'Sans direction nette'],
+      difficulty: 'easy',
+      rule: 'Le prix se lit sur un graphique en bougies ; la tendance se lit sur la structure globale.',
+    }),
     { id: 'ex.actions.green-candle', type: 'identify_figure', skillId: 'skill.actions', prompt: 'Sur cette bougie, comment le prix a-t-il évolué pendant la période ?', datasetKey: 'candle.bullish-marubozu.v1', variant: 'bullish-marubozu', visualType: 'candlestick-pattern', options: ['Le prix a monté (clôture au-dessus de l’ouverture)', 'Le prix a baissé', 'Le prix n’a pas bougé'], validation: { correctIndex: 0 }, difficulty: 'easy', feedback: fb('Exact : une bougie verte clôture au-dessus de son ouverture.', 'Une bougie verte clôture au-dessus de l’ouverture : le prix a monté.', 'Couleur = sens ouverture → clôture (verte = hausse).') },
     { id: 'ex.actions.tf', type: 'true_false', skillId: 'skill.actions', prompt: 'Un actionnaire possède une part de l’entreprise.', validation: { answer: true }, difficulty: 'easy', feedback: fb('Oui : détenir une action, c’est posséder une fraction de l’entreprise.', 'C’est pourtant vrai : l’actionnaire est copropriétaire.', 'Actionnaire = copropriétaire.') },
     { id: 'ex.actions.numeric', type: 'numeric', skillId: 'skill.actions', prompt: 'Sur 1 000 actions, combien en faut-il pour 1 % ?', unit: 'actions', validation: { answer: 10, tolerance: 0 }, difficulty: 'easy', feedback: fb('Exact : 1 % de 1 000 = 10.', '1 % de 1 000 = 10 actions.', 'Part = actions détenues ÷ total.') },
@@ -386,7 +398,16 @@ const EXERCISES: Record<string, Exercise[]> = {
     { id: 'ex.trend.order', type: 'order', skillId: 'skill.trend', prompt: 'Ordonne du plus baissier au plus haussier.', items: ['Marché haussier (bull)', 'Marché en range', 'Marché baissier (bear)'], validation: { correctOrder: [2, 1, 0] }, difficulty: 'medium', feedback: fb('Bien vu : bear → range → bull.', 'Ordre attendu : baissier, range, haussier.', 'Bear = baisse durable ; bull = hausse durable.') },
     { id: 'ex.trend.mcq', type: 'mcq', skillId: 'skill.trend', prompt: 'Qu’est-ce qu’une résistance ?', options: ['Un plancher où les acheteurs reviennent', 'Un plafond où les vendeurs reprennent la main', 'Un indicateur de volume'], validation: { correctIndex: 1 }, difficulty: 'medium', feedback: fb('Exact : la résistance plafonne la hausse.', 'La résistance est un plafond ; le plancher, c’est le support.', 'Résistance = plafond, support = plancher.') },
     { id: 'ex.trend.find', type: 'find_error', skillId: 'skill.trend', prompt: 'Repère l’affirmation FAUSSE.', statements: ['Le support agit comme un plancher.', 'La résistance garantit à 100 % que le prix redescend.', 'Ces niveaux sont des repères, pas des certitudes.'], validation: { errorIndex: 1 }, difficulty: 'medium', feedback: fb('Exact : rien n’est garanti à 100 %.', 'L’erreur est le « garantit à 100 % ».', 'Un niveau est un repère, jamais une garantie.') },
-    { id: 'ex.trend.identify', type: 'identify_pattern', skillId: 'skill.trend', prompt: 'Quelle tendance générale ce graphique montre-t-il ?', chartSeed: 2024, options: ['Haussière', 'Baissière', 'Latérale (range)'], validation: { correctIndex: 0 }, difficulty: 'medium', feedback: fb('Oui : la structure globale monte (sommets/creux plus hauts).', 'Regarde la structure d’ensemble : elle progresse vers le haut.', 'La tendance se lit sur la structure, pas sur une bougie.') },
+    buildDirectionExercise({
+      id: 'ex.trend.identify',
+      skillId: 'skill.trend',
+      target: { conceptId: 'concept.uptrend', objectiveId: 'concept.uptrend::recognize' },
+      chartSeed: 11,
+      prompt: 'Quelle tendance générale ce graphique montre-t-il ?',
+      options: ['Haussière', 'Baissière', 'Latérale (range)'],
+      difficulty: 'medium',
+      rule: 'La tendance se lit sur la structure (sommets et creux), pas sur une seule bougie.',
+    }),
     { id: 'ex.trend.zone', type: 'select_chart_zone', skillId: 'skill.trend', prompt: 'Le support est le plancher où les acheteurs reviennent. Touche la zone du support.', chartSeed: 2024, zones: ['Zone haute', 'Zone médiane', 'Zone basse'], validation: { correctZone: 2 }, difficulty: 'medium', feedback: fb('Exact — le support, c’est la zone basse (le plancher).', 'Le support est la zone basse ; le plafond du haut, c’est la résistance.', 'Support = plancher (bas), résistance = plafond (haut).', 'Un support finit parfois par céder : rien n’est garanti à 100 %.') },
     { id: 'ex.trend.identify-figure', type: 'identify_figure', skillId: 'skill.trend', prompt: 'Quel indicateur reconnais-tu ?', datasetKey: 'indicator.rsi.v1', variant: 'rsi', visualType: 'indicator', options: ['MACD', 'RSI', 'Bandes de Bollinger', 'Volume'], validation: { correctIndex: 1 }, difficulty: 'hard', feedback: fb('Exact : un oscillateur 0–100 avec zones 70/30.', 'C’est le RSI : oscillateur borné 0–100 sous le prix, seuils 70/30.', 'RSI = force relative, surachat > 70 / survente < 30.', '« Suracheté » n’est pas un ordre : en tendance, l’extrême peut durer.') },
   ],
@@ -400,8 +421,17 @@ const EXERCISES: Record<string, Exercise[]> = {
   'skill.patterns': [
     { id: 'ex.patterns.invalidation', type: 'place_invalidation', skillId: 'skill.patterns', prompt: 'Place le niveau d’invalidation : sous quel plancher la figure ne tient plus ?', chartSeed: INV_SEED, hint: 'le plus bas atteint (le plancher)', validation: { targetPrice: INV_TARGET, tolerance: INV_TOL }, difficulty: 'hard', feedback: fb('Bien vu : sous le plancher, l’hypothèse est invalidée.', 'L’invalidation se pose sous le plancher (le plus bas atteint), pas au milieu.', 'Invalidation = niveau qui, franchi, annule le scénario.', 'Une invalidation trop serrée saute au moindre bruit ; trop large, elle ne protège plus.') },
     { id: 'ex.patterns.label', type: 'label_chart', skillId: 'skill.patterns', prompt: 'Observe le repère sur le graphique.', chartSeed: LABEL_SEED, markerIndex: LABEL_MARKER, options: ['Le plus haut atteint sur la période', 'Le plancher (support)', 'Le volume échangé'], validation: { correctIndex: 0 }, difficulty: 'medium', feedback: fb('Exact : le repère pointe le sommet, le plus haut atteint.', 'Le repère est au sommet : c’est le plus haut atteint, pas le plancher ni le volume.', 'La mèche haute marque le plus haut de la période.') },
-    { id: 'ex.patterns.sequence', type: 'sequence_market_structure', skillId: 'skill.patterns', prompt: 'Remets la structure de marché dans l’ordre chronologique.', chartSeed: 2024, steps: ['Cassure de la résistance (breakout)', 'Range : accumulation dans une zone', 'Tendance haussière : sommets et creux plus hauts', 'Pullback : retest du niveau cassé'], validation: { correctOrder: [1, 0, 3, 2] }, difficulty: 'hard', feedback: fb('Bien vu : accumulation, cassure, retest, puis tendance.', 'Ordre attendu : range → cassure → pullback → tendance.', 'La structure évolue par phases successives.', 'Une cassure peut échouer (faux signal) et le prix revenir dans le range.') },
-    { id: 'ex.patterns.identify', type: 'identify_pattern', skillId: 'skill.patterns', prompt: 'Sur ce schéma, quelle est la direction dominante ?', chartSeed: 314, options: ['Plutôt haussière', 'Plutôt baissière', 'Sans direction nette'], validation: { correctIndex: 0 }, difficulty: 'medium', feedback: fb('Bien lu : la structure progresse vers le haut.', 'Observe l’ensemble : la structure monte.', 'On lit la direction sur la structure globale.') },
+    { id: 'ex.patterns.sequence', type: 'sequence_market_structure', skillId: 'skill.patterns', prompt: 'Remets la structure de marché dans l’ordre chronologique.', chartSeed: 12, steps: ['Cassure de la résistance (breakout)', 'Range : accumulation dans une zone', 'Tendance haussière : sommets et creux plus hauts', 'Pullback : retest du niveau cassé'], validation: { correctOrder: [1, 0, 3, 2] }, difficulty: 'hard', feedback: fb('Bien vu : accumulation, cassure, retest, puis tendance.', 'Ordre attendu : range → cassure → pullback → tendance.', 'La structure évolue par phases successives.', 'Une cassure peut échouer (faux signal) et le prix revenir dans le range.') },
+    buildDirectionExercise({
+      id: 'ex.patterns.identify',
+      skillId: 'skill.patterns',
+      target: { conceptId: 'concept.double-bottom', objectiveId: 'concept.double-bottom::recognize' },
+      chartSeed: 314,
+      prompt: 'Sur ce schéma, quelle est la direction dominante ?',
+      options: ['Plutôt haussière', 'Plutôt baissière', 'Sans direction nette'],
+      difficulty: 'medium',
+      rule: 'On lit la direction sur la structure globale.',
+    }),
     { id: 'ex.patterns.mcq', type: 'mcq', skillId: 'skill.patterns', prompt: 'Un double creux est une figure plutôt…', options: ['Haussière', 'Baissière', 'Neutre par nature'], validation: { correctIndex: 0 }, difficulty: 'medium', feedback: fb('Exact : le double creux est une figure de retournement haussier.', 'Le double creux (« W ») est plutôt haussier.', 'Deux creux + cassure = potentiel haussier.') },
     { id: 'ex.patterns.tf', type: 'true_false', skillId: 'skill.patterns', prompt: 'Un double creux est confirmé par la cassure de la ligne de cou.', validation: { answer: true }, difficulty: 'medium', feedback: fb('Oui : sans cassure de la ligne de cou, la figure n’est pas confirmée.', 'C’est vrai : la cassure de la ligne de cou confirme.', 'Pas de confirmation sans cassure.') },
     { id: 'ex.patterns.find', type: 'find_error', skillId: 'skill.patterns', prompt: 'Repère l’affirmation FAUSSE sur le double creux.', statements: ['Les deux creux sont à un niveau proche.', 'La figure est invalidée si le prix casse nettement sous le second creux.', 'La figure garantit une hausse.'], validation: { errorIndex: 2 }, difficulty: 'medium', feedback: fb('Exact : aucune figure ne garantit un mouvement.', 'L’erreur : rien n’est garanti.', 'Une figure donne un scénario, jamais une certitude.') },
@@ -409,6 +439,93 @@ const EXERCISES: Record<string, Exercise[]> = {
     { id: 'ex.patterns.identify-figure', type: 'identify_figure', skillId: 'skill.patterns', prompt: 'Quelle figure chartiste reconnais-tu ?', datasetKey: 'pattern.head-shoulders.v1', variant: 'head-shoulders', visualType: 'chart-pattern', options: ['Triangle ascendant', 'Épaule-tête-épaule', 'Double creux', 'Drapeau haussier'], validation: { correctIndex: 1 }, difficulty: 'medium', feedback: fb('Bien vu : trois sommets, la tête au centre.', 'C’est une épaule-tête-épaule : la tête (sommet central) domine deux épaules.', 'ÉTÉ = tête centrale plus haute + ligne de cou ; la cassure confirme.', 'Sans cassure de la ligne de cou, la figure n’est pas confirmée.') },
   ],
 };
+
+// ─── Cibles pédagogiques des exercices ───────────────────────────────
+// Concept représentatif de chaque compétence (source : CONCEPT_BY_SKILL, mais par id).
+const SKILL_CONCEPT_ID: Record<string, string> = {
+  'skill.actions': 'concept.market-basics',
+  'skill.trend': 'concept.uptrend',
+  'skill.candles': 'concept.candle-anatomy',
+  'skill.patterns': 'concept.double-bottom',
+};
+
+// Objectif adressé par chaque exercice (les exercices directionnels portent déjà leur cible).
+// Chaque `kind` est un objectif RÉEL du concept représentatif (aucune cible orpheline).
+const EXERCISE_OBJECTIVE: Record<string, ObjectiveKind> = {
+  'ex.actions.mcq': 'interpret',
+  'ex.actions.green-candle': 'recognize',
+  'ex.actions.tf': 'interpret',
+  'ex.actions.numeric': 'interpret',
+  'ex.actions.match': 'interpret',
+  'ex.actions.find': 'avoid-false-signal',
+  'ex.actions.dividende': 'interpret',
+  'ex.actions.per': 'interpret',
+  'ex.trend.tf': 'recognize',
+  'ex.trend.order': 'interpret',
+  'ex.trend.mcq': 'interpret',
+  'ex.trend.find': 'avoid-false-signal',
+  'ex.trend.zone': 'recognize',
+  'ex.trend.identify-figure': 'recognize',
+  'ex.candles.mcq': 'interpret',
+  'ex.candles.tf': 'interpret',
+  'ex.candles.match': 'interpret',
+  'ex.candles.find': 'avoid-false-signal',
+  'ex.candles.identify-figure': 'recognize',
+  'ex.patterns.invalidation': 'invalidate',
+  'ex.patterns.label': 'recognize',
+  'ex.patterns.sequence': 'interpret',
+  'ex.patterns.mcq': 'interpret',
+  'ex.patterns.tf': 'confirm',
+  'ex.patterns.find': 'avoid-false-signal',
+  'ex.patterns.scenario': 'confirm',
+  'ex.patterns.identify-figure': 'recognize',
+};
+
+function withTarget(ex: Exercise): Exercise {
+  if (ex.target) return ex; // exercices directionnels : cible déjà posée
+  const conceptId = SKILL_CONCEPT_ID[ex.skillId];
+  const kind = EXERCISE_OBJECTIVE[ex.id];
+  if (!conceptId || !kind) return ex;
+  return { ...ex, target: { conceptId, objectiveId: objectiveId(conceptId, kind) } };
+}
+
+/** Chaque exercice porte une cible pédagogique (conceptId + objectiveId). */
+const EXERCISES: Record<string, Exercise[]> = Object.fromEntries(
+  Object.entries(RAW_EXERCISES).map(([skillId, list]) => [skillId, list.map(withTarget)]),
+);
+
+/** Objectifs réellement exerçables d'un concept = ceux ciblés par au moins un exercice. */
+export function exercisableObjectiveIds(conceptId: string): string[] {
+  const set = new Set<string>();
+  for (const list of Object.values(EXERCISES)) {
+    for (const ex of list) {
+      if (ex.target?.conceptId === conceptId) set.add(ex.target.objectiveId);
+    }
+  }
+  return [...set];
+}
+
+/** Variantes d'exercice qui adressent un objectif donné (même cible, formulations différentes). */
+export function exerciseVariantsForObjective(objectiveId: string): Exercise[] {
+  const out: Exercise[] = [];
+  for (const list of Object.values(EXERCISES)) {
+    for (const ex of list) {
+      if (ex.target?.objectiveId === objectiveId) out.push(ex);
+    }
+  }
+  return out;
+}
+
+/**
+ * Choisit une variante pour un objectif selon le round de rotation. La remédiation
+ * peut réutiliser une cible échouée tout en proposant une variante DIFFÉRENTE
+ * lorsqu'il en existe plusieurs (le round avance à chaque session, même échouée).
+ */
+export function pickVariant(objectiveId: string, round: number): Exercise | undefined {
+  const vs = exerciseVariantsForObjective(objectiveId);
+  if (!vs.length) return undefined;
+  return vs[((Math.trunc(round) % vs.length) + vs.length) % vs.length];
+}
 
 // ─── Checkpoint (revue mixte du module) ──────────────────────────────
 // Nœud de fin de module : réunit quelques exercices de chaque compétence.
@@ -428,6 +545,29 @@ export function getExercises(skillId: string): Exercise[] {
     return SKILLS.flatMap((s) => (EXERCISES[s.id] ?? []).slice(0, 2));
   }
   return EXERCISES[skillId] ?? [];
+}
+
+/**
+ * Checkpoint tournant : `perSkill` exercices de chaque compétence, la fenêtre
+ * tournant avec `round` → les 8 questions ne sont jamais figées d'un passage à
+ * l'autre (round 0 = comportement historique). Plusieurs compétences, donc
+ * plusieurs objectifs, sont couvertes à chaque passage.
+ */
+export function checkpointExercises(round = 0, perSkill = 2): Exercise[] {
+  return buildCheckpoint(
+    SKILLS.map((s) => EXERCISES[s.id] ?? []),
+    perSkill,
+    round,
+  );
+}
+
+/**
+ * Sélection tournante d'une session de compétence : au lieu des premiers `count`
+ * figés, une page déterministe qui avance avec `round` (round 0 = historique).
+ */
+export function rotatedExercises(skillId: string, count: number, round = 0): Exercise[] {
+  if (skillId === CHECKPOINT_ID) return checkpointExercises(round, Math.max(1, Math.floor(count / SKILLS.length) || 2));
+  return rotateExercises(EXERCISES[skillId] ?? [], count, round);
 }
 export function skillById(id: string): Skill | undefined {
   if (id === CHECKPOINT_ID) return { id: CHECKPOINT_ID, name: CHECKPOINT_TITLE };

@@ -1,7 +1,10 @@
 name: CI
 
+# Gate canonique avant fusion : s'exécute sur chaque pull request vers `main`
+# (et sur push `main`). Le déploiement reste réservé à `main` (voir deploy.yml).
 on:
   pull_request:
+    branches: [main]
   push:
     branches: [main]
 
@@ -10,9 +13,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Contrôle des espaces (git diff --check)
+        run: |
+          if [ -n "${{ github.event.pull_request.base.sha }}" ]; then
+            git diff --check "${{ github.event.pull_request.base.sha }}...HEAD"
+          else
+            git diff --check
+          fi
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npm run check
+      - name: Gate canonique (lint · typecheck · tests · validate:content · release:check · build:web)
+        run: npm run check

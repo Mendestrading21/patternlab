@@ -6,6 +6,8 @@ import {
   initialReview,
   scheduleNext,
   applyGrade,
+  applySessionGrade,
+  gradeForSession,
   isMastered,
   isDue,
   xpForGrade,
@@ -117,5 +119,51 @@ describe('maîtrise adaptative', () => {
   it('errorCount somme les errorTags (0 si absent)', () => {
     expect(errorCount(sp())).toBe(0);
     expect(errorCount(sp({ errorTags: { a: 2, b: 1 } }))).toBe(3);
+  });
+});
+
+describe('gradeForSession (note agrégée d’une session)', () => {
+  it('≥ 80 % → 5, 60–80 % → 3, < 60 % → 2', () => {
+    expect(gradeForSession(10, 10)).toBe(5);
+    expect(gradeForSession(8, 10)).toBe(5);
+    expect(gradeForSession(7, 10)).toBe(3);
+    expect(gradeForSession(6, 10)).toBe(3);
+    expect(gradeForSession(5, 10)).toBe(2);
+    expect(gradeForSession(3, 5)).toBe(3); // 60 % exactement → note 3
+    expect(gradeForSession(2, 5)).toBe(2); // 40 % → note 2
+  });
+
+  it('total nul → 2 (pas de division par zéro)', () => {
+    expect(gradeForSession(0, 0)).toBe(2);
+  });
+
+  it('une session faible (60 %) programme une révision PROCHE ; une session ratée, immédiate', () => {
+    const p = initialProgress('s', T0);
+    // 60 % (note 3) : rappel juste → première révision à 1 jour (proche), pas lointaine.
+    const weak = applySessionGrade(p, gradeForSession(6, 10), T0);
+    expect(weak.review.intervalDays).toBe(1);
+    // < 60 % (note 2) : échec → révision immédiate (due maintenant).
+    const failed = applySessionGrade(p, gradeForSession(4, 10), T0);
+    expect(failed.review.dueAt).toBe(T0);
+    expect(isDue(failed.review, T0)).toBe(true);
+  });
+});
+
+describe('applySessionGrade (maîtrise + révision, SANS XP)', () => {
+  it('avance la révision et la maîtrise mais ne touche jamais l’XP', () => {
+    const p = { ...initialProgress('s', T0), xp: 42 };
+    const after = applySessionGrade(p, 5, T0);
+    expect(after.xp).toBe(42); // XP inchangé (récompense d’activité, comptée par réponse)
+    expect(after.review.repetitions).toBe(1);
+    expect(after.mastery).toBeGreaterThan(p.mastery);
+  });
+
+  it('applyGrade = applySessionGrade + XP (comportement historique préservé)', () => {
+    const p = initialProgress('s', T0);
+    const full = applyGrade(p, 5, T0);
+    const sess = applySessionGrade(p, 5, T0);
+    expect(full.review).toEqual(sess.review);
+    expect(full.mastery).toBe(sess.mastery);
+    expect(full.xp).toBe(p.xp + xpForGrade(5));
   });
 });

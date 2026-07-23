@@ -24,8 +24,11 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - name: Export web (Expo)
-        run: npm run build:web
+      # Gate complète avant tout déploiement : le site ne part en production que si
+      # lint · typecheck · tests · validate:content · release:check ET build:web passent.
+      # `npm run check` inclut `build:web`, qui produit `dist/` (l'artefact publié plus bas).
+      - name: Gate complète (lint · typecheck · tests · contenu · release · build web)
+        run: npm run check
         env:
           EXPO_NO_TELEMETRY: '1'
       - uses: actions/configure-pages@v5

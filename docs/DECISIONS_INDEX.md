@@ -35,6 +35,9 @@ contrat (`CLAUDE.md`) priment sur un ancien programme.
 | Enrichissement éditorial · Batch 2 (chandeliers) | [ADR-089](./ADR-089-trademy-enrichissement-batch-2.md) |
 | Enrichissement éditorial · Batch 3 (figures) | [ADR-090](./ADR-090-trademy-enrichissement-batch-3.md) |
 | Enrichissement éditorial · Batch 4 (reste — 67/67) | [ADR-091](./ADR-091-trademy-enrichissement-batch-4.md) |
+| Fiabilité pédagogique P0 (jamais de réponse fausse) | [ADR-092](./ADR-092-p0-fiabilite-pedagogique.md) |
+| Progression fiable P0 (cible canonique, maîtrise prouvée) | [ADR-093](./ADR-093-p0-progression-fiable.md) |
+| Progression par cible persistée P0 (v8, reprise, rotation, CI) | [ADR-094](./ADR-094-p0-progression-par-cible.md) |
 
 ## Fondations toujours actives
 

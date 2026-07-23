@@ -9,6 +9,8 @@ import {
   worldById,
   categoryById,
   conceptMasteryStatus,
+  needsEditorialReview,
+  EDITORIAL_REVIEW_NOTICE,
   useProgress,
 } from '@/data';
 import { VisualCard } from '@/engines/visual';
@@ -70,14 +72,33 @@ export default function ConceptFiche() {
           const st = conceptMasteryStatus(concept, {
             exploredSlugs: state?.learning?.conceptsExplored ?? [],
             skills: state?.skills ?? {},
+            completedSkills: state?.completedSkills ?? [],
+            targets: state?.targets ?? {},
           });
-          const color = st.mastered ? theme.colors.primary : st.explored ? theme.colors.technical : theme.colors.textMuted;
-          return <Chip label={st.label} color={color} />;
+          const color = st.mastered
+            ? theme.colors.primary
+            : st.state === 'strong'
+              ? theme.colors.technical
+              : st.explored
+                ? theme.colors.technical
+                : theme.colors.textMuted;
+          return <Chip label={st.stateLabel} color={color} />;
         })()}
         <Chip label={`${tone.label} · ${concept.difficulty}/5`} color={tone.color} />
         {concept.estimatedMinutes ? <Chip label={`${concept.estimatedMinutes} min`} color={theme.colors.neutral} /> : null}
         {concept.aliases[0] ? <Chip label={concept.aliases[0]} color={theme.colors.textMuted} /> : null}
       </View>
+
+      {needsEditorialReview(concept) ? (
+        <Card style={styles.reviewNotice} accessibilityRole="summary">
+          <Text variant="label" color={theme.colors.warning}>
+            À relire
+          </Text>
+          <Text variant="caption" color={theme.colors.textSecondary}>
+            {EDITORIAL_REVIEW_NOTICE}
+          </Text>
+        </Card>
+      ) : null}
 
       {concept.visualSpec ? <VisualCard spec={concept.visualSpec} title="Visuel" /> : null}
 
@@ -193,6 +214,7 @@ const styles = StyleSheet.create({
   headRow: { flexDirection: 'row', alignItems: 'flex-start', gap: theme.spacing.sm },
   flex1: { flex: 1 },
   metaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
+  reviewNotice: { gap: theme.spacing.xs, borderColor: theme.colors.warning },
   dialogue: { gap: theme.spacing.md },
   list: { gap: theme.spacing.xs, marginTop: theme.spacing.xs },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, marginTop: theme.spacing.xs },

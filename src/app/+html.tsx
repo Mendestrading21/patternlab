@@ -19,10 +19,12 @@ export default function Root({ children }: PropsWithChildren) {
       <head>
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
-        />
+        {/*
+         * Accessibilité (WCAG 1.4.4 / 1.4.10) : ne JAMAIS bloquer le zoom.
+         * On retire `maximum-scale=1` et `user-scalable=no` — le pincer-pour-zoomer
+         * et le zoom navigateur doivent rester disponibles.
+         */}
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 
         <meta name="theme-color" content="#0A0D16" />
         <meta name="color-scheme" content="dark" />

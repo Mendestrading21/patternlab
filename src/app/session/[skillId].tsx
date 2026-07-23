@@ -9,6 +9,8 @@ import {
   getLessons,
   skillById,
   limitCount,
+  rotateExercises,
+  checkpointExercises,
   isCheckpoint,
   isFalseSignalExercise,
   useProgress,
@@ -20,8 +22,10 @@ import {
   buildLearnSteps,
   sanitizeResume,
   isResumable,
+  aggregateAnswered,
   sessionResumeRepository,
   MASTERY_LABEL,
+  type AnsweredRecord,
 } from '@/data';
 import { xpForGrade, masteryStatus } from '@/engines/learning';
 import { LessonStepView } from '@/components/LessonStepView';
@@ -35,7 +39,7 @@ const DAY_MS = 86_400_000;
 export default function Session() {
   const { skillId, count } = useLocalSearchParams<{ skillId: string; count?: string }>();
   const router = useRouter();
-  const { recordAnswer, completeSession, recordFalseSignal } = useProgress();
+  const { recordAnswer, recordSessionReview, completeSession, recordFalseSignal, state } = useProgress();
 
   // Session valide = un id qui correspond à un contenu réel (compétence avec exercices, ou point
   // de contrôle dont `getExercises` agrège des exercices réels). AUCUN repli silencieux : un id
@@ -45,7 +49,14 @@ export default function Session() {
   const known = all.length > 0;
   // `count` (facultatif) provient de la mission du jour : longueur modulée par le temps quotidien.
   const target = count != null ? Number.parseInt(count, 10) : null;
-  const list = all.slice(0, limitCount(all.length, target));
+  // Rotation déterministe : au lieu des premiers N figés, une page qui avance à chaque session
+  // TERMINÉE (réussie ou non). `round` dérive du compteur de rotation PERSISTÉ (indépendant des
+  // répétitions SM-2 qu'un échec remet à zéro), donc stable pendant une session (la reprise retrouve
+  // la MÊME liste) et avançant entre sessions — même après un échec (variantes différentes).
+  const round = state?.rotation?.[resolvedId] ?? 0;
+  const list = isCheckpoint(resolvedId)
+    ? checkpointExercises(round, 2)
+    : rotateExercises(all, limitCount(all.length, target), round);
   const skillName = skillById(resolvedId)?.name ?? 'Session';
   const lessons = known ? getLessons(resolvedId) : [];
 
@@ -62,6 +73,12 @@ export default function Session() {
   const [phase, setPhase] = useState<'learn' | 'practice'>(lessons.length ? 'learn' : 'practice');
   const [hydrated, setHydrated] = useState(false);
   const hydratedOnce = useRef(false);
+  // Réponses RÉELLEMENT validées de la session (commit à « Continuer »), pour planifier la
+  // révision espacée une seule fois par compétence à la fin. Idempotent : une réponse commitée
+  // ne l'est jamais deux fois (la reprise repart de la 1re question non commitée).
+  const answeredRef = useRef<AnsweredRecord[]>([]);
+  // Garde-fou : la note de session (maîtrise + planification de révision) n'est appliquée qu'UNE fois.
+  const sessionScoredRef = useRef(false);
 
   // Reprise exacte : au 1er rendu, restaure la position sauvegardée de CETTE compétence.
   useEffect(() => {
@@ -77,6 +94,9 @@ export default function Session() {
           setIndex(resume.index);
           setCorrect(resume.correct);
           setStreak(resume.streak);
+          // Restaure les réponses déjà validées (avec leur cible) : la fin de session agrège
+          // EXACTEMENT les mêmes réponses qu'une session continue (pré- et post-fermeture).
+          answeredRef.current = resume.answered;
         }
       }
       if (!cancelled) setHydrated(true);
@@ -95,7 +115,16 @@ export default function Session() {
   useEffect(() => {
     if (!known || !hydrated) return;
     if (index >= list.length) return;
-    sessionResumeRepository.save({ skillId: resolvedId, phase, learnStep, index, correct, streak, count: target });
+    sessionResumeRepository.save({
+      skillId: resolvedId,
+      phase,
+      learnStep,
+      index,
+      correct,
+      streak,
+      count: target,
+      answered: answeredRef.current,
+    });
   }, [known, hydrated, phase, learnStep, index, correct, streak, resolvedId, list.length, target]);
 
   // Session terminée → efface la reprise (rien à restaurer).
@@ -112,6 +141,8 @@ export default function Session() {
     setResult(null);
     setCorrect(0);
     setStreak(0);
+    answeredRef.current = [];
+    sessionScoredRef.current = false;
     sessionResumeRepository.clear();
   };
 
@@ -217,6 +248,13 @@ export default function Session() {
         total={list.length}
         correct={correct}
         onComplete={(passed) => {
+          if (sessionScoredRef.current) return;
+          sessionScoredRef.current = true;
+          // Agrégation UNE fois depuis les réponses réellement validées (persistées avec la reprise) :
+          // par compétence (révision de compétence) ET par cible (couverture/maîtrise). Le résultat est
+          // donc identique avec ou sans fermeture intermédiaire, sans double comptage.
+          const { perSkill, perTarget } = aggregateAnswered(answeredRef.current);
+          if (perSkill.length) recordSessionReview(perSkill, perTarget);
           completeSession(resolvedId, passed);
           if (isCheckpoint(resolvedId)) analytics.track('checkpoint_completed', { passed });
         }}
@@ -230,18 +268,30 @@ export default function Session() {
 
   const validate = (answer: unknown) => {
     if (result) return;
+    // On calcule et on AFFICHE le feedback, mais on ne commite RIEN ici : la réponse n'est
+    // enregistrée qu'au « Continuer » (next), atomiquement avec l'avance d'index. Fermer l'app
+    // pendant le feedback ne peut donc jamais compter la réponse deux fois : la reprise repart
+    // de cette même question, non encore commitée.
     const graded = gradeExercise(exercise, answer);
     setResult(graded);
-    if (graded.correct) setCorrect((c) => c + 1);
-    setStreak((s) => (graded.correct ? s + 1 : 0));
-    // Erreur → errorTag = id de l'exercice (concept à retravailler ; révision rapprochée).
-    recordAnswer(exercise.skillId, graded.correct ? 5 : 2, graded.correct ? undefined : exercise.id);
-    // Réussite « compréhension » V5 : un faux signal / une invalidation correctement repéré.
-    if (graded.correct && isFalseSignalExercise(exercise.type)) recordFalseSignal();
     analytics.track('feedback_viewed', { exerciseId: exercise.id, correct: graded.correct });
   };
 
   const next = () => {
+    if (result) {
+      // Commit atomique de la réponse validée : compteurs + XP/errorTags + faux signal, puis avance.
+      if (result.correct) setCorrect((c) => c + 1);
+      setStreak((s) => (result.correct ? s + 1 : 0));
+      recordAnswer(exercise.skillId, result.correct ? 5 : 2, result.correct ? undefined : exercise.id);
+      if (result.correct && isFalseSignalExercise(exercise.type)) recordFalseSignal();
+      answeredRef.current.push({
+        exerciseId: exercise.id,
+        skillId: exercise.skillId,
+        conceptId: exercise.target?.conceptId,
+        objectiveId: exercise.target?.objectiveId,
+        correct: result.correct,
+      });
+    }
     setIndex((i) => i + 1);
     setResult(null);
   };

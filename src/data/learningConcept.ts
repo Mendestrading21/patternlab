@@ -174,9 +174,22 @@ export interface LearningConcept {
   sourceHash?: string;
   version: number;
   status: ConceptStatus;
+  /** Auteur/relecteur humain ayant validé la fiche (rempli à l'approbation ; absent tant que `needsReview`). */
+  reviewedBy?: string;
+  /** Date de la revue éditoriale (AAAA-MM-JJ), rempli à l'approbation. */
+  reviewDate?: string;
   locale: Locale;
   disclaimer: string;
 }
+
+/** Une fiche est en cours de relecture éditoriale tant qu'elle n'est pas `approved`/`published`. */
+export function needsEditorialReview(concept: Pick<LearningConcept, 'status'>): boolean {
+  return concept.status !== 'approved' && concept.status !== 'published';
+}
+
+/** Bandeau affiché sur une fiche non encore validée éditorialement. */
+export const EDITORIAL_REVIEW_NOTICE =
+  'Contenu en cours de relecture éditoriale : formulations et exemples pédagogiques, pas encore validés par une revue humaine.';
 
 export const DEFAULT_DISCLAIMER =
   'Contenu éducatif. Aucun conseil en investissement. Le trading comporte un risque de perte.';

@@ -52,6 +52,17 @@ export interface ExerciseFeedback {
   whenItFails?: string;
 }
 
+/**
+ * Cible pédagogique d'un exercice : le couple (conceptId, objectiveId).
+ * Structurellement compatible avec `LearningTarget` (src/data/learningTarget.ts),
+ * défini ici sans import inter-couches pour éviter tout cycle data↔engines.
+ * Optionnel : les exercices historiques restent valides sans cible.
+ */
+export interface ExerciseTarget {
+  conceptId: string;
+  objectiveId: string;
+}
+
 export interface BaseExercise {
   id: string;
   type: ExerciseType;
@@ -60,6 +71,8 @@ export interface BaseExercise {
   difficulty?: ExerciseDifficulty;
   feedback: ExerciseFeedback;
   sources?: string[];
+  /** Cible pédagogique adressée (conceptId + objectiveId). Optionnel. */
+  target?: ExerciseTarget;
 }
 
 export interface McqExercise extends BaseExercise {

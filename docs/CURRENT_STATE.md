@@ -129,6 +129,62 @@ poursuit **un paquet à la fois, revu humainement**, sans jamais gonfler le corp
 
 > **Enrichissement éditorial — complet : les 67 concepts** portent durée + dialogue Toto/Bobo.
 
+## Fiabilité pédagogique P0 — en cours (branche `fix/trademy-p0-pedagogical-truth`)
+
+Lot correctif ciblé : **Trademy ne doit jamais enseigner une réponse fausse**, et la progression
+doit refléter un apprentissage réel. Cinq défauts P0 confirmés dans le code courant, corrigés avec
+garde-fous (voir **ADR-092**) ; aucune migration destructive, corpus et navigation inchangés.
+
+- **Cohérence graphique ↔ réponse** ✅ : graines contradictoires de `seed.ts` corrigées ; test
+  `exerciseChartCoherence.test.ts` recalcule la direction réelle de chaque exercice directionnel et
+  la compare à la bonne réponse (bloque toute régression future).
+- **Révision par session (pas par réponse)** ✅ : `recordAnswer` = activité seule ; maîtrise + SM-2
+  via `recordSessionReview` (note agrégée appliquée une fois). Session faible → révision proche ;
+  session ratée → immédiate. `applyGrade` conserve son comportement historique.
+- **Reprise idempotente** ✅ : note et avance d'index committées ensemble ; fin du double comptage.
+- **Statut éditorial visible** ✅ : schéma + helper `needsEditorialReview()` ; bandeau « À relire »
+  (texte + couleur) sur chaque fiche non validée ; aucune source externe fabriquée.
+- **Portes de qualité** ✅ : `deploy.yml` rejoue `npm run check` complet avant publication ; zoom web
+  rétabli (viewport sans `user-scalable=no`). Verrous `infraGuards.test.ts`.
+
+> **P0 — livré en PR (draft), non fusionné, non déployé.** Ne pas fusionner sans validation humaine.
+
+## Progression fiable P0 — en cours (même branche `fix/trademy-p0-pedagogical-truth`)
+
+Extension du lot, guidée par deux explorations (exercices ; répétition & maîtrise). Additif et non
+destructif (aucun champ persistant ajouté). Voir **ADR-093**.
+
+- **Cible pédagogique canonique** ✅ : `conceptId + objectiveId`, objectifs dérivés du contenu réel
+  (`learningTarget.ts`).
+- **Source sémantique unique** ✅ : les exercices directionnels dérivent réponse + feedback +
+  accessibilité de la direction calculée sur la série affichée (`semanticExercise.ts`) — cohérence
+  par construction ; remédiation liée au bon objectif.
+- **Rotation déterministe** ✅ : page glissante par round (session + checkpoint), fin de la sélection
+  figée des premiers exercices (`exerciseRotation.ts`).
+- **Maîtrise prouvée** ✅ : machine d'états stricte new → explored → completed → strong → mastered ;
+  `strong` n'est plus « maîtrisé » ; fin de la maîtrise héritée entre concepts partageant un skillId
+  (`conceptMasteryState.ts`).
+- **Verrou des mondes** ✅ : un monde de contenu (2 à 15) n'est jamais « terminé » par la seule
+  consultation — « exploré » suffit à avancer, « terminé » exige un checkpoint (`learningMap.ts`).
+- **Compatibilité** ✅ : anciennes données relues plus honnêtement, sans perte ; schéma et clés
+  `patternlab.*` inchangés.
+
+## Progression par cible persistée P0 — en cours (même branche, après revue PR #8)
+
+Achève l'architecture par cible (ADR-094). Change le modèle **persisté** → migration non destructive
+(schéma v8).
+
+- **Progression par cible persistée** ✅ : `targets` (objectiveId → SM-2 propre) ; au plus une
+  transition par cible et par session ; deux objectifs d'une compétence avancent indépendamment.
+- **Maîtrise par couverture** ✅ : chaque exercice porte une cible ; la maîtrise exige la couverture
+  complète des objectifs exerçables du concept (fin de l'approximation au niveau compétence).
+- **Reprise de checkpoint fidèle** ✅ : réponses (avec cible) persistées et restaurées ; reprise ==
+  session continue, sans double comptage.
+- **Rotation persistante robuste** ✅ : compteur `rotation` qui avance même après un échec ;
+  variantes différentes ; indépendant de SM-2.
+- **Preuve CI** ✅ : `ci.yml` exécute la gate sur chaque pull request vers `main` (npm ci · git diff
+  --check · npm run check) ; déploiement réservé à `main`.
+
 ## Gate canonique
 
 ```bash
