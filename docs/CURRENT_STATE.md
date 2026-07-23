@@ -129,6 +129,26 @@ poursuit **un paquet à la fois, revu humainement**, sans jamais gonfler le corp
 
 > **Enrichissement éditorial — complet : les 67 concepts** portent durée + dialogue Toto/Bobo.
 
+## Fiabilité pédagogique P0 — en cours (branche `fix/trademy-p0-pedagogical-truth`)
+
+Lot correctif ciblé : **Trademy ne doit jamais enseigner une réponse fausse**, et la progression
+doit refléter un apprentissage réel. Cinq défauts P0 confirmés dans le code courant, corrigés avec
+garde-fous (voir **ADR-092**) ; aucune migration destructive, corpus et navigation inchangés.
+
+- **Cohérence graphique ↔ réponse** ✅ : graines contradictoires de `seed.ts` corrigées ; test
+  `exerciseChartCoherence.test.ts` recalcule la direction réelle de chaque exercice directionnel et
+  la compare à la bonne réponse (bloque toute régression future).
+- **Révision par session (pas par réponse)** ✅ : `recordAnswer` = activité seule ; maîtrise + SM-2
+  via `recordSessionReview` (note agrégée appliquée une fois). Session faible → révision proche ;
+  session ratée → immédiate. `applyGrade` conserve son comportement historique.
+- **Reprise idempotente** ✅ : note et avance d'index committées ensemble ; fin du double comptage.
+- **Statut éditorial visible** ✅ : schéma + helper `needsEditorialReview()` ; bandeau « À relire »
+  (texte + couleur) sur chaque fiche non validée ; aucune source externe fabriquée.
+- **Portes de qualité** ✅ : `deploy.yml` rejoue `npm run check` complet avant publication ; zoom web
+  rétabli (viewport sans `user-scalable=no`). Verrous `infraGuards.test.ts`.
+
+> **P0 — livré en PR (draft), non fusionné, non déployé.** Ne pas fusionner sans validation humaine.
+
 ## Gate canonique
 
 ```bash
