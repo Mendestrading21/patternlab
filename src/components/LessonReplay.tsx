@@ -33,7 +33,7 @@ export function LessonReplay({ seed = 2024, count = 26 }: { seed?: number; count
         Avance bougie par bougie et regarde la structure se construire.
       </Text>
       <View style={styles.chart}>
-        <MarketReplayChart candles={candles} visibleCount={state.visible} width={300} height={160} />
+        <MarketReplayChart candles={candles} visibleCount={state.visible} height={160} />
       </View>
       <Text variant="caption" color={theme.colors.technical}>
         {state.visible} / {state.total} bougies révélées
@@ -69,6 +69,6 @@ export function LessonReplay({ seed = 2024, count = 26 }: { seed?: number; count
 }
 
 const styles = StyleSheet.create({
-  chart: { alignItems: 'center', marginVertical: theme.spacing.sm },
+  chart: { width: '100%', marginVertical: theme.spacing.sm },
   controls: { flexDirection: 'row', gap: theme.spacing.sm, alignItems: 'center', flexWrap: 'wrap', marginTop: theme.spacing.xs },
 });

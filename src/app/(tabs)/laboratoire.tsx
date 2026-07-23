@@ -145,7 +145,7 @@ export default function Laboratoire() {
         </Text>
 
         <View style={styles.chart}>
-          <MarketReplayChart candles={scenarioCandles} visibleCount={scenReplay.visible} width={300} height={170} />
+          <MarketReplayChart candles={scenarioCandles} visibleCount={scenReplay.visible} height={170} />
         </View>
 
         <View style={styles.controls}>
@@ -293,7 +293,7 @@ export default function Laboratoire() {
         </Text>
 
         <View style={styles.chart}>
-          <MarketReplayChart candles={replayCandles} visibleCount={replay.visible} width={300} height={170} />
+          <MarketReplayChart candles={replayCandles} visibleCount={replay.visible} height={170} />
         </View>
 
         <View style={styles.legendRow}>
