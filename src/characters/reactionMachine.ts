@@ -8,9 +8,24 @@
  * l'appelant (`characterLine`/`mistakeMoment`/concept) et transporté tel quel avec la réaction.
  */
 import { resolveMascotState, pickReaction, type MascotEvent, type MascotReaction } from './orchestrator';
-import { STATE_TO_DURATION } from './states';
+import { STATE_TO_DURATION, CHARACTER_STATES } from './states';
 import { motion } from '../design-system/tokens';
 import type { CharacterId, CharacterState } from './types';
+
+/** Réaction « au repos » (pose idle) conservant le personnage courant. Le retour à idle signifie
+ *  « la mascotte cesse sa micro-réaction et revient à une pose calme », pas « elle disparaît » :
+ *  le texte pédagogique déjà lu reste visible jusqu'au prochain événement. */
+function idleReaction(character: CharacterId): MascotReaction {
+  const spec = CHARACTER_STATES.idle;
+  return {
+    state: 'idle',
+    character,
+    priority: spec.priority,
+    interruptible: spec.interruptible,
+    returnsToIdle: spec.returnsToIdle,
+    accessibleText: spec.accessibleText,
+  };
+}
 
 /** États « neutres » que le guide choisi peut porter (introductions, observations, encouragements).
  *  Les états à rôle canonique (célébration = Toto ; faux signal / erreur / risque = Bobo ; explication
@@ -76,10 +91,14 @@ export function sendEvent(state: ReactionState, event: MascotEvent, now: number,
   return { active: next, speech: opts.speech, idleAt };
 }
 
-/** Fait avancer le temps : si l'échéance de retour à idle est atteinte, la réaction s'efface. */
+/**
+ * Fait avancer le temps : à l'échéance, la micro-réaction se termine et la mascotte revient à une
+ * POSE idle (même personnage, texte conservé) — elle ne disparaît pas. Un nouvel événement plus
+ * prioritaire pourra ensuite la remplacer normalement.
+ */
 export function tick(state: ReactionState, now: number): ReactionState {
-  if (state.idleAt != null && now >= state.idleAt) {
-    return initialReactionState();
+  if (state.idleAt != null && now >= state.idleAt && state.active) {
+    return { active: idleReaction(state.active.character), speech: state.speech, idleAt: null };
   }
   return state;
 }

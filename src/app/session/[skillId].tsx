@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, ProgressBar, StateView, FeedbackPanel, theme } from '@/design-system';
-import { CharacterScene, MascotEventScene, MascotFigure, characterLine } from '@/characters';
+import { CharacterScene, MascotFigure, characterLine, useMascotReactions, resolveWithGuide } from '@/characters';
 import { useConnectivity } from '@/lib/connectivity';
 import { ExercisePlayer, gradeExercise, exerciseFormatLabel, type GradeResult } from '@/engines/exercise';
 import {
@@ -40,10 +40,15 @@ const DAY_MS = 86_400_000;
 export default function Session() {
   const { skillId, count } = useLocalSearchParams<{ skillId: string; count?: string }>();
   const router = useRouter();
-  const { recordAnswer, recordSessionReview, completeSession, recordFalseSignal, state } = useProgress();
+  const { recordAnswer, recordSessionReview, completeSession, recordFalseSignal, state, profile } = useProgress();
   // Connectivité (magasin local-first, sans dépendance réseau). Sert la réaction hors-ligne
   // ci-dessous — appelée AVANT tout retour anticipé (règles des hooks).
   const online = useConnectivity();
+  // Contrôleur UNIQUE de réactions mascottes : tout le parcours émet des ÉVÉNEMENTS, le contrôleur
+  // résout l'état + le personnage (priorités, retour à idle) et porte le guide choisi sur les moments
+  // neutres. Le TEXTE reste pédagogique (characterLine/mistakeMoment). Ne bloque jamais la navigation.
+  const guide = profile?.guide ?? null;
+  const { reaction, speech, emit } = useMascotReactions(guide);
 
   // Session valide = un id qui correspond à un contenu réel (compétence avec exercices, ou point
   // de contrôle dont `getExercises` agrège des exercices réels). AUCUN repli silencieux : un id
@@ -77,6 +82,11 @@ export default function Session() {
   const [phase, setPhase] = useState<'learn' | 'practice'>(lessons.length ? 'learn' : 'practice');
   const [hydrated, setHydrated] = useState(false);
   const hydratedOnce = useRef(false);
+  // Suivi pour l'orchestration des réactions : la session a-t-elle été REPRISE ? l'événement d'entrée
+  // a-t-il déjà été émis ? l'état de connectivité précédent (pour détecter les transitions).
+  const resumedRef = useRef(false);
+  const entryEmittedRef = useRef(false);
+  const wasOnlineRef = useRef(true);
   // Réponses RÉELLEMENT validées de la session (commit à « Continuer »), pour planifier la
   // révision espacée une seule fois par compétence à la fin. Idempotent : une réponse commitée
   // ne l'est jamais deux fois (la reprise repart de la 1re question non commitée).
@@ -101,6 +111,7 @@ export default function Session() {
           // Restaure les réponses déjà validées (avec leur cible) : la fin de session agrège
           // EXACTEMENT les mêmes réponses qu'une session continue (pré- et post-fermeture).
           answeredRef.current = resume.answered;
+          resumedRef.current = true; // pilote la réaction d'entrée (accueil, JAMAIS une célébration).
         }
       }
       if (!cancelled) setHydrated(true);
@@ -136,6 +147,41 @@ export default function Session() {
     if (known && hydrated && index >= list.length) sessionResumeRepository.clear();
   }, [known, hydrated, index, list.length]);
 
+  // ── Orchestration des réactions : émission des ÉVÉNEMENTS réels du parcours ──
+  // Événement d'ENTRÉE (une fois, après hydratation) : reprise → accueil (jamais une célébration
+  // rejouée) ; leçon → introduction ; point de contrôle → révision ; pratique directe → observation.
+  useEffect(() => {
+    if (!known || !hydrated || entryEmittedRef.current) return;
+    entryEmittedRef.current = true;
+    if (resumedRef.current) emit({ type: 'session_resumed' }, 'On reprend où tu t’étais arrêté.');
+    else if (lessons.length) emit({ type: 'lesson_started' }, 'On regarde d’abord, puis on s’exerce.');
+    else if (isCheckpoint(resolvedId)) emit({ type: 'checkpoint_started' }, 'On consolide : point de contrôle.');
+    else emit({ type: 'chart_revealed' });
+  }, [known, hydrated, lessons.length, resolvedId, emit]);
+
+  // FEEDBACK : à l'affichage du résultat, émettre l'événement RÉEL selon les données de l'exercice.
+  // Bonne réponse → Toto (série réelle) ; erreur → misconception si l'exercice en porte une (Bobo,
+  // faux signal), sinon answer_incorrect. Le TEXTE vient de la pédagogie, jamais du registre.
+  useEffect(() => {
+    if (!result) return;
+    if (result.correct) {
+      emit({ type: 'answer_correct', streak }, characterLine({ kind: 'answer', correct: true, streak }, index).text);
+    } else {
+      const moment = mistakeMoment(list[index]?.id ?? '');
+      emit(moment.misconceptionId ? { type: 'misconception_detected' } : { type: 'answer_incorrect' }, moment.text);
+    }
+    // `result` est le déclencheur ; les autres valeurs ne sont lues que lorsqu'il est défini.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result]);
+
+  // CONNECTIVITÉ : transitions réelles hors-ligne ↔ en ligne (offline_detected / online_restored).
+  useEffect(() => {
+    if (online === wasOnlineRef.current) return;
+    wasOnlineRef.current = online;
+    if (!online) emit({ type: 'offline_detected' }, 'Hors ligne : tout le contenu de la session est déjà sur ton appareil. On continue.');
+    else emit({ type: 'online_restored' });
+  }, [online, emit]);
+
   const finished = index >= list.length;
 
   const restart = () => {
@@ -148,6 +194,7 @@ export default function Session() {
     answeredRef.current = [];
     sessionScoredRef.current = false;
     sessionResumeRepository.clear();
+    emit({ type: 'retry_started' }, 'On y retourne — à ton rythme.'); // encouragement (porté par le guide)
   };
 
   if (!known) {
@@ -202,8 +249,8 @@ export default function Session() {
           <ProgressBar value={stepIdx / learnSteps.length} accessibilityLabel={`Étape ${stepIdx + 1} sur ${learnSteps.length}`} />
         </View>
 
-        {stepIdx === 0 ? (
-          <CharacterScene character="toto" state="explain" size={56} speech="On regarde d’abord, puis on s’exerce." />
+        {stepIdx === 0 && reaction ? (
+          <CharacterScene character={reaction.character} state={reaction.state} size={56} speech={speech} />
         ) : null}
 
         <LessonStepView key={step.id} step={step} />
@@ -234,6 +281,7 @@ export default function Session() {
               label="Commencer les exercices"
               onPress={() => {
                 analytics.track('lesson_started', { skillId: resolvedId });
+                emit({ type: 'chart_revealed' }); // le graphique/les exercices apparaissent → le guide observe.
                 setPhase('practice');
               }}
             />
@@ -300,13 +348,10 @@ export default function Session() {
     setResult(null);
   };
 
-  // Réaction de Toto/Bobo : réussite → réplique variée de Toto ; erreur → Bobo pointe l'IDÉE FAUSSE
-  // précise (misconception liée à l'exercice), pas un « réessaie » générique (Lot 9).
-  const feedbackLine = result
-    ? result.correct
-      ? characterLine({ kind: 'answer', correct: true, streak }, index)
-      : mistakeMoment(exercise.id)
-    : null;
+  // Scène mascotte DOMINANTE (unique) de la phase pratique, pilotée par le contrôleur : réaction au
+  // feedback (Toto réussite / Bobo faux signal) OU état hors-ligne, jamais deux à la fois. Le texte
+  // est celui produit par la pédagogie. Pas de scène pendant une question en cours (écran épuré).
+  const showMascot = reaction != null && (result != null || !online);
 
   return (
     <Screen>
@@ -318,16 +363,8 @@ export default function Session() {
         <ProgressBar value={index / list.length} accessibilityLabel="Progression de la session" />
       </View>
 
-      {/* Réaction hors-ligne pilotée par l'orchestrateur (événement → état). Additif : n'apparaît
-          que hors ligne et ne touche à aucune logique de progression. Bobo (prudence) rassure sur la
-          continuité — l'avatar est un vecteur inline, aucun asset réseau requis. */}
-      {!online ? (
-        <MascotEventScene
-          event={{ type: 'offline_detected' }}
-          size={52}
-          showName={false}
-          speech="Hors ligne : tout le contenu de la session est déjà sur ton appareil. On continue."
-        />
+      {showMascot ? (
+        <CharacterScene character={reaction.character} state={reaction.state} size={52} showName={false} speech={speech} />
       ) : null}
 
       <Card>
@@ -345,16 +382,7 @@ export default function Session() {
             message={result.correct ? result.feedback.correct : result.feedback.incorrect}
             rule={result.feedback.rule}
             whenItFails={result.feedback.whenItFails}
-          >
-            {feedbackLine ? (
-              <CharacterScene
-                character={feedbackLine.character}
-                state={feedbackLine.state}
-                size={60}
-                speech={feedbackLine.text}
-              />
-            ) : null}
-          </FeedbackPanel>
+          />
           <Button label={index + 1 >= list.length ? 'Voir mon résultat' : 'Continuer'} onPress={next} />
         </>
       ) : null}
@@ -377,7 +405,7 @@ function Results({
   onHome: () => void;
   onRetry: () => void;
 }) {
-  const { state } = useProgress();
+  const { state, profile } = useProgress();
   const now = useNow();
   const summary = buildSessionSummary(correct, total, PASS_RATIO);
   const success = summary.passed;
@@ -397,8 +425,16 @@ function Results({
   const masteryLabel = sp ? MASTERY_LABEL[masteryStatus(sp)] : null;
   const dueDays = sp ? Math.max(0, Math.ceil((sp.review.dueAt - now) / DAY_MS)) : null;
   const nextReview = dueDays == null ? null : dueDays <= 0 ? 'aujourd’hui' : dueDays === 1 ? 'demain' : `dans ${dueDays} j`;
-  // Réaction contextuelle de Toto/Bobo au résultat (variée selon le score).
-  const reaction = characterLine({ kind: 'result', tier: summary.tier }, correct);
+  // Texte pédagogique du résultat (varié selon le score). Pour un POINT DE CONTRÔLE, l'état + le
+  // personnage viennent de l'orchestrateur (checkpoint_completed) : réussi → célébration
+  // proportionnelle ; échoué → encouragement (jamais celebrate-big). Sinon, l'état vient de la
+  // réplique (déjà proportionnelle : parfait → celebrate-big, passé → celebrate-small, à revoir →
+  // encourage). Le guide choisi porte l'encouragement (moment neutre).
+  const line = characterLine({ kind: 'result', tier: summary.tier }, correct);
+  const guide = profile?.guide ?? null;
+  const chk = isCheckpoint(skillId) ? resolveWithGuide({ type: 'checkpoint_completed', passed: success }, guide) : null;
+  const mascotCharacter = chk?.character ?? line.character;
+  const mascotState = chk?.state ?? line.state;
 
   return (
     <Screen>
@@ -429,11 +465,11 @@ function Results({
         ) : null}
 
         {summary.tier === 'retry' ? (
-          <CharacterScene character={reaction.character} state={reaction.state} size={72} speech={reaction.text} />
+          <CharacterScene character={mascotCharacter} state={mascotState} size={72} speech={line.text} />
         ) : (
           <>
             <MascotFigure name="celebrate" gesture="celebrate" height={170} />
-            <CharacterScene character={reaction.character} state={reaction.state} size={56} speech={reaction.text} />
+            <CharacterScene character={mascotCharacter} state={mascotState} size={56} speech={line.text} />
           </>
         )}
       </Card>

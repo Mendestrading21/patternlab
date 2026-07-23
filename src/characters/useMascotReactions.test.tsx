@@ -60,14 +60,15 @@ describe('useMascotReactions — contrôleur branché (intégration react-dom)',
     expect(ctrl.speech).toBe('Bien vu !');
   });
 
-  it('revient réellement à idle après la durée de l’état (timer réel)', () => {
+  it('revient réellement à une pose idle après la durée de l’état (timer réel)', () => {
     mount();
-    act(() => ctrl.emit({ type: 'answer_correct' })); // celebrate-small : 550 ms
+    act(() => ctrl.emit({ type: 'answer_correct' }, 'Bien vu !')); // celebrate-small : 550 ms
     expect(ctrl.reaction?.state).toBe('celebrate-small');
     act(() => { jest.advanceTimersByTime(549); });
     expect(ctrl.reaction?.state).toBe('celebrate-small'); // pas encore
     act(() => { jest.advanceTimersByTime(1); });
-    expect(ctrl.reaction).toBeNull(); // retour à idle
+    expect(ctrl.reaction?.state).toBe('idle'); // pose idle (la mascotte ne disparaît pas)
+    expect(ctrl.speech).toBe('Bien vu !'); // le message reste lisible
   });
 
   it('annule le timer de retour à idle au démontage (aucun timer orphelin)', () => {

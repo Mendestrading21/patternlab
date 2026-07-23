@@ -93,11 +93,15 @@ describe('reactionMachine — priorités & interruptible (pickReaction réel)', 
 });
 
 describe('reactionMachine — retour à idle piloté par la durée', () => {
-  it('returnsToIdle=true revient à idle après la durée de l’état', () => {
-    const s = sendEvent(initialReactionState(), { type: 'answer_correct' }, 0); // celebrate-small, 550 ms, returnsToIdle
+  it('returnsToIdle=true revient à une POSE idle après la durée (le texte reste)', () => {
+    const s = sendEvent(initialReactionState(), { type: 'answer_correct' }, 0, { speech: 'Bien vu !' }); // celebrate-small, 550 ms
     expect(CHARACTER_STATES['celebrate-small'].returnsToIdle).toBe(true);
     expect(tick(s, 549).active?.state).toBe('celebrate-small'); // avant l’échéance : maintenu
-    expect(tick(s, 550).active).toBeNull(); // à l’échéance : retour à idle
+    const idled = tick(s, 550);
+    expect(idled.active?.state).toBe('idle'); // à l’échéance : pose idle (pas de disparition)
+    expect(idled.active?.character).toBe('toto'); // même personnage
+    expect(idled.speech).toBe('Bien vu !'); // texte pédagogique conservé
+    expect(idled.idleAt).toBeNull();
   });
 
   it('offline (returnsToIdle=false) NE revient jamais à idle tout seul', () => {
