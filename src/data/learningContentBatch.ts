@@ -838,6 +838,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.downtrend',
     slug: 'tendance-baissiere',
+    estimatedMinutes: 4,
+    dialogue: {
+      toto: 'Un rebond ! La baisse est peut-être finie, ça pourrait repartir à la hausse.',
+      bobo: 'Sommets et creux restent décroissants : la structure baissière tient. Sans un plus haut plus haut pour l’invalider, viser le creux, c’est se précipiter.',
+    },
     title: 'Tendance baissière',
     shortTitle: 'Tend. baiss.',
     aliases: ['Downtrend'],
@@ -1119,6 +1124,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.dividende',
     slug: 'dividende',
+    estimatedMinutes: 3,
+    dialogue: {
+      toto: 'Génial, l’entreprise partage son bénéfice : je touche du cash rien qu’en détenant l’action.',
+      bobo: 'Mais à la date de détachement, le cours baisse d’environ le dividende : rien n’est créé, la valeur sort juste de l’entreprise vers toi.',
+    },
     title: 'Dividende',
     shortTitle: 'Dividende',
     aliases: ['Dividende', 'Dividend'],
@@ -1181,6 +1191,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.per',
     slug: 'per',
+    estimatedMinutes: 4,
+    dialogue: {
+      toto: 'PER de 10, l’action a l’air peu chère : je paie dix ans de bénéfices, voilà mon repère de valorisation.',
+      bobo: 'Un PER bas n’est pas « bon marché » en soi : compare à secteur égal et vérifie que le bénéfice ne s’effondre pas.',
+    },
     title: 'PER (Price/Earnings)',
     shortTitle: 'PER',
     aliases: ['PER', 'Price/Earnings', 'P/E'],
@@ -1245,6 +1260,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.unite-de-temps',
     slug: 'unite-de-temps',
+    estimatedMinutes: 3,
+    dialogue: {
+      toto: 'En 1 minute je vois déjà un setup haussier se former.',
+      bobo: 'Un signal d’une minute pèse peu face à la structure journalière : regarde d’abord ce que dit l’unité large.',
+    },
     title: 'Unité de temps',
     shortTitle: 'Timeframe',
     aliases: ['Unité de temps', 'Timeframe', 'UT'],
@@ -1288,6 +1308,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.echelle-des-prix',
     slug: 'echelle-des-prix',
+    estimatedMinutes: 3,
+    dialogue: {
+      toto: 'Sur ce graphique la hausse paraît énorme, ça grimpe très fort.',
+      bobo: 'Vérifie l’échelle avant de conclure : un axe étiré exagère l’ampleur. Mesure l’amplitude réelle entre les niveaux, pas l’impression.',
+    },
     title: 'Échelle des prix',
     shortTitle: 'Échelle',
     aliases: ['Échelle des prix', 'Axe des prix'],
@@ -1420,6 +1445,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.retest-de-niveau',
     slug: 'retest-de-niveau',
+    estimatedMinutes: 4,
+    dialogue: {
+      toto: 'La résistance a cassé et le prix revient la tester : si elle tient en nouveau support, l’hypothèse de continuation se renforce.',
+      bobo: 'Encore faut-il qu’elle ait vraiment cassé, pas juste été effleurée : un retour franc de l’autre côté invalide le retest.',
+    },
     title: 'Retest de niveau',
     shortTitle: 'Retest',
     aliases: ['Retest de niveau', 'Pullback sur niveau'],
