@@ -5,7 +5,7 @@ import { buildLearningPath, worldEntryById } from './learningMap';
 import { WORLDS } from './learningConcept';
 import { V5_CONCEPTS } from './learningContent';
 import { rotateExercises } from './exerciseRotation';
-import { getExercises, CHECKPOINT_ID } from './seed';
+import { getExercises, CHECKPOINT_ID, exercisableObjectiveIds } from './seed';
 
 const T0 = 1_700_000_000_000;
 
@@ -19,8 +19,16 @@ const T0 = 1_700_000_000_000;
 describe('P0 — compatibilité des anciennes données (aucune migration destructive)', () => {
   const anatomy = V5_CONCEPTS.find((c) => c.slug === 'anatomie-bougie')!;
 
-  it('une ancienne compétence « très solide » sans checkpoint n’est PLUS sur-notée « maîtrisée »', () => {
-    // Ancien état (v6) : compétence au plafond SM-2, MAIS aucun completedSkills (checkpoint).
+  const provenTargets = (conceptId: string): Record<string, unknown> => {
+    const out: Record<string, unknown> = {};
+    for (const objId of exercisableObjectiveIds(conceptId)) {
+      out[objId] = { objectiveId: objId, conceptId, attempts: 6, correct: 6, sessions: 2, lastCorrect: true, review: { repetitions: 2, easiness: 2.5, intervalDays: 6, dueAt: T0 } };
+    }
+    return out;
+  };
+
+  it('une ancienne compétence « solide » SANS cibles entraînées n’est PLUS sur-notée « maîtrisée »', () => {
+    // Ancien état (v6) : compétence au plafond SM-2, mais aucune cible entraînée (couverture 0).
     const legacy = {
       schemaVersion: 6,
       totalXp: 300,
@@ -32,30 +40,32 @@ describe('P0 — compatibilité des anciennes données (aucune migration destruc
     const m = migrateProgress(legacy, T0)!;
     expect(m.schemaVersion).toBe(PROGRESS_SCHEMA_VERSION);
     expect(m.skills['skill.candles'].mastery).toBeCloseTo(0.95); // progression conservée, pas perdue
+    expect(m.targets).toEqual({}); // pas de cibles dans l'ancien état → couverture 0
 
-    const st = conceptMasteryStatus(anatomy, {
-      exploredSlugs: m.learning!.conceptsExplored,
-      skills: m.skills,
-      completedSkills: m.completedSkills, // [] après migration → checkpoint non prouvé
-    });
-    expect(st.mastered).toBe(false); // relu plus honnêtement
-    expect(st.state).toBe('strong');
-  });
-
-  it('la même donnée AVEC checkpoint réussi devient légitimement « maîtrisée »', () => {
-    const legacy = {
-      totalXp: 300,
-      completedSkills: [CHECKPOINT_ID],
-      skills: {
-        'skill.candles': { skillId: 'skill.candles', xp: 300, mastery: 0.95, confidence: 0.9, review: { repetitions: 4, easiness: 2.6, intervalDays: 20, dueAt: T0 } },
-      },
-      learning: { conceptsExplored: ['anatomie-bougie'], worldsExplored: [], falseSignalsSpotted: 0 },
-    };
-    const m = migrateProgress(legacy, T0)!;
     const st = conceptMasteryStatus(anatomy, {
       exploredSlugs: m.learning!.conceptsExplored,
       skills: m.skills,
       completedSkills: m.completedSkills,
+      targets: m.targets,
+    });
+    expect(st.mastered).toBe(false); // relu plus honnêtement (aucune couverture prouvée)
+    expect(st.state).toBe('explored');
+  });
+
+  it('une sauvegarde AVEC cibles couvertes + checkpoint est légitimement « maîtrisée » après migration', () => {
+    const legacy = {
+      totalXp: 300,
+      completedSkills: [CHECKPOINT_ID],
+      learning: { conceptsExplored: ['anatomie-bougie'], worldsExplored: [], falseSignalsSpotted: 0 },
+      targets: provenTargets('concept.candle-anatomy'),
+    };
+    const m = migrateProgress(legacy, T0)!;
+    expect(Object.keys(m.targets!).length).toBeGreaterThan(0); // cibles conservées
+    const st = conceptMasteryStatus(anatomy, {
+      exploredSlugs: m.learning!.conceptsExplored,
+      skills: m.skills,
+      completedSkills: m.completedSkills,
+      targets: m.targets,
     });
     expect(st.mastered).toBe(true);
   });

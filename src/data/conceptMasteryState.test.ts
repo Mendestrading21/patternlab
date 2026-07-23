@@ -1,23 +1,29 @@
 import { describe, it, expect } from '@jest/globals';
 import { conceptState, masteryGate, canBeMastered, isRepresentativeConcept } from './conceptMasteryState';
 import { V5_CONCEPTS } from './learningContent';
-import { CHECKPOINT_ID } from './seed';
-import { initialReview, type SkillProgress } from '../engines/learning';
+import { CHECKPOINT_ID, exercisableObjectiveIds } from './seed';
+import type { TargetProgress } from './targetProgress';
 
 const anatomy = V5_CONCEPTS.find((c) => c.slug === 'anatomie-bougie')!; // représentatif de skill.candles
 const marteau = V5_CONCEPTS.find((c) => c.slug === 'marteau')!; // partage skill.candles, non représentatif
 
-const sp = (over: Partial<SkillProgress>): SkillProgress => ({
-  skillId: 'skill.candles',
-  xp: 0,
-  mastery: 0,
-  confidence: 0,
-  review: initialReview(0),
-  errorTags: {},
-  ...over,
+/** Cible prouvée (entraînée + retenue) pour un objectif donné. */
+const proven = (objectiveId: string, conceptId: string): TargetProgress => ({
+  objectiveId,
+  conceptId,
+  attempts: 6,
+  correct: 6,
+  sessions: 2,
+  lastCorrect: true,
+  review: { repetitions: 2, easiness: 2.5, intervalDays: 6, dueAt: 0 },
 });
 
-const mastered = sp({ mastery: 0.9, confidence: 0.9, review: { repetitions: 3, easiness: 2.5, intervalDays: 15, dueAt: 0 } });
+/** Toutes les cibles exerçables d'un concept, prouvées. */
+const fullCoverage = (conceptId: string): Record<string, TargetProgress> => {
+  const out: Record<string, TargetProgress> = {};
+  for (const objId of exercisableObjectiveIds(conceptId)) out[objId] = proven(objId, conceptId);
+  return out;
+};
 
 describe('isRepresentativeConcept', () => {
   it('vrai pour le concept entraîné de la compétence', () => {
@@ -31,45 +37,42 @@ describe('isRepresentativeConcept', () => {
   });
 });
 
-describe('masteryGate — faisceau de preuves', () => {
-  it('toutes les conditions réunies pour une compétence pleinement maîtrisée', () => {
+describe('couverture des objectifs exerçables', () => {
+  it('anatomie-bougie expose plusieurs objectifs exerçables', () => {
+    expect(exercisableObjectiveIds('concept.candle-anatomy').length).toBeGreaterThanOrEqual(2);
+  });
+});
+
+describe('masteryGate — couverture des objectifs réellement entraînés', () => {
+  it('toutes les conditions réunies quand la couverture est complète + checkpoint', () => {
     const g = masteryGate(anatomy, {
       exploredSlugs: ['anatomie-bougie'],
-      skills: { 'skill.candles': mastered },
-      completedSkills: [CHECKPOINT_ID, 'skill.candles'],
+      targets: fullCoverage('concept.candle-anatomy'),
+      completedSkills: [CHECKPOINT_ID],
     });
-    expect(g).toEqual({
-      representative: true,
-      trained: true,
-      multipleSessions: true,
-      deferredRetention: true,
-      checkpointPassed: true,
-      noRecentFailure: true,
-    });
+    expect(g.representative).toBe(true);
+    expect(g.explored).toBe(true);
+    expect(g.coverageComplete).toBe(true);
+    expect(g.checkpointPassed).toBe(true);
   });
 
-  it('un échec récent (répétitions remises à 0) casse plusieurs conditions', () => {
-    const failed = sp({ mastery: 0.85, review: { repetitions: 0, easiness: 2.5, intervalDays: 0, dueAt: 0 } });
-    const g = masteryGate(anatomy, { exploredSlugs: [], skills: { 'skill.candles': failed }, completedSkills: [CHECKPOINT_ID] });
-    expect(g.multipleSessions).toBe(false);
-    expect(g.deferredRetention).toBe(false);
-    expect(g.noRecentFailure).toBe(false);
-  });
-
-  it('sans checkpoint, la condition checkpoint est fausse', () => {
-    const g = masteryGate(anatomy, { exploredSlugs: [], skills: { 'skill.candles': mastered }, completedSkills: [] });
-    expect(g.checkpointPassed).toBe(false);
+  it('une couverture incomplète (un objectif manquant) casse la maîtrise', () => {
+    const cov = fullCoverage('concept.candle-anatomy');
+    const oneMissing = { ...cov };
+    delete oneMissing[Object.keys(oneMissing)[0]]; // retire un objectif prouvé
+    const g = masteryGate(anatomy, { exploredSlugs: ['anatomie-bougie'], targets: oneMissing, completedSkills: [CHECKPOINT_ID] });
+    expect(g.coverageComplete).toBe(false);
   });
 });
 
 describe('canBeMastered / conceptState', () => {
   const fullInput = {
     exploredSlugs: ['anatomie-bougie'],
-    skills: { 'skill.candles': mastered },
+    targets: fullCoverage('concept.candle-anatomy'),
     completedSkills: [CHECKPOINT_ID],
   };
 
-  it('canBeMastered vrai seulement quand tout est réuni', () => {
+  it('canBeMastered vrai seulement quand couverture complète + checkpoint + exploré + représentatif', () => {
     expect(canBeMastered(anatomy, fullInput)).toBe(true);
     expect(canBeMastered(anatomy, { ...fullInput, completedSkills: [] })).toBe(false);
     expect(canBeMastered(anatomy, { ...fullInput, exploredSlugs: [] })).toBe(false);
@@ -77,27 +80,24 @@ describe('canBeMastered / conceptState', () => {
   });
 
   it('conceptState traverse new → explored → completed → strong → mastered', () => {
-    expect(conceptState(anatomy, { exploredSlugs: [], skills: {} })).toBe('new');
-    expect(conceptState(anatomy, { exploredSlugs: ['anatomie-bougie'], skills: {} })).toBe('explored');
-    expect(
-      conceptState(anatomy, {
-        exploredSlugs: ['anatomie-bougie'],
-        skills: { 'skill.candles': sp({ mastery: 0.3, review: { repetitions: 1, easiness: 2.5, intervalDays: 1, dueAt: 0 } }) },
-        completedSkills: ['skill.candles'],
-      }),
-    ).toBe('completed');
-    expect(
-      conceptState(anatomy, {
-        exploredSlugs: ['anatomie-bougie'],
-        skills: { 'skill.candles': sp({ mastery: 0.85, review: { repetitions: 2, easiness: 2.5, intervalDays: 6, dueAt: 0 } }) },
-        completedSkills: [CHECKPOINT_ID],
-      }),
-    ).toBe('strong');
+    const objs = exercisableObjectiveIds('concept.candle-anatomy');
+    expect(conceptState(anatomy, { exploredSlugs: [] })).toBe('new');
+    expect(conceptState(anatomy, { exploredSlugs: ['anatomie-bougie'] })).toBe('explored');
+    // « completed » : un objectif entraîné (correct>0) mais non prouvé (reps 0).
+    const trained: Record<string, TargetProgress> = {
+      [objs[0]]: { objectiveId: objs[0], conceptId: 'concept.candle-anatomy', attempts: 3, correct: 2, sessions: 1, lastCorrect: true, review: { repetitions: 0, easiness: 2.5, intervalDays: 0, dueAt: 0 } },
+    };
+    expect(conceptState(anatomy, { exploredSlugs: ['anatomie-bougie'], targets: trained })).toBe('completed');
+    // « strong » : un objectif prouvé mais couverture incomplète / checkpoint absent.
+    const oneProven: Record<string, TargetProgress> = { [objs[0]]: proven(objs[0], 'concept.candle-anatomy') };
+    expect(conceptState(anatomy, { exploredSlugs: ['anatomie-bougie'], targets: oneProven, completedSkills: [CHECKPOINT_ID] })).toBe('strong');
+    // « mastered » : couverture complète + checkpoint.
     expect(conceptState(anatomy, fullInput)).toBe('mastered');
   });
 
   it('deux concepts d’une même compétence ne partagent pas la maîtrise', () => {
     expect(conceptState(anatomy, fullInput)).toBe('mastered');
+    // marteau (non représentatif) reste « exploré » même avec la couverture du concept représentatif.
     expect(conceptState(marteau, { ...fullInput, exploredSlugs: ['marteau'] })).toBe('explored');
   });
 });

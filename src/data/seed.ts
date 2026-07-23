@@ -10,6 +10,7 @@ import type { Pattern } from '../engines/pattern';
 import { generateCandles, supportLevel, resistanceLevel } from '../engines/pattern';
 import { PROGRESS_SCHEMA_VERSION, emptyLearning, type ProgressState } from './repositories';
 import { rotateExercises, buildCheckpoint } from './exerciseRotation';
+import { objectiveId, type ObjectiveKind } from './learningTarget';
 
 export interface ContentModule {
   id: string;
@@ -371,7 +372,7 @@ const LABEL_SEED = 451;
 const labelCandles = generateCandles(LABEL_SEED, 30);
 const LABEL_MARKER = labelCandles.reduce((best, c, i) => (c.h > labelCandles[best].h ? i : best), 0); // plus haut atteint
 
-const EXERCISES: Record<string, Exercise[]> = {
+const RAW_EXERCISES: Record<string, Exercise[]> = {
   'skill.actions': [
     { id: 'ex.actions.mcq', type: 'mcq', skillId: 'skill.actions', prompt: 'Que représente une action ?', options: ['Un prêt à une entreprise', 'Une part d’une entreprise', 'Une monnaie numérique'], validation: { correctIndex: 1 }, difficulty: 'easy', feedback: fb('Exact — une action, c’est une part d’entreprise.', 'Une action n’est ni un prêt ni une monnaie.', 'Action = part d’entreprise.', 'Un prêt à une entreprise, c’est une obligation.') },
     buildDirectionExercise({
@@ -438,6 +439,71 @@ const EXERCISES: Record<string, Exercise[]> = {
     { id: 'ex.patterns.identify-figure', type: 'identify_figure', skillId: 'skill.patterns', prompt: 'Quelle figure chartiste reconnais-tu ?', datasetKey: 'pattern.head-shoulders.v1', variant: 'head-shoulders', visualType: 'chart-pattern', options: ['Triangle ascendant', 'Épaule-tête-épaule', 'Double creux', 'Drapeau haussier'], validation: { correctIndex: 1 }, difficulty: 'medium', feedback: fb('Bien vu : trois sommets, la tête au centre.', 'C’est une épaule-tête-épaule : la tête (sommet central) domine deux épaules.', 'ÉTÉ = tête centrale plus haute + ligne de cou ; la cassure confirme.', 'Sans cassure de la ligne de cou, la figure n’est pas confirmée.') },
   ],
 };
+
+// ─── Cibles pédagogiques des exercices ───────────────────────────────
+// Concept représentatif de chaque compétence (source : CONCEPT_BY_SKILL, mais par id).
+const SKILL_CONCEPT_ID: Record<string, string> = {
+  'skill.actions': 'concept.market-basics',
+  'skill.trend': 'concept.uptrend',
+  'skill.candles': 'concept.candle-anatomy',
+  'skill.patterns': 'concept.double-bottom',
+};
+
+// Objectif adressé par chaque exercice (les exercices directionnels portent déjà leur cible).
+// Chaque `kind` est un objectif RÉEL du concept représentatif (aucune cible orpheline).
+const EXERCISE_OBJECTIVE: Record<string, ObjectiveKind> = {
+  'ex.actions.mcq': 'interpret',
+  'ex.actions.green-candle': 'recognize',
+  'ex.actions.tf': 'interpret',
+  'ex.actions.numeric': 'interpret',
+  'ex.actions.match': 'interpret',
+  'ex.actions.find': 'avoid-false-signal',
+  'ex.actions.dividende': 'interpret',
+  'ex.actions.per': 'interpret',
+  'ex.trend.tf': 'recognize',
+  'ex.trend.order': 'interpret',
+  'ex.trend.mcq': 'interpret',
+  'ex.trend.find': 'avoid-false-signal',
+  'ex.trend.zone': 'recognize',
+  'ex.trend.identify-figure': 'recognize',
+  'ex.candles.mcq': 'interpret',
+  'ex.candles.tf': 'interpret',
+  'ex.candles.match': 'interpret',
+  'ex.candles.find': 'avoid-false-signal',
+  'ex.candles.identify-figure': 'recognize',
+  'ex.patterns.invalidation': 'invalidate',
+  'ex.patterns.label': 'recognize',
+  'ex.patterns.sequence': 'interpret',
+  'ex.patterns.mcq': 'interpret',
+  'ex.patterns.tf': 'confirm',
+  'ex.patterns.find': 'avoid-false-signal',
+  'ex.patterns.scenario': 'confirm',
+  'ex.patterns.identify-figure': 'recognize',
+};
+
+function withTarget(ex: Exercise): Exercise {
+  if (ex.target) return ex; // exercices directionnels : cible déjà posée
+  const conceptId = SKILL_CONCEPT_ID[ex.skillId];
+  const kind = EXERCISE_OBJECTIVE[ex.id];
+  if (!conceptId || !kind) return ex;
+  return { ...ex, target: { conceptId, objectiveId: objectiveId(conceptId, kind) } };
+}
+
+/** Chaque exercice porte une cible pédagogique (conceptId + objectiveId). */
+const EXERCISES: Record<string, Exercise[]> = Object.fromEntries(
+  Object.entries(RAW_EXERCISES).map(([skillId, list]) => [skillId, list.map(withTarget)]),
+);
+
+/** Objectifs réellement exerçables d'un concept = ceux ciblés par au moins un exercice. */
+export function exercisableObjectiveIds(conceptId: string): string[] {
+  const set = new Set<string>();
+  for (const list of Object.values(EXERCISES)) {
+    for (const ex of list) {
+      if (ex.target?.conceptId === conceptId) set.add(ex.target.objectiveId);
+    }
+  }
+  return [...set];
+}
 
 // ─── Checkpoint (revue mixte du module) ──────────────────────────────
 // Nœud de fin de module : réunit quelques exercices de chaque compétence.

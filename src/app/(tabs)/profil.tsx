@@ -39,7 +39,7 @@ export default function Profil() {
   const skills = state?.skills ?? {};
   const completedSkills = state?.completedSkills ?? [];
   const masteredCount = V5_CONCEPTS.filter(
-    (c) => conceptMasteryStatus(c, { exploredSlugs, skills, completedSkills }).mastered,
+    (c) => conceptMasteryStatus(c, { exploredSlugs, skills, completedSkills, targets: state?.targets ?? {} }).mastered,
   ).length;
   const dueCount = state ? selectDueReviews(state, SKILLS, now).length : 0;
   const allErrorTags: Record<string, number> = {};

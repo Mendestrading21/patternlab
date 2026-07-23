@@ -69,6 +69,7 @@ export default function Apprendre() {
         exploredSlugs,
         skills: state.skills ?? {},
         completedSkills: state.completedSkills ?? [],
+        targets: state.targets ?? {},
       }).mastered,
   ).map((c) => c.slug);
 

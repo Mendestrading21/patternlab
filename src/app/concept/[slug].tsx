@@ -73,6 +73,7 @@ export default function ConceptFiche() {
             exploredSlugs: state?.learning?.conceptsExplored ?? [],
             skills: state?.skills ?? {},
             completedSkills: state?.completedSkills ?? [],
+            targets: state?.targets ?? {},
           });
           const color = st.mastered
             ? theme.colors.primary

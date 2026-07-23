@@ -12,6 +12,7 @@
  */
 import type { LearningConcept } from './learningConcept';
 import type { SkillProgress } from '../engines/learning';
+import type { TargetProgress } from './targetProgress';
 import { conceptState, type ConceptState } from './conceptMasteryState';
 
 export type ConceptStatusLabel = 'Nouveau' | 'Découvert' | 'Maîtrisé';
@@ -32,6 +33,8 @@ export interface ConceptMasteryInput {
   skills: Record<string, SkillProgress>;
   /** Compétences/points de contrôle réussis. Sans cette donnée, la maîtrise reste prudente (jamais accordée). */
   completedSkills?: string[];
+  /** Progression par cible (schéma v8) — source de la couverture des objectifs. */
+  targets?: Record<string, TargetProgress>;
 }
 
 const STATE_LABEL: Record<ConceptState, string> = {
@@ -53,6 +56,7 @@ export function conceptMasteryStatus(concept: LearningConcept, input: ConceptMas
     exploredSlugs: input.exploredSlugs,
     skills: input.skills,
     completedSkills: input.completedSkills,
+    targets: input.targets,
   });
   return {
     label: coarseLabel(state),
