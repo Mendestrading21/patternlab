@@ -149,6 +149,26 @@ garde-fous (voir **ADR-092**) ; aucune migration destructive, corpus et navigati
 
 > **P0 — livré en PR (draft), non fusionné, non déployé.** Ne pas fusionner sans validation humaine.
 
+## Progression fiable P0 — en cours (même branche `fix/trademy-p0-pedagogical-truth`)
+
+Extension du lot, guidée par deux explorations (exercices ; répétition & maîtrise). Additif et non
+destructif (aucun champ persistant ajouté). Voir **ADR-093**.
+
+- **Cible pédagogique canonique** ✅ : `conceptId + objectiveId`, objectifs dérivés du contenu réel
+  (`learningTarget.ts`).
+- **Source sémantique unique** ✅ : les exercices directionnels dérivent réponse + feedback +
+  accessibilité de la direction calculée sur la série affichée (`semanticExercise.ts`) — cohérence
+  par construction ; remédiation liée au bon objectif.
+- **Rotation déterministe** ✅ : page glissante par round (session + checkpoint), fin de la sélection
+  figée des premiers exercices (`exerciseRotation.ts`).
+- **Maîtrise prouvée** ✅ : machine d'états stricte new → explored → completed → strong → mastered ;
+  `strong` n'est plus « maîtrisé » ; fin de la maîtrise héritée entre concepts partageant un skillId
+  (`conceptMasteryState.ts`).
+- **Verrou des mondes** ✅ : un monde de contenu (2 à 15) n'est jamais « terminé » par la seule
+  consultation — « exploré » suffit à avancer, « terminé » exige un checkpoint (`learningMap.ts`).
+- **Compatibilité** ✅ : anciennes données relues plus honnêtement, sans perte ; schéma et clés
+  `patternlab.*` inchangés.
+
 ## Gate canonique
 
 ```bash
