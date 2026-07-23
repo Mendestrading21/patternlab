@@ -28,3 +28,11 @@ export {
   type MascotPresence,
 } from './frequency';
 export { characterLine, type DialogueLine, type DialogueContext } from './dialogue';
+export {
+  resolveMascotState,
+  pickReaction,
+  isCelebration,
+  type MascotEvent,
+  type MascotEventType,
+  type MascotReaction,
+} from './orchestrator';
