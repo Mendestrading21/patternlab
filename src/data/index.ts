@@ -10,6 +10,7 @@ export * from './offline';
 export * from './learningConcept';
 export * from './learningContent';
 export * from './learningTarget';
+export * from './exerciseRotation';
 export * from './repoTruth';
 export * from './patternLibrary';
 export * from './recognitionTrainer';

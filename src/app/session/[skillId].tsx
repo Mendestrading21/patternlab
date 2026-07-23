@@ -9,6 +9,8 @@ import {
   getLessons,
   skillById,
   limitCount,
+  rotateExercises,
+  checkpointExercises,
   isCheckpoint,
   isFalseSignalExercise,
   useProgress,
@@ -35,7 +37,7 @@ const DAY_MS = 86_400_000;
 export default function Session() {
   const { skillId, count } = useLocalSearchParams<{ skillId: string; count?: string }>();
   const router = useRouter();
-  const { recordAnswer, recordSessionReview, completeSession, recordFalseSignal } = useProgress();
+  const { recordAnswer, recordSessionReview, completeSession, recordFalseSignal, state } = useProgress();
 
   // Session valide = un id qui correspond à un contenu réel (compétence avec exercices, ou point
   // de contrôle dont `getExercises` agrège des exercices réels). AUCUN repli silencieux : un id
@@ -45,7 +47,18 @@ export default function Session() {
   const known = all.length > 0;
   // `count` (facultatif) provient de la mission du jour : longueur modulée par le temps quotidien.
   const target = count != null ? Number.parseInt(count, 10) : null;
-  const list = all.slice(0, limitCount(all.length, target));
+  // Rotation déterministe : au lieu des premiers N figés, une page qui avance à chaque
+  // session réussie. `round` dérive de la progression persistée (répétitions déjà acquises),
+  // donc stable pendant une session (la reprise retrouve la MÊME liste) et avançant entre
+  // sessions. Pour un point de contrôle, on tourne sur le total de répétitions cumulées.
+  const checkpointRound = state?.skills
+    ? Object.values(state.skills).reduce((sum, sp) => sum + (sp.review?.repetitions ?? 0), 0)
+    : 0;
+  const skillRound = state?.skills?.[resolvedId]?.review?.repetitions ?? 0;
+  const round = isCheckpoint(resolvedId) ? checkpointRound : skillRound;
+  const list = isCheckpoint(resolvedId)
+    ? checkpointExercises(round, 2)
+    : rotateExercises(all, limitCount(all.length, target), round);
   const skillName = skillById(resolvedId)?.name ?? 'Session';
   const lessons = known ? getLessons(resolvedId) : [];
 

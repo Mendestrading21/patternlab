@@ -9,6 +9,7 @@ import { buildDirectionExercise } from '../engines/exercise';
 import type { Pattern } from '../engines/pattern';
 import { generateCandles, supportLevel, resistanceLevel } from '../engines/pattern';
 import { PROGRESS_SCHEMA_VERSION, emptyLearning, type ProgressState } from './repositories';
+import { rotateExercises, buildCheckpoint } from './exerciseRotation';
 
 export interface ContentModule {
   id: string;
@@ -456,6 +457,29 @@ export function getExercises(skillId: string): Exercise[] {
     return SKILLS.flatMap((s) => (EXERCISES[s.id] ?? []).slice(0, 2));
   }
   return EXERCISES[skillId] ?? [];
+}
+
+/**
+ * Checkpoint tournant : `perSkill` exercices de chaque compétence, la fenêtre
+ * tournant avec `round` → les 8 questions ne sont jamais figées d'un passage à
+ * l'autre (round 0 = comportement historique). Plusieurs compétences, donc
+ * plusieurs objectifs, sont couvertes à chaque passage.
+ */
+export function checkpointExercises(round = 0, perSkill = 2): Exercise[] {
+  return buildCheckpoint(
+    SKILLS.map((s) => EXERCISES[s.id] ?? []),
+    perSkill,
+    round,
+  );
+}
+
+/**
+ * Sélection tournante d'une session de compétence : au lieu des premiers `count`
+ * figés, une page déterministe qui avance avec `round` (round 0 = historique).
+ */
+export function rotatedExercises(skillId: string, count: number, round = 0): Exercise[] {
+  if (skillId === CHECKPOINT_ID) return checkpointExercises(round, Math.max(1, Math.floor(count / SKILLS.length) || 2));
+  return rotateExercises(EXERCISES[skillId] ?? [], count, round);
 }
 export function skillById(id: string): Skill | undefined {
   if (id === CHECKPOINT_ID) return { id: CHECKPOINT_ID, name: CHECKPOINT_TITLE };
