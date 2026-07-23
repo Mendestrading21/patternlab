@@ -40,6 +40,54 @@ const BATCH_2 = [
   'pincettes',
 ];
 
+// Batch 3 d'enrichissement éditorial (ADR-090) : le monde des figures chartistes (world.patterns)
+// enrichi de bout en bout — 13 concepts, durée + dialogue Toto/Bobo.
+const BATCH_3 = [
+  'double-creux',
+  'double-sommet',
+  'triangle-ascendant',
+  'triangle-descendant',
+  'triangle-symetrique',
+  'epaule-tete-epaule',
+  'etei-inversee',
+  'drapeau-haussier',
+  'drapeau-baissier',
+  'biseau-ascendant',
+  'biseau-descendant',
+  'tasse-anse',
+  'triple-creux',
+];
+
+// Batch 4 d'enrichissement editorial (ADR-091) : le reste du corpus (SMC, indicateurs, volume,
+// risk, price action, psychologie, wyckoff, options) — enrichissement complet des 67 concepts.
+const BATCH_4 = [
+  'zone-d-offre',
+  'zone-de-demande',
+  'changement-de-caractere',
+  'fair-value-gap',
+  'order-block',
+  'bandes-de-bollinger',
+  'macd',
+  'rsi',
+  'divergence',
+  'volume',
+  'vwap',
+  'profil-de-volume',
+  'risque-rendement',
+  'stop-loss',
+  'taille-de-position',
+  'impulsion-et-correction',
+  'meche-de-rejet',
+  'price-action',
+  'discipline',
+  'fomo',
+  'distribution-wyckoff',
+  'wyckoff-accumulation',
+  'option-call',
+  'option-put',
+];
+
+
 /**
  * Verrou de l'enrichissement canonique (Lot 11) : les champs `estimatedMinutes` (durée) et
  * `dialogue` (interventions Toto/Bobo) sont optionnels mais, là où ils existent, bien formés et
@@ -86,6 +134,34 @@ describe('concepts — enrichissement canonique (durée + Toto/Bobo)', () => {
       expect(c!.estimatedMinutes).toBeGreaterThan(0);
       expect((c!.dialogue?.toto ?? '').trim().length).toBeGreaterThan(0);
       expect((c!.dialogue?.bobo ?? '').trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it('le monde des figures chartistes (Batch 3) est enrichi de bout en bout', () => {
+    for (const slug of BATCH_3) {
+      const c = V5_CONCEPTS.find((x) => x.slug === slug);
+      expect(c).toBeDefined();
+      expect(c!.estimatedMinutes).toBeGreaterThan(0);
+      expect((c!.dialogue?.toto ?? '').trim().length).toBeGreaterThan(0);
+      expect((c!.dialogue?.bobo ?? '').trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it('le reste du corpus (Batch 4) est enrichi de bout en bout', () => {
+    for (const slug of BATCH_4) {
+      const c = V5_CONCEPTS.find((x) => x.slug === slug);
+      expect(c).toBeDefined();
+      expect(c!.estimatedMinutes).toBeGreaterThan(0);
+      expect((c!.dialogue?.toto ?? '').trim().length).toBeGreaterThan(0);
+      expect((c!.dialogue?.bobo ?? '').trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it('les 67 concepts du corpus sont enrichis (enrichissement complet)', () => {
+    for (const c of V5_CONCEPTS) {
+      expect(c.estimatedMinutes).toBeGreaterThan(0);
+      expect((c.dialogue?.toto ?? '').trim().length).toBeGreaterThan(0);
+      expect((c.dialogue?.bobo ?? '').trim().length).toBeGreaterThan(0);
     }
   });
 });

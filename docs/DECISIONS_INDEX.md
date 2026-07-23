@@ -33,6 +33,8 @@ contrat (`CLAUDE.md`) priment sur un ancien programme.
 | Accessibilité, responsive & finitions | [ADR-087](./ADR-087-trademy-finitions.md) |
 | Enrichissement éditorial · Batch 1 (premier parcours) | [ADR-088](./ADR-088-trademy-enrichissement-batch-1.md) |
 | Enrichissement éditorial · Batch 2 (chandeliers) | [ADR-089](./ADR-089-trademy-enrichissement-batch-2.md) |
+| Enrichissement éditorial · Batch 3 (figures) | [ADR-090](./ADR-090-trademy-enrichissement-batch-3.md) |
+| Enrichissement éditorial · Batch 4 (reste — 67/67) | [ADR-091](./ADR-091-trademy-enrichissement-batch-4.md) |
 
 ## Fondations toujours actives
 

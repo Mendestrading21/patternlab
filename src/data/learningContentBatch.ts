@@ -612,6 +612,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.rising-wedge',
     slug: 'biseau-ascendant',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Ça monte encore, deux droites qui convergent vers le haut…',
+      bobo: 'Une hausse qui s’essouffle : la structure se resserre. N’anticipe pas la cassure avant qu’elle ait lieu ; un nouveau plus haut hors du biseau l’invalide.',
+    },
     title: 'Biseau ascendant',
     shortTitle: 'Biseau asc.',
     aliases: ['Rising Wedge'],
@@ -667,6 +672,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.bear-flag',
     slug: 'drapeau-baissier',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Après la forte baisse, une petite consolidation oblique : juste une pause ?',
+      bobo: 'Oui, un drapeau baissier est une pause, pas un retournement : ne les confonds pas. Un retour au-dessus du haut du drapeau annule l’hypothèse.',
+    },
     title: 'Drapeau baissier',
     shortTitle: 'Drapeau baiss.',
     aliases: ['Bear Flag'],
@@ -722,6 +732,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.cup-handle',
     slug: 'tasse-anse',
+    estimatedMinutes: 6,
+    dialogue: {
+      toto: 'Un grand arrondi en « U » puis une petite anse : la base s’est reconstruite, setup haussier.',
+      bobo: 'Encore faut-il une vraie tasse structurée, pas n’importe quelle base : une cassure sous le bas de l’anse invalide la figure.',
+    },
     title: 'Tasse avec anse',
     shortTitle: 'Tasse-anse',
     aliases: ['Cup and Handle'],
@@ -777,6 +792,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.triple-bottom',
     slug: 'triple-creux',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Un plancher défendu trois fois de suite : les acheteurs tiennent le niveau.',
+      bobo: 'Ça reste une hypothèse tant que la ligne de cou n’est pas franchie : une cassure nette sous le plancher renverse tout.',
+    },
     title: 'Triple creux',
     shortTitle: 'Triple creux',
     aliases: ['Triple Bottom'],
@@ -832,6 +852,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.inverse-head-shoulders',
     slug: 'etei-inversee',
+    estimatedMinutes: 6,
+    dialogue: {
+      toto: 'Trois creux avec un central plus bas : une épaule-tête-épaule inversée, retournement haussier possible.',
+      bobo: 'Ne vois pas une ÉTÉ partout : sans ligne de cou nette, la figure ne vaut rien. Un nouveau plus bas sous la tête l’invalide.',
+    },
     title: 'Épaule-tête-épaule inversée',
     shortTitle: 'ÉTÉ inversée',
     aliases: ['Inverse Head and Shoulders'],
@@ -1009,6 +1034,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.demand-zone',
     slug: 'zone-de-demande',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Le prix a décollé à la hausse depuis ici : cette zone de demande pourrait le faire rebondir, setup haussier possible.',
+      bobo: 'Ne la traite pas comme une certitude de rebond : une traversée nette vers le bas l’invalide. C’est une zone à surveiller.',
+    },
     title: 'Zone de demande',
     shortTitle: 'Demande',
     aliases: ['Demand Zone'],
@@ -1063,6 +1093,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.supply-zone',
     slug: 'zone-d-offre',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Le prix est parti fort à la baisse d’ici : cette zone d’offre pourrait à nouveau freiner une remontée.',
+      bobo: 'Une zone n’est jamais une certitude de rejet : une traversée nette vers le haut l’annule. Attends la réaction du prix au contact.',
+    },
     title: 'Zone d’offre',
     shortTitle: 'Offre',
     aliases: ['Supply Zone'],
@@ -1118,6 +1153,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.volume-profile',
     slug: 'profil-de-volume',
+    estimatedMinutes: 6,
+    dialogue: {
+      toto: 'Le prix teste le POC, le niveau le plus échangé : une zone de décision importante.',
+      bobo: 'Ne confonds pas volume par prix et volume par temps : une traversée nette du POC sans réaction retire son intérêt à la zone.',
+    },
     title: 'Profil de volume',
     shortTitle: 'Profil volume',
     aliases: ['Volume Profile', 'POC'],
@@ -1407,6 +1447,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.meche-de-rejet',
     slug: 'meche-de-rejet',
+    estimatedMinutes: 4,
+    dialogue: {
+      toto: 'Une longue mèche sur le niveau : le prix a été nettement repoussé de la zone.',
+      bobo: 'Toute mèche n’est pas un signal fort : hors d’un niveau clair, elle ne prouve rien. Le contexte fait le rejet.',
+    },
     title: 'Mèche de rejet',
     shortTitle: 'Rejet',
     aliases: ['Mèche de rejet', 'Rejection wick'],
@@ -1451,6 +1496,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.impulsion-et-correction',
     slug: 'impulsion-et-correction',
+    estimatedMinutes: 4,
+    dialogue: {
+      toto: 'Une impulsion puis une respiration : la tendance avance par vagues, la correction prépare la suite.',
+      bobo: 'Ne prends pas chaque correction pour un retournement : tant que la structure tient, c’est une pause, pas une cassure.',
+    },
     title: 'Impulsion et correction',
     shortTitle: 'Impulsion',
     aliases: ['Impulsion et correction', 'Poussée et retracement'],
@@ -1544,6 +1594,11 @@ export const BATCH_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.distribution-wyckoff',
     slug: 'distribution-wyckoff',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Un range en sommet : ça plafonne, l’offre semble prendre le dessus sur la demande.',
+      bobo: 'Ne confonds pas une simple consolidation avec une distribution : sans signes d’absorption ni contexte, ça reste un range.',
+    },
     title: 'Distribution (Wyckoff)',
     shortTitle: 'Distribution',
     aliases: ['Distribution', 'Phase de distribution'],
