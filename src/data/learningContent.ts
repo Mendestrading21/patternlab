@@ -166,6 +166,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.support-resistance',
     slug: 'support-resistance',
+    estimatedMinutes: 3,
+    dialogue: {
+      toto: 'Le prix est retombé plusieurs fois sur son plancher : ce support pourrait le faire rebondir, setup haussier possible.',
+      bobo: 'Raisonne en zone, pas en ligne exacte : un support n’est jamais acquis, une clôture nette en dessous l’invalide.',
+    },
     title: 'Support et résistance',
     shortTitle: 'Support / résistance',
     aliases: ['Support & Resistance'],
@@ -227,6 +232,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.candle-anatomy',
     slug: 'anatomie-bougie',
+    estimatedMinutes: 3,
+    dialogue: {
+      toto: 'Corps long, clôture bien au-dessus de l’ouverture : la période a été décidée, la demande a pris la main.',
+      bobo: 'Regarde aussi les mèches : une longue mèche haute, c’est un rejet. Et une bougie raconte le passé, pas la suivante.',
+    },
     title: 'Anatomie d’une bougie',
     shortTitle: 'Anatomie',
     aliases: ['Candle anatomy'],
@@ -608,6 +618,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.break-of-structure',
     slug: 'cassure-de-structure',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Le dernier creux protégé vient de céder : la séquence HH/HL est rompue, le rapport de force bascule.',
+      bobo: 'Une cassure n’est pas un retournement acquis : sans clôture confirmée au-delà, ça peut n’être qu’une mèche de chasse aux stops. Un simple retracement n’en est pas une.',
+    },
     title: 'Cassure de structure',
     shortTitle: 'Cassure (BOS)',
     aliases: ['Break of Structure', 'BOS'],
@@ -670,6 +685,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.range',
     slug: 'range',
+    estimatedMinutes: 4,
+    dialogue: {
+      toto: 'Le prix rebondit entre plancher et plafond : sur le support, je vise un setup haussier vers le haut du range.',
+      bobo: 'Tant qu’aucune sortie n’est confirmée, ce n’est qu’un équilibre : une fausse sortie repasse aussitôt dans la zone, attends la clôture au-delà.',
+    },
     title: 'Range (zone d’équilibre)',
     shortTitle: 'Range',
     aliases: ['Range', 'Consolidation'],
@@ -732,6 +752,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.polarity-flip',
     slug: 'polarite-flip',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Le support cassé rejette le prix par le dessus : il a changé de rôle, il agit maintenant en résistance.',
+      bobo: 'Le flip reste une hypothèse : tant que le retest n’a pas réagi, ne le tiens pas pour acquis. Un retour franc de l’ancien côté l’annule.',
+    },
     title: 'Polarité (flip)',
     shortTitle: 'Flip',
     aliases: ['Polarity flip'],
@@ -1759,6 +1784,11 @@ const CORE_V5_CONCEPTS: LearningConcept[] = [
   {
     id: 'concept.fakeout',
     slug: 'faux-signal',
+    estimatedMinutes: 5,
+    dialogue: {
+      toto: 'Ça y est, la résistance est franchie, la cassure est là.',
+      bobo: 'Une mèche au-delà n’est pas une cassure : sans clôture confirmée, c’est souvent un faux signal qui repasse aussitôt sous le niveau. Attends la confirmation.',
+    },
     title: 'Faux signal (fakeout)',
     shortTitle: 'Faux signal',
     aliases: ['Fakeout', 'False breakout'],

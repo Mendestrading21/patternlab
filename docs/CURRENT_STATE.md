@@ -106,8 +106,22 @@ par lots ; `main` n'est jamais modifié directement ; livrable = une PR vers `ma
   **avant/après** produites (Chromium). **PR #3** ouverte vers `main`
   (`feat/trademy-complete-redesign`).
 
-> **Refonte Trademy — terminée** (Lots 1→12), livrée en PR #3 vers `main`. `main` n'a pas été modifié
-> directement ; la fusion et le déploiement restent à la décision humaine.
+> **Refonte Trademy — terminée** (Lots 1→13), **fusionnée dans `main` (PR #3) et déployée en live**
+> sur GitHub Pages. La transformation d'identité, de design, de navigation et de structure est publiée.
+
+## Enrichissement éditorial — en cours (par paquets revus)
+
+Le schéma de concept est entièrement canonique (ADR-086) : `estimatedMinutes` (durée) et
+`dialogue` (interventions Toto/Bobo) sont portés par le concept (source unique). L'enrichissement se
+poursuit **un paquet à la fois, revu humainement**, sans jamais gonfler le corpus ni auto-publier.
+
+- **Batch 1 — premier parcours débutant** ✅ : les cinq mondes d'entrée (Fondations · Anatomie ·
+  Structure · Supports/Résistances · Faux signaux) sont enrichis **de bout en bout** (durée + dialogue
+  Toto/Bobo sur les 12 concepts restants → 16/16). Aucune UI ajoutée (rendus câblés au Lot 11) ; verrou
+  `conceptEnrichment.test.ts` (`BATCH_1`). Voir **ADR-088**. Le nombre exact de concepts enrichis reste
+  dérivé du code, jamais recopié ici.
+- **Suite** : paquets suivants dans l'ordre canonique (`docs/CONTENT_COVERAGE.md`) — `world.candles`
+  (14), puis `world.patterns` (13), etc., jusqu'à couvrir les 67 concepts.
 
 ## Gate canonique
 
