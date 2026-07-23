@@ -131,8 +131,19 @@ export function completeSession(
     ? [...state.completedSkills, skillId as string]
     : state.completedSkills;
 
+  // Rotation : avance à CHAQUE session terminée, réussie OU non — indépendante des répétitions SM-2
+  // (qu'un échec remet à zéro). Une session échouée ne represente donc pas indéfiniment la même série.
+  const rotation = skillId
+    ? { ...(state.rotation ?? {}), [skillId]: (state.rotation?.[skillId] ?? 0) + 1 }
+    : (state.rotation ?? {});
+
   return {
-    state: { ...state, streakDays, lastActiveDate: today, completedSkills },
+    state: { ...state, streakDays, lastActiveDate: today, completedSkills, rotation },
     unlockedSkillId: shouldUnlock ? (skillId as string) : null,
   };
+}
+
+/** Compteur de rotation courant d'une compétence/checkpoint (0 par défaut). */
+export function rotationOf(state: Pick<ProgressState, 'rotation'>, key: string): number {
+  return state.rotation?.[key] ?? 0;
 }

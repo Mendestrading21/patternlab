@@ -505,6 +505,28 @@ export function exercisableObjectiveIds(conceptId: string): string[] {
   return [...set];
 }
 
+/** Variantes d'exercice qui adressent un objectif donné (même cible, formulations différentes). */
+export function exerciseVariantsForObjective(objectiveId: string): Exercise[] {
+  const out: Exercise[] = [];
+  for (const list of Object.values(EXERCISES)) {
+    for (const ex of list) {
+      if (ex.target?.objectiveId === objectiveId) out.push(ex);
+    }
+  }
+  return out;
+}
+
+/**
+ * Choisit une variante pour un objectif selon le round de rotation. La remédiation
+ * peut réutiliser une cible échouée tout en proposant une variante DIFFÉRENTE
+ * lorsqu'il en existe plusieurs (le round avance à chaque session, même échouée).
+ */
+export function pickVariant(objectiveId: string, round: number): Exercise | undefined {
+  const vs = exerciseVariantsForObjective(objectiveId);
+  if (!vs.length) return undefined;
+  return vs[((Math.trunc(round) % vs.length) + vs.length) % vs.length];
+}
+
 // ─── Checkpoint (revue mixte du module) ──────────────────────────────
 // Nœud de fin de module : réunit quelques exercices de chaque compétence.
 // Les exercices gardent leur skillId réel → répondre met à jour la maîtrise réelle.

@@ -49,15 +49,11 @@ export default function Session() {
   const known = all.length > 0;
   // `count` (facultatif) provient de la mission du jour : longueur modulée par le temps quotidien.
   const target = count != null ? Number.parseInt(count, 10) : null;
-  // Rotation déterministe : au lieu des premiers N figés, une page qui avance à chaque
-  // session réussie. `round` dérive de la progression persistée (répétitions déjà acquises),
-  // donc stable pendant une session (la reprise retrouve la MÊME liste) et avançant entre
-  // sessions. Pour un point de contrôle, on tourne sur le total de répétitions cumulées.
-  const checkpointRound = state?.skills
-    ? Object.values(state.skills).reduce((sum, sp) => sum + (sp.review?.repetitions ?? 0), 0)
-    : 0;
-  const skillRound = state?.skills?.[resolvedId]?.review?.repetitions ?? 0;
-  const round = isCheckpoint(resolvedId) ? checkpointRound : skillRound;
+  // Rotation déterministe : au lieu des premiers N figés, une page qui avance à chaque session
+  // TERMINÉE (réussie ou non). `round` dérive du compteur de rotation PERSISTÉ (indépendant des
+  // répétitions SM-2 qu'un échec remet à zéro), donc stable pendant une session (la reprise retrouve
+  // la MÊME liste) et avançant entre sessions — même après un échec (variantes différentes).
+  const round = state?.rotation?.[resolvedId] ?? 0;
   const list = isCheckpoint(resolvedId)
     ? checkpointExercises(round, 2)
     : rotateExercises(all, limitCount(all.length, target), round);
