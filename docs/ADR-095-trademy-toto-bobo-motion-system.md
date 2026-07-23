@@ -73,8 +73,43 @@ reconstruire »), l'existant a été **audité et conservé**, et seules les **l
   logique de progression ; les suites P0 restent vertes).
 - **Aucun vocabulaire interdit** : tests anti-BUY/SELL sur l'orchestrateur et les rôles de guide.
 
+## Révision de la PR #9 — orchestration réellement branchée sur la session
+
+La première itération résolvait l'état et testait l'orchestrateur, mais seul `offline_detected`
+pilotait la session. La revue a demandé de piloter RÉELLEMENT un parcours complet. Ajouts :
+
+7. **Contrôleur avec état, unique et testable** — `reactionMachine.ts` (pur) conserve la réaction
+   active, applique `pickReaction`, empêche deux réactions concurrentes, programme le retour à idle
+   d'après la **durée réelle** de l'état (`STATE_TO_DURATION` → `motion` en ms — plus jamais
+   `motion.instant` pour tout), libère l'hors-ligne sur `online_restored`, et porte le guide choisi
+   sur les seuls états **neutres** (`welcome`/`observe`/`encourage`) — les rôles canoniques priment.
+   « Retour à idle » = pose calme conservant le texte, **pas** une disparition. `useMascotReactions.ts`
+   habille la machine de vrais timers, annule au démontage et ne bloque jamais la navigation.
+8. **Session pilotée par événements** (`app/session/[skillId].tsx`) — émission aux vrais moments :
+   `session_resumed` (reprise réelle, jamais une célébration rejouée), `lesson_started`,
+   `chart_revealed` (début des exercices), `answer_correct` (série réelle → Toto),
+   `answer_incorrect`/`misconception_detected` selon que l'exercice porte une idée fausse (Bobo, faux
+   signal ; texte = `mistakeMoment(exercise.id)`), `retry_started`, `checkpoint_started`,
+   `checkpoint_completed` (résultat réel → célébration proportionnelle si réussi, encourage sinon).
+   Une **seule scène mascotte dominante** par écran, rendue depuis le contrôleur ; le TEXTE reste
+   pédagogique. `answer_selected`/`hint_requested`/`streak_earned`/`level_completed` ne sont **pas**
+   émis (aucune interaction correspondante dans ce flux) — pas d'événement factice.
+9. **Guide effectif + modifiable** — `progressContext.setGuide` (non destructif, persistant) et un
+   sélecteur dans **Profil** (réutilise la carte accessible, aucune nouvelle page). Le guide porte les
+   moments neutres ; Toto explique/célèbre, Bobo garde le risque et le faux signal, quel que soit le
+   choix.
+
+**Tests ajoutés.** `reactionMachine.test.ts` (ordre d'événements d'une session, priorités &
+interruptible, offline override, `online_restored`, retour à idle par la durée, reprise sans
+célébration, checkpoint réussi/échoué, guide neutre vs canonique, immuabilité — aucun effet de bord
+sur progression/graphique). `useMascotReactions.test.tsx` : **test d'intégration réel du hook** via
+react-dom/jsdom (emit → réaction, retour à idle par timer, annulation au démontage, offline écrase,
+non-interruptible conservé, guide neutre, non bloquant) — **sans dépendance ajoutée**
+(`@types/react-dom` absent → import typé localement).
+
 ## Rollback
 
 Lot purement additif côté personnages + un profil optionnel migré sans perte. Retirer la branche
 restaure l'état post-P0. Le champ `guide` est optionnel et ignoré s'il est absent ; aucune donnée
-persistée existante n'est invalidée.
+persistée existante n'est invalidée. La session conserve intégralement sa logique de progression P0 :
+le contrôleur de réactions ne lit ni n'écrit la progression, les réponses ou les données du graphique.
