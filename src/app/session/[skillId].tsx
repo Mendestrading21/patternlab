@@ -35,7 +35,7 @@ const DAY_MS = 86_400_000;
 export default function Session() {
   const { skillId, count } = useLocalSearchParams<{ skillId: string; count?: string }>();
   const router = useRouter();
-  const { recordAnswer, completeSession, recordFalseSignal } = useProgress();
+  const { recordAnswer, recordSessionReview, completeSession, recordFalseSignal } = useProgress();
 
   // Session valide = un id qui correspond à un contenu réel (compétence avec exercices, ou point
   // de contrôle dont `getExercises` agrège des exercices réels). AUCUN repli silencieux : un id
@@ -62,6 +62,12 @@ export default function Session() {
   const [phase, setPhase] = useState<'learn' | 'practice'>(lessons.length ? 'learn' : 'practice');
   const [hydrated, setHydrated] = useState(false);
   const hydratedOnce = useRef(false);
+  // Réponses RÉELLEMENT validées de la session (commit à « Continuer »), pour planifier la
+  // révision espacée une seule fois par compétence à la fin. Idempotent : une réponse commitée
+  // ne l'est jamais deux fois (la reprise repart de la 1re question non commitée).
+  const answeredRef = useRef<{ skillId: string; correct: boolean }[]>([]);
+  // Garde-fou : la note de session (maîtrise + planification de révision) n'est appliquée qu'UNE fois.
+  const sessionScoredRef = useRef(false);
 
   // Reprise exacte : au 1er rendu, restaure la position sauvegardée de CETTE compétence.
   useEffect(() => {
@@ -112,6 +118,8 @@ export default function Session() {
     setResult(null);
     setCorrect(0);
     setStreak(0);
+    answeredRef.current = [];
+    sessionScoredRef.current = false;
     sessionResumeRepository.clear();
   };
 
@@ -217,6 +225,26 @@ export default function Session() {
         total={list.length}
         correct={correct}
         onComplete={(passed) => {
+          if (sessionScoredRef.current) return;
+          sessionScoredRef.current = true;
+          // Révision espacée planifiée UNE fois : par compétence réelle pour un point de contrôle
+          // (exercices de plusieurs compétences), sinon sur la compétence de la session — via la
+          // précision (correct/total), robuste à la reprise.
+          const perSkill = isCheckpoint(resolvedId)
+            ? Object.values(
+                answeredRef.current.reduce<Record<string, { skillId: string; correct: number; total: number }>>(
+                  (acc, a) => {
+                    const g = acc[a.skillId] ?? { skillId: a.skillId, correct: 0, total: 0 };
+                    g.total += 1;
+                    if (a.correct) g.correct += 1;
+                    acc[a.skillId] = g;
+                    return acc;
+                  },
+                  {},
+                ),
+              )
+            : [{ skillId: resolvedId, correct, total: list.length }];
+          if (perSkill.length) recordSessionReview(perSkill);
           completeSession(resolvedId, passed);
           if (isCheckpoint(resolvedId)) analytics.track('checkpoint_completed', { passed });
         }}
@@ -230,18 +258,24 @@ export default function Session() {
 
   const validate = (answer: unknown) => {
     if (result) return;
+    // On calcule et on AFFICHE le feedback, mais on ne commite RIEN ici : la réponse n'est
+    // enregistrée qu'au « Continuer » (next), atomiquement avec l'avance d'index. Fermer l'app
+    // pendant le feedback ne peut donc jamais compter la réponse deux fois : la reprise repart
+    // de cette même question, non encore commitée.
     const graded = gradeExercise(exercise, answer);
     setResult(graded);
-    if (graded.correct) setCorrect((c) => c + 1);
-    setStreak((s) => (graded.correct ? s + 1 : 0));
-    // Erreur → errorTag = id de l'exercice (concept à retravailler ; révision rapprochée).
-    recordAnswer(exercise.skillId, graded.correct ? 5 : 2, graded.correct ? undefined : exercise.id);
-    // Réussite « compréhension » V5 : un faux signal / une invalidation correctement repéré.
-    if (graded.correct && isFalseSignalExercise(exercise.type)) recordFalseSignal();
     analytics.track('feedback_viewed', { exerciseId: exercise.id, correct: graded.correct });
   };
 
   const next = () => {
+    if (result) {
+      // Commit atomique de la réponse validée : compteurs + XP/errorTags + faux signal, puis avance.
+      if (result.correct) setCorrect((c) => c + 1);
+      setStreak((s) => (result.correct ? s + 1 : 0));
+      recordAnswer(exercise.skillId, result.correct ? 5 : 2, result.correct ? undefined : exercise.id);
+      if (result.correct && isFalseSignalExercise(exercise.type)) recordFalseSignal();
+      answeredRef.current.push({ skillId: exercise.skillId, correct: result.correct });
+    }
     setIndex((i) => i + 1);
     setResult(null);
   };

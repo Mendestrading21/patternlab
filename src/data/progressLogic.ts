@@ -13,9 +13,11 @@
  *   et ne dupliquent jamais une compétence déjà terminée.
  */
 import {
-  applyGrade,
+  applySessionGrade,
   coinsForGrade,
+  gradeForSession,
   levelForXp,
+  xpForGrade,
   initialProgress,
   type Grade,
   type SkillProgress,
@@ -30,10 +32,12 @@ export function dayKey(ts: number): string {
 }
 
 /**
- * Enregistre une réponse d'exercice.
- * L'XP total progresse exactement du delta d'XP produit par le moteur pour cette
- * compétence — pas d'un second barème recopié — ce qui élimine toute incohérence
- * entre l'XP affiché (total) et l'XP enregistré (par compétence).
+ * Enregistre une réponse d'exercice — ACTIVITÉ uniquement : XP, pièces et errorTags.
+ * La maîtrise et la révision espacée ne sont PAS avancées ici : elles se mettent à jour une seule
+ * fois par session (`recordSessionReview`), pour qu'une même compétence ne soit pas « révisée »
+ * plusieurs fois dans une seule séance (inflation d'intervalle) et pour que le calendrier reflète
+ * la précision de la session, pas la dernière réponse.
+ * L'XP total progresse exactement du delta d'XP du barème (source unique), donc jamais divergent.
  */
 export function recordAnswer(
   state: ProgressState,
@@ -44,13 +48,12 @@ export function recordAnswer(
   tag?: string,
 ): ProgressState {
   const current: SkillProgress = state.skills[skillId] ?? initialProgress(skillId, now);
-  let updated = applyGrade(current, grade, now);
-  // Erreur → errorTag (concept à retravailler) + révision déjà rapprochée par le moteur.
+  const xpDelta = xpForGrade(grade);
+  let updated: SkillProgress = { ...current, xp: current.xp + xpDelta };
   if (grade < 3 && tag) {
     const tags = updated.errorTags ?? {};
     updated = { ...updated, errorTags: { ...tags, [tag]: (tags[tag] ?? 0) + 1 } };
   }
-  const xpDelta = updated.xp - current.xp;
   const totalXp = state.totalXp + xpDelta;
   return {
     ...state,
@@ -59,6 +62,26 @@ export function recordAnswer(
     coins: state.coins + coinsForGrade(grade),
     skills: { ...state.skills, [skillId]: updated },
   };
+}
+
+/**
+ * Planifie la révision espacée d'UNE compétence à partir de la précision de la session
+ * (bonnes réponses / total), une seule fois, en fin de session. Met à jour maîtrise, confiance
+ * et prochaine échéance via le moteur SM-2. Conséquences (LOT 1 — fiabilité) :
+ * - une compétence n'avance que d'un cran de répétition par session (pas par réponse) ;
+ * - une session faible (< 60 %) → révision immédiate ; 60–80 % → révision rapprochée ;
+ * - le calendrier reflète la performance globale, pas seulement la dernière réponse.
+ */
+export function recordSessionReview(
+  state: ProgressState,
+  skillId: string,
+  correct: number,
+  total: number,
+  now: number,
+): ProgressState {
+  const current: SkillProgress = state.skills[skillId] ?? initialProgress(skillId, now);
+  const updated = applySessionGrade(current, gradeForSession(correct, total), now);
+  return { ...state, skills: { ...state.skills, [skillId]: updated } };
 }
 
 /** Résultat d'une fin de session : le nouvel état + si une compétence vient d'être débloquée. */

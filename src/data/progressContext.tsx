@@ -34,6 +34,8 @@ interface ProgressContextValue {
   /** Enregistre le profil personnalisé ET marque l'onboarding terminé. */
   completeOnboarding: (profile: OnboardingProfile) => void;
   recordAnswer: (skillId: string, grade: Grade, tag?: string) => void;
+  /** Planifie la révision espacée UNE fois par session (par compétence), depuis la précision. */
+  recordSessionReview: (perSkill: { skillId: string; correct: number; total: number }[]) => void;
   /** `passed` : la session est-elle réussie ? Seule une réussite débloque la compétence. */
   completeSession: (skillId?: string, passed?: boolean) => void;
   /** Réclame la récompense d'une quête du jour terminée (idempotent). */
@@ -211,6 +213,33 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  // Révision espacée : planifiée UNE fois par session (par compétence), pas par réponse.
+  // Évite l'inflation d'intervalle intra-session et fait suivre le calendrier la précision réelle.
+  const recordSessionReview = useCallback(
+    (perSkill: { skillId: string; correct: number; total: number }[]) => {
+      setState((prev) => {
+        if (!prev) return prev;
+        const now = Date.now();
+        let next = prev;
+        for (const { skillId, correct, total } of perSkill) {
+          const before = next.skills[skillId];
+          next = progressLogic.recordSessionReview(next, skillId, correct, total, now);
+          const after = next.skills[skillId];
+          if (after) {
+            const prevStatus = before ? masteryStatus(before) : 'new';
+            const nextStatus = masteryStatus(after);
+            if (prevStatus !== nextStatus) analytics.track('mastery_changed', { skillId, status: nextStatus });
+          }
+        }
+        if (next === prev) return prev;
+        void progressRepository.save(next);
+        announceBadges(prev, next);
+        return next;
+      });
+    },
+    [],
+  );
+
   const completeSession = useCallback((skillId?: string, passed = true) => {
     setState((prev) => {
       if (!prev) return prev;
@@ -294,6 +323,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         markOnboarded,
         completeOnboarding,
         recordAnswer,
+        recordSessionReview,
         completeSession,
         claimQuest,
         premium: premiumState,

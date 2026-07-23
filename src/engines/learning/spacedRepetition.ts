@@ -90,19 +90,38 @@ export function scheduleNext(state: ReviewState, grade: Grade, now: number): Rev
   return { repetitions, easiness: nextEasiness, intervalDays, dueAt: now + intervalDays * DAY_MS };
 }
 
-/** Met à jour mastery + confidence (progressif, jamais « maîtrisé » d'un coup). */
-export function applyGrade(progress: SkillProgress, grade: Grade, now: number): SkillProgress {
+/**
+ * Applique une note de SESSION : met à jour mastery + confidence ET planifie la prochaine
+ * révision — mais SANS toucher l'XP. L'XP est une récompense d'activité comptée par réponse
+ * (`xpForGrade`), tandis que la maîtrise et la révision espacée se mettent à jour UNE fois par
+ * session (jamais une fois par réponse), pour éviter l'inflation d'intervalle intra-session.
+ */
+export function applySessionGrade(progress: SkillProgress, grade: Grade, now: number): SkillProgress {
   const delta = grade >= 4 ? 0.15 : grade === 3 ? 0.07 : -0.12;
   const mastery = clamp01(progress.mastery + delta);
   const confidence = clamp01(progress.confidence * 0.6 + (grade >= 3 ? 0.4 : 0));
-  const xp = progress.xp + xpForGrade(grade);
-  return {
-    ...progress,
-    xp,
-    mastery,
-    confidence,
-    review: scheduleNext(progress.review, grade, now),
-  };
+  return { ...progress, mastery, confidence, review: scheduleNext(progress.review, grade, now) };
+}
+
+/** Met à jour mastery + confidence + révision + XP (progressif, jamais « maîtrisé » d'un coup). */
+export function applyGrade(progress: SkillProgress, grade: Grade, now: number): SkillProgress {
+  return { ...applySessionGrade(progress, grade, now), xp: progress.xp + xpForGrade(grade) };
+}
+
+/**
+ * Note agrégée d'une session à partir de sa précision (bonnes réponses / total).
+ * Décision pédagogique (documentée) :
+ *  - précision ≥ 80 % → note 5 : bon rappel, l'intervalle de révision s'allonge normalement ;
+ *  - 60 % ≤ précision < 80 % → note 3 : rappel juste mais fragile, révision rapprochée (1–6 j) ;
+ *  - précision < 60 % → note 2 : session ratée, `scheduleNext` remet la révision à immédiate.
+ * Ainsi une session faible ne programme JAMAIS une révision lointaine.
+ */
+export function gradeForSession(correct: number, total: number): Grade {
+  if (total <= 0) return 2;
+  const accuracy = correct / total;
+  if (accuracy >= 0.8) return 5;
+  if (accuracy >= 0.6) return 3;
+  return 2;
 }
 
 /** Une compétence est maîtrisée après plusieurs rappels réussis ET une mastery haute. */

@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
-import { recordAnswer, completeSession, dayKey } from './progressLogic';
+import { recordAnswer, recordSessionReview, completeSession, dayKey } from './progressLogic';
 import type { ProgressState } from './repositories';
 import { PROGRESS_SCHEMA_VERSION } from './repositories';
 
@@ -122,5 +122,30 @@ describe('progressLogic.completeSession', () => {
     expect(second.state.streakDays).toBe(first.streakDays); // inchangé
     expect(second.state.completedSkills).toEqual(['skill.a']); // pas de doublon
     expect(second.unlockedSkillId).toBeNull();
+  });
+});
+
+describe('progressLogic — révision espacée par session (pas par réponse)', () => {
+  it('recordAnswer n’avance PAS la révision (aucune inflation intra-session)', () => {
+    let s = base();
+    for (let i = 0; i < 5; i++) s = recordAnswer(s, 'skill.a', 5, T0 + i * 1000);
+    const rev = s.skills['skill.a'].review;
+    expect(rev.repetitions).toBe(0); // la révision se planifie en fin de session, pas par réponse
+    expect(rev.intervalDays).toBe(0);
+    expect(s.skills['skill.a'].xp).toBe(50); // l’XP, lui, se cumule bien par réponse
+  });
+
+  it('recordSessionReview avance la révision UNE seule fois pour une bonne session', () => {
+    let s = base();
+    for (let i = 0; i < 5; i++) s = recordAnswer(s, 'skill.a', 5, T0);
+    s = recordSessionReview(s, 'skill.a', 5, 5, T0); // 100 %
+    expect(s.skills['skill.a'].review.repetitions).toBe(1);
+  });
+
+  it('une session faible programme une révision proche ; une session ratée, immédiate', () => {
+    const weak = recordSessionReview(base(), 'skill.a', 6, 10, T0); // 60 % → 1 jour
+    expect(weak.skills['skill.a'].review.intervalDays).toBe(1);
+    const failed = recordSessionReview(base(), 'skill.a', 3, 10, T0); // 30 % → immédiate
+    expect(failed.skills['skill.a'].review.dueAt).toBe(T0);
   });
 });
