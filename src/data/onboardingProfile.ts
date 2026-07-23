@@ -24,6 +24,8 @@ export interface OnboardingProfile {
   diagnosticScore: number | null;
   /** Compétence de départ recommandée (point de reprise). */
   startSkillId: string;
+  /** Guide préféré choisi à l'onboarding (Toto/Bobo) — optionnel, non destructif. */
+  guide?: 'toto' | 'bobo';
   completedAt: string | null;
 }
 
@@ -96,6 +98,7 @@ export function migrateOnboardingProfile(raw: unknown): OnboardingProfile | null
     diagnosticDone: Boolean(p.diagnosticDone),
     diagnosticScore: typeof p.diagnosticScore === 'number' ? p.diagnosticScore : null,
     startSkillId: p.startSkillId,
+    guide: p.guide === 'toto' || p.guide === 'bobo' ? p.guide : undefined,
     completedAt: typeof p.completedAt === 'string' ? p.completedAt : null,
   };
 }

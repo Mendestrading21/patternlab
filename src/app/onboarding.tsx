@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { Screen, Text, Button, Card, Chip, ProgressBar, TrademyIcon, theme } from '@/design-system';
-import { CharacterScene, MascotFigure } from '@/characters';
+import { CharacterScene, MascotFigure, GuideSelectionCard, type CharacterId } from '@/characters';
 import { MiniVisual } from '@/engines/visual';
 import {
   useProgress,
@@ -55,6 +55,7 @@ export default function Onboarding() {
   const { completeOnboarding } = useProgress();
 
   const [step, setStep] = useState(0);
+  const [guide, setGuide] = useState<CharacterId | null>(null);
   const [objective, setObjective] = useState<Objective | null>(null);
   const [level, setLevel] = useState<DeclaredLevel | null>(null);
   const [minutes, setMinutes] = useState<DailyMinutes | null>(null);
@@ -115,6 +116,7 @@ export default function Onboarding() {
       diagnosticDone: diag === 'done',
       diagnosticScore: diag === 'done' ? diagCorrect / DIAGNOSTIC.length : null,
       startSkillId,
+      guide: guide ?? undefined,
       completedAt: new Date().toISOString(),
     };
     completeOnboarding(profile);
@@ -141,8 +143,16 @@ export default function Onboarding() {
             parcours en quelques questions — aucun compte requis.
           </Text>
           <MascotFigure name="toto-read" height={170} />
-          <CharacterScene character="toto" state="welcome" size={60} speech="Moi c’est Toto : je formule des hypothèses haussières." />
-          <CharacterScene character="bobo" state="warning" size={60} reversed speech="Et moi Bobo : je traque le risque et le faux signal." />
+          <Text variant="label" color={theme.colors.textMuted}>
+            Ton guide préféré (tu peux changer plus tard)
+          </Text>
+          <GuideSelectionCard
+            selected={guide}
+            onSelect={(id) => {
+              setGuide(id);
+              analytics.track('goal_selected', { objective: `guide:${id}` });
+            }}
+          />
         </View>
       )}
 

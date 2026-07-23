@@ -8,6 +8,8 @@ export {
   type CharacterAnimationControllerProps,
 } from './CharacterAnimationController';
 export { CharacterScene, type CharacterSceneProps } from './CharacterScene';
+export { GuideSelectionCard, type GuideSelectionCardProps } from './GuideSelectionCard';
+export { GUIDE_ROLE, GUIDE_PRESENT_STATE } from './guideRoles';
 export { useReducedMotion } from './useReducedMotion';
 export { type CharacterId, type CharacterState, type Expression, CHARACTER_NAME } from './types';
 export {
