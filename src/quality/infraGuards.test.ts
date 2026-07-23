@@ -17,6 +17,27 @@ describe('P0 — gate de déploiement', () => {
     // `npm run check` = lint · typecheck · tests · validate:content · release:check · build:web.
     expect(yml).toMatch(/run:\s*npm run check/);
   });
+
+  it('le déploiement reste réservé à `main` (jamais déclenché par une pull request)', () => {
+    const yml = readFileSync(join(ROOT, '.github', 'workflows', 'deploy.yml'), 'utf8');
+    expect(yml).toMatch(/branches:\s*\[main\]/);
+    expect(yml).not.toMatch(/pull_request/);
+  });
+});
+
+describe('P0 — CI de pull request (preuve avant fusion)', () => {
+  const yml = readFileSync(join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8');
+
+  it('la CI se déclenche sur pull_request vers main', () => {
+    expect(yml).toMatch(/pull_request:/);
+    expect(yml).toMatch(/branches:\s*\[main\]/);
+  });
+
+  it('la CI exécute npm ci, la gate canonique et un contrôle git diff --check', () => {
+    expect(yml).toMatch(/run:\s*npm ci/);
+    expect(yml).toMatch(/npm run check/);
+    expect(yml).toMatch(/git diff --check/);
+  });
 });
 
 describe('P0 — accessibilité web : zoom (WCAG 1.4.4)', () => {
