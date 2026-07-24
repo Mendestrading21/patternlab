@@ -127,6 +127,32 @@ La 2e revue demandait de prouver le parcours sur les écrans/stores RÉELS (pas 
 
 `npm run check` verte (93 suites / 733 tests) ; `git diff --check` propre ; aucune dépendance ajoutée.
 
+## Corrections de revue · 3e passe (PR #10) — remédiation par erreur + reprise d'interaction
+
+1. **Retry RÉELLEMENT déclenché par l'erreur** (`app/session/[skillId].tsx`) — après une mauvaise
+   réponse, un bouton **« Réessayer autrement »** injecte IMMÉDIATEMENT une **autre variante de la
+   MÊME cible** (`remediationVariant`, déterministe : ≠ celle échouée et, quand possible, ≠ l'exercice
+   suivant du parcours — donc servie À CAUSE de l'erreur, pas par simple avance). L'erreur de base est
+   comptée **une seule fois** (à l'entrée en remédiation) ; la tentative de remédiation n'est **jamais**
+   comptée ; **une seule transition** de répétition espacée par cible ; **pas de boucle infinie** (une
+   remédiation par erreur) ; reprise fidèle si l'app est fermée pendant la remédiation
+   (`remediationId` persisté). Le test prouve que la variante ≠ l'exercice suivant du tableau.
+2. **Reprise d'une INTERACTION inachevée** — `SessionResume.draftOrder` (+ sanitize) persiste le
+   brouillon d'un exercice d'ordre en cours ; `ExercisePlayer`/`ReorderList` exposent
+   `draft`/`onDraftChange`. Test : réorganiser sans valider → démonter → remonter → **ordre exact
+   restauré** → valider → **compté une fois**. Reprise d'un **checkpoint interrompu** couverte aussi.
+3. **Portée du test de navigation** — clarifiée honnêtement + `src/integration/navigation.integration.test.tsx`
+   (Option A) monte l'écran de MONDE réel et vérifie qu'ouvrir une unité **émet la route
+   `/session/<compétence>`**. La session verticale reste couverte par `session.integration.test.tsx` ;
+   le gating des mondes par `pilotJourney.test.ts` ; la traversée expo-router complète reste un
+   contrôle manuel (limite assumée).
+4. **Preuves visuelles** — `pilot-error-remediation`, `pilot-remediation-variant` (header REMÉDIATION,
+   index inchangé), `pilot-checkpoint-fail` ajoutées ; checkpoint réussi / reprise / progression finale
+   prouvés par le test d'intégration (plus fort qu'un écran).
+
+`npm run check` verte (94 suites / 737 tests) ; `git diff --check` propre ; **aucune dépendance
+ajoutée** ; moteur P0 et LOT 2 inchangés ; aucune migration destructive (champs de reprise optionnels).
+
 ## Rollback
 
 Lot purement additif. `skill.candles` peut revenir à ses exercices précédents en réinsérant l'ancien

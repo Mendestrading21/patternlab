@@ -80,7 +80,7 @@ jest.mock('expo-router', () => {
   };
 });
 
-import Session from '@/app/session/[skillId]';
+import Session, { remediationVariant } from '@/app/session/[skillId]';
 import { ProgressProvider, getExercises, rotateExercises, limitCount, CHECKPOINT_ID, checkpointExercises } from '@/data';
 import { objectiveId } from '@/data/learningTarget';
 import { isObjectiveProven } from '@/data/targetProgress';
@@ -391,6 +391,97 @@ describe('Écran de session RÉEL — parcours pilote de production', () => {
     const recognize = objectiveId(C, 'recognize');
     // recognize = 3 exercices (direction, label-high, place-high), chacun compté UNE fois malgré la reprise.
     expect(saved!.targets![recognize].attempts).toBe(3);
+    s.unmount();
+  });
+
+  it('remédiation DÉCLENCHÉE PAR L’ERREUR : variante ≠ échouée ET ≠ exercice suivant, comptée une seule fois', async () => {
+    const { root, unmount } = await mount();
+    await reachPractice(root);
+    const list = PILOT_LIST();
+    const direction = list[0];
+    if (direction.type !== 'identify_pattern') throw new Error('type');
+
+    // La variante de remédiation ATTENDUE (déterministe) : même cible, ≠ échouée, ≠ exercice suivant.
+    const expected = remediationVariant(direction, list[1].id)!;
+    expect(expected.id).not.toBe(direction.id);
+    expect(expected.id).not.toBe(list[1].id); // PROUVE : ce n'est pas simplement l'exercice suivant du tableau
+    expect(expected.target?.objectiveId).toBe(direction.target?.objectiveId); // MÊME cible pédagogique
+
+    // Erreur cliquée → Bobo (orchestrateur) + bouton de remédiation proposé.
+    await tapText(root, direction.options[(direction.validation.correctIndex + 1) % 3]);
+    expect(a11yLabels(root).some((l) => l.includes('Bobo'))).toBe(true);
+    expect(pressables(root).some((n) => textOf(n).includes('Réessayer autrement'))).toBe(true);
+
+    // Déclenchement : la variante affichée est celle attendue (À CAUSE de l'erreur), injectée immédiatement.
+    await tapText(root, 'Réessayer autrement');
+    expect(textOf(root)).toContain('REMÉDIATION');
+    expect(textOf(root)).toContain(expected.prompt);
+
+    // Réussite de la remédiation → « Continuer » reprend le parcours au 2e exercice de BASE (pas +2).
+    await answerCorrect(root, expected);
+    await tapText(root, 'Continuer');
+    expect(textOf(root)).toMatch(/Exercice\s+2\s*\/\s*6/);
+
+    // Terminer : l'erreur de base est comptée UNE fois ; la tentative de remédiation n'est jamais comptée.
+    for (let i = 1; i < list.length; i++) {
+      await answerCorrect(root, list[i]);
+      await tapText(root, i + 1 >= list.length ? 'Voir mon résultat' : 'Continuer');
+    }
+    const saved = await progressRepository.load();
+    const recognize = objectiveId(C, 'recognize');
+    expect(saved!.targets![recognize].attempts).toBe(3); // 3 exercices recognize de base ; remédiation non comptée
+    unmount();
+  });
+
+  it('reprise d’une INTERACTION inachevée : ordre réorganisé (non validé) restauré à l’identique, compté une fois', async () => {
+    const list = PILOT_LIST();
+    const orderIdx = list.findIndex((e) => e.type === 'order');
+    const order = list[orderIdx];
+    if (order.type !== 'order') throw new Error('type');
+
+    // Avancer jusqu'à l'exercice d'ordre.
+    let s = await mount();
+    await reachPractice(s.root);
+    for (let i = 0; i < orderIdx; i++) {
+      await answerCorrect(s.root, list[i]);
+      await tapText(s.root, 'Continuer');
+    }
+    // Modifier l'ordre SANS valider (une descente depuis la position 1).
+    const before = readOrder(s.root, order.items);
+    tapLabelSync(s.root, `Descendre « ${order.items[before[0]]} » (position 1 sur ${before.length})`);
+    await flush();
+    const draft = readOrder(s.root, order.items);
+    expect(draft).not.toEqual(before); // la valeur a réellement changé
+    s.unmount(); // fermeture SANS valider
+
+    // Remontage (même AsyncStorage) : la valeur EXACTE du brouillon est restaurée.
+    s = await mount();
+    expect(textOf(s.root)).toMatch(new RegExp(`Exercice\\s+${orderIdx + 1}\\s*/\\s*6`));
+    expect(readOrder(s.root, order.items)).toEqual(draft); // ordre inachevé restauré à l'identique
+
+    // Terminer de reconstituer, valider → compté UNE seule fois.
+    await answerCorrect(s.root, order);
+    await tapText(s.root, 'Continuer');
+    for (let i = orderIdx + 1; i < list.length; i++) {
+      await answerCorrect(s.root, list[i]);
+      await tapText(s.root, i + 1 >= list.length ? 'Voir mon résultat' : 'Continuer');
+    }
+    const saved = await progressRepository.load();
+    const interpret = objectiveId(C, 'interpret');
+    expect(saved!.targets![interpret].attempts).toBe(2); // zone-high + read-order, chacun une seule fois
+    s.unmount();
+  });
+
+  it('reprise d’un CHECKPOINT interrompu : position exacte restaurée', async () => {
+    routerState.params = { skillId: CHECKPOINT_ID };
+    const cp = checkpointExercises(0, 2);
+    let s = await mount();
+    await answerCorrect(s.root, cp[0]);
+    await tapText(s.root, 'Continuer'); // index → 1
+    expect(textOf(s.root)).toMatch(new RegExp(`Exercice\\s+2\\s*/\\s*${cp.length}`));
+    s.unmount();
+    s = await mount();
+    expect(textOf(s.root)).toMatch(new RegExp(`Exercice\\s+2\\s*/\\s*${cp.length}`)); // reprise fidèle du checkpoint
     s.unmount();
   });
 

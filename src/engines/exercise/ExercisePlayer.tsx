@@ -26,10 +26,14 @@ export type ExercisePlayerProps = {
   exercise: Exercise;
   result: GradeResult | null;
   onValidate: (answer: unknown) => void;
+  /** Brouillon initial d'une interaction EN COURS (reprise) — pour l'ordre : indices affichés. */
+  draft?: unknown;
+  /** Remonte les changements de brouillon (reprise fidèle d'une manipulation inachevée). */
+  onDraftChange?: (draft: unknown) => void;
 };
 
 /** Rend l'UI de l'exercice selon son type et remonte la réponse composée. */
-export function ExercisePlayer({ exercise, result, onValidate }: ExercisePlayerProps) {
+export function ExercisePlayer({ exercise, result, onValidate, draft, onDraftChange }: ExercisePlayerProps) {
   const locked = Boolean(result);
   switch (exercise.type) {
     case 'mcq':
@@ -41,7 +45,7 @@ export function ExercisePlayer({ exercise, result, onValidate }: ExercisePlayerP
     case 'numeric':
       return <NumericPlayer exercise={exercise} locked={locked} onValidate={onValidate} />;
     case 'order':
-      return <OrderPlayer exercise={exercise} locked={locked} onValidate={onValidate} />;
+      return <OrderPlayer exercise={exercise} locked={locked} onValidate={onValidate} draft={draft} onDraftChange={onDraftChange} />;
     case 'match':
       return <MatchPlayer exercise={exercise} locked={locked} onValidate={onValidate} />;
     case 'identify_pattern':
@@ -370,6 +374,7 @@ function ReorderList({
   validateLabel,
   onValidate,
   initialOrder,
+  onOrderChange,
 }: {
   items: string[];
   locked: boolean;
@@ -377,6 +382,8 @@ function ReorderList({
   onValidate: (order: number[]) => void;
   /** Ordre d'affichage initial (déterministe, jamais la solution). Défaut : ordre naturel des items. */
   initialOrder?: number[];
+  /** Remonte l'ordre courant à chaque déplacement (brouillon pour reprise fidèle). */
+  onOrderChange?: (order: number[]) => void;
 }) {
   // Lazy initializer : l'ordre d'affichage n'est posé QU'UNE fois (les déplacements de l'utilisateur
   // ne sont jamais réinitialisés par un re-rendu).
@@ -388,6 +395,7 @@ function ReorderList({
     const copy = [...order];
     [copy[pos], copy[next]] = [copy[next], copy[pos]];
     setOrder(copy);
+    onOrderChange?.(copy); // brouillon → reprise fidèle d'une manip inachevée
   };
 
   const n = order.length;
@@ -503,20 +511,28 @@ function OrderPlayer({
   exercise,
   locked,
   onValidate,
+  draft,
+  onDraftChange,
 }: {
   exercise: OrderExercise;
   locked: boolean;
   onValidate: (answer: unknown) => void;
+  /** Brouillon d'ordre restauré (reprise) — indices affichés ; sinon ordre mélangé déterministe. */
+  draft?: unknown;
+  onDraftChange?: (draft: unknown) => void;
 }) {
+  const draftOrder =
+    Array.isArray(draft) && draft.length === exercise.items.length ? (draft as number[]) : undefined;
   return (
     <View style={styles.stack}>
-      {/* Ordre d'affichage mélangé (déterministe, jamais la solution) : on valide APRÈS avoir reconstitué. */}
+      {/* Ordre d'affichage mélangé (déterministe, jamais la solution) ; un brouillon restauré prime. */}
       <ReorderList
         items={exercise.items}
         locked={locked}
         validateLabel="Valider l’ordre"
         onValidate={onValidate}
-        initialOrder={scrambledDisplayOrder(exercise.validation.correctOrder)}
+        initialOrder={draftOrder ?? scrambledDisplayOrder(exercise.validation.correctOrder)}
+        onOrderChange={onDraftChange}
       />
     </View>
   );

@@ -4,7 +4,7 @@ import { View, StyleSheet } from 'react-native';
 import { Screen, Text, Card, Button, ProgressBar, StateView, FeedbackPanel, theme } from '@/design-system';
 import { CharacterScene, MascotFigure, characterLine, useMascotReactions, resolveWithGuide } from '@/characters';
 import { useConnectivity } from '@/lib/connectivity';
-import { ExercisePlayer, gradeExercise, exerciseFormatLabel, type GradeResult } from '@/engines/exercise';
+import { ExercisePlayer, gradeExercise, exerciseFormatLabel, type GradeResult, type Exercise } from '@/engines/exercise';
 import {
   getExercises,
   getLessons,
@@ -27,6 +27,7 @@ import {
   isResumable,
   aggregateAnswered,
   sessionResumeRepository,
+  exerciseVariantsForObjective,
   MASTERY_LABEL,
   type AnsweredRecord,
 } from '@/data';
@@ -42,6 +43,20 @@ import { useNow } from '@/lib/useNow';
  */
 export async function generateStaticParams(): Promise<{ skillId: string }[]> {
   return [...SKILLS.map((s) => ({ skillId: s.id })), { skillId: CHECKPOINT_ID }];
+}
+
+/**
+ * Variante de REMÉDIATION servie APRÈS une erreur : une autre variante de la MÊME cible pédagogique,
+ * jamais celle qui vient d'échouer et — quand c'est possible — différente de l'exercice suivant du
+ * parcours (pour prouver que la variante apparaît À CAUSE de l'erreur, pas par simple avance).
+ * Déterministe. `null` s'il n'existe aucune autre variante (pas de remédiation → pas de boucle infinie).
+ */
+export function remediationVariant(failed: Exercise, nextBaseId: string | undefined): Exercise | null {
+  const objectiveId = failed.target?.objectiveId;
+  if (!objectiveId) return null;
+  const others = exerciseVariantsForObjective(objectiveId).filter((v) => v.id !== failed.id);
+  if (!others.length) return null;
+  return others.find((v) => v.id !== nextBaseId) ?? others[0];
 }
 
 /** Seuil de réussite d'une session (déblocage de la compétence). */
@@ -89,6 +104,10 @@ export default function Session() {
   const [result, setResult] = useState<GradeResult | null>(null);
   const [correct, setCorrect] = useState(0);
   const [learnStep, setLearnStep] = useState(0);
+  // Remédiation EN COURS (déclenchée par une erreur) : variante de la même cible affichée avant de
+  // reprendre le parcours ; `draft` = brouillon d'une interaction d'ordre inachevée (reprise fidèle).
+  const [remediation, setRemediation] = useState<Exercise | null>(null);
+  const [draft, setDraft] = useState<number[] | undefined>(undefined);
   // Un point de contrôle (`getLessons` vide) démarre directement en « practice ».
   const [phase, setPhase] = useState<'learn' | 'practice'>(lessons.length ? 'learn' : 'practice');
   const [hydrated, setHydrated] = useState(false);
@@ -122,6 +141,13 @@ export default function Session() {
           // Restaure les réponses déjà validées (avec leur cible) : la fin de session agrège
           // EXACTEMENT les mêmes réponses qu'une session continue (pré- et post-fermeture).
           answeredRef.current = resume.answered;
+          // Reprise fidèle d'une manipulation inachevée + d'une remédiation en cours.
+          if (resume.draftOrder) setDraft(resume.draftOrder);
+          if (resume.remediationId) {
+            const base = list[resume.index];
+            const v = base ? remediationVariant(base, list[resume.index + 1]?.id) : null;
+            if (v && v.id === resume.remediationId) setRemediation(v);
+          }
           resumedRef.current = true; // pilote la réaction d'entrée (accueil, JAMAIS une célébration).
         }
       }
@@ -150,8 +176,10 @@ export default function Session() {
       streak,
       count: target,
       answered: answeredRef.current,
+      remediationId: remediation?.id,
+      draftOrder: draft,
     });
-  }, [known, hydrated, phase, learnStep, index, correct, streak, resolvedId, list.length, target]);
+  }, [known, hydrated, phase, learnStep, index, correct, streak, resolvedId, list.length, target, remediation, draft]);
 
   // Session terminée → efface la reprise (rien à restaurer).
   useEffect(() => {
@@ -178,7 +206,8 @@ export default function Session() {
     if (result.correct) {
       emit({ type: 'answer_correct', streak }, characterLine({ kind: 'answer', correct: true, streak }, index).text);
     } else {
-      const moment = mistakeMoment(list[index]?.id ?? '');
+      // Misconception de l'exercice RÉELLEMENT affiché (base ou variante de remédiation).
+      const moment = mistakeMoment((remediation ?? list[index])?.id ?? '');
       emit(moment.misconceptionId ? { type: 'misconception_detected' } : { type: 'answer_incorrect' }, moment.text);
     }
     // `result` est le déclencheur ; les autres valeurs ne sont lues que lorsqu'il est défini.
@@ -332,34 +361,60 @@ export default function Session() {
     );
   }
 
-  const exercise = list[index];
+  const baseExercise = list[index];
+  // Exercice RÉELLEMENT affiché : la variante de remédiation prime sur l'exercice de base.
+  const exercise = remediation ?? baseExercise;
+  // Une remédiation est-elle proposable après CETTE erreur ? (variante ≠ échouée, non déjà en cours)
+  const canRemediate = Boolean(result && !result.correct && !remediation && remediationVariant(baseExercise, list[index + 1]?.id));
 
   const validate = (answer: unknown) => {
     if (result) return;
-    // On calcule et on AFFICHE le feedback, mais on ne commite RIEN ici : la réponse n'est
-    // enregistrée qu'au « Continuer » (next), atomiquement avec l'avance d'index. Fermer l'app
-    // pendant le feedback ne peut donc jamais compter la réponse deux fois : la reprise repart
-    // de cette même question, non encore commitée.
     const graded = gradeExercise(exercise, answer);
     setResult(graded);
     analytics.track('feedback_viewed', { exerciseId: exercise.id, correct: graded.correct });
   };
 
+  /** Commit UNIQUE de la réponse de base (compteurs + XP/errorTags + faux signal + agrégat). */
+  const commitBaseAnswer = (res: GradeResult) => {
+    if (res.correct) setCorrect((c) => c + 1);
+    setStreak((s) => (res.correct ? s + 1 : 0));
+    recordAnswer(baseExercise.skillId, res.correct ? 5 : 2, res.correct ? undefined : baseExercise.id);
+    if (res.correct && isFalseSignalExercise(baseExercise.type)) recordFalseSignal();
+    answeredRef.current.push({
+      exerciseId: baseExercise.id,
+      skillId: baseExercise.skillId,
+      conceptId: baseExercise.target?.conceptId,
+      objectiveId: baseExercise.target?.objectiveId,
+      correct: res.correct,
+    });
+  };
+
+  // REMÉDIATION déclenchée PAR L'ERREUR : on compte l'erreur de base UNE fois (ici), puis on injecte
+  // immédiatement une AUTRE variante de la même cible avant de reprendre le parcours. La tentative de
+  // remédiation n'est jamais comptée (aucune double comptabilisation, une seule transition par cible).
+  const retryOtherwise = () => {
+    if (!result || result.correct || remediation) return;
+    const variant = remediationVariant(baseExercise, list[index + 1]?.id);
+    if (!variant) return;
+    commitBaseAnswer(result); // l'erreur est enregistrée une fois, SANS avancer l'index
+    setRemediation(variant);
+    setDraft(undefined);
+    setResult(null);
+    emit({ type: 'retry_started' }, 'On réessaie autrement : même objectif, autre exemple.');
+  };
+
   const next = () => {
-    if (result) {
-      // Commit atomique de la réponse validée : compteurs + XP/errorTags + faux signal, puis avance.
-      if (result.correct) setCorrect((c) => c + 1);
-      setStreak((s) => (result.correct ? s + 1 : 0));
-      recordAnswer(exercise.skillId, result.correct ? 5 : 2, result.correct ? undefined : exercise.id);
-      if (result.correct && isFalseSignalExercise(exercise.type)) recordFalseSignal();
-      answeredRef.current.push({
-        exerciseId: exercise.id,
-        skillId: exercise.skillId,
-        conceptId: exercise.target?.conceptId,
-        objectiveId: exercise.target?.objectiveId,
-        correct: result.correct,
-      });
+    if (remediation) {
+      // Fin de la remédiation : l'erreur de base a DÉJÀ été comptée à l'entrée → on ne recompte pas.
+      setRemediation(null);
+      setDraft(undefined);
+      setResult(null);
+      setIndex((i) => i + 1);
+      return;
     }
+    // Commit atomique de la réponse de base validée, puis avance (aucune double comptabilisation).
+    if (result) commitBaseAnswer(result);
+    setDraft(undefined);
     setIndex((i) => i + 1);
     setResult(null);
   };
@@ -385,10 +440,17 @@ export default function Session() {
 
       <Card>
         <Text variant="caption" color={theme.colors.primary}>
-          {exerciseFormatLabel(exercise.type)}
+          {remediation ? 'REMÉDIATION · autre exemple, même objectif' : exerciseFormatLabel(exercise.type)}
         </Text>
         <Text variant="title">{exercise.prompt}</Text>
-        <ExercisePlayer key={exercise.id} exercise={exercise} result={result} onValidate={validate} />
+        <ExercisePlayer
+          key={exercise.id}
+          exercise={exercise}
+          result={result}
+          onValidate={validate}
+          draft={draft}
+          onDraftChange={(d) => setDraft(d as number[])}
+        />
       </Card>
 
       {result ? (
@@ -399,6 +461,14 @@ export default function Session() {
             rule={result.feedback.rule}
             whenItFails={result.feedback.whenItFails}
           />
+          {canRemediate ? (
+            <Button
+              label="Réessayer autrement"
+              variant="secondary"
+              onPress={retryOtherwise}
+              accessibilityHint="Un autre exemple du même objectif, pour corriger l’erreur"
+            />
+          ) : null}
           <Button label={index + 1 >= list.length ? 'Voir mon résultat' : 'Continuer'} onPress={next} />
         </>
       ) : null}

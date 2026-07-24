@@ -50,6 +50,10 @@ export interface SessionResume {
   count: number | null;
   /** Réponses déjà validées (avec leur cible), pour une agrégation fidèle après reprise. */
   answered: AnsweredRecord[];
+  /** En cours de remédiation : id de la variante servie (même cible, ≠ celle échouée). Absent = normal. */
+  remediationId?: string;
+  /** Brouillon d'une interaction d'ordre EN COURS (indices affichés), pour restaurer une manip inachevée. */
+  draftOrder?: number[];
 }
 
 /**
@@ -73,7 +77,20 @@ export function sanitizeResume(raw: unknown, opts: { skillId: string }): Session
     streak: nat(r.streak),
     count,
     answered: sanitizeAnswered(r.answered),
+    remediationId: typeof r.remediationId === 'string' ? r.remediationId : undefined,
+    draftOrder: sanitizeDraftOrder(r.draftOrder),
   };
+}
+
+/** Valide un brouillon d'ordre : tableau d'indices entiers positifs, sinon indéfini. */
+function sanitizeDraftOrder(raw: unknown): number[] | undefined {
+  if (!Array.isArray(raw) || raw.length === 0) return undefined;
+  const out: number[] = [];
+  for (const v of raw) {
+    if (typeof v !== 'number' || !Number.isFinite(v) || v < 0) return undefined;
+    out.push(Math.floor(v));
+  }
+  return out;
 }
 
 /** Assainit la liste des réponses persistées (garde exerciseId + skillId + cible + résultat). */

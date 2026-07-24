@@ -17,26 +17,30 @@ Le script sert `dist/` en local (repli SPA façon GitHub Pages) et pilote Chromi
 
 | Fichier | Ce qu'il prouve |
 |---|---|
-| `pilot-practice-320.png` | Pratique, mobile 320 px — aucun débordement horizontal |
-| `pilot-practice-390.png` | Pratique, mobile 390 × 844 |
-| `pilot-practice-430.png` | Pratique, mobile 430 px |
-| `pilot-practice-web.png` | Pratique, web large (1280 px) |
-| `pilot-practice-reduced.png` | `prefers-reduced-motion` — équivalent informatif (rendu statique) |
-| `pilot-place-line-390.png` | **4e mécanique** : placement continu d'une ligne (`place_invalidation`) — ↑/↓ clavier + « Valider mon niveau » |
+| `pilot-error-remediation-390.png` | **Erreur** → Bobo + bouton **« Réessayer autrement »** (remédiation proposée par l'erreur) |
+| `pilot-remediation-variant-390.png` | **Variante de remédiation** injectée : header « REMÉDIATION · autre exemple, même objectif », toujours « Exercice 1 / 6 » (l'index n'a pas avancé) |
+| `pilot-place-line-390.png` | **4e mécanique** : placement continu d'une ligne (`place_invalidation`) — ↑/↓ clavier |
 | `pilot-order-shuffled-390.png` | Exercice d'ordre **réellement mélangé** (jamais présenté résolu) |
+| `pilot-checkpoint-fail-390.png` | **Checkpoint échoué** : résultat « à revoir » (aucune célébration) |
 | `pilot-feedback-390.png` | Feedback contextualisé + mascotte (scène de production) |
 | `pilot-offline-390.png` | État hors-ligne (contenu local, session continue) |
+| `pilot-practice-{320,390,430,web}.png` | Responsive — aucun débordement horizontal |
+| `pilot-practice-reduced.png` | `prefers-reduced-motion` — équivalent informatif (rendu statique) |
+
+## États prouvés par le TEST plutôt que par capture (preuve plus forte qu'un écran)
+
+`src/integration/session.integration.test.tsx` monte l'écran de session réel et clique ses vrais
+contrôles :
+
+- **checkpoint réussi → célébration** (`celebrate-big`) vs **échoué → aucune** ;
+- **progression finale persistée** (relue dans `progressRepository`) ;
+- **remédiation** : la variante ≠ celle échouée ET ≠ l'exercice suivant, comptée **une seule fois** ;
+- **reprise après interruption** : position exacte + **interaction d'ordre inachevée restaurée** +
+  checkpoint interrompu restauré, sans double comptage.
 
 ## Contrôles manuels mesurés à la capture
 
 - **Débordement horizontal = 0 px** à 320 / 390 / 430 / 1280 px.
-- **Erreurs console = 0** (l'avertissement d'hydratation React #418 sur les routes dynamiques est
-  corrigé — voir `generateStaticParams` dans `app/session/[skillId].tsx` et `app/lesson/[id].tsx`).
-- Cibles tactiles des flèches d'ordre / de placement : 44 × 44 px.
-- 4 mécaniques utilisateur distinctes : choix, sélection de zone au doigt, réorganisation, placement
-  continu — toutes accessibles clavier + tactile + lecteur d'écran.
-
-Le parcours interactif complet (leçon → erreur → Bobo via l'orchestrateur → réussite → checkpoint →
-progression persistée → reprise) est démontré par le test d'intégration de production
-`src/integration/session.integration.test.tsx`, qui monte l'écran de session réel et clique ses vrais
-contrôles.
+- **Erreurs console = 0** (avertissement d'hydratation React #418 corrigé via `generateStaticParams`).
+- Cibles tactiles des flèches : 44 × 44 px. 4 mécaniques distinctes accessibles clavier + tactile +
+  lecteur d'écran.

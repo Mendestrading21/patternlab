@@ -91,6 +91,40 @@ for (const [w, h, tag, opts] of [[320, 720, '320', {}], [390, 844, '390', {}], [
   console.log(`  ${tag}: débordement horizontal max = ${maxOv.v}px`);
   await c.close();
 }
+// Remédiation déclenchée par l'erreur : erreur → « Réessayer autrement » → variante (390 px).
+{
+  const { c, p } = await ctx(390, 844);
+  await p.goto(`${base}/session/skill.candles`, { waitUntil: 'networkidle' }).catch(() => {});
+  await p.waitForTimeout(1500);
+  await reachPractice(p);
+  await p.waitForTimeout(400);
+  await clickText(p, /Plutôt à la baisse/i, 1500); // réponse fausse à « direction »
+  await p.waitForTimeout(800);
+  await shot(p, 'pilot-error-remediation-390'); // feedback + Bobo + bouton « Réessayer autrement »
+  if (await clickText(p, /Réessayer autrement/i, 1500)) {
+    await p.waitForTimeout(800);
+    await shot(p, 'pilot-remediation-variant-390'); // REMÉDIATION · variante de la même cible
+  }
+  await c.close();
+}
+// Checkpoint échoué : tout faux → résultat « à revoir » (aucune célébration) (390 px).
+{
+  const { c, p } = await ctx(390, 844);
+  await p.goto(`${base}/session/checkpoint.read-chart`, { waitUntil: 'networkidle' }).catch(() => {});
+  await p.waitForTimeout(1500);
+  for (let step = 0; step < 12; step++) {
+    if (await vis(p, /Refaire la session|Retour à l’accueil/i)) break;
+    const bs = await p.getByRole('button').all();
+    for (const b of bs) { const t = ((await b.textContent().catch(() => '')) || '').trim(); if (!t || /continuer|voir mon|recommencer|retour|accueil|refaire|monter|descendre|◀|▶|valider|réessayer/i.test(t)) continue; await b.click({ timeout: 900 }).catch(() => {}); break; }
+    await p.waitForTimeout(400);
+    await clickText(p, /Valider mon niveau|Valider l’ordre|Valider l'ordre/i, 700);
+    await p.waitForTimeout(300);
+    await clickText(p, /Continuer|Voir mon résultat/i, 800);
+    await p.waitForTimeout(450);
+  }
+  await shot(p, 'pilot-checkpoint-fail-390'); // résultat de checkpoint échoué (à revoir)
+  await c.close();
+}
 // Hors-ligne
 { const { c, p } = await ctx(390, 844); await p.goto(`${base}/session/skill.candles`, { waitUntil: 'networkidle' }).catch(() => {}); await p.waitForTimeout(1500); await reachPractice(p); await c.setOffline(true); await p.waitForTimeout(1200); await shot(p, 'pilot-offline-390'); await c.close(); }
 
