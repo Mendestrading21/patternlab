@@ -4,8 +4,13 @@
  * Reproductible : `npm run build:web` puis `node scripts/capture-pilot.mjs [dossierSortie]`.
  * Sert `dist/` localement (fallback SPA façon GitHub Pages) et pilote Chromium via Playwright.
  * Aucune dépendance runtime ajoutée : le script est un outil de développement autonome. Playwright
- * doit être disponible (installation globale de l'environnement CI/dev) — sinon le script s'arrête
- * proprement avec un message. Les images produites ne sont PAS embarquées dans le build web.
+ * doit être disponible (installation globale de l'environnement CI/dev) — sinon le script s'arrête.
+ * Les images produites ne sont PAS embarquées dans le build web.
+ *
+ * FIABILITÉ (LOT 4-A) : le script ÉCHOUE (code de sortie 1) si une navigation n'atteint pas la route
+ * attendue, si une erreur console est relevée, ou si un débordement horizontal dépasse 0 px. Il ne
+ * masque plus les échecs de navigation par un `.catch()` silencieux, et vérifie que la route attendue
+ * est réellement rendue avant chaque capture.
  */
 import http from 'node:http';
 import { readFile } from 'node:fs/promises';
@@ -23,8 +28,6 @@ mkdirSync(OUT, { recursive: true });
 
 let chromium;
 try {
-  // Playwright de l'environnement (installation globale du runner) — résolu dynamiquement pour ne
-  // PAS l'imposer comme dépendance du projet. Passe PLAYWRIGHT_REQUIRE pour une autre base de résolution.
   const req = createRequire(process.env.PLAYWRIGHT_REQUIRE ?? '/opt/node22/lib/node_modules/playwright/');
   ({ chromium } = req('playwright'));
 } catch {
@@ -52,80 +55,53 @@ await new Promise((r) => server.listen(0, r));
 const base = `http://localhost:${server.address().port}/TradeMy`;
 const browser = await chromium.launch({ args: ['--no-sandbox'] });
 
-const errs = [];
+// ── Accumulateurs d'ÉCHEC DUR (le script sort en erreur si non vides) ──
+const consoleErrors = [];
+const overflowFails = [];
+
 const vis = async (p, re) => (await p.getByText(re).count().catch(() => 0)) > 0;
 const clickText = async (p, re, t = 1000) => { try { await p.getByText(re).first().click({ timeout: t }); return true; } catch { return false; } };
-async function shot(p, n) { await p.evaluate(() => window.scrollTo(0, 0)).catch(() => {}); await p.waitForTimeout(180); await p.screenshot({ path: join(OUT, `${n}.png`) }); console.log('  ✓', n); }
 async function overflow(p) { return p.evaluate(() => Math.max(0, document.documentElement.scrollWidth - window.innerWidth)).catch(() => -1); }
-async function ctx(w, h, opts = {}) { const c = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 2, ...opts }); const p = await c.newPage(); p.on('console', (m) => { if (m.type() === 'error') errs.push(`${w}px ${m.text().slice(0, 120)}`); }); p.on('pageerror', (e) => errs.push(`${w}px PAGEERROR ${String(e).slice(0, 120)}`)); return { c, p }; }
-async function reachPractice(p) { for (let i = 0; i < 22; i++) { if (await vis(p, /Exercice\s+\d+\s*\/\s*\d+/)) return true; if (await clickText(p, /Commencer les exercices/i, 800)) { await p.waitForTimeout(600); continue; } await clickText(p, /Suivant/i, 800); await p.waitForTimeout(350); } return vis(p, /Exercice/); }
 
-// Marche à travers les exercices en capturant les écrans clés (dont la 4e mécanique et l'ordre mélangé).
-async function walk(p, tag, maxOv) {
-  let sawPlace = false; let sawOrder = false; let sawFeedback = false;
-  for (let step = 0; step < 9; step++) {
-    maxOv.v = Math.max(maxOv.v, await overflow(p));
-    if (!sawPlace && (await vis(p, /Valider mon niveau/))) { await shot(p, `pilot-place-line-${tag}`); sawPlace = true; }
-    if (!sawOrder && (await vis(p, /Valider l’ordre|Valider l'ordre/))) { await shot(p, `pilot-order-shuffled-${tag}`); sawOrder = true; }
-    // avance
-    const bs = await p.getByRole('button').all();
-    let acted = false;
-    for (const b of bs) { const t = ((await b.textContent().catch(() => '')) || '').trim(); if (!t || /continuer|voir mon|recommencer|retour|accueil|refaire|monter|descendre|◀|▶|valider/i.test(t)) continue; await b.click({ timeout: 1000 }).catch(() => {}); acted = true; break; }
-    if (!acted) { await clickText(p, /Valider mon niveau|Valider l’ordre|Valider l'ordre/i, 800); }
-    await p.waitForTimeout(500);
-    if (!sawFeedback && (await vis(p, /Continuer|Voir mon résultat/i))) { await shot(p, `pilot-feedback-${tag}`); sawFeedback = true; }
-    await clickText(p, /Continuer|Voir mon résultat/i, 800); await p.waitForTimeout(500);
-    if (await vis(p, /Refaire la session|Retour à l’accueil/i)) { await shot(p, `pilot-result-${tag}`); break; }
+/** Navigue vers `path` et VÉRIFIE que la route est réellement rendue (sinon lève — plus de repli muet). */
+async function nav(p, path, markerRe, tag) {
+  await p.goto(`${base}${path}`, { waitUntil: 'networkidle' });
+  try {
+    await p.getByText(markerRe).first().waitFor({ timeout: 9000 });
+  } catch {
+    throw new Error(`Route non rendue: ${path} (marqueur ${markerRe} absent) [${tag}]`);
   }
 }
 
-for (const [w, h, tag, opts] of [[320, 720, '320', {}], [390, 844, '390', {}], [430, 932, '430', {}], [1280, 900, 'web', {}], [390, 844, 'reduced', { reducedMotion: 'reduce' }]]) {
-  const { c, p } = await ctx(w, h, opts);
-  await p.goto(`${base}/session/skill.candles`, { waitUntil: 'networkidle' }).catch(() => {});
-  await p.waitForTimeout(1500);
-  await reachPractice(p);
-  await p.waitForTimeout(400);
-  const maxOv = { v: 0 };
-  await shot(p, `pilot-practice-${tag}`);
-  await walk(p, tag, maxOv);
-  console.log(`  ${tag}: débordement horizontal max = ${maxOv.v}px`);
-  await c.close();
+/** Capture après vérification du débordement horizontal (0 px exigé). */
+async function shot(p, n) {
+  await p.evaluate(() => window.scrollTo(0, 0)).catch(() => {});
+  await p.waitForTimeout(180);
+  const ov = await overflow(p);
+  if (ov > 0) overflowFails.push(`${n}: ${ov}px`);
+  await p.screenshot({ path: join(OUT, `${n}.png`) });
+  console.log('  ✓', n, ov === 0 ? '' : `(⚠ débordement ${ov}px)`);
 }
-// Remédiation déclenchée par l'erreur : erreur → « Réessayer autrement » → variante (390 px).
-{
-  const { c, p } = await ctx(390, 844);
-  await p.goto(`${base}/session/skill.candles`, { waitUntil: 'networkidle' }).catch(() => {});
-  await p.waitForTimeout(1500);
-  await reachPractice(p);
-  await p.waitForTimeout(400);
-  await clickText(p, /Plutôt à la baisse/i, 1500); // réponse fausse à « direction »
-  await p.waitForTimeout(800);
-  await shot(p, 'pilot-error-remediation-390'); // feedback + Bobo + bouton « Réessayer autrement »
-  if (await clickText(p, /Réessayer autrement/i, 1500)) {
-    await p.waitForTimeout(800);
-    await shot(p, 'pilot-remediation-variant-390'); // REMÉDIATION · variante de la même cible
+
+async function ctx(w, h, opts = {}) {
+  const c = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 2, ...opts });
+  const p = await c.newPage();
+  p.on('console', (m) => { if (m.type() === 'error') consoleErrors.push(`${w}px ${m.text().slice(0, 140)}`); });
+  p.on('pageerror', (e) => consoleErrors.push(`${w}px PAGEERROR ${String(e).slice(0, 140)}`));
+  return { c, p };
+}
+
+async function reachPractice(p, tag) {
+  for (let i = 0; i < 22; i++) {
+    if (await vis(p, /Exercice\s+\d+\s*\/\s*\d+/)) return;
+    if (await clickText(p, /Commencer les exercices/i, 800)) { await p.waitForTimeout(600); continue; }
+    await clickText(p, /Suivant/i, 800);
+    await p.waitForTimeout(350);
   }
-  await c.close();
+  if (!(await vis(p, /Exercice/))) throw new Error(`Phase pratique non atteinte [${tag}]`);
 }
-// Checkpoint échoué : tout faux → résultat « à revoir » (aucune célébration) (390 px).
-{
-  const { c, p } = await ctx(390, 844);
-  await p.goto(`${base}/session/checkpoint.read-chart`, { waitUntil: 'networkidle' }).catch(() => {});
-  await p.waitForTimeout(1500);
-  for (let step = 0; step < 12; step++) {
-    if (await vis(p, /Refaire la session|Retour à l’accueil/i)) break;
-    const bs = await p.getByRole('button').all();
-    for (const b of bs) { const t = ((await b.textContent().catch(() => '')) || '').trim(); if (!t || /continuer|voir mon|recommencer|retour|accueil|refaire|monter|descendre|◀|▶|valider|réessayer/i.test(t)) continue; await b.click({ timeout: 900 }).catch(() => {}); break; }
-    await p.waitForTimeout(400);
-    await clickText(p, /Valider mon niveau|Valider l’ordre|Valider l'ordre/i, 700);
-    await p.waitForTimeout(300);
-    await clickText(p, /Continuer|Voir mon résultat/i, 800);
-    await p.waitForTimeout(450);
-  }
-  await shot(p, 'pilot-checkpoint-fail-390'); // résultat de checkpoint échoué (à revoir)
-  await c.close();
-}
-// ── Réussite : réponses correctes connues → PASS → célébration + progression finale. ──
+
+// Réponses correctes connues de l'unité pilote (réussite déterministe → résultat + célébration).
 const CORRECT = ['Plutôt à la hausse', 'Une part d’une entreprise', 'Le plus haut atteint', 'La couleur d’une bougie prédit', 'Deuxième tiers'];
 const rx = (t) => new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
 async function answerBestEffort(p) {
@@ -134,44 +110,160 @@ async function answerBestEffort(p) {
     await clickText(p, /Valider mon niveau/i, 1000);
     return;
   }
-  if (await vis(p, /Valider l’ordre|Valider l'ordre/)) { await clickText(p, /Valider l’ordre|Valider l'ordre/i, 1000); return; } // au mieux
+  if (await vis(p, /Valider l’ordre|Valider l'ordre/)) { await clickText(p, /Valider l’ordre|Valider l'ordre/i, 1000); return; }
   for (const t of CORRECT) { if (await clickText(p, rx(t), 600)) return; }
   if (await clickText(p, /^Vrai$/i, 600)) return;
   const bs = await p.getByRole('button').all();
   for (const b of bs) { const t = ((await b.textContent().catch(() => '')) || '').trim(); if (!t || /continuer|voir mon|recommencer|retour|accueil|refaire|monter|descendre|◀|▶|valider|réessayer/i.test(t)) continue; await b.click({ timeout: 700 }).catch(() => {}); return; }
 }
-async function playToResult(p) {
+async function playToResult(p, tag) {
   for (let step = 0; step < 14; step++) {
-    if (await vis(p, /Refaire la session|Retour à l’accueil/i)) return true;
+    if (await vis(p, /Refaire la session|Retour à l’accueil/i)) return;
     await answerBestEffort(p);
     await p.waitForTimeout(450);
     await clickText(p, /Continuer|Voir mon résultat/i, 800);
     await p.waitForTimeout(450);
   }
-  return vis(p, /Refaire la session/i);
-}
-// Progression finale (session pilote réussie) + célébration.
-{ const { c, p } = await ctx(390, 844); await p.goto(`${base}/session/skill.candles`, { waitUntil: 'networkidle' }).catch(() => {}); await p.waitForTimeout(1500); await reachPractice(p); await playToResult(p); await p.waitForTimeout(400); await shot(p, 'pilot-progression-final-390'); await c.close(); }
-// Checkpoint réussi + célébration.
-{ const { c, p } = await ctx(390, 844); await p.goto(`${base}/session/checkpoint.read-chart`, { waitUntil: 'networkidle' }).catch(() => {}); await p.waitForTimeout(1500); await playToResult(p); await p.waitForTimeout(400); await shot(p, 'pilot-checkpoint-pass-390'); await c.close(); }
-// Reprise après interruption : répondre à l'exercice 1, puis RECHARGER la page (localStorage conservé).
-{ const { c, p } = await ctx(390, 844); await p.goto(`${base}/session/skill.candles`, { waitUntil: 'networkidle' }).catch(() => {}); await p.waitForTimeout(1500); await reachPractice(p); await answerBestEffort(p); await p.waitForTimeout(400); await clickText(p, /Continuer/i, 800); await p.waitForTimeout(500); await p.reload({ waitUntil: 'networkidle' }).catch(() => {}); await p.waitForTimeout(1600); await shot(p, 'pilot-resume-390'); await c.close(); }
-// Hors-ligne
-{ const { c, p } = await ctx(390, 844); await p.goto(`${base}/session/skill.candles`, { waitUntil: 'networkidle' }).catch(() => {}); await p.waitForTimeout(1500); await reachPractice(p); await c.setOffline(true); await p.waitForTimeout(1200); await shot(p, 'pilot-offline-390'); await c.close(); }
-// ── LOT 4 — écran de MONDE pilote : ProgressWidget premium, légende MarketStatePill, jalons en
-// icônes de la famille Trademy (plus d'emoji). 390 px + web large + reduced-motion. ──
-for (const [w, h, tag, opts] of [[390, 844, '390', {}], [1280, 900, 'web', {}], [390, 844, 'reduced', { reducedMotion: 'reduce' }]]) {
-  const { c, p } = await ctx(w, h, opts);
-  await p.goto(`${base}/monde/world.foundations`, { waitUntil: 'networkidle' }).catch(() => {});
-  await p.waitForTimeout(1600);
-  const ov = await overflow(p);
-  await shot(p, `lot4-monde-${tag}`);
-  console.log(`  monde ${tag}: débordement horizontal = ${ov}px`);
-  await c.close();
+  if (!(await vis(p, /Refaire la session/i))) throw new Error(`Écran de résultat non atteint [${tag}]`);
 }
 
-console.log('\nErreurs console cumulées :', errs.length);
-errs.slice(0, 6).forEach((e) => console.log('   !', e));
+async function run() {
+  const SESSION = `/session/skill.candles`;
+  const PRACTICE_MARKER = /Chandeliers japonais|Comprendre|Exercice/;
+
+  // ── 1) Pratique + RÉSULTAT corrigé, à 5 rendus (320/390/430/web + reduced-motion) ──
+  for (const [w, h, tag, opts] of [[320, 720, '320', {}], [390, 844, '390', {}], [430, 932, '430', {}], [1280, 900, 'web', {}], [390, 844, 'reduced', { reducedMotion: 'reduce' }]]) {
+    const { c, p } = await ctx(w, h, opts);
+    await nav(p, SESSION, PRACTICE_MARKER, tag);
+    await reachPractice(p, tag);
+    await shot(p, `pilot-practice-${tag}`);
+    await playToResult(p, tag);
+    await p.waitForTimeout(300);
+    await shot(p, `pilot-result-${tag}`); // écran de résultat : icône de famille, Maîtrise non-marché, sans damier
+    await c.close();
+  }
+
+  // ── 2) Mécaniques distinctes (390) : feedback, placement de ligne, ordre mélangé ──
+  {
+    const { c, p } = await ctx(390, 844);
+    await nav(p, SESSION, PRACTICE_MARKER, 'mech');
+    await reachPractice(p, 'mech');
+    let sawPlace = false, sawOrder = false, sawFeedback = false;
+    for (let step = 0; step < 9; step++) {
+      if (!sawPlace && (await vis(p, /Valider mon niveau/))) { await shot(p, 'pilot-place-line-390'); sawPlace = true; }
+      if (!sawOrder && (await vis(p, /Valider l’ordre|Valider l'ordre/))) { await shot(p, 'pilot-order-shuffled-390'); sawOrder = true; }
+      const bs = await p.getByRole('button').all();
+      let acted = false;
+      for (const b of bs) { const t = ((await b.textContent().catch(() => '')) || '').trim(); if (!t || /continuer|voir mon|recommencer|retour|accueil|refaire|monter|descendre|◀|▶|valider/i.test(t)) continue; await b.click({ timeout: 1000 }).catch(() => {}); acted = true; break; }
+      if (!acted) await clickText(p, /Valider mon niveau|Valider l’ordre|Valider l'ordre/i, 800);
+      await p.waitForTimeout(500);
+      if (!sawFeedback && (await vis(p, /Continuer|Voir mon résultat/i))) { await shot(p, 'pilot-feedback-390'); sawFeedback = true; }
+      await clickText(p, /Continuer|Voir mon résultat/i, 800);
+      await p.waitForTimeout(400);
+      if (await vis(p, /Refaire la session|Retour à l’accueil/i)) break;
+    }
+    await c.close();
+  }
+
+  // ── 3) Remédiation déclenchée par l'erreur (390) ──
+  {
+    const { c, p } = await ctx(390, 844);
+    await nav(p, SESSION, PRACTICE_MARKER, 'remed');
+    await reachPractice(p, 'remed');
+    await clickText(p, /Plutôt à la baisse/i, 1500); // réponse fausse à « direction »
+    await p.waitForTimeout(800);
+    await shot(p, 'pilot-error-remediation-390');
+    if (await clickText(p, /Réessayer autrement/i, 1500)) {
+      await p.waitForTimeout(800);
+      await shot(p, 'pilot-remediation-variant-390');
+    }
+    await c.close();
+  }
+
+  // ── 4) Progression finale (session réussie) + reprise + hors-ligne (390) ──
+  {
+    const { c, p } = await ctx(390, 844);
+    await nav(p, SESSION, PRACTICE_MARKER, 'final');
+    await reachPractice(p, 'final');
+    await playToResult(p, 'final');
+    await p.waitForTimeout(300);
+    await shot(p, 'pilot-progression-final-390');
+    await c.close();
+  }
+  {
+    const { c, p } = await ctx(390, 844);
+    await nav(p, SESSION, PRACTICE_MARKER, 'resume');
+    await reachPractice(p, 'resume');
+    await answerBestEffort(p);
+    await p.waitForTimeout(400);
+    await clickText(p, /Continuer/i, 800);
+    await p.waitForTimeout(500);
+    await p.reload({ waitUntil: 'networkidle' });
+    await p.waitForTimeout(1500);
+    await shot(p, 'pilot-resume-390');
+    await c.close();
+  }
+  {
+    const { c, p } = await ctx(390, 844);
+    await nav(p, SESSION, PRACTICE_MARKER, 'offline');
+    await reachPractice(p, 'offline');
+    await c.setOffline(true);
+    await p.waitForTimeout(1200);
+    await shot(p, 'pilot-offline-390');
+    await c.close();
+  }
+
+  // ── 5) Checkpoint échoué / réussi (390) ──
+  {
+    const { c, p } = await ctx(390, 844);
+    await nav(p, `/session/checkpoint.read-chart`, /Exercice|point de contrôle|Chandeliers/i, 'cp-fail');
+    for (let step = 0; step < 12; step++) {
+      if (await vis(p, /Refaire la session|Retour à l’accueil/i)) break;
+      const bs = await p.getByRole('button').all();
+      for (const b of bs) { const t = ((await b.textContent().catch(() => '')) || '').trim(); if (!t || /continuer|voir mon|recommencer|retour|accueil|refaire|monter|descendre|◀|▶|valider|réessayer/i.test(t)) continue; await b.click({ timeout: 900 }).catch(() => {}); break; }
+      await p.waitForTimeout(400);
+      await clickText(p, /Valider mon niveau|Valider l’ordre|Valider l'ordre/i, 700);
+      await p.waitForTimeout(300);
+      await clickText(p, /Continuer|Voir mon résultat/i, 800);
+      await p.waitForTimeout(400);
+    }
+    await shot(p, 'pilot-checkpoint-fail-390');
+    await c.close();
+  }
+  {
+    const { c, p } = await ctx(390, 844);
+    await nav(p, `/session/checkpoint.read-chart`, /Exercice|point de contrôle|Chandeliers/i, 'cp-pass');
+    await playToResult(p, 'cp-pass');
+    await p.waitForTimeout(300);
+    await shot(p, 'pilot-checkpoint-pass-390');
+    await c.close();
+  }
+
+  // ── 6) Écran de MONDE pilote (LOT 4) : ProgressWidget, jalons en icônes, 3 rendus ──
+  for (const [w, h, tag, opts] of [[390, 844, '390', {}], [1280, 900, 'web', {}], [390, 844, 'reduced', { reducedMotion: 'reduce' }]]) {
+    const { c, p } = await ctx(w, h, opts);
+    await nav(p, `/monde/world.foundations`, /Fondations|Module|MONDE/i, `monde-${tag}`);
+    await p.waitForTimeout(500);
+    await shot(p, `lot4-monde-${tag}`);
+    await c.close();
+  }
+}
+
+let failure = null;
+try {
+  await run();
+} catch (e) {
+  failure = e;
+}
 await browser.close();
 server.close();
+
+console.log('\nErreurs console cumulées :', consoleErrors.length);
+consoleErrors.slice(0, 8).forEach((e) => console.log('   !', e));
+if (overflowFails.length) console.log('Débordements horizontaux :', overflowFails.join(', '));
 console.log('Captures écrites dans', OUT);
+
+if (failure) { console.error('\n✗ ÉCHEC de capture :', failure.message); process.exit(1); }
+if (consoleErrors.length) { console.error('\n✗ ÉCHEC : erreurs console détectées.'); process.exit(1); }
+if (overflowFails.length) { console.error('\n✗ ÉCHEC : débordement horizontal détecté.'); process.exit(1); }
+console.log('✓ Captures fiables : 0 erreur console, 0 débordement horizontal.');

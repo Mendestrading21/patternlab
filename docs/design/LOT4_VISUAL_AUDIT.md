@@ -19,7 +19,7 @@ vertical pilote**, sans réécrire ni fragiliser le LOT 3.
 | Contrastes faibles | Non : `contrast.test.ts` garantit l'AA | Conserver le verrou |
 | Cibles tactiles < 44 px | Non : `A11Y.minTouchTarget` + `hitSlopFor` | Conserver |
 | Animations décoratives permanentes | Non (motion « explique », borné) | Ne rien ajouter en LOT 4-A |
-| Débordement horizontal | Aucun mesuré ; légende de pills en `flexWrap` | Vérifié |
+| Débordement horizontal | 0 px à 320 / 390 / 430 / 1280 (le script de capture échoue sinon) | Vérifié |
 | CTA visuellement actif mais mort | Aucun | — |
 
 ## 2. Matrice des composants (extrait décisionnel)
@@ -54,9 +54,11 @@ Règle inchangée : **violet** = marque/CTA ; **vert/rouge** = marché ; **cyan*
 
 Une seule famille (24×24, trait 2, terminaisons rondes). Concepts couverts : navigation
 (home/learn/library/lab/profile), actions (search/star/check/close/lock/play/refresh/chart…),
-progression (review/unlocked/progression/decline/checkpoint/mastery/hint/success/error/warning),
-marché (volume/support/resistance/confirmation/invalidation/false-signal/risk/psychology). Source de
-vérité et exhaustivité : `TRADEMY_ICON_NAMES` + `icons.test.ts`.
+**apprentissage** (review/unlocked/progression/checkpoint/mastery/hint/success/error/warning),
+**marché** (market-up/market-down/volume/support/resistance/confirmation/invalidation/false-signal/
+risk/psychology). Séparation stricte (LOT 4-A) : `progression` = apprentissage ; les DIRECTIONS de
+marché utilisent des flèches neutres (`market-up`/`market-down`), jamais `progression` ni un glyphe
+moralisant (`decline` retiré). Source de vérité et exhaustivité : `TRADEMY_ICON_NAMES` + `icons.test.ts`.
 
 ## 5. Règles des widgets « data premium »
 
