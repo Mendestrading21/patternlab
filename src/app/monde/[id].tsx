@@ -1,7 +1,20 @@
 import { useEffect } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View, StyleSheet, Pressable } from 'react-native';
-import { Screen, Text, Card, Chip, ProgressBar, StateView, Button, theme } from '@/design-system';
+import {
+  Screen,
+  Text,
+  Card,
+  Chip,
+  StateView,
+  Button,
+  TrademyIcon,
+  MarketStatePill,
+  MARKET_STATE_ORDER,
+  ProgressWidget,
+  theme,
+  type TrademyIconName,
+} from '@/design-system';
 import { CharacterScene, MascotFigure } from '@/characters';
 import { MiniVisual } from '@/engines/visual';
 import {
@@ -21,6 +34,15 @@ import {
 import { analytics } from '@/analytics';
 import { useNow } from '@/lib/useNow';
 
+/**
+ * Pré-génère un HTML concret par monde connu. GitHub Pages sert alors `monde/world.*.html`
+ * directement (au lieu du repli `404.html`), supprimant toute divergence d'hydratation sur les liens
+ * directs vers un monde (même garde-fou que les routes `session`/`lesson` du LOT 3).
+ */
+export async function generateStaticParams(): Promise<{ id: string }[]> {
+  return WORLDS.map((w) => ({ id: w.id }));
+}
+
 const NODE_COLORS: Record<NodeStatus, string> = {
   done: theme.colors.primary,
   due: theme.colors.warning,
@@ -28,12 +50,13 @@ const NODE_COLORS: Record<NodeStatus, string> = {
   locked: theme.colors.textMuted,
 };
 
-function nodeIcon(node: MapNode): string {
-  if (node.status === 'locked') return '🔒';
-  if (node.kind === 'checkpoint') return node.status === 'done' ? '🎉' : '🏁';
-  if (node.status === 'done') return '✓';
-  if (node.status === 'due') return '🔁';
-  return String(node.index + 1);
+/** Glyphe de nœud dans la famille d'icônes Trademy (plus d'emoji système en substitut). */
+function nodeGlyph(node: MapNode): { icon?: TrademyIconName; text?: string } {
+  if (node.status === 'locked') return { icon: 'lock' };
+  if (node.kind === 'checkpoint') return { icon: node.status === 'done' ? 'trophy' : 'checkpoint' };
+  if (node.status === 'done') return { icon: 'check' };
+  if (node.status === 'due') return { icon: 'review' };
+  return { text: String(node.index + 1) };
 }
 
 function nodeLabel(node: MapNode): string {
@@ -131,14 +154,18 @@ export default function WorldDetail() {
 
       {entry ? (
         <View style={styles.progressBlock}>
-          <ProgressBar value={entry.progress} accessibilityLabel={`Progression du monde ${world.title}`} />
-          <Text variant="caption" color={theme.colors.textMuted}>
-            {entry.guided
-              ? entry.status === 'done'
-                ? 'Module validé ✓'
-                : 'Avance dans le module guidé ci-dessous.'
-              : `${entry.exploredCount}/${entry.conceptCount} fiche${entry.conceptCount > 1 ? 's' : ''} consultée${entry.conceptCount > 1 ? 's' : ''}`}
-          </Text>
+          <ProgressWidget
+            title={world.title}
+            value={entry.progress}
+            accent={theme.colors.primary}
+            caption={
+              entry.guided
+                ? entry.status === 'done'
+                  ? 'Module validé'
+                  : 'Avance dans le module guidé ci-dessous.'
+                : `${entry.exploredCount}/${entry.conceptCount} fiche${entry.conceptCount > 1 ? 's' : ''} consultée${entry.conceptCount > 1 ? 's' : ''}`
+            }
+          />
         </View>
       ) : null}
 
@@ -212,12 +239,31 @@ function GuidedModuleView({
         <MascotFigure name="toto-present" height={96} decorative />
       </View>
       <Text variant="h2">Module : {moduleTitle}</Text>
+
+      {/* Légende pédagogique des états de marché — repères visuels réutilisés dans les leçons.
+          Informatif, non interactif : ne révèle aucune réponse. Vocabulaire éducatif uniquement. */}
+      <Card style={styles.legendCard}>
+        <Text variant="label" color={theme.colors.textSecondary}>
+          Repères de marché enseignés
+        </Text>
+        <View style={styles.legend}>
+          {MARKET_STATE_ORDER.map((s) => (
+            <MarketStatePill key={s} state={s} />
+          ))}
+        </View>
+        <Text variant="caption" color={theme.colors.textMuted}>
+          Vocabulaire éducatif : setup, confirmation, invalidation, faux signal — jamais un ordre.
+        </Text>
+      </Card>
+
       <View style={styles.trail}>
         {map.nodes.map((node) => {
           const color = NODE_COLORS[node.status];
           const locked = node.status === 'locked';
           const reached = node.status !== 'locked';
           const conceptSlug = node.kind === 'skill' ? conceptSlugForSkill(node.id) : undefined;
+          const glyph = nodeGlyph(node);
+          const glyphColor = node.status === 'done' ? theme.colors.onPrimary : color;
           return (
             <View key={node.id} style={styles.trailRow}>
               <View style={styles.rail}>
@@ -227,9 +273,13 @@ function GuidedModuleView({
                   <View style={styles.connector} />
                 )}
                 <View style={[styles.badge, { borderColor: color, backgroundColor: node.status === 'done' ? color : theme.colors.surface }]}>
-                  <Text variant="title" color={node.status === 'done' ? theme.colors.onPrimary : color}>
-                    {nodeIcon(node)}
-                  </Text>
+                  {glyph.icon ? (
+                    <TrademyIcon name={glyph.icon} size={22} color={glyphColor} strokeWidth={2.2} />
+                  ) : (
+                    <Text variant="title" color={glyphColor}>
+                      {glyph.text}
+                    </Text>
+                  )}
                 </View>
               </View>
               <View style={styles.labelWrap}>
@@ -273,6 +323,8 @@ function GuidedModuleView({
 const RAIL_W = 52;
 const styles = StyleSheet.create({
   progressBlock: { gap: theme.spacing.xs, marginTop: theme.spacing.sm },
+  legendCard: { gap: theme.spacing.sm, marginTop: theme.spacing.sm },
+  legend: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
   headerMascot: { alignItems: 'center', marginTop: theme.spacing.sm },
   trail: { marginTop: theme.spacing.sm },
   trailRow: { flexDirection: 'row', gap: theme.spacing.md, alignItems: 'stretch' },

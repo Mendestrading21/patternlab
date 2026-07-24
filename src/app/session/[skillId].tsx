@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
-import { Screen, Text, Card, Button, ProgressBar, StateView, FeedbackPanel, theme } from '@/design-system';
+import { Screen, Text, Card, Button, ProgressBar, StateView, FeedbackPanel, StatTile, SignatureMark, theme } from '@/design-system';
 import { CharacterScene, MascotFigure, characterLine, useMascotReactions, resolveWithGuide } from '@/characters';
 import { useConnectivity } from '@/lib/connectivity';
 import { ExercisePlayer, gradeExercise, exerciseFormatLabel, type GradeResult, type Exercise } from '@/engines/exercise';
@@ -537,11 +537,14 @@ function Results({
           <ProgressBar value={summary.accuracy} accessibilityLabel={`Précision : ${summary.accuracyPct} %`} />
         </View>
 
-        {/* Trois tuiles récapitulatives : XP · Précision · MAÎTRISE réelle (plus d'emoji vide). */}
+        {/* Séparateur de marque discret (signature Trademy — décoratif). */}
+        <SignatureMark width={72} />
+
+        {/* Trois tuiles récapitulatives premium : XP · Précision · MAÎTRISE réelle (icônes de la famille). */}
         <View style={styles.statTiles}>
-          <StatTile label="XP" value={`+${xp}`} color={theme.colors.reward} />
-          <StatTile label="Précision" value={`${summary.accuracyPct}%`} color={theme.colors.technical} />
-          <StatTile label="Maîtrise" value={masteryLabel ?? TIER_FALLBACK[summary.tier]} color={theme.colors.bullish} />
+          <StatTile label="XP" value={`+${xp}`} color={theme.colors.reward} icon="bolt" />
+          <StatTile label="Précision" value={`${summary.accuracyPct}%`} color={theme.colors.technical} icon="target" />
+          <StatTile label="Maîtrise" value={masteryLabel ?? TIER_FALLBACK[summary.tier]} color={theme.colors.bullish} icon="mastery" />
         </View>
 
         {nextReview ? (
@@ -565,19 +568,6 @@ function Results({
   );
 }
 
-function StatTile({ label, value, color }: { label: string; value: string; color: string }) {
-  return (
-    <View style={styles.tile} accessible accessibilityLabel={`${label} : ${value}`}>
-      <Text variant="title" color={color} center>
-        {value}
-      </Text>
-      <Text variant="caption" color={theme.colors.textMuted} center>
-        {label}
-      </Text>
-    </View>
-  );
-}
-
 /** Étiquette de repli pour la tuile Maîtrise quand la compétence n'a pas de progression propre
  *  (ex. point de contrôle qui agrège plusieurs compétences). */
 const TIER_FALLBACK: Record<string, string> = { perfect: 'Excellent', pass: 'Validé', retry: 'À revoir' };
@@ -589,14 +579,4 @@ const styles = StyleSheet.create({
   results: { alignItems: 'center', gap: theme.spacing.md },
   accuracyWrap: { width: '100%' },
   statTiles: { flexDirection: 'row', gap: theme.spacing.sm, width: '100%' },
-  tile: {
-    flex: 1,
-    alignItems: 'center',
-    gap: 2,
-    paddingVertical: theme.spacing.sm,
-    borderRadius: theme.radius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: theme.colors.surface,
-  },
 });
