@@ -7,9 +7,12 @@ import { theme } from '../theme';
 
 /**
  * ProgressWidget (LOT 4) — widget « data premium » sombre et vitré, réutilisable pour la progression
- * (globale, monde, compétence). Verre DISCRET (voile léger + liseré fin), lumière localisée, aucun flou
- * coûteux généralisé. N'INVENTE aucune valeur : tout est fourni par l'appelant. Prévoit l'état vide
- * (aucune stat) et reste lisible (contrastes AA, pas de texte minuscule). Résumé accessible d'un bloc.
+ * (globale, monde, compétence). Verre DISCRET (voile léger + liseré fin), aucun flou coûteux généralisé.
+ * N'INVENTE aucune valeur : tout est fourni par l'appelant.
+ *
+ * Accessibilité (LOT 4-A) : le pourcentage n'est annoncé QU'UNE fois — porté par `accessibilityValue`
+ * de la barre ; le titre et la barre ne le répètent pas dans leur libellé. L'état vide affiche une
+ * explication utile (`emptyLabel`), jamais un simple titre accompagné de la signature.
  */
 export type ProgressWidgetProps = {
   title: string;
@@ -21,8 +24,10 @@ export type ProgressWidgetProps = {
   caption?: string;
   /** Tuiles de statistiques (XP, précision, série…). Vide → rangée omise. */
   stats?: StatTileProps[];
-  /** Résumé accessible surchargé (sinon dérivé du titre + légende). */
+  /** Libellé accessible surchargé de la barre (sinon le titre seul ; le pourcentage vient de la valeur). */
   accessibilityLabel?: string;
+  /** Message d'état vide (aucune valeur, aucune légende, aucune stat). */
+  emptyLabel?: string;
 };
 
 export function ProgressWidget({
@@ -32,28 +37,34 @@ export function ProgressWidget({
   caption,
   stats = [],
   accessibilityLabel,
+  emptyLabel = 'Aucune progression enregistrée',
 }: ProgressWidgetProps) {
-  const pct = value == null ? null : Math.round(Math.max(0, Math.min(1, value)) * 100);
-  const summary =
-    accessibilityLabel ??
-    [title, pct != null ? `${pct} %` : null, caption].filter(Boolean).join(', ');
+  const isEmpty = value == null && !caption && stats.length === 0;
 
   return (
     <View style={styles.card}>
       <View style={styles.head}>
-        <Text variant="label" color={theme.colors.textSecondary} accessibilityLabel={summary}>
+        <Text variant="label" color={theme.colors.textSecondary}>
           {title.toUpperCase()}
         </Text>
         <SignatureMark width={40} accent={accent} />
       </View>
 
       {value != null ? (
-        <ProgressBar value={value} color={accent} accessibilityLabel={`${title} : ${pct} %`} />
+        // Le libellé ne contient PAS le pourcentage ; celui-ci est porté une seule fois par
+        // `accessibilityValue` de la barre (défini dans ProgressBar). Pas de triple annonce.
+        <ProgressBar value={value} color={accent} accessibilityLabel={accessibilityLabel ?? title} />
       ) : null}
 
       {caption ? (
         <Text variant="caption" color={theme.colors.textMuted}>
           {caption}
+        </Text>
+      ) : null}
+
+      {isEmpty ? (
+        <Text variant="caption" color={theme.colors.textMuted}>
+          {emptyLabel}
         </Text>
       ) : null}
 

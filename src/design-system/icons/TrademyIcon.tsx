@@ -35,11 +35,10 @@ export type TrademyIconName =
   | 'settings'
   | 'heart'
   | 'book'
-  // LOT 4 — progression & apprentissage
+  // LOT 4 — progression & apprentissage (progression = APPRENTISSAGE, jamais une direction de marché)
   | 'review'
   | 'unlocked'
   | 'progression'
-  | 'decline'
   | 'checkpoint'
   | 'mastery'
   | 'hint'
@@ -47,6 +46,9 @@ export type TrademyIconName =
   | 'error'
   | 'warning'
   // LOT 4 — pédagogie du marché (famille B, monochrome ici ; le graphique exact reste vectoriel)
+  // DIRECTIONS symétriques : flèches neutres, jamais « croissance » vs « chute » (aucune morale).
+  | 'market-up'
+  | 'market-down'
   | 'volume'
   | 'support'
   | 'resistance'
@@ -244,11 +246,18 @@ const ICONS: Record<TrademyIconName, (p: Parts) => ReactNode> = {
       <Polyline points="15,7 20,7 20,12" {...stroke(color, sw)} />
     </>
   ),
-  decline: ({ color, sw }) => (
-    // Courbe descendante + flèche (DIRECTION baissière — jamais « échec » ni « punition »).
+  'market-up': ({ color, sw }) => (
+    // Flèche diagonale NEUTRE vers le haut (DIRECTION haussière — ni réussite, ni valeur).
     <>
-      <Polyline points="4,7 9,12 13,10 20,19" {...stroke(color, sw)} />
-      <Polyline points="15,19 20,19 20,14" {...stroke(color, sw)} />
+      <Line x1="5" y1="19" x2="19" y2="5" {...stroke(color, sw)} />
+      <Polyline points="10,5 19,5 19,14" {...stroke(color, sw)} />
+    </>
+  ),
+  'market-down': ({ color, sw }) => (
+    // Flèche diagonale NEUTRE vers le bas, strictement symétrique (DIRECTION baissière — ni échec, ni punition).
+    <>
+      <Line x1="5" y1="5" x2="19" y2="19" {...stroke(color, sw)} />
+      <Polyline points="10,19 19,19 19,10" {...stroke(color, sw)} />
     </>
   ),
   checkpoint: ({ color, sw }) => (

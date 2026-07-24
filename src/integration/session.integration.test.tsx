@@ -238,9 +238,13 @@ async function answerWrong(root: ReactTestInstance, ex: Exercise): Promise<void>
       throw new Error(`wrong non géré: ${ex.type}`);
   }
 }
-/** Le résultat de production affiche-t-il la CÉLÉBRATION (MascotFigure geste « celebrate ») ? */
+/**
+ * Le résultat de production affiche-t-il la CÉLÉBRATION ? Depuis LOT 4-A, la célébration est portée
+ * par la SCÈNE DE PERSONNAGE accessible (état `celebrate-*`), et non plus par une figure PNG (l'asset
+ * « celebrate » portait un damier de transparence et a été retiré). On lit donc l'état de mascotte.
+ */
 function hasCelebration(root: ReactTestInstance): boolean {
-  return root.findAll((n) => n.props?.gesture === 'celebrate', { deep: true }).length > 0;
+  return mascotStates(root).some((s) => s.startsWith('celebrate'));
 }
 /** États de mascotte rendus par les scènes de production (lecture du prop `state`). */
 function mascotStates(root: ReactTestInstance): string[] {

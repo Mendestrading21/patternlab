@@ -65,6 +65,14 @@ describe('LOT 4 — fondation visuelle : tokens sémantiques', () => {
     expect(colors.surfaceLocked).not.toBe(colors.surface);
   });
 
+  it('la MAÎTRISE pédagogique n’emprunte jamais une couleur de marché ni de feedback', () => {
+    // Un accomplissement d'apprentissage n'est pas une bougie haussière (règle LOT 4-A).
+    expect(colors.mastery).not.toBe(colors.bullish);
+    expect(colors.mastery).not.toBe(colors.bearish);
+    expect(colors.mastery).not.toBe(colors.feedbackCorrect);
+    expect(colors.mastery).not.toBe(colors.feedbackIncorrect);
+  });
+
   it('l’état de marché est sémantique et NON confondu avec direction/feedback', () => {
     // Confirmation = annotation technique (cyan) ; invalidation = zone importante (or), jamais baissier.
     expect(colors.confirmation).toBe(colors.technical);

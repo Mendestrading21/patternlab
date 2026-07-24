@@ -28,7 +28,9 @@ export const palette = {
   surfaceInteractive: '#1F2536',
   surfaceSunken: '#05070C',
   // LOT 4 — états de surface explicites (sélection / verrou), distincts de `interactive`.
-  surfaceSelected: '#28324C',
+  // `surfaceSelected` assombri (#181F30) pour tenir le contraste AA des accents/texte posés dessus
+  // (violet, texte atténué, marché) — vérifié par contrast.test.ts.
+  surfaceSelected: '#181F30',
   surfaceLocked: '#0C111C',
 
   // Bordures / verre contrôlé
@@ -116,6 +118,11 @@ export const colors = {
   neutral: palette.neutral,
   /** Concepts avancés (difficulté 4–5, familles expertes) — jamais une direction financière. */
   advanced: palette.advanced,
+  /**
+   * Maîtrise pédagogique (accomplissement d'apprentissage) — teinte de MARQUE dédiée, JAMAIS une
+   * couleur de marché. Distincte de bullish/bearish (direction) et de feedbackCorrect/Incorrect.
+   */
+  mastery: palette.violetBright,
 
   // Financial semantics (chart direction) — NOT to be reused as correct/incorrect
   bullish: palette.green,

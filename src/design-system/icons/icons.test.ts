@@ -32,10 +32,18 @@ describe('Système d’icônes Trademy', () => {
       'success', 'error', 'warning',
       'volume', 'support', 'resistance', 'confirmation', 'invalidation',
       'false-signal', 'risk', 'psychology',
+      // Directions de marché symétriques (LOT 4-A) — distinctes de la progression d'apprentissage.
+      'market-up', 'market-down',
     ] as const;
     for (const name of required) {
       expect(TRADEMY_ICON_NAMES).toContain(name);
     }
+  });
+
+  it('LOT 4-A — la direction de marché n’emprunte pas l’icône de progression pédagogique', () => {
+    // `progression` reste un glyphe d'APPRENTISSAGE ; les directions ont leurs propres flèches neutres.
+    expect(TRADEMY_ICON_NAMES).toContain('progression');
+    expect(TRADEMY_ICON_NAMES).not.toContain('decline'); // ancien glyphe moralisant retiré
   });
 
   it('LOT 4 — reste une seule famille raisonnable (pas 100 icônes)', () => {

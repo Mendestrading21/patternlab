@@ -38,6 +38,16 @@ describe('MarketStatePill — sémantique d’état de marché (LOT 4)', () => {
     expect(new Set(colors).size).toBe(5); // teintes distinctes
   });
 
+  it('les directions de marché utilisent des flèches NEUTRES, jamais l’icône de progression', () => {
+    // Séparation marché ↔ progression pédagogique (LOT 4-A) : pas de morale hausse=réussite.
+    expect(MARKET_STATES['bullish-setup'].icon).toBe('market-up');
+    expect(MARKET_STATES['bearish-setup'].icon).toBe('market-down');
+    for (const s of MARKET_STATE_ORDER) {
+      expect(MARKET_STATES[s].icon).not.toBe('progression');
+      expect(MARKET_STATES[s].icon).not.toBe('decline');
+    }
+  });
+
   it('n’utilise aucun vocabulaire interdit (jamais BUY/SELL/ordre)', () => {
     const forbidden = /\b(buy|sell|achet|vend|ordre|profit garanti|gain garanti)\b/i;
     for (const s of MARKET_STATE_ORDER) {

@@ -29,22 +29,44 @@ describe('StatTile — tuile de statistique partagée (LOT 4)', () => {
     expect(labelled.length).toBeGreaterThan(0);
     act(() => r.unmount());
   });
+
+  it('honore le dynamic type (police plafonnée) — sûr même à 200 % de texte', () => {
+    const r = render(createElement(StatTile, { label: 'XP', value: '+42' }));
+    const scaled = r.root.findAll((n) => typeof n.props?.maxFontSizeMultiplier === 'number');
+    expect(scaled.length).toBeGreaterThan(0);
+    expect(scaled.every((t) => t.props.maxFontSizeMultiplier <= 1.8)).toBe(true);
+    act(() => r.unmount());
+  });
 });
 
 describe('ProgressWidget — widget de progression premium (LOT 4)', () => {
-  it('rend le titre et le pourcentage, avec un résumé accessible', () => {
+  it('rend le titre (capitales) et la légende', () => {
     const r = render(createElement(ProgressWidget, { title: 'Monde 1', value: 0.6, caption: '3/5 étapes' }));
     const json = JSON.stringify(r.toJSON());
-    expect(json).toContain('MONDE 1'); // titre en capitales
+    expect(json).toContain('MONDE 1');
     expect(json).toContain('3/5 étapes');
-    const labelled = r.root.findAll((n) => typeof n.props?.accessibilityLabel === 'string' && n.props.accessibilityLabel.includes('60 %'));
-    expect(labelled.length).toBeGreaterThan(0);
     act(() => r.unmount());
   });
 
-  it('tolère l’état vide (aucune stat, aucune valeur)', () => {
-    const r = render(createElement(ProgressWidget, { title: 'Vide' }));
-    expect(JSON.stringify(r.toJSON())).toContain('VIDE');
+  it('LOT 4-A : le pourcentage est porté par la VALEUR de la barre, jamais dupliqué dans un libellé', () => {
+    const r = render(createElement(ProgressWidget, { title: 'Monde 1', value: 0.6 }));
+    // Le pourcentage vit uniquement dans accessibilityValue (annoncé une fois par le lecteur d'écran).
+    const withValue = r.root.findAll((n) => n.props?.accessibilityValue?.now === 60);
+    expect(withValue.length).toBeGreaterThan(0);
+    // AUCUN libellé accessible ne répète « 60 % » (plus de triple annonce titre + barre + valeur).
+    const withPct = r.root.findAll(
+      (n) => typeof n.props?.accessibilityLabel === 'string' && n.props.accessibilityLabel.includes('60 %'),
+    );
+    expect(withPct.length).toBe(0);
+    // Le libellé de la barre est le TITRE seul (pas le pourcentage).
+    const bars = r.root.findAll((n) => n.props?.accessibilityRole === 'progressbar');
+    expect(bars.every((b) => b.props.accessibilityLabel === 'Monde 1')).toBe(true);
+    act(() => r.unmount());
+  });
+
+  it('état vide : affiche une explication utile, pas seulement un titre + signature', () => {
+    const r = render(createElement(ProgressWidget, { title: 'Monde 1' }));
+    expect(JSON.stringify(r.toJSON())).toContain('Aucune progression enregistrée');
     act(() => r.unmount());
   });
 });

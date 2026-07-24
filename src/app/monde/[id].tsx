@@ -9,8 +9,6 @@ import {
   StateView,
   Button,
   TrademyIcon,
-  MarketStatePill,
-  MARKET_STATE_ORDER,
   ProgressWidget,
   theme,
   type TrademyIconName,
@@ -62,11 +60,11 @@ function nodeGlyph(node: MapNode): { icon?: TrademyIconName; text?: string } {
 function nodeLabel(node: MapNode): string {
   if (node.kind === 'checkpoint') {
     if (node.status === 'locked') return 'Termine les compétences pour débloquer la revue';
-    if (node.status === 'done') return 'Module validé 🎉';
+    if (node.status === 'done') return 'Module validé';
     return 'Prêt — revois tout le module';
   }
   switch (node.status) {
-    case 'done': return 'Terminé ✓';
+    case 'done': return 'Terminé';
     case 'due': return 'À réviser — la répétition espacée la ramène';
     case 'current': return 'Prochaine étape';
     default: return 'Verrouillé — termine l’étape précédente';
@@ -240,22 +238,6 @@ function GuidedModuleView({
       </View>
       <Text variant="h2">Module : {moduleTitle}</Text>
 
-      {/* Légende pédagogique des états de marché — repères visuels réutilisés dans les leçons.
-          Informatif, non interactif : ne révèle aucune réponse. Vocabulaire éducatif uniquement. */}
-      <Card style={styles.legendCard}>
-        <Text variant="label" color={theme.colors.textSecondary}>
-          Repères de marché enseignés
-        </Text>
-        <View style={styles.legend}>
-          {MARKET_STATE_ORDER.map((s) => (
-            <MarketStatePill key={s} state={s} />
-          ))}
-        </View>
-        <Text variant="caption" color={theme.colors.textMuted}>
-          Vocabulaire éducatif : setup, confirmation, invalidation, faux signal — jamais un ordre.
-        </Text>
-      </Card>
-
       <View style={styles.trail}>
         {map.nodes.map((node) => {
           const color = NODE_COLORS[node.status];
@@ -323,8 +305,6 @@ function GuidedModuleView({
 const RAIL_W = 52;
 const styles = StyleSheet.create({
   progressBlock: { gap: theme.spacing.xs, marginTop: theme.spacing.sm },
-  legendCard: { gap: theme.spacing.sm, marginTop: theme.spacing.sm },
-  legend: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
   headerMascot: { alignItems: 'center', marginTop: theme.spacing.sm },
   trail: { marginTop: theme.spacing.sm },
   trailRow: { flexDirection: 'row', gap: theme.spacing.md, alignItems: 'stretch' },
@@ -334,7 +314,14 @@ const styles = StyleSheet.create({
   labelWrap: { flex: 1, marginBottom: theme.spacing.md },
   labelCard: { borderWidth: 1.5, gap: 2 },
   labelHead: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
-  discover: { paddingVertical: theme.spacing.xs, paddingLeft: theme.spacing.xs, marginTop: theme.spacing.xs },
+  // Cible tactile réelle ≥ 44 px (WCAG 2.5.5) pour « Découvrir la notion ».
+  discover: {
+    minHeight: theme.touchTarget.min,
+    justifyContent: 'center',
+    paddingVertical: theme.spacing.xs,
+    paddingLeft: theme.spacing.xs,
+    marginTop: theme.spacing.xs,
+  },
   flex1: { flex: 1 },
   conceptList: { gap: theme.spacing.md, marginTop: theme.spacing.sm },
   conceptRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },

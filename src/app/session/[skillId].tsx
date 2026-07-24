@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
-import { Screen, Text, Card, Button, ProgressBar, StateView, FeedbackPanel, StatTile, SignatureMark, theme } from '@/design-system';
-import { CharacterScene, MascotFigure, characterLine, useMascotReactions, resolveWithGuide } from '@/characters';
+import { Screen, Text, Card, Button, ProgressBar, StateView, FeedbackPanel, StatTile, SignatureMark, TrademyIcon, theme, type TrademyIconName } from '@/design-system';
+import { CharacterScene, characterLine, useMascotReactions, resolveWithGuide } from '@/characters';
 import { useConnectivity } from '@/lib/connectivity';
 import { ExercisePlayer, gradeExercise, exerciseFormatLabel, type GradeResult, type Exercise } from '@/engines/exercise';
 import {
@@ -525,7 +525,8 @@ function Results({
   return (
     <Screen>
       <Card elevated style={styles.results}>
-        <Text variant="display">{summary.emoji}</Text>
+        {/* Icône de résultat de la FAMILLE Trademy (plus d'emoji système), proportionnée au palier. */}
+        <TrademyIcon name={RESULT_ICON[summary.tier]} size={44} color={RESULT_ICON_COLOR[summary.tier]} />
         <Text variant="h1" center>
           {correct} / {total}
         </Text>
@@ -544,23 +545,26 @@ function Results({
         <View style={styles.statTiles}>
           <StatTile label="XP" value={`+${xp}`} color={theme.colors.reward} icon="bolt" />
           <StatTile label="Précision" value={`${summary.accuracyPct}%`} color={theme.colors.technical} icon="target" />
-          <StatTile label="Maîtrise" value={masteryLabel ?? TIER_FALLBACK[summary.tier]} color={theme.colors.bullish} icon="mastery" />
+          <StatTile label="Maîtrise" value={masteryLabel ?? TIER_FALLBACK[summary.tier]} color={theme.colors.mastery} icon="mastery" />
         </View>
 
         {nextReview ? (
-          <Text variant="caption" color={theme.colors.textMuted} center accessibilityLabel={`Prochaine révision : ${nextReview}`}>
-            🔁 Prochaine révision : {nextReview}
-          </Text>
+          <View style={styles.reviewRow} accessible accessibilityLabel={`Prochaine révision : ${nextReview}`}>
+            <TrademyIcon name="review" size={14} color={theme.colors.textMuted} />
+            <Text variant="caption" color={theme.colors.textMuted}>
+              Prochaine révision : {nextReview}
+            </Text>
+          </View>
         ) : null}
 
-        {summary.tier === 'retry' ? (
-          <CharacterScene character={mascotCharacter} state={mascotState} size={72} speech={line.text} />
-        ) : (
-          <>
-            <MascotFigure name="celebrate" gesture="celebrate" height={170} />
-            <CharacterScene character={mascotCharacter} state={mascotState} size={56} speech={line.text} />
-          </>
-        )}
+        {/* Scène de personnage VECTORIELLE (nette, sans artefact) — remplace la figure « celebrate »
+            dont l'asset PNG portait un damier de transparence. Taille proportionnée au palier. */}
+        <CharacterScene
+          character={mascotCharacter}
+          state={mascotState}
+          size={summary.tier === 'retry' ? 72 : 88}
+          speech={line.text}
+        />
       </Card>
       <Button label="Retour à l’accueil" onPress={onHome} />
       <Button label="Refaire la session" variant="secondary" onPress={onRetry} />
@@ -572,6 +576,14 @@ function Results({
  *  (ex. point de contrôle qui agrège plusieurs compétences). */
 const TIER_FALLBACK: Record<string, string> = { perfect: 'Excellent', pass: 'Validé', retry: 'À revoir' };
 
+/** Icône de résultat par palier (famille Trademy) + accent — remplace l'emoji d'affichage. */
+const RESULT_ICON: Record<string, TrademyIconName> = { perfect: 'trophy', pass: 'success', retry: 'review' };
+const RESULT_ICON_COLOR: Record<string, string> = {
+  perfect: theme.colors.reward,
+  pass: theme.colors.feedbackCorrect,
+  retry: theme.colors.technical,
+};
+
 const styles = StyleSheet.create({
   header: { gap: theme.spacing.sm },
   headRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: theme.spacing.sm },
@@ -579,4 +591,5 @@ const styles = StyleSheet.create({
   results: { alignItems: 'center', gap: theme.spacing.md },
   accuracyWrap: { width: '100%' },
   statTiles: { flexDirection: 'row', gap: theme.spacing.sm, width: '100%' },
+  reviewRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
 });

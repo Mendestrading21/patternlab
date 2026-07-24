@@ -34,13 +34,15 @@ type Descriptor = {
 export const MARKET_STATES: Record<MarketState, Descriptor> = {
   'bullish-setup': {
     label: 'Setup haussier',
-    icon: 'progression',
+    // Flèche directionnelle NEUTRE (jamais l'icône `progression`, réservée à l'apprentissage).
+    icon: 'market-up',
     color: theme.colors.bullish,
     a11y: 'Setup haussier : contexte penché vers la hausse, à confirmer.',
   },
   'bearish-setup': {
     label: 'Setup baissier',
-    icon: 'decline',
+    // Symétrique de `market-up` : direction, jamais échec ni punition.
+    icon: 'market-down',
     color: theme.colors.bearish,
     a11y: 'Setup baissier : contexte penché vers la baisse, à confirmer.',
   },
