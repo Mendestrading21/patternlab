@@ -43,18 +43,22 @@ d'ordre inachevée**, la **reprise d'un checkpoint interrompu**, et la **céléb
 
 ## Déterminisme du script
 
-Le script déclare un **manifeste exact** (22 captures), nettoie les PNG gérés avant lancement, et exige
-une égalité stricte `produced == manifeste == PNG du dossier`. Il **échoue (code 1)** sur : erreur
+Le script déclare un **manifeste exact** (22 captures), produit d'abord les images dans un dossier
+temporaire isolé puis remplace uniquement les 22 preuves gérées après succès complet. Une exécution
+échouée ne modifie donc aucune preuve existante et une image étrangère n'est jamais supprimée. Il exige
+une égalité stricte `produced == manifeste == PNG produits == PNG du dossier cible` et **échoue (code 1)** sur : erreur
 console, pageerror, débordement horizontal > 0, mesure d'overflow impossible, route incorrecte (pathname
-+ marqueur STABLE propre à l'écran), état obligatoire non atteint, capture manquante ou inattendue.
++ marqueur STABLE propre à l'écran), état obligatoire non atteint, palier réussi/à revoir incohérent,
+capture manquante ou inattendue.
 
 ## Contrôles mesurés à la capture
 
 - **Débordement horizontal = 0 px** à 320 / 390 / 430 / 1280 px.
 - **Erreurs console / pageerror = 0.**
 - Cibles tactiles des flèches : 44 × 44 px. « Découvrir la notion » : cible ≥ 44 px.
-- **Aucun emoji système** dans le parcours pilote — écrans + contenu rendu, y compris toutes les
-  variantes de `characterLine` (verrou `src/integration/pilotNoEmoji.test.ts`).
+- **Aucun emoji système** dans le parcours pilote — écrans, étapes de leçon, replay, flashcard et
+  contenu rendu, y compris toutes les variantes de `characterLine`
+  (verrou `src/integration/pilotNoEmoji.test.ts`).
 - **Aucun artefact** de transparence derrière les mascottes (asset PNG défectueux retiré du rendu).
 
 ## Portée honnête des preuves

@@ -79,13 +79,13 @@ reprise/remédiation :
 7. **Accents du résultat** : XP = `primary`, précision = `info` (jamais `technical`), maîtrise = `mastery`,
    palier perfect = `mastery`, pass = `feedbackCorrect`, retry = `neutral`. Aucun `bullish`/`bearish`/
    `reward`/`technical` pour un niveau d'apprentissage. Verrou `resultAccents.test.ts`.
-8. **`SignatureMark` retiré** intégralement (composant, test, export, usages) : ce motif confondait encore
-   hausse de marché et progression pédagogique. Espacements rééquilibrés avec les primitives existantes.
-9. **Captures déterministes** : `capture-pilot.mjs` déclare un **manifeste exact**, nettoie les PNG gérés
-   avant lancement, exige `produced == manifeste == PNG du dossier`, échoue sur erreur console/pageerror,
+8. **Captures déterministes** : `capture-pilot.mjs` déclare un **manifeste exact**, produit les PNG dans
+   un dossier temporaire isolé puis remplace uniquement les preuves gérées après succès complet. Il exige
+   `produced == manifeste == PNG produits == PNG du dossier cible` et échoue sur erreur console/pageerror,
    débordement > 0, mesure d'overflow impossible, route incorrecte (pathname + marqueur stable), état
-   obligatoire non atteint, capture manquante ou inattendue. **Ce script ne tourne pas en CI** (contrôle
-   local uniquement).
+   obligatoire non atteint, palier de résultat incohérent, capture manquante ou inattendue. Une exécution
+   échouée ne modifie aucune preuve existante et une image étrangère n'est jamais supprimée.
+   **Ce script ne tourne pas en CI** (contrôle local uniquement).
 
 ## Alternatives écartées
 - Réécrire les tokens/thème : rejeté — l'API existante est saine ; une couche additive suffit.

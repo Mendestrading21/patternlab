@@ -6,16 +6,16 @@
  * Aucune dépendance runtime ajoutée : outil de développement autonome. Les images produites ne sont
  * PAS embarquées dans le build web.
  *
- * DÉTERMINISME & FIABILITÉ (LOT 4-A) : manifeste EXACT des captures attendues ; nettoyage préalable
- * des PNG gérés ; chaque `shot()` s'enregistre dans `produced` ; égalité stricte exigée entre
- * `produced` et le manifeste ET entre les PNG du dossier et le manifeste. Le script ÉCHOUE (code 1)
+ * DÉTERMINISME & FIABILITÉ (LOT 4-A) : manifeste EXACT des captures attendues ; production isolée
+ * puis publication des seuls PNG gérés après succès ; chaque `shot()` s'enregistre dans `produced` ;
+ * égalité stricte exigée entre `produced`, le manifeste et les PNG publiés. Le script ÉCHOUE (code 1)
  * sur : erreur console, pageerror, débordement horizontal > 0, mesure d'overflow impossible, route
- * incorrecte (pathname + marqueur STABLE propre à l'écran), état obligatoire non atteint, capture
- * manquante ou inattendue.
+ * incorrecte (pathname + marqueur STABLE propre à l'écran), état ou palier obligatoire non atteint,
+ * capture manquante ou inattendue.
  */
 import http from 'node:http';
 import { readFile } from 'node:fs/promises';
-import { existsSync, statSync, mkdirSync, readdirSync, unlinkSync } from 'node:fs';
+import { existsSync, statSync, mkdirSync, mkdtempSync, readdirSync, renameSync, rmSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
 import { createRequire } from 'node:module';
 
@@ -39,11 +39,6 @@ const MANIFEST = [
 ];
 const MANIFEST_SET = new Set(MANIFEST);
 const produced = new Set();
-
-// Nettoyage préalable : supprime TOUT PNG géré du dossier afin qu'un ancien fichier ne masque pas un échec.
-for (const f of readdirSync(OUT)) {
-  if (f.endsWith('.png')) unlinkSync(join(OUT, f));
-}
 
 let chromium;
 try {
@@ -73,6 +68,9 @@ const server = http.createServer(async (req, res) => {
 await new Promise((r) => server.listen(0, r));
 const base = `http://localhost:${server.address().port}/TradeMy`;
 const browser = await chromium.launch({ args: ['--no-sandbox'] });
+// Les nouvelles preuves sont produites à l'écart. Les fichiers suivis ne sont remplacés qu'après
+// une exécution entièrement réussie : un navigateur absent ou un état invalide ne détruit rien.
+const RUN_OUT = mkdtempSync(join(OUT, '.capture-run-'));
 
 const consoleErrors = [];
 
@@ -90,7 +88,10 @@ async function overflow(p) {
 async function nav(p, path, markerRe, screen) {
   await p.goto(`${base}${path}`, { waitUntil: 'networkidle' });
   const pathname = new URL(p.url()).pathname;
-  if (!pathname.includes(path)) throw new Error(`Route incorrecte: attendu ${path}, obtenu ${pathname} [${screen}]`);
+  const expectedPathname = `${new URL(base).pathname.replace(/\/$/, '')}${path}`;
+  if (pathname !== expectedPathname) {
+    throw new Error(`Route incorrecte: attendu ${expectedPathname}, obtenu ${pathname} [${screen}]`);
+  }
   try {
     await p.getByText(markerRe).first().waitFor({ timeout: 9000 });
   } catch {
@@ -109,7 +110,7 @@ async function shot(p, name) {
   await p.waitForTimeout(180);
   const ov = await overflow(p);
   if (ov > 0) throw new Error(`Débordement horizontal ${ov}px sur ${name}`);
-  await p.screenshot({ path: join(OUT, `${name}.png`) });
+  await p.screenshot({ path: join(RUN_OUT, `${name}.png`) });
   produced.add(name);
   console.log('  ✓', name);
 }
@@ -148,6 +149,26 @@ async function answerBestEffort(p) {
   for (const b of bs) { const t = ((await b.textContent().catch(() => '')) || '').trim(); if (!t || /continuer|voir mon|recommencer|retour|accueil|refaire|monter|descendre|◀|▶|valider|réessayer/i.test(t)) continue; await b.click({ timeout: 700 }).catch(() => {}); return; }
 }
 const RESULT = /Refaire la session|Retour à l’accueil/i;
+const RESULT_SUCCESS = /Sans faute — parfait !|Session réussie, bravo !/i;
+const RESULT_RETRY = /Bien essayé — révise et retente !/i;
+
+/** Vérifie la sémantique du résultat, pas seulement ses boutons génériques. */
+async function assertResultTier(p, expected, label) {
+  await assertState(p, RESULT, `${label} (actions résultat)`);
+  await assertState(p, /^\d+\s*\/\s*\d+$/, `${label} (score)`);
+  const success = await vis(p, RESULT_SUCCESS);
+  const retry = await vis(p, RESULT_RETRY);
+  if (success === retry) {
+    throw new Error(`Palier de résultat ambigu ou absent: ${label}`);
+  }
+  if (expected === 'success' && !success) {
+    throw new Error(`Résultat réussi attendu mais palier « à revoir » obtenu: ${label}`);
+  }
+  if (expected === 'retry' && !retry) {
+    throw new Error(`Résultat « à revoir » attendu mais réussite obtenue: ${label}`);
+  }
+}
+
 async function playToResult(p, tag) {
   for (let step = 0; step < 14; step++) {
     if (await vis(p, RESULT)) return;
@@ -174,7 +195,7 @@ async function run() {
     await assertState(p, PRACTICE, `pratique ${tag}`);
     await shot(p, `pilot-practice-${tag}`);
     await playToResult(p, tag);
-    await assertState(p, RESULT, `résultat ${tag}`);
+    await assertResultTier(p, 'success', `résultat ${tag}`);
     await shot(p, `pilot-result-${tag}`);
     await c.close();
   }
@@ -224,7 +245,7 @@ async function run() {
     await nav(p, SESSION, new RegExp(CANDLE), 'final');
     await reachPractice(p, 'final');
     await playToResult(p, 'final');
-    await assertState(p, RESULT, 'progression finale');
+    await assertResultTier(p, 'success', 'progression finale');
     await shot(p, 'pilot-progression-final-390');
     await c.close();
   }
@@ -267,7 +288,7 @@ async function run() {
       await clickText(p, /Continuer|Voir mon résultat/i, 800);
       await p.waitForTimeout(400);
     }
-    await assertState(p, RESULT, 'checkpoint échoué (résultat)');
+    await assertResultTier(p, 'retry', 'checkpoint échoué');
     await shot(p, 'pilot-checkpoint-fail-390');
     await c.close();
   }
@@ -275,7 +296,7 @@ async function run() {
     const { c, p } = await ctx(390, 844);
     await nav(p, CHECKPOINT, PRACTICE, 'cp-pass');
     await playToResult(p, 'cp-pass');
-    await assertState(p, RESULT, 'checkpoint réussi (résultat)');
+    await assertResultTier(p, 'success', 'checkpoint réussi');
     await shot(p, 'pilot-checkpoint-pass-390');
     await c.close();
   }
@@ -300,11 +321,13 @@ await browser.close();
 server.close();
 
 // ── Vérifications finales STRICTES ──
-const outPngs = new Set(readdirSync(OUT).filter((f) => f.endsWith('.png')).map((f) => f.slice(0, -4)));
+const runPngs = new Set(readdirSync(RUN_OUT).filter((f) => f.endsWith('.png')).map((f) => f.slice(0, -4)));
+const existingPngs = new Set(readdirSync(OUT).filter((f) => f.endsWith('.png')).map((f) => f.slice(0, -4)));
 const missing = MANIFEST.filter((n) => !produced.has(n));
 const unexpectedProduced = [...produced].filter((n) => !MANIFEST_SET.has(n));
-const unexpectedOnDisk = [...outPngs].filter((n) => !MANIFEST_SET.has(n));
-const missingOnDisk = MANIFEST.filter((n) => !outPngs.has(n));
+const unexpectedRun = [...runPngs].filter((n) => !MANIFEST_SET.has(n));
+const missingRun = MANIFEST.filter((n) => !runPngs.has(n));
+const foreignExisting = [...existingPngs].filter((n) => !MANIFEST_SET.has(n));
 
 console.log(`\nCaptures produites : ${produced.size}/${MANIFEST.length}`);
 console.log('Erreurs console/pageerror :', consoleErrors.length);
@@ -315,8 +338,26 @@ if (failure) { console.error('✗ ÉCHEC :', failure.message); ok = false; }
 if (consoleErrors.length) { console.error('✗ ÉCHEC : erreurs console/pageerror.'); ok = false; }
 if (missing.length) { console.error('✗ Captures manquantes :', missing.join(', ')); ok = false; }
 if (unexpectedProduced.length) { console.error('✗ Captures inattendues :', unexpectedProduced.join(', ')); ok = false; }
-if (unexpectedOnDisk.length) { console.error('✗ PNG inattendus sur disque :', unexpectedOnDisk.join(', ')); ok = false; }
-if (missingOnDisk.length) { console.error('✗ PNG manquants sur disque :', missingOnDisk.join(', ')); ok = false; }
+if (unexpectedRun.length) { console.error('✗ PNG inattendus produits :', unexpectedRun.join(', ')); ok = false; }
+if (missingRun.length) { console.error('✗ PNG produits manquants :', missingRun.join(', ')); ok = false; }
+if (foreignExisting.length) { console.error('✗ PNG étrangers dans le dossier cible :', foreignExisting.join(', ')); ok = false; }
 
-if (!ok) process.exit(1);
+if (!ok) {
+  rmSync(RUN_OUT, { recursive: true, force: true });
+  process.exit(1);
+}
+
+// Publication finale : remplace uniquement les 22 noms gérés, après toutes les vérifications.
+for (const name of MANIFEST) {
+  renameSync(join(RUN_OUT, `${name}.png`), join(OUT, `${name}.png`));
+}
+rmSync(RUN_OUT, { recursive: true, force: true });
+
+const finalPngs = new Set(readdirSync(OUT).filter((f) => f.endsWith('.png')).map((f) => f.slice(0, -4)));
+const missingFinal = MANIFEST.filter((n) => !finalPngs.has(n));
+const unexpectedFinal = [...finalPngs].filter((n) => !MANIFEST_SET.has(n));
+if (missingFinal.length || unexpectedFinal.length) {
+  console.error('✗ Publication finale incohérente.', { missingFinal, unexpectedFinal });
+  process.exit(1);
+}
 console.log('✓ Manifeste exact respecté ; 0 erreur console ; 0 débordement. Captures dans', OUT);
