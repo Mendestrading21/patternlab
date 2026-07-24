@@ -30,7 +30,7 @@ const TOTO_CORRECT = [
   'Parfait, c’est exactement ça.',
 ];
 const TOTO_STREAK = [
-  'Série en cours 🔥 tu enchaînes !',
+  'Série en cours, tu enchaînes !',
   'Encore une — belle lecture !',
   'Tu es dans le rythme, continue !',
 ];

@@ -2,7 +2,6 @@ import { View, StyleSheet } from 'react-native';
 import { Text } from './Text';
 import { ProgressBar } from './ProgressBar';
 import { StatTile, type StatTileProps } from './StatTile';
-import { SignatureMark } from '../brand/SignatureMark';
 import { theme } from '../theme';
 
 /**
@@ -24,7 +23,11 @@ export type ProgressWidgetProps = {
   caption?: string;
   /** Tuiles de statistiques (XP, précision, série…). Vide → rangée omise. */
   stats?: StatTileProps[];
-  /** Libellé accessible surchargé de la barre (sinon le titre seul ; le pourcentage vient de la valeur). */
+  /**
+   * Libellé accessible surchargé de la barre (sinon le titre seul). NE DOIT PAS contenir le
+   * pourcentage : celui-ci est porté une seule fois par `accessibilityValue` de la barre. Y inclure
+   * « 60 % » recréerait une double annonce (le verrou `StatTile.test.tsx` couvre le chemin par défaut).
+   */
   accessibilityLabel?: string;
   /** Message d'état vide (aucune valeur, aucune légende, aucune stat). */
   emptyLabel?: string;
@@ -43,12 +46,9 @@ export function ProgressWidget({
 
   return (
     <View style={styles.card}>
-      <View style={styles.head}>
-        <Text variant="label" color={theme.colors.textSecondary}>
-          {title.toUpperCase()}
-        </Text>
-        <SignatureMark width={40} accent={accent} />
-      </View>
+      <Text variant="label" color={theme.colors.textSecondary}>
+        {title.toUpperCase()}
+      </Text>
 
       {value != null ? (
         // Le libellé ne contient PAS le pourcentage ; celui-ci est porté une seule fois par
@@ -90,6 +90,5 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.surfaceElevated,
     ...theme.elevation.card,
   },
-  head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   stats: { flexDirection: 'row', gap: theme.spacing.sm },
 });

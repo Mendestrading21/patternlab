@@ -26,7 +26,7 @@ describe('Système d’icônes Trademy', () => {
     expect(TRADEMY_ICON_NAMES.length).toBeGreaterThanOrEqual(20);
   });
 
-  it('LOT 4 — couvre les concepts de progression et de marché nommés au brief', () => {
+  it('LOT 4 — couvre les concepts du canon pédagogique TradeMy (progression & marché)', () => {
     const required = [
       'review', 'unlocked', 'progression', 'checkpoint', 'mastery', 'hint',
       'success', 'error', 'warning',

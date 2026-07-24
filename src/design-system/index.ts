@@ -43,8 +43,7 @@ export { OfflineBanner, type OfflineBannerProps } from './components/OfflineBann
 export { AnswerOption, type AnswerOptionProps, type AnswerState } from './components/AnswerOption';
 export { FeedbackPanel, type FeedbackPanelProps } from './components/FeedbackPanel';
 export { Flashcard, type FlashcardProps } from './components/Flashcard';
-// LOT 4 — fondation visuelle : signature, état de marché, tuiles & widget de progression.
-export { SignatureMark, type SignatureMarkProps } from './brand/SignatureMark';
+// LOT 4 — fondation visuelle : état de marché, tuiles & widget de progression.
 export {
   MarketStatePill,
   MARKET_STATES,

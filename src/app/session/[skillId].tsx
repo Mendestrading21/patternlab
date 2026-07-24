@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
-import { Screen, Text, Card, Button, ProgressBar, StateView, FeedbackPanel, StatTile, SignatureMark, TrademyIcon, theme, type TrademyIconName } from '@/design-system';
+import { Screen, Text, Card, Button, ProgressBar, StateView, FeedbackPanel, StatTile, TrademyIcon, theme, type TrademyIconName } from '@/design-system';
+import { RESULT_STAT_ACCENT, RESULT_ICON_ACCENT } from '@/design-system/resultAccents';
 import { CharacterScene, characterLine, useMascotReactions, resolveWithGuide } from '@/characters';
 import { useConnectivity } from '@/lib/connectivity';
 import { ExercisePlayer, gradeExercise, exerciseFormatLabel, type GradeResult, type Exercise } from '@/engines/exercise';
@@ -525,8 +526,9 @@ function Results({
   return (
     <Screen>
       <Card elevated style={styles.results}>
-        {/* Icône de résultat de la FAMILLE Trademy (plus d'emoji système), proportionnée au palier. */}
-        <TrademyIcon name={RESULT_ICON[summary.tier]} size={44} color={RESULT_ICON_COLOR[summary.tier]} />
+        {/* Icône de résultat de la FAMILLE Trademy (plus d'emoji système), proportionnée au palier.
+            Accent = canon d'apprentissage (jamais marché/récompense/technique). */}
+        <TrademyIcon name={RESULT_ICON[summary.tier]} size={44} color={RESULT_ICON_ACCENT[summary.tier as 'perfect' | 'pass' | 'retry']} />
         <Text variant="h1" center>
           {correct} / {total}
         </Text>
@@ -538,14 +540,11 @@ function Results({
           <ProgressBar value={summary.accuracy} accessibilityLabel={`Précision : ${summary.accuracyPct} %`} />
         </View>
 
-        {/* Séparateur de marque discret (signature Trademy — décoratif). */}
-        <SignatureMark width={72} />
-
-        {/* Trois tuiles récapitulatives premium : XP · Précision · MAÎTRISE réelle (icônes de la famille). */}
+        {/* Trois tuiles récapitulatives : XP · Précision · MAÎTRISE réelle (icônes de la famille). */}
         <View style={styles.statTiles}>
-          <StatTile label="XP" value={`+${xp}`} color={theme.colors.reward} icon="bolt" />
-          <StatTile label="Précision" value={`${summary.accuracyPct}%`} color={theme.colors.technical} icon="target" />
-          <StatTile label="Maîtrise" value={masteryLabel ?? TIER_FALLBACK[summary.tier]} color={theme.colors.mastery} icon="mastery" />
+          <StatTile label="XP" value={`+${xp}`} color={RESULT_STAT_ACCENT.xp} icon="bolt" />
+          <StatTile label="Précision" value={`${summary.accuracyPct}%`} color={RESULT_STAT_ACCENT.accuracy} icon="target" />
+          <StatTile label="Maîtrise" value={masteryLabel ?? TIER_FALLBACK[summary.tier]} color={RESULT_STAT_ACCENT.mastery} icon="mastery" />
         </View>
 
         {nextReview ? (
@@ -576,13 +575,9 @@ function Results({
  *  (ex. point de contrôle qui agrège plusieurs compétences). */
 const TIER_FALLBACK: Record<string, string> = { perfect: 'Excellent', pass: 'Validé', retry: 'À revoir' };
 
-/** Icône de résultat par palier (famille Trademy) + accent — remplace l'emoji d'affichage. */
+/** Icône de résultat par palier (famille Trademy) — remplace l'emoji d'affichage.
+ *  Les accents COULEUR viennent de `RESULT_ICON_ACCENT` (canon d'apprentissage, jamais marché). */
 const RESULT_ICON: Record<string, TrademyIconName> = { perfect: 'trophy', pass: 'success', retry: 'review' };
-const RESULT_ICON_COLOR: Record<string, string> = {
-  perfect: theme.colors.reward,
-  pass: theme.colors.feedbackCorrect,
-  retry: theme.colors.technical,
-};
 
 const styles = StyleSheet.create({
   header: { gap: theme.spacing.sm },
