@@ -158,6 +158,17 @@ async function playToResult(p) {
 { const { c, p } = await ctx(390, 844); await p.goto(`${base}/session/skill.candles`, { waitUntil: 'networkidle' }).catch(() => {}); await p.waitForTimeout(1500); await reachPractice(p); await answerBestEffort(p); await p.waitForTimeout(400); await clickText(p, /Continuer/i, 800); await p.waitForTimeout(500); await p.reload({ waitUntil: 'networkidle' }).catch(() => {}); await p.waitForTimeout(1600); await shot(p, 'pilot-resume-390'); await c.close(); }
 // Hors-ligne
 { const { c, p } = await ctx(390, 844); await p.goto(`${base}/session/skill.candles`, { waitUntil: 'networkidle' }).catch(() => {}); await p.waitForTimeout(1500); await reachPractice(p); await c.setOffline(true); await p.waitForTimeout(1200); await shot(p, 'pilot-offline-390'); await c.close(); }
+// ── LOT 4 — écran de MONDE pilote : ProgressWidget premium, légende MarketStatePill, jalons en
+// icônes de la famille Trademy (plus d'emoji). 390 px + web large + reduced-motion. ──
+for (const [w, h, tag, opts] of [[390, 844, '390', {}], [1280, 900, 'web', {}], [390, 844, 'reduced', { reducedMotion: 'reduce' }]]) {
+  const { c, p } = await ctx(w, h, opts);
+  await p.goto(`${base}/monde/world.foundations`, { waitUntil: 'networkidle' }).catch(() => {});
+  await p.waitForTimeout(1600);
+  const ov = await overflow(p);
+  await shot(p, `lot4-monde-${tag}`);
+  console.log(`  monde ${tag}: débordement horizontal = ${ov}px`);
+  await c.close();
+}
 
 console.log('\nErreurs console cumulées :', errs.length);
 errs.slice(0, 6).forEach((e) => console.log('   !', e));

@@ -30,6 +30,15 @@ Le script sert `dist/` en local (repli SPA façon GitHub Pages) et pilote Chromi
 | `pilot-practice-{320,390,430,web}.png` | Responsive — aucun débordement horizontal |
 | `pilot-practice-reduced.png` | `prefers-reduced-motion` — équivalent informatif (rendu statique) |
 
+## LOT 4 — fondation visuelle (application verticale pilote)
+
+| Fichier | Ce qu'il prouve |
+|---|---|
+| `lot4-monde-{390,web,reduced}.png` | Écran de **monde pilote** : `ProgressWidget` premium, **légende `MarketStatePill`** (setup haussier/baissier, confirmation, invalidation, faux signal), jalons du parcours en **icônes de la famille Trademy** (plus d'emoji). Débordement horizontal 0 px aux trois rendus. |
+| `pilot-progression-final-390.png` · `pilot-result-*.png` | Écran de **résultat** revu : tuiles `StatTile` premium (icônes `bolt`/`target`/`mastery`) + séparateur `SignatureMark`. Données et a11y inchangées. |
+
+Réf. décision : `docs/ADR-097-trademy-lot4-visual-foundation.md` · audit : `docs/design/LOT4_VISUAL_AUDIT.md`.
+
 ## Démontré AUSSI par le test d'intégration (preuve exécutable)
 
 `src/integration/session.integration.test.tsx` monte l'écran de session réel et clique ses vrais
