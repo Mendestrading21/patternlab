@@ -39,6 +39,7 @@ contrat (`CLAUDE.md`) priment sur un ancien programme.
 | Progression fiable P0 (cible canonique, maîtrise prouvée) | [ADR-093](./ADR-093-p0-progression-fiable.md) |
 | Progression par cible persistée P0 (v8, reprise, rotation, CI) | [ADR-094](./ADR-094-p0-progression-par-cible.md) |
 | Toto/Bobo : orchestration événement → état + motion (LOT 2) | [ADR-095](./ADR-095-trademy-toto-bobo-motion-system.md) |
+| Source de scénario canonique + unité pilote chandelier (LOT 3) | [ADR-096](./ADR-096-trademy-pilot-scenario-source.md) |
 
 ## Fondations toujours actives
 
