@@ -125,6 +125,37 @@ for (const [w, h, tag, opts] of [[320, 720, '320', {}], [390, 844, '390', {}], [
   await shot(p, 'pilot-checkpoint-fail-390'); // résultat de checkpoint échoué (à revoir)
   await c.close();
 }
+// ── Réussite : réponses correctes connues → PASS → célébration + progression finale. ──
+const CORRECT = ['Plutôt à la hausse', 'Une part d’une entreprise', 'Le plus haut atteint', 'La couleur d’une bougie prédit', 'Deuxième tiers'];
+const rx = (t) => new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+async function answerBestEffort(p) {
+  if (await vis(p, /Valider mon niveau/)) {
+    for (let k = 0; k < 50; k++) { try { await p.getByRole('button', { name: 'Monter' }).first().click({ timeout: 150 }); } catch { break; } }
+    await clickText(p, /Valider mon niveau/i, 1000);
+    return;
+  }
+  if (await vis(p, /Valider l’ordre|Valider l'ordre/)) { await clickText(p, /Valider l’ordre|Valider l'ordre/i, 1000); return; } // au mieux
+  for (const t of CORRECT) { if (await clickText(p, rx(t), 600)) return; }
+  if (await clickText(p, /^Vrai$/i, 600)) return;
+  const bs = await p.getByRole('button').all();
+  for (const b of bs) { const t = ((await b.textContent().catch(() => '')) || '').trim(); if (!t || /continuer|voir mon|recommencer|retour|accueil|refaire|monter|descendre|◀|▶|valider|réessayer/i.test(t)) continue; await b.click({ timeout: 700 }).catch(() => {}); return; }
+}
+async function playToResult(p) {
+  for (let step = 0; step < 14; step++) {
+    if (await vis(p, /Refaire la session|Retour à l’accueil/i)) return true;
+    await answerBestEffort(p);
+    await p.waitForTimeout(450);
+    await clickText(p, /Continuer|Voir mon résultat/i, 800);
+    await p.waitForTimeout(450);
+  }
+  return vis(p, /Refaire la session/i);
+}
+// Progression finale (session pilote réussie) + célébration.
+{ const { c, p } = await ctx(390, 844); await p.goto(`${base}/session/skill.candles`, { waitUntil: 'networkidle' }).catch(() => {}); await p.waitForTimeout(1500); await reachPractice(p); await playToResult(p); await p.waitForTimeout(400); await shot(p, 'pilot-progression-final-390'); await c.close(); }
+// Checkpoint réussi + célébration.
+{ const { c, p } = await ctx(390, 844); await p.goto(`${base}/session/checkpoint.read-chart`, { waitUntil: 'networkidle' }).catch(() => {}); await p.waitForTimeout(1500); await playToResult(p); await p.waitForTimeout(400); await shot(p, 'pilot-checkpoint-pass-390'); await c.close(); }
+// Reprise après interruption : répondre à l'exercice 1, puis RECHARGER la page (localStorage conservé).
+{ const { c, p } = await ctx(390, 844); await p.goto(`${base}/session/skill.candles`, { waitUntil: 'networkidle' }).catch(() => {}); await p.waitForTimeout(1500); await reachPractice(p); await answerBestEffort(p); await p.waitForTimeout(400); await clickText(p, /Continuer/i, 800); await p.waitForTimeout(500); await p.reload({ waitUntil: 'networkidle' }).catch(() => {}); await p.waitForTimeout(1600); await shot(p, 'pilot-resume-390'); await c.close(); }
 // Hors-ligne
 { const { c, p } = await ctx(390, 844); await p.goto(`${base}/session/skill.candles`, { waitUntil: 'networkidle' }).catch(() => {}); await p.waitForTimeout(1500); await reachPractice(p); await c.setOffline(true); await p.waitForTimeout(1200); await shot(p, 'pilot-offline-390'); await c.close(); }
 

@@ -433,6 +433,42 @@ describe('Écran de session RÉEL — parcours pilote de production', () => {
     unmount();
   });
 
+  it('reprise PENDANT une remédiation : même variante restaurée (header + index), erreur comptée une seule fois', async () => {
+    const list = PILOT_LIST();
+    const direction = list[0];
+    if (direction.type !== 'identify_pattern') throw new Error('type');
+    const expected = remediationVariant(direction, list[1].id)!;
+
+    // Erreur → « Réessayer autrement » → la variante de remédiation est affichée.
+    let s = await mount();
+    await reachPractice(s.root);
+    await tapText(s.root, direction.options[(direction.validation.correctIndex + 1) % 3]);
+    await tapText(s.root, 'Réessayer autrement');
+    expect(textOf(s.root)).toContain('REMÉDIATION');
+    expect(textOf(s.root)).toContain(expected.prompt);
+    s.unmount(); // DÉMONTAGE avant de répondre à la remédiation
+
+    // Remontage (même AsyncStorage) : MÊME variante restaurée, header « REMÉDIATION », index inchangé.
+    s = await mount();
+    expect(textOf(s.root)).toMatch(/Exercice\s+1\s*\/\s*6/); // index inchangé (remédiation sur l'ex. de base 1)
+    expect(textOf(s.root)).toContain('REMÉDIATION');
+    expect(textOf(s.root)).toContain(expected.prompt); // exactement la même variante
+
+    // Répondre à la remédiation, reprendre le parcours, terminer.
+    await answerCorrect(s.root, expected);
+    await tapText(s.root, 'Continuer');
+    expect(textOf(s.root)).toMatch(/Exercice\s+2\s*\/\s*6/);
+    for (let i = 1; i < list.length; i++) {
+      await answerCorrect(s.root, list[i]);
+      await tapText(s.root, i + 1 >= list.length ? 'Voir mon résultat' : 'Continuer');
+    }
+    // L'erreur de base est comptée UNE seule fois ; la reprise pendant la remédiation ne double rien.
+    const saved = await progressRepository.load();
+    const recognize = objectiveId(C, 'recognize');
+    expect(saved!.targets![recognize].attempts).toBe(3);
+    s.unmount();
+  });
+
   it('reprise d’une INTERACTION inachevée : ordre réorganisé (non validé) restauré à l’identique, compté une fois', async () => {
     const list = PILOT_LIST();
     const orderIdx = list.findIndex((e) => e.type === 'order');
