@@ -77,4 +77,12 @@ describe('migrateOnboardingProfile', () => {
     expect(m.topics).toEqual(['actions']);
     expect(m.diagnosticScore).toBeNull();
   });
+
+  it('conserve le guide choisi (toto/bobo) et ignore une valeur invalide — non destructif', () => {
+    expect(migrateOnboardingProfile({ startSkillId: 'skill.actions', guide: 'bobo' })!.guide).toBe('bobo');
+    expect(migrateOnboardingProfile({ startSkillId: 'skill.actions', guide: 'toto' })!.guide).toBe('toto');
+    // valeur inconnue → undefined (pas de crash) ; ancien profil sans guide → undefined
+    expect(migrateOnboardingProfile({ startSkillId: 'skill.actions', guide: 'bruno' })!.guide).toBeUndefined();
+    expect(migrateOnboardingProfile({ startSkillId: 'skill.actions' })!.guide).toBeUndefined();
+  });
 });

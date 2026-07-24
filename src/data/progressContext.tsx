@@ -33,6 +33,8 @@ interface ProgressContextValue {
   markOnboarded: () => void;
   /** Enregistre le profil personnalisé ET marque l'onboarding terminé. */
   completeOnboarding: (profile: OnboardingProfile) => void;
+  /** Change le guide préféré (Toto/Bobo) après l'onboarding — non destructif, persistant. */
+  setGuide: (guide: 'toto' | 'bobo') => void;
   recordAnswer: (skillId: string, grade: Grade, tag?: string) => void;
   /** Planifie la révision espacée UNE fois par session (par compétence), depuis la précision. */
   recordSessionReview: (
@@ -188,6 +190,18 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const setGuide = useCallback((guide: 'toto' | 'bobo') => {
+    // Ne modifie que le champ `guide` d'un profil EXISTANT (non destructif). Sans profil (onboarding
+    // non terminé), aucune action : le choix se fait alors à l'onboarding.
+    setProfile((prev) => {
+      if (!prev || prev.guide === guide) return prev;
+      const next = { ...prev, guide };
+      void onboardingRepository.save(next);
+      analytics.track('goal_selected', { objective: `guide:${guide}` });
+      return next;
+    });
+  }, []);
+
   const recordAnswer = useCallback((skillId: string, grade: Grade, tag?: string) => {
     setState((prev) => {
       if (!prev) return prev;
@@ -330,6 +344,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         profile,
         markOnboarded,
         completeOnboarding,
+        setGuide,
         recordAnswer,
         recordSessionReview,
         completeSession,
