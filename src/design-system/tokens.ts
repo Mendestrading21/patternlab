@@ -27,6 +27,9 @@ export const palette = {
   surfaceElevated: '#171C2B',
   surfaceInteractive: '#1F2536',
   surfaceSunken: '#05070C',
+  // LOT 4 — états de surface explicites (sélection / verrou), distincts de `interactive`.
+  surfaceSelected: '#28324C',
+  surfaceLocked: '#0C111C',
 
   // Bordures / verre contrôlé
   borderSubtle: '#232B3F',
@@ -83,6 +86,10 @@ export const colors = {
   surfaceElevated: palette.surfaceElevated,
   surfaceInteractive: palette.surfaceInteractive,
   surfaceSunken: palette.surfaceSunken,
+  // LOT 4 — surfaces d'état + anneau de focus visible (clavier web / navigation lecteur d'écran).
+  surfaceSelected: palette.surfaceSelected,
+  surfaceLocked: palette.surfaceLocked,
+  focusRing: palette.violetBright,
   border: palette.borderSubtle,
   borderSubtle: palette.borderSubtle,
   borderStrong: palette.borderStrong,
@@ -113,6 +120,13 @@ export const colors = {
   // Financial semantics (chart direction) — NOT to be reused as correct/incorrect
   bullish: palette.green,
   bearish: palette.red,
+
+  // LOT 4 — sémantique d'ÉTAT DE MARCHÉ pédagogique (setup, zone, invalidation, faux signal).
+  // Dérivée de la palette AA existante. La COULEUR N'EST JAMAIS le seul signal : `MarketStatePill`
+  // porte toujours une icône + une forme + un libellé. Distincte du feedback (correct/incorrect).
+  confirmation: palette.technical, // zone de confirmation = annotation technique (cyan)
+  invalidation: palette.amber, // niveau d'invalidation = zone importante (or), jamais « baissier »
+  falseSignal: palette.neutral, // faux signal = neutre + motif barré (leurre, ni haussier ni baissier)
 
   // Pedagogical feedback — intentionally distinct from bullish/bearish
   feedbackCorrect: palette.feedbackCorrect,
@@ -162,6 +176,44 @@ export const elevation = {
 } as const;
 
 export type Elevation = keyof typeof elevation;
+
+/**
+ * Opacités sémantiques (LOT 4). Le « verre » reste discret : voile ≈ 6 %, liseré ≈ 12 %.
+ * `disabled`/`muted` pilotent les états inactifs ; `scrim` assombrit un fond sous une couche.
+ */
+export const opacity = {
+  disabled: 0.4,
+  muted: 0.6,
+  glass: 0.06,
+  glassBorder: 0.12,
+  scrim: 0.7,
+  full: 1,
+} as const;
+
+export type OpacityToken = keyof typeof opacity;
+
+/** Épaisseurs de bordure normalisées (fines par principe « verre contrôlé »). */
+export const borderWidth = {
+  thin: 1,
+  regular: 1.5,
+  thick: 2,
+} as const;
+
+export type BorderWidthToken = keyof typeof borderWidth;
+
+/** Cible tactile minimale (miroir de `A11Y.minTouchTarget`, exposé comme jeton de layout). */
+export const touchTarget = { min: 44 } as const;
+
+/** Couches d'empilement nommées — évite les z-index magiques dispersés. */
+export const zIndex = {
+  base: 0,
+  raised: 1,
+  sticky: 10,
+  overlay: 100,
+  toast: 1000,
+} as const;
+
+export type ZIndexToken = keyof typeof zIndex;
 
 export type FontWeight = '400' | '500' | '600' | '700' | '800';
 

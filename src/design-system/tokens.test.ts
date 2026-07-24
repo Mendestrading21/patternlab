@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
-import { colors, palette, motion } from './tokens';
+import { colors, palette, motion, opacity, borderWidth, touchTarget, zIndex } from './tokens';
 import { APP_INFO } from '../lib/appInfo';
 
 /**
@@ -47,5 +47,39 @@ describe('Trademy Learning Glass — sémantique des tokens', () => {
   it('identité publique = Trademy avec sa signature', () => {
     expect(APP_INFO.name).toBe('Trademy');
     expect(APP_INFO.signature).toBe('Ne parie pas. Comprends.');
+  });
+});
+
+/**
+ * LOT 4 — jetons de fondation ajoutés (états de surface, sémantique d'état de marché, échelles).
+ * Verrouille leur intention pour éviter une dérive : l'invalidation n'est PAS le baissier, le faux
+ * signal n'est ni haussier ni baissier, et la couleur reste un signal PARMI d'autres (icône + forme).
+ */
+describe('LOT 4 — fondation visuelle : tokens sémantiques', () => {
+  it('expose des surfaces d’état distinctes (sélection / verrou) + focus visible', () => {
+    for (const key of ['surfaceSelected', 'surfaceLocked', 'focusRing'] as const) {
+      expect(typeof colors[key]).toBe('string');
+      expect(colors[key]).toMatch(/^#|rgba/);
+    }
+    expect(colors.surfaceSelected).not.toBe(colors.surface);
+    expect(colors.surfaceLocked).not.toBe(colors.surface);
+  });
+
+  it('l’état de marché est sémantique et NON confondu avec direction/feedback', () => {
+    // Confirmation = annotation technique (cyan) ; invalidation = zone importante (or), jamais baissier.
+    expect(colors.confirmation).toBe(colors.technical);
+    expect(colors.invalidation).not.toBe(colors.bearish);
+    // Faux signal = leurre : ni haussier ni baissier (la forme barrée + le libellé portent le sens).
+    expect(colors.falseSignal).not.toBe(colors.bullish);
+    expect(colors.falseSignal).not.toBe(colors.bearish);
+  });
+
+  it('échelles bornées : opacité, bordures, cible tactile, empilement', () => {
+    expect(opacity.glass).toBeLessThan(opacity.glassBorder); // voile < liseré (verre discret)
+    expect(opacity.disabled).toBeLessThan(opacity.full);
+    expect(borderWidth.thin).toBeLessThan(borderWidth.thick);
+    expect(touchTarget.min).toBe(44); // WCAG 2.5.5 / HIG / Material
+    expect(zIndex.base).toBeLessThan(zIndex.overlay);
+    expect(zIndex.overlay).toBeLessThan(zIndex.toast);
   });
 });
