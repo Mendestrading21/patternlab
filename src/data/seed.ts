@@ -11,6 +11,7 @@ import { generateCandles, supportLevel, resistanceLevel } from '../engines/patte
 import { PROGRESS_SCHEMA_VERSION, emptyLearning, type ProgressState } from './repositories';
 import { rotateExercises, buildCheckpoint } from './exerciseRotation';
 import { objectiveId, type ObjectiveKind } from './learningTarget';
+import { CANDLE_PILOT_EXERCISES } from './pilotScenarios';
 
 export interface ContentModule {
   id: string;
@@ -217,7 +218,7 @@ const LESSONS: Record<string, Lesson[]> = {
       estimatedMinutes: 4,
       steps: [
         { id: 's1', kind: 'explain', body: 'Corps = distance ouverture↔clôture. Mèche haute = plus haut. Mèche basse = plus bas.' },
-        { id: 's2', kind: 'summary', body: 'Une longue mèche montre un rejet de prix : le marché y est allé puis en est revenu.' },
+        { id: 's2', kind: 'summary', body: 'Une longue mèche traduit souvent un rejet de prix : le marché y est allé puis en est revenu — à confirmer avec le contexte.' },
       ],
       sources: ['WMB — Analyse technique : Chandeliers'],
       status: 'approved',
@@ -411,13 +412,9 @@ const RAW_EXERCISES: Record<string, Exercise[]> = {
     { id: 'ex.trend.zone', type: 'select_chart_zone', skillId: 'skill.trend', prompt: 'Le support est le plancher où les acheteurs reviennent. Touche la zone du support.', chartSeed: 2024, zones: ['Zone haute', 'Zone médiane', 'Zone basse'], validation: { correctZone: 2 }, difficulty: 'medium', feedback: fb('Exact — le support, c’est la zone basse (le plancher).', 'Le support est la zone basse ; le plafond du haut, c’est la résistance.', 'Support = plancher (bas), résistance = plafond (haut).', 'Un support finit parfois par céder : rien n’est garanti à 100 %.') },
     { id: 'ex.trend.identify-figure', type: 'identify_figure', skillId: 'skill.trend', prompt: 'Quel indicateur reconnais-tu ?', datasetKey: 'indicator.rsi.v1', variant: 'rsi', visualType: 'indicator', options: ['MACD', 'RSI', 'Bandes de Bollinger', 'Volume'], validation: { correctIndex: 1 }, difficulty: 'hard', feedback: fb('Exact : un oscillateur 0–100 avec zones 70/30.', 'C’est le RSI : oscillateur borné 0–100 sous le prix, seuils 70/30.', 'RSI = force relative, surachat > 70 / survente < 30.', '« Suracheté » n’est pas un ordre : en tendance, l’extrême peut durer.') },
   ],
-  'skill.candles': [
-    { id: 'ex.candles.mcq', type: 'mcq', skillId: 'skill.candles', prompt: 'Une bougie verte signifie…', options: ['Clôture au-dessus de l’ouverture', 'Clôture en dessous de l’ouverture', 'Aucun échange'], validation: { correctIndex: 0 }, difficulty: 'easy', feedback: fb('Exact : verte = clôture > ouverture.', 'Verte = clôture au-dessus de l’ouverture (hausse sur la période).', 'Couleur = sens ouverture→clôture.') },
-    { id: 'ex.candles.tf', type: 'true_false', skillId: 'skill.candles', prompt: 'Les mèches montrent les prix extrêmes atteints pendant la période.', validation: { answer: true }, difficulty: 'easy', feedback: fb('Oui : mèche haute = plus haut, mèche basse = plus bas.', 'C’est vrai : les mèches marquent les extrêmes.', 'Corps = sens ; mèches = extrêmes.') },
-    { id: 'ex.candles.match', type: 'match', skillId: 'skill.candles', prompt: 'Associe chaque élément à ce qu’il représente.', left: ['Corps', 'Mèche haute', 'Couleur'], right: ['Ouverture ↔ clôture', 'Plus haut atteint', 'Sens de la période'], validation: { matches: [0, 1, 2] }, difficulty: 'medium', feedback: fb('Parfait.', 'Corps = ouverture↔clôture, mèche haute = plus haut, couleur = sens.', 'Chaque partie raconte quelque chose de précis.') },
-    { id: 'ex.candles.find', type: 'find_error', skillId: 'skill.candles', prompt: 'Repère l’affirmation FAUSSE.', statements: ['Le corps relie ouverture et clôture.', 'Une longue mèche indique un rejet de prix.', 'La couleur d’une bougie prédit la bougie suivante.'], validation: { errorIndex: 2 }, difficulty: 'medium', feedback: fb('Exact : une couleur ne prédit pas la suite.', 'L’erreur : la couleur ne prédit pas la bougie suivante.', 'Une bougie décrit le passé, pas l’avenir.') },
-    { id: 'ex.candles.identify-figure', type: 'identify_figure', skillId: 'skill.candles', prompt: 'Quelle bougie reconnais-tu ?', datasetKey: 'candle.shooting-star.v1', variant: 'shooting-star', visualType: 'candlestick-pattern', options: ['Marteau', 'Doji', 'Étoile filante', 'Marubozu haussier'], validation: { correctIndex: 2 }, difficulty: 'medium', feedback: fb('Exact : petit corps en bas, longue mèche haute.', 'C’est une étoile filante : petit corps bas + longue mèche haute, après une hausse.', 'Étoile filante = miroir du marteau, en contexte de hausse.', 'Isolée, sans résistance ni confirmation, elle a peu de valeur.') },
-  ],
+  // Unité PILOTE « Comprendre un chandelier » : exercices DÉRIVÉS de la source de scénario canonique
+  // (une seule vérité par item → graphique = réponse = feedback = a11y). Voir `pilotScenarios.ts`.
+  'skill.candles': CANDLE_PILOT_EXERCISES,
   'skill.patterns': [
     { id: 'ex.patterns.invalidation', type: 'place_invalidation', skillId: 'skill.patterns', prompt: 'Place le niveau d’invalidation : sous quel plancher la figure ne tient plus ?', chartSeed: INV_SEED, hint: 'le plus bas atteint (le plancher)', validation: { targetPrice: INV_TARGET, tolerance: INV_TOL }, difficulty: 'hard', feedback: fb('Bien vu : sous le plancher, l’hypothèse est invalidée.', 'L’invalidation se pose sous le plancher (le plus bas atteint), pas au milieu.', 'Invalidation = niveau qui, franchi, annule le scénario.', 'Une invalidation trop serrée saute au moindre bruit ; trop large, elle ne protège plus.') },
     { id: 'ex.patterns.label', type: 'label_chart', skillId: 'skill.patterns', prompt: 'Observe le repère sur le graphique.', chartSeed: LABEL_SEED, markerIndex: LABEL_MARKER, options: ['Le plus haut atteint sur la période', 'Le plancher (support)', 'Le volume échangé'], validation: { correctIndex: 0 }, difficulty: 'medium', feedback: fb('Exact : le repère pointe le sommet, le plus haut atteint.', 'Le repère est au sommet : c’est le plus haut atteint, pas le plancher ni le volume.', 'La mèche haute marque le plus haut de la période.') },
@@ -466,11 +463,7 @@ const EXERCISE_OBJECTIVE: Record<string, ObjectiveKind> = {
   'ex.trend.find': 'avoid-false-signal',
   'ex.trend.zone': 'recognize',
   'ex.trend.identify-figure': 'recognize',
-  'ex.candles.mcq': 'interpret',
-  'ex.candles.tf': 'interpret',
-  'ex.candles.match': 'interpret',
-  'ex.candles.find': 'avoid-false-signal',
-  'ex.candles.identify-figure': 'recognize',
+  // `skill.candles` : les exercices de l'unité pilote portent déjà leur cible (pilotScenarios.ts).
   'ex.patterns.invalidation': 'invalidate',
   'ex.patterns.label': 'recognize',
   'ex.patterns.sequence': 'interpret',

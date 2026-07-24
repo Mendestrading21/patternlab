@@ -10,12 +10,18 @@ export type PatternChartProps = {
   height?: number;
   /** Grille horizontale subtile (aide à la lecture). Activée par défaut. */
   grid?: boolean;
+  /**
+   * Résumé accessible à afficher (lecteur d'écran). Par défaut, dérivé des bougies (`describeCandles`).
+   * Un appelant peut passer le résumé CANONIQUE porté par l'exercice — une seule vérité, jamais un
+   * second calcul concurrent.
+   */
+  accessibilityLabel?: string;
 };
 
 const GRID_ROWS = 4;
 
 /** Rendu en chandeliers japonais (SVG). Vert = clôture ≥ ouverture, rouge sinon (sémantique FINANCIÈRE). */
-export function PatternChart({ candles, width = 320, height = 180, grid = true }: PatternChartProps) {
+export function PatternChart({ candles, width = 320, height = 180, grid = true, accessibilityLabel }: PatternChartProps) {
   const padY = 12;
   const values = candles.flatMap((c) => [c.h, c.l]);
   const min = Math.min(...values);
@@ -28,7 +34,7 @@ export function PatternChart({ candles, width = 320, height = 180, grid = true }
   const y = (v: number) => padY + (1 - (v - min) / range) * (height - 2 * padY);
 
   return (
-    <View accessible accessibilityRole="image" accessibilityLabel={describeCandles(candles)}>
+    <View accessible accessibilityRole="image" accessibilityLabel={accessibilityLabel ?? describeCandles(candles)}>
       <Svg width={width} height={height}>
         {grid
           ? Array.from({ length: GRID_ROWS + 1 }, (_, i) => {

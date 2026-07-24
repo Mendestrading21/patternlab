@@ -73,6 +73,12 @@ export interface BaseExercise {
   sources?: string[];
   /** Cible pédagogique adressée (conceptId + objectiveId). Optionnel. */
   target?: ExerciseTarget;
+  /**
+   * Résumé accessible CANONIQUE de l'item (lecteur d'écran), dérivé de la même vérité que le
+   * graphique/la réponse/le feedback. Porté par l'exercice pour que les players l'affichent
+   * sans le recalculer en parallèle (une seule vérité). Optionnel.
+   */
+  accessibilitySummary?: string;
 }
 
 export interface McqExercise extends BaseExercise {
