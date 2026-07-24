@@ -7,8 +7,9 @@ import { characterLine, type DialogueContext } from '@/characters/dialogue';
  * Garde-fou LOT 4-A : AUCUN emoji système dans le parcours pilote. On contrôle le CONTENU RÉELLEMENT
  * RENDU, pas seulement les fichiers d'écran :
  *   1. source des écrans session + monde ;
- *   2. source des modules de contenu consommés par la session (dialogues, misconceptions) ;
- *   3. sortie RUNTIME de toutes les variantes de `characterLine` (répliques Toto/Bobo rendues).
+ *   2. composants réellement montés par les étapes du pilote ;
+ *   3. source des modules de contenu consommés par la session (dialogues, misconceptions) ;
+ *   4. sortie RUNTIME de toutes les variantes de `characterLine` (répliques Toto/Bobo rendues).
  *
  * Portée : pictogrammes/emoji (plages emoji + dingbats + symboles). Les flèches TYPOGRAPHIQUES
  * (→, ↔, ◀, ▶) et les formes géométriques restent autorisées comme texte.
@@ -21,6 +22,11 @@ const EMOJI = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}️]/u;
 const SCREENS = [
   join(process.cwd(), 'src', 'app', 'session', '[skillId].tsx'),
   join(process.cwd(), 'src', 'app', 'monde', '[id].tsx'),
+];
+const RENDERED_COMPONENTS = [
+  join(process.cwd(), 'src', 'components', 'LessonStepView.tsx'),
+  join(process.cwd(), 'src', 'components', 'LessonReplay.tsx'),
+  join(process.cwd(), 'src', 'design-system', 'components', 'Flashcard.tsx'),
 ];
 // Modules de contenu PURS consommés par la session pilote (répliques + misconceptions rendues).
 const CONTENT = [
@@ -42,6 +48,10 @@ function scan(file: string): string[] {
 
 describe('LOT 4-A — aucun emoji système dans le parcours pilote', () => {
   it.each(SCREENS)('écran %s sans pictogramme emoji', (file) => {
+    expect(scan(file)).toEqual([]);
+  });
+
+  it.each(RENDERED_COMPONENTS)('composant rendu %s sans pictogramme emoji', (file) => {
     expect(scan(file)).toEqual([]);
   });
 
