@@ -40,6 +40,8 @@ function correctAnswer(ex: Exercise): unknown {
       return ex.validation.errorIndex;
     case 'order':
       return ex.validation.correctOrder;
+    case 'place_invalidation':
+      return ex.validation.targetPrice;
     default:
       throw new Error(`type inattendu: ${ex.type}`);
   }
@@ -72,12 +74,12 @@ describe('Parcours pilote — intégration accueil → checkpoint → progressio
     expect(second.lockReason).toBeTruthy();
   });
 
-  it('monde → leçon → pratique : l’unité pilote expose leçon + 5 interactions', () => {
+  it('monde → leçon → pratique : l’unité pilote expose leçon + 6 interactions (4 mécaniques)', () => {
     expect(getLessons('skill.candles').length).toBeGreaterThan(0); // phase Apprendre existe
     const exs = getExercises('skill.candles');
-    expect(exs.length).toBe(5);
+    expect(exs.length).toBe(6);
     expect(new Set(exs.map((e) => e.type))).toEqual(
-      new Set(['identify_pattern', 'select_chart_zone', 'label_chart', 'order', 'find_error']),
+      new Set(['identify_pattern', 'select_chart_zone', 'label_chart', 'place_invalidation', 'order', 'find_error']),
     );
     for (const ex of exs) expect(ex.target?.conceptId).toBe(C);
   });
@@ -119,7 +121,7 @@ describe('Parcours pilote — intégration accueil → checkpoint → progressio
     const agg1 = aggregateAnswered(answered1);
     const recognize = objectiveId(C, 'recognize');
     const recognizeResult = agg1.perTarget.find((t) => t.objectiveId === recognize)!;
-    expect(recognizeResult.total).toBe(2); // 2 exercices recognize agrégés en UNE cible
+    expect(recognizeResult.total).toBe(3); // 3 exercices recognize (direction, label-high, place-high) → UNE cible
     expect(agg1.perTarget).toHaveLength(exercisableObjectiveIds(C).length); // 3 cibles distinctes
 
     state = recordSessionReview(state, 'skill.candles', agg1.perSkill[0].correct, agg1.perSkill[0].total, NOW);

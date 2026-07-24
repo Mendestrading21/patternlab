@@ -21,6 +21,7 @@ import type {
   LabelChartExercise,
   OrderExercise,
   FindErrorExercise,
+  PlaceInvalidationExercise,
 } from './types';
 import { buildDirectionExercise } from './semanticExercise';
 
@@ -42,6 +43,7 @@ export type ScenarioInteraction =
   | 'read-direction' // identify_pattern — lire la structure (graphique)
   | 'touch-extreme-zone' // select_chart_zone — toucher le tiers du plus haut (graphique, tactile)
   | 'label-extreme' // label_chart — reconnaître l'élément marqué = le plus haut (graphique)
+  | 'place-extreme' // place_invalidation — PLACER une ligne au plus haut atteint (manipulation continue)
   | 'read-order' // order — ordonner la lecture (structurel)
   | 'spot-false-signal'; // find_error — repérer l'affirmation fausse (structurel)
 
@@ -75,6 +77,10 @@ export interface LabelExtremeScenario extends ScenarioBase {
   options: string[];
   correctIndex: number;
 }
+export interface PlaceExtremeScenario extends ScenarioBase {
+  interaction: 'place-extreme';
+  chartSeed: number;
+}
 export interface ReadOrderScenario extends ScenarioBase {
   interaction: 'read-order';
   steps: string[];
@@ -92,6 +98,7 @@ export type LearningScenario =
   | DirectionScenario
   | ExtremeZoneScenario
   | LabelExtremeScenario
+  | PlaceExtremeScenario
   | ReadOrderScenario
   | FalseSignalScenario;
 
@@ -118,12 +125,25 @@ export function highestCandleIndex(candles: Candle[]): number {
   return candles.reduce((best, c, i) => (c.h > candles[best].h ? i : best), 0);
 }
 
+/** Plus haut prix atteint sur la série (mèche haute la plus élevée). Vérité unique du niveau à placer. */
+export function highestHigh(candles: Candle[]): number {
+  if (!candles.length) return 0;
+  return Math.max(...candles.map((c) => c.h));
+}
+
+/** Plus bas prix atteint sur la série (amplitude → tolérance). */
+export function lowestLow(candles: Candle[]): number {
+  if (!candles.length) return 0;
+  return Math.min(...candles.map((c) => c.l));
+}
+
 /** Résumé accessible d'un scénario — pour les scénarios graphiques, dérivé de la série réelle. */
 export function scenarioA11ySummary(scenario: LearningScenario): string {
   switch (scenario.interaction) {
     case 'read-direction':
     case 'touch-extreme-zone':
     case 'label-extreme':
+    case 'place-extreme':
       return describeCandles(generateCandles(scenario.chartSeed, SCENARIO_CANDLE_COUNT));
     case 'read-order':
       return `Étapes à ordonner : ${scenario.steps.join(' ; ')}.`;
@@ -210,6 +230,36 @@ export function buildScenarioExercise(scenario: LearningScenario): Exercise {
       return ex;
     }
 
+    case 'place-extreme': {
+      // 4e mécanique RÉELLE : placer une ligne horizontale au plus haut atteint (manipulation
+      // continue), distincte du QCM, de la zone au doigt et de la réorganisation. La cible (prix) est
+      // calculée depuis la série réellement rendue → cohérente par construction ; tolérance = 8 % de
+      // l'amplitude. Rendu par le player de production `place_invalidation` (clavier ↑/↓ + tactile +
+      // lecteur d'écran « adjustable »).
+      const candles = generateCandles(scenario.chartSeed, SCENARIO_CANDLE_COUNT);
+      const targetPrice = highestHigh(candles);
+      const tolerance = (highestHigh(candles) - lowestLow(candles)) * 0.08;
+      const ex: PlaceInvalidationExercise = {
+        id: scenario.id,
+        type: 'place_invalidation',
+        skillId: scenario.skillId,
+        target: scenario.target,
+        prompt: scenario.prompt,
+        chartSeed: scenario.chartSeed,
+        hint: 'le plus haut atteint (la mèche haute la plus élevée)',
+        validation: { targetPrice, tolerance },
+        difficulty: scenario.difficulty ?? 'medium',
+        accessibilitySummary,
+        feedback: {
+          correct: `Bien vu : la ligne est posée sur le plus haut atteint (la mèche haute). ${accessibilitySummary}`,
+          incorrect: `Le plus haut atteint est la mèche haute la plus élevée : remonte ta ligne jusque-là. ${accessibilitySummary}`,
+          rule: scenario.rule ?? 'La mèche haute marque le plus haut atteint sur la période ; le corps, lui, donne le sens.',
+          whenItFails: scenario.whenItFails ?? 'Le plus haut décrit le passé de la période, il n’annonce pas la bougie suivante.',
+        },
+      };
+      return ex;
+    }
+
     case 'read-order': {
       const ex: OrderExercise = {
         id: scenario.id,
@@ -268,6 +318,8 @@ export function scenarioInteractionTypes(scenarios: LearningScenario[]): Scenari
 export const DIRECTION_INDEX_BY_TREND = DIRECTION_INDEX;
 
 /** Mêmes bougies que celles rendues par les players d'un scénario graphique (tests de cohérence). */
-export function scenarioCandles(scenario: DirectionScenario | ExtremeZoneScenario | LabelExtremeScenario): Candle[] {
+export function scenarioCandles(
+  scenario: DirectionScenario | ExtremeZoneScenario | LabelExtremeScenario | PlaceExtremeScenario,
+): Candle[] {
   return generateCandles(scenario.chartSeed, SCENARIO_CANDLE_COUNT);
 }

@@ -253,6 +253,7 @@ function PlaceInvalidationPlayer({
           targetPrice={locked ? exercise.validation.targetPrice : null}
           disabled={locked}
           onPickPrice={(price) => setUserPrice(price)}
+          accessibilityLabel={exercise.accessibilitySummary}
         />
       </View>
       {exercise.hint ? (

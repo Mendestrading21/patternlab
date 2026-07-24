@@ -6,6 +6,7 @@ import {
   scenarioA11ySummary,
   highestThird,
   highestCandleIndex,
+  highestHigh,
   SCENARIO_CANDLE_COUNT,
   DIRECTION_INDEX_BY_TREND,
   type LearningScenario,
@@ -25,6 +26,9 @@ const ZONE: LearningScenario = {
 const LABEL: LearningScenario = {
   id: 's.label', skillId: 'skill.x', target: T, interaction: 'label-extreme', chartSeed: 77,
   prompt: 'Repère ?', options: ['Le plus haut atteint', 'Le plancher', 'Le volume'], correctIndex: 0,
+};
+const PLACE: LearningScenario = {
+  id: 's.place', skillId: 'skill.x', target: T, interaction: 'place-extreme', chartSeed: 77, prompt: 'Place le plus haut ?',
 };
 const ORDER: LearningScenario = {
   id: 's.order', skillId: 'skill.x', target: T, interaction: 'read-order',
@@ -61,6 +65,14 @@ describe('scenario — vérité unique dérivée du graphique (cohérence par co
     expect(ex.options[ex.validation.correctIndex].toLowerCase()).toContain('plus haut');
   });
 
+  it('place-extreme : le niveau cible EST le plus haut réel de la série (4e mécanique)', () => {
+    const ex = buildScenarioExercise(PLACE);
+    if (ex.type !== 'place_invalidation') throw new Error('type');
+    const candles = generateCandles(PLACE.chartSeed as number, SCENARIO_CANDLE_COUNT);
+    expect(ex.validation.targetPrice).toBe(highestHigh(candles));
+    expect(ex.validation.tolerance).toBeGreaterThan(0);
+  });
+
   it('read-order : ordre attendu = permutation valide des étapes', () => {
     const ex = buildScenarioExercise(ORDER);
     if (ex.type !== 'order') throw new Error('type');
@@ -82,7 +94,7 @@ describe('scenario — vérité unique dérivée du graphique (cohérence par co
   });
 
   it('chaque exercice dérivé porte la cible du scénario (conceptId + objectiveId)', () => {
-    for (const s of [DIRECTION, ZONE, LABEL, ORDER, FALSE]) {
+    for (const s of [DIRECTION, ZONE, LABEL, PLACE, ORDER, FALSE]) {
       expect(buildScenarioExercise(s).target).toEqual(T);
     }
   });
@@ -92,20 +104,20 @@ describe('scenario — vérité unique dérivée du graphique (cohérence par co
   });
 
   it('chaque exercice dérivé PORTE le résumé accessible canonique (une seule vérité)', () => {
-    for (const s of [DIRECTION, ZONE, LABEL, ORDER, FALSE]) {
+    for (const s of [DIRECTION, ZONE, LABEL, PLACE, ORDER, FALSE]) {
       expect(buildScenarioExercise(s).accessibilitySummary).toBe(scenarioA11ySummary(s));
     }
   });
 
   it('diversité : au moins 4 interactions réellement différentes', () => {
-    const kinds = scenarioInteractionTypes([DIRECTION, ZONE, LABEL, ORDER, FALSE]);
+    const kinds = scenarioInteractionTypes([DIRECTION, ZONE, LABEL, PLACE, ORDER, FALSE]);
     expect(kinds.length).toBeGreaterThanOrEqual(4);
     expect(kinds).toEqual(expect.arrayContaining(['touch-extreme-zone', 'label-extreme', 'read-order']));
   });
 
   it('aucun texte dérivé ne contient BUY/SELL ni promesse de gain', () => {
     const forbidden = /\b(buy|sell|achet|profit garanti|gain garanti|trade gagnant)\b/i;
-    for (const ex of buildScenarioExercises([DIRECTION, ZONE, LABEL, ORDER, FALSE])) {
+    for (const ex of buildScenarioExercises([DIRECTION, ZONE, LABEL, PLACE, ORDER, FALSE])) {
       const text = [ex.prompt, ex.feedback.correct, ex.feedback.incorrect, ex.feedback.rule ?? '', ex.feedback.whenItFails ?? ''].join(' ');
       expect(text).not.toMatch(forbidden);
     }

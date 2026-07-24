@@ -16,6 +16,8 @@ export type InteractiveChartProps = {
   disabled?: boolean;
   /** Appelé avec le prix correspondant à l'endroit touché. */
   onPickPrice: (price: number) => void;
+  /** Résumé accessible canonique (sinon dérivé des bougies) — une seule vérité, jamais recalculée. */
+  accessibilityLabel?: string;
 };
 
 /**
@@ -30,6 +32,7 @@ export function InteractiveChart({
   targetPrice,
   disabled,
   onPickPrice,
+  accessibilityLabel,
 }: InteractiveChartProps) {
   const scale = priceScale(candles, height);
   const n = candles.length;
@@ -42,7 +45,7 @@ export function InteractiveChart({
       style={{ width, height }}
       accessible
       accessibilityRole="adjustable"
-      accessibilityLabel={`Graphique interactif : touche pour placer ton niveau horizontal. ${describeCandles(candles)}`}
+      accessibilityLabel={`Graphique interactif : touche pour placer ton niveau horizontal. ${accessibilityLabel ?? describeCandles(candles)}`}
       onStartShouldSetResponder={() => !disabled}
       onResponderRelease={(e) => {
         if (!disabled) onPickPrice(scale.yToPrice(e.nativeEvent.locationY));

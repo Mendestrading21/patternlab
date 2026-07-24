@@ -94,6 +94,39 @@ correctement (récupération côté client). Le sprite animé de la mascotte et 
 sont pas montés sous jest (worklets Reanimated 4 absents) : la navigation accueil→monde→unité reste
 couverte par `pilotJourney.test.ts` (buildLearningPath).
 
+## Corrections de revue · 2e passe (PR #10) — parcours de PRODUCTION démontré
+
+La 2e revue demandait de prouver le parcours sur les écrans/stores RÉELS (pas un harnais simulé).
+
+1. **Test d'intégration de PRODUCTION** (`src/integration/session.integration.test.tsx`) — monte l'ÉCRAN
+   de session réel (`app/session/[skillId].tsx`) dans le `ProgressProvider` réel, avec l'orchestrateur
+   Toto/Bobo (LOT 2), le dépôt de reprise (AsyncStorage) et les handlers de progression réels. Il
+   clique les vrais contrôles et prouve : leçon → erreur → **Bobo sélectionné par l'orchestrateur**
+   (misconception réelle, libellé « Bobo, l'ours rouge » dans l'arbre) → réussite → **progression
+   PERSISTÉE** (lue via `progressRepository`) ; **cible entièrement échouée → due immédiatement, aucune
+   maîtrise, compétence non débloquée** ; **checkpoint** réussi → célébration (`celebrate-big`) /
+   échoué → aucune ; **reprise EXACTE après remontage** (même AsyncStorage) sans double comptage. Le
+   harnais simulé `pilotJourneyUI.test.tsx` est SUPPRIMÉ ; les tests de rendu au niveau composant
+   restent dans `exercisePlayerRender.test.tsx`. Mocks d'infrastructure minimaux seulement
+   (Reanimated 4 worklets, expo-router, safe-area, expo-image) — aucune dépendance ajoutée
+   (react-test-renderer est fourni par jest-expo).
+2. **4e mécanique utilisateur réelle** — scénario `place-extreme` dérivé (cible = plus-haut réel de la
+   série), rendu par le player de production `place_invalidation` : **placement continu d'une ligne**
+   (↑/↓ clavier, tactile, lecteur d'écran « adjustable »). L'unité couvre désormais 4 mécaniques
+   distinctes : choix / zone au doigt / réorganisation / placement — plus des QCM habillés.
+3. **React #418 corrigé** — cause : l'export statique sert `404.html` (= accueil) pour un lien direct
+   vers une route dynamique, alors que le client rend un autre écran → divergence d'hydratation.
+   Correctif : `generateStaticParams` sur `app/session/[skillId].tsx` et `app/lesson/[id].tsx`
+   pré-génère un fichier HTML CONCRET par route connue (servi directement, sans repli), plus un 1er
+   rendu param-indépendant (placeholder de chargement) sur les deux écrans. **Vérifié : 0 erreur
+   console** sur `/session/skill.candles|trend|actions` et `/lesson/*` (Chromium). Garde-fou de
+   non-régression dans le test d'intégration.
+4. **Preuves visuelles** — `scripts/capture-pilot.mjs` (reproductible) + `docs/pilot-captures/`
+   (fichiers accessibles, hors runtime) : responsive 320/390/430/1280, 4e mécanique, ordre mélangé,
+   feedback, hors-ligne, reduced-motion ; **débordement horizontal 0 px** partout.
+
+`npm run check` verte (93 suites / 733 tests) ; `git diff --check` propre ; aucune dépendance ajoutée.
+
 ## Rollback
 
 Lot purement additif. `skill.candles` peut revenir à ses exercices précédents en réinsérant l'ancien

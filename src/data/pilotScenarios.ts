@@ -7,9 +7,13 @@
  * gabarit à industrialiser pour les autres unités — quantité minimale, qualité maximale.
  *
  * Couverture : 3 objectifs atomiques réels du concept (recognize / interpret / avoid-false-signal),
- * 5 interactions RÉELLEMENT différentes (lecture de direction, tiers du plus haut au doigt, élément
- * marqué, ordre de lecture, faux signal), avec variantes sur `recognize` et `interpret` pour la
- * remédiation. Aucun vocabulaire BUY/SELL, aucune promesse de gain.
+ * 6 interactions dérivées couvrant 4 MÉCANIQUES utilisateur réellement distinctes :
+ *   1. choix de réponse (lecture de direction, élément marqué, faux signal) ;
+ *   2. sélection directe d'une zone au doigt (tiers du plus haut) ;
+ *   3. réorganisation d'éléments (ordre de lecture) ;
+ *   4. placement continu d'une ligne (le plus haut atteint — player `place_invalidation`).
+ * Variantes sur `recognize` et `interpret` pour la remédiation. Aucun vocabulaire BUY/SELL, aucune
+ * promesse de gain.
  */
 import { buildScenarioExercises, type LearningScenario } from '../engines/exercise';
 import { objectiveId } from './learningTarget';
@@ -47,6 +51,16 @@ export const CANDLE_PILOT_SCENARIOS: LearningScenario[] = [
     prompt: 'Le repère (▲) pointe un élément de la bougie. Que marque-t-il ?',
     options: ['Le plus haut atteint (mèche haute)', 'Le plancher (mèche basse)', 'Le volume échangé'],
     correctIndex: 0,
+    difficulty: 'medium',
+  },
+  // ── recognize (variante) : PLACER une ligne au plus haut atteint (manipulation continue, non-QCM) ──
+  {
+    id: 'ex.candles.place-high',
+    skillId: 'skill.candles',
+    target: target('recognize'),
+    interaction: 'place-extreme',
+    chartSeed: 7, // le plus haut est net en fin de série (haussière) → cible de placement claire
+    prompt: 'Place la ligne sur le plus haut atteint (la mèche haute la plus élevée).',
     difficulty: 'medium',
   },
   // ── interpret : toucher le tiers où le prix a atteint son plus haut (graphique, tactile) ──

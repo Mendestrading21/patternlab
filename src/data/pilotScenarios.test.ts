@@ -10,7 +10,7 @@ describe('Unité pilote « Comprendre un chandelier » — modèle officiel', ()
   it('est bien câblée : skill.candles = les exercices dérivés des scénarios', () => {
     expect(getExercises('skill.candles')).toEqual(CANDLE_PILOT_EXERCISES);
     expect(CANDLE_PILOT_EXERCISES).toHaveLength(CANDLE_PILOT_SCENARIOS.length);
-    expect(CANDLE_PILOT_EXERCISES.length).toBeGreaterThanOrEqual(5);
+    expect(CANDLE_PILOT_EXERCISES.length).toBeGreaterThanOrEqual(6);
   });
 
   it('couvre au moins 3 objectifs atomiques RÉELS du concept', () => {
@@ -23,13 +23,26 @@ describe('Unité pilote « Comprendre un chandelier » — modèle officiel', ()
     expect(exObj).toEqual(covered);
   });
 
-  it('propose au moins 4 interactions RÉELLEMENT différentes (pas 4 QCM déguisés)', () => {
+  it('propose 4 MÉCANIQUES utilisateur réellement distinctes (pas des QCM déguisés)', () => {
     const kinds = scenarioInteractionTypes(CANDLE_PILOT_SCENARIOS);
-    expect(kinds.length).toBeGreaterThanOrEqual(4);
-    // au moins trois interactions non-QCM : zone au doigt, repère sur le graphe, ordre à reconstituer.
-    expect(kinds).toEqual(expect.arrayContaining(['touch-extreme-zone', 'label-extreme', 'read-order']));
+    // 3 interactions non-QCM + le placement continu d'une ligne (4e mécanique réelle).
+    expect(kinds).toEqual(
+      expect.arrayContaining(['touch-extreme-zone', 'label-extreme', 'read-order', 'place-extreme']),
+    );
     const types = new Set(CANDLE_PILOT_EXERCISES.map((e) => e.type));
-    expect(types).toEqual(new Set(['identify_pattern', 'select_chart_zone', 'label_chart', 'order', 'find_error']));
+    expect(types).toEqual(
+      new Set(['identify_pattern', 'select_chart_zone', 'label_chart', 'place_invalidation', 'order', 'find_error']),
+    );
+    // Les 4 mécaniques utilisateur distinctes : choix / zone au doigt / réorganisation / placement continu.
+    const mechanic = (t: string) =>
+      t === 'select_chart_zone'
+        ? 'zone'
+        : t === 'order'
+          ? 'reorder'
+          : t === 'place_invalidation'
+            ? 'place'
+            : 'choice';
+    expect(new Set([...types].map(mechanic))).toEqual(new Set(['choice', 'zone', 'reorder', 'place']));
   });
 
   it('la remédiation dispose d’une variante DIFFÉRENTE (recognize et interpret ont ≥2 variantes)', () => {
@@ -47,6 +60,7 @@ describe('Unité pilote « Comprendre un chandelier » — modèle officiel', ()
         case 'label_chart': answer = ex.validation.correctIndex; break;
         case 'find_error': answer = ex.validation.errorIndex; break;
         case 'order': answer = ex.validation.correctOrder; break;
+        case 'place_invalidation': answer = ex.validation.targetPrice; break;
         default: throw new Error(`type inattendu: ${ex.type}`);
       }
       expect(gradeExercise(ex, answer).correct).toBe(true);

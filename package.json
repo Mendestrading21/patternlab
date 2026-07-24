@@ -65,6 +65,10 @@
     "setupFiles": [
       "<rootDir>/jest.setup.cjs"
     ],
+    "moduleNameMapper": {
+      "^@/assets/(.*)$": "<rootDir>/assets/$1",
+      "^@/(.*)$": "<rootDir>/src/$1"
+    },
     "testMatch": [
       "**/src/**/*.test.ts",
       "**/src/**/*.test.tsx"

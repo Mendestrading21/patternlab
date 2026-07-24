@@ -34,6 +34,7 @@ export const MISCONCEPTION_BY_EXERCISE: Record<string, string> = {
   // (pas le repli générique de compétence). Bobo pointe donc la bonne confusion à la remédiation.
   'ex.candles.direction': 'tendance-une-bougie', // lire le sens sur une seule bougie, pas la structure
   'ex.candles.label-high': 'corps-meche', // ce que marque une mèche (l'extrême atteint)
+  'ex.candles.place-high': 'corps-meche', // placer la ligne au plus haut (mèche haute), pas ailleurs
   'ex.candles.zone-high': 'corps-meche', // où le plus haut a été atteint (mèche haute)
   'ex.candles.read-order': 'couleur-seule', // lire la couleur avant le corps et les mèches
   'ex.candles.false-signal': 'couleur-seule', // « la couleur prédit la suivante »

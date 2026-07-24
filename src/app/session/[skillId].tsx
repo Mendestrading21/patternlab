@@ -13,6 +13,8 @@ import {
   rotateExercises,
   checkpointExercises,
   isCheckpoint,
+  SKILLS,
+  CHECKPOINT_ID,
   isFalseSignalExercise,
   useProgress,
   buildSessionSummary,
@@ -32,6 +34,15 @@ import { xpForGrade, masteryStatus } from '@/engines/learning';
 import { LessonStepView } from '@/components/LessonStepView';
 import { analytics } from '@/analytics';
 import { useNow } from '@/lib/useNow';
+
+/**
+ * Pré-génère un fichier HTML CONCRET par session connue (skill.* + checkpoint). GitHub Pages sert
+ * alors `session/skill.candles.html` directement au lieu du repli `404.html` (l'accueil), ce qui
+ * supprime la divergence d'hydratation React #418 sur les liens directs vers les routes dynamiques.
+ */
+export async function generateStaticParams(): Promise<{ skillId: string }[]> {
+  return [...SKILLS.map((s) => ({ skillId: s.id })), { skillId: CHECKPOINT_ID }];
+}
 
 /** Seuil de réussite d'une session (déblocage de la compétence). */
 const PASS_RATIO = 0.7;
@@ -197,6 +208,19 @@ export default function Session() {
     emit({ type: 'retry_started' }, 'On y retourne — à ton rythme.'); // encouragement (porté par le guide)
   };
 
+  // Premier rendu STABLE (indépendant du paramètre de route) : l'export web statique pré-rend cette
+  // route dynamique SANS `skillId` (donc `known=false`), tandis que le client résout le paramètre à
+  // l'hydratation. Rendre d'abord l'état « chargement » — identique côté serveur (avant effet) et côté
+  // client (1er rendu) — supprime la divergence d'hydratation (React #418). Après montage, `hydrated`
+  // passe à true et l'écran affiche la session OU « introuvable ».
+  if (!hydrated) {
+    return (
+      <Screen>
+        <StateView variant="loading" title="On prépare ta session…" />
+      </Screen>
+    );
+  }
+
   if (!known) {
     return (
       <Screen>
@@ -218,14 +242,6 @@ export default function Session() {
         </Card>
         <Button label="Voir le parcours" onPress={() => router.replace('/parcours')} />
         <Button label="Accueil" variant="ghost" onPress={() => router.replace('/(tabs)')} />
-      </Screen>
-    );
-  }
-
-  if (!hydrated) {
-    return (
-      <Screen>
-        <StateView variant="loading" title="On prépare ta session…" />
       </Screen>
     );
   }
