@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { theme } from '../theme';
+import { TrademyIcon } from '../icons/TrademyIcon';
 import { Text } from './Text';
 
 export type FlashcardProps = { front: string; back: string };
@@ -16,9 +17,12 @@ export function Flashcard({ front, back }: FlashcardProps) {
       onPress={() => setRevealed((r) => !r)}
       style={styles.card}
     >
-      <Text variant="label" color={theme.colors.technical}>
-        🃏 FLASHCARD
-      </Text>
+      <View style={styles.labelRow}>
+        <TrademyIcon name="review" size={16} color={theme.colors.technical} />
+        <Text variant="label" color={theme.colors.technical}>
+          FLASHCARD
+        </Text>
+      </View>
       <Text variant="title">{front}</Text>
       {revealed ? (
         <View style={styles.back}>
@@ -43,6 +47,11 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.borderStrong,
     padding: theme.spacing.lg,
     gap: theme.spacing.sm,
+  },
+  labelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
   },
   back: {
     borderTopWidth: 1,

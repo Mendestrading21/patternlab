@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
-import { Screen, Text, Card, Button, ProgressBar, StateView, FeedbackPanel, theme } from '@/design-system';
-import { CharacterScene, MascotFigure, characterLine, useMascotReactions, resolveWithGuide } from '@/characters';
+import { Screen, Text, Card, Button, ProgressBar, StateView, FeedbackPanel, StatTile, TrademyIcon, theme, type TrademyIconName } from '@/design-system';
+import { RESULT_STAT_ACCENT, RESULT_ICON_ACCENT } from '@/design-system/resultAccents';
+import { CharacterScene, characterLine, useMascotReactions, resolveWithGuide } from '@/characters';
 import { useConnectivity } from '@/lib/connectivity';
 import { ExercisePlayer, gradeExercise, exerciseFormatLabel, type GradeResult, type Exercise } from '@/engines/exercise';
 import {
@@ -525,7 +526,9 @@ function Results({
   return (
     <Screen>
       <Card elevated style={styles.results}>
-        <Text variant="display">{summary.emoji}</Text>
+        {/* Icône de résultat de la FAMILLE Trademy (plus d'emoji système), proportionnée au palier.
+            Accent = canon d'apprentissage (jamais marché/récompense/technique). */}
+        <TrademyIcon name={RESULT_ICON[summary.tier]} size={44} color={RESULT_ICON_ACCENT[summary.tier as 'perfect' | 'pass' | 'retry']} />
         <Text variant="h1" center>
           {correct} / {total}
         </Text>
@@ -537,27 +540,30 @@ function Results({
           <ProgressBar value={summary.accuracy} accessibilityLabel={`Précision : ${summary.accuracyPct} %`} />
         </View>
 
-        {/* Trois tuiles récapitulatives : XP · Précision · MAÎTRISE réelle (plus d'emoji vide). */}
+        {/* Trois tuiles récapitulatives : XP · Précision · MAÎTRISE réelle (icônes de la famille). */}
         <View style={styles.statTiles}>
-          <StatTile label="XP" value={`+${xp}`} color={theme.colors.reward} />
-          <StatTile label="Précision" value={`${summary.accuracyPct}%`} color={theme.colors.technical} />
-          <StatTile label="Maîtrise" value={masteryLabel ?? TIER_FALLBACK[summary.tier]} color={theme.colors.bullish} />
+          <StatTile label="XP" value={`+${xp}`} color={RESULT_STAT_ACCENT.xp} icon="bolt" />
+          <StatTile label="Précision" value={`${summary.accuracyPct}%`} color={RESULT_STAT_ACCENT.accuracy} icon="target" />
+          <StatTile label="Maîtrise" value={masteryLabel ?? TIER_FALLBACK[summary.tier]} color={RESULT_STAT_ACCENT.mastery} icon="mastery" />
         </View>
 
         {nextReview ? (
-          <Text variant="caption" color={theme.colors.textMuted} center accessibilityLabel={`Prochaine révision : ${nextReview}`}>
-            🔁 Prochaine révision : {nextReview}
-          </Text>
+          <View style={styles.reviewRow} accessible accessibilityLabel={`Prochaine révision : ${nextReview}`}>
+            <TrademyIcon name="review" size={14} color={theme.colors.textMuted} />
+            <Text variant="caption" color={theme.colors.textMuted}>
+              Prochaine révision : {nextReview}
+            </Text>
+          </View>
         ) : null}
 
-        {summary.tier === 'retry' ? (
-          <CharacterScene character={mascotCharacter} state={mascotState} size={72} speech={line.text} />
-        ) : (
-          <>
-            <MascotFigure name="celebrate" gesture="celebrate" height={170} />
-            <CharacterScene character={mascotCharacter} state={mascotState} size={56} speech={line.text} />
-          </>
-        )}
+        {/* Scène de personnage VECTORIELLE (nette, sans artefact) — remplace la figure « celebrate »
+            dont l'asset PNG portait un damier de transparence. Taille proportionnée au palier. */}
+        <CharacterScene
+          character={mascotCharacter}
+          state={mascotState}
+          size={summary.tier === 'retry' ? 72 : 88}
+          speech={line.text}
+        />
       </Card>
       <Button label="Retour à l’accueil" onPress={onHome} />
       <Button label="Refaire la session" variant="secondary" onPress={onRetry} />
@@ -565,22 +571,13 @@ function Results({
   );
 }
 
-function StatTile({ label, value, color }: { label: string; value: string; color: string }) {
-  return (
-    <View style={styles.tile} accessible accessibilityLabel={`${label} : ${value}`}>
-      <Text variant="title" color={color} center>
-        {value}
-      </Text>
-      <Text variant="caption" color={theme.colors.textMuted} center>
-        {label}
-      </Text>
-    </View>
-  );
-}
-
 /** Étiquette de repli pour la tuile Maîtrise quand la compétence n'a pas de progression propre
  *  (ex. point de contrôle qui agrège plusieurs compétences). */
 const TIER_FALLBACK: Record<string, string> = { perfect: 'Excellent', pass: 'Validé', retry: 'À revoir' };
+
+/** Icône de résultat par palier (famille Trademy) — remplace l'emoji d'affichage.
+ *  Les accents COULEUR viennent de `RESULT_ICON_ACCENT` (canon d'apprentissage, jamais marché). */
+const RESULT_ICON: Record<string, TrademyIconName> = { perfect: 'trophy', pass: 'success', retry: 'review' };
 
 const styles = StyleSheet.create({
   header: { gap: theme.spacing.sm },
@@ -589,14 +586,5 @@ const styles = StyleSheet.create({
   results: { alignItems: 'center', gap: theme.spacing.md },
   accuracyWrap: { width: '100%' },
   statTiles: { flexDirection: 'row', gap: theme.spacing.sm, width: '100%' },
-  tile: {
-    flex: 1,
-    alignItems: 'center',
-    gap: 2,
-    paddingVertical: theme.spacing.sm,
-    borderRadius: theme.radius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: theme.colors.surface,
-  },
+  reviewRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
 });

@@ -76,3 +76,28 @@ describe('AA exhaustif — accents colorés comme texte sur les surfaces de cart
     });
   }
 });
+
+// ── LOT 4-A — surfaces d'état (sélection/verrou) : AA VÉRIFIÉ, pas seulement affirmé ──
+// La doc ne doit jamais prétendre « AA partout » sans ce verrou. On teste texte neutre + accents
+// réellement susceptibles d'apparaître comme texte/icône sur une surface sélectionnée/verrouillée,
+// y compris les couleurs de MARCHÉ (bullish/bearish) et la MAÎTRISE.
+const STATE_SURFACES = ['surfaceSelected', 'surfaceLocked'] as const;
+const STATE_FG = [
+  'textPrimary',
+  'textSecondary',
+  'textMuted',
+  'primary',
+  'technical',
+  'reward',
+  'bullish',
+  'bearish',
+  'mastery',
+] as const;
+
+describe('AA — surfaces d’état LOT 4 (surfaceSelected / surfaceLocked)', () => {
+  for (const fg of STATE_FG) {
+    it.each(STATE_SURFACES)(`${fg} ≥ AA sur %s`, (s) => {
+      expect(contrastRatio(colors[fg], colors[s])).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
+    });
+  }
+});

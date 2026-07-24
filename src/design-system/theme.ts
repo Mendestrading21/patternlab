@@ -3,7 +3,18 @@
  * P0.1 : un seul thème « sombre premium » (l'identité de la marque).
  * Le thème clair est prévu mais différé (voir docs/PROJECT_STATUS.md).
  */
-import { colors, spacing, radius, typography, elevation } from './tokens';
+import {
+  colors,
+  spacing,
+  radius,
+  typography,
+  elevation,
+  motion,
+  opacity,
+  borderWidth,
+  touchTarget,
+  zIndex,
+} from './tokens';
 
 export const theme = {
   colors,
@@ -11,6 +22,12 @@ export const theme = {
   radius,
   typography,
   elevation,
+  // LOT 4 — jetons de fondation additionnels exposés sur le thème (rétro-compatible).
+  motion,
+  opacity,
+  borderWidth,
+  touchTarget,
+  zIndex,
 } as const;
 
 export type Theme = typeof theme;

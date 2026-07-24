@@ -1,7 +1,18 @@
 import { useEffect } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View, StyleSheet, Pressable } from 'react-native';
-import { Screen, Text, Card, Chip, ProgressBar, StateView, Button, theme } from '@/design-system';
+import {
+  Screen,
+  Text,
+  Card,
+  Chip,
+  StateView,
+  Button,
+  TrademyIcon,
+  ProgressWidget,
+  theme,
+  type TrademyIconName,
+} from '@/design-system';
 import { CharacterScene, MascotFigure } from '@/characters';
 import { MiniVisual } from '@/engines/visual';
 import {
@@ -21,6 +32,15 @@ import {
 import { analytics } from '@/analytics';
 import { useNow } from '@/lib/useNow';
 
+/**
+ * Pré-génère un HTML concret par monde connu. GitHub Pages sert alors `monde/world.*.html`
+ * directement (au lieu du repli `404.html`), supprimant toute divergence d'hydratation sur les liens
+ * directs vers un monde (même garde-fou que les routes `session`/`lesson` du LOT 3).
+ */
+export async function generateStaticParams(): Promise<{ id: string }[]> {
+  return WORLDS.map((w) => ({ id: w.id }));
+}
+
 const NODE_COLORS: Record<NodeStatus, string> = {
   done: theme.colors.primary,
   due: theme.colors.warning,
@@ -28,22 +48,23 @@ const NODE_COLORS: Record<NodeStatus, string> = {
   locked: theme.colors.textMuted,
 };
 
-function nodeIcon(node: MapNode): string {
-  if (node.status === 'locked') return '🔒';
-  if (node.kind === 'checkpoint') return node.status === 'done' ? '🎉' : '🏁';
-  if (node.status === 'done') return '✓';
-  if (node.status === 'due') return '🔁';
-  return String(node.index + 1);
+/** Glyphe de nœud dans la famille d'icônes Trademy (plus d'emoji système en substitut). */
+function nodeGlyph(node: MapNode): { icon?: TrademyIconName; text?: string } {
+  if (node.status === 'locked') return { icon: 'lock' };
+  if (node.kind === 'checkpoint') return { icon: node.status === 'done' ? 'trophy' : 'checkpoint' };
+  if (node.status === 'done') return { icon: 'check' };
+  if (node.status === 'due') return { icon: 'review' };
+  return { text: String(node.index + 1) };
 }
 
 function nodeLabel(node: MapNode): string {
   if (node.kind === 'checkpoint') {
     if (node.status === 'locked') return 'Termine les compétences pour débloquer la revue';
-    if (node.status === 'done') return 'Module validé 🎉';
+    if (node.status === 'done') return 'Module validé';
     return 'Prêt — revois tout le module';
   }
   switch (node.status) {
-    case 'done': return 'Terminé ✓';
+    case 'done': return 'Terminé';
     case 'due': return 'À réviser — la répétition espacée la ramène';
     case 'current': return 'Prochaine étape';
     default: return 'Verrouillé — termine l’étape précédente';
@@ -131,14 +152,18 @@ export default function WorldDetail() {
 
       {entry ? (
         <View style={styles.progressBlock}>
-          <ProgressBar value={entry.progress} accessibilityLabel={`Progression du monde ${world.title}`} />
-          <Text variant="caption" color={theme.colors.textMuted}>
-            {entry.guided
-              ? entry.status === 'done'
-                ? 'Module validé ✓'
-                : 'Avance dans le module guidé ci-dessous.'
-              : `${entry.exploredCount}/${entry.conceptCount} fiche${entry.conceptCount > 1 ? 's' : ''} consultée${entry.conceptCount > 1 ? 's' : ''}`}
-          </Text>
+          <ProgressWidget
+            title={world.title}
+            value={entry.progress}
+            accent={theme.colors.primary}
+            caption={
+              entry.guided
+                ? entry.status === 'done'
+                  ? 'Module validé'
+                  : 'Avance dans le module guidé ci-dessous.'
+                : `${entry.exploredCount}/${entry.conceptCount} fiche${entry.conceptCount > 1 ? 's' : ''} consultée${entry.conceptCount > 1 ? 's' : ''}`
+            }
+          />
         </View>
       ) : null}
 
@@ -212,12 +237,15 @@ function GuidedModuleView({
         <MascotFigure name="toto-present" height={96} decorative />
       </View>
       <Text variant="h2">Module : {moduleTitle}</Text>
+
       <View style={styles.trail}>
         {map.nodes.map((node) => {
           const color = NODE_COLORS[node.status];
           const locked = node.status === 'locked';
           const reached = node.status !== 'locked';
           const conceptSlug = node.kind === 'skill' ? conceptSlugForSkill(node.id) : undefined;
+          const glyph = nodeGlyph(node);
+          const glyphColor = node.status === 'done' ? theme.colors.onPrimary : color;
           return (
             <View key={node.id} style={styles.trailRow}>
               <View style={styles.rail}>
@@ -227,9 +255,13 @@ function GuidedModuleView({
                   <View style={styles.connector} />
                 )}
                 <View style={[styles.badge, { borderColor: color, backgroundColor: node.status === 'done' ? color : theme.colors.surface }]}>
-                  <Text variant="title" color={node.status === 'done' ? theme.colors.onPrimary : color}>
-                    {nodeIcon(node)}
-                  </Text>
+                  {glyph.icon ? (
+                    <TrademyIcon name={glyph.icon} size={22} color={glyphColor} strokeWidth={2.2} />
+                  ) : (
+                    <Text variant="title" color={glyphColor}>
+                      {glyph.text}
+                    </Text>
+                  )}
                 </View>
               </View>
               <View style={styles.labelWrap}>
@@ -282,7 +314,14 @@ const styles = StyleSheet.create({
   labelWrap: { flex: 1, marginBottom: theme.spacing.md },
   labelCard: { borderWidth: 1.5, gap: 2 },
   labelHead: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
-  discover: { paddingVertical: theme.spacing.xs, paddingLeft: theme.spacing.xs, marginTop: theme.spacing.xs },
+  // Cible tactile réelle ≥ 44 px (WCAG 2.5.5) pour « Découvrir la notion ».
+  discover: {
+    minHeight: theme.touchTarget.min,
+    justifyContent: 'center',
+    paddingVertical: theme.spacing.xs,
+    paddingLeft: theme.spacing.xs,
+    marginTop: theme.spacing.xs,
+  },
   flex1: { flex: 1 },
   conceptList: { gap: theme.spacing.md, marginTop: theme.spacing.sm },
   conceptRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },

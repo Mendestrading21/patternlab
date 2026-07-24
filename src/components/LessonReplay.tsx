@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Card, Text, Button, theme } from '@/design-system';
+import { Card, Text, Button, TrademyIcon, theme } from '@/design-system';
 import {
   MarketReplayChart,
   generateCandles,
@@ -26,9 +26,12 @@ export function LessonReplay({ seed = 2024, count = 26 }: { seed?: number; count
 
   return (
     <Card>
-      <Text variant="label" color={theme.colors.primary}>
-        🖐️ Manipule — révèle le graphique
-      </Text>
+      <View style={styles.labelRow}>
+        <TrademyIcon name="chart" size={16} color={theme.colors.primary} />
+        <Text variant="label" color={theme.colors.primary}>
+          Manipule — révèle le graphique
+        </Text>
+      </View>
       <Text variant="caption" color={theme.colors.textMuted}>
         Avance bougie par bougie et regarde la structure se construire.
       </Text>
@@ -69,6 +72,7 @@ export function LessonReplay({ seed = 2024, count = 26 }: { seed?: number; count
 }
 
 const styles = StyleSheet.create({
+  labelRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
   chart: { width: '100%', marginVertical: theme.spacing.sm },
   controls: { flexDirection: 'row', gap: theme.spacing.sm, alignItems: 'center', flexWrap: 'wrap', marginTop: theme.spacing.xs },
 });

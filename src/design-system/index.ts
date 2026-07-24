@@ -43,3 +43,13 @@ export { OfflineBanner, type OfflineBannerProps } from './components/OfflineBann
 export { AnswerOption, type AnswerOptionProps, type AnswerState } from './components/AnswerOption';
 export { FeedbackPanel, type FeedbackPanelProps } from './components/FeedbackPanel';
 export { Flashcard, type FlashcardProps } from './components/Flashcard';
+// LOT 4 — fondation visuelle : état de marché, tuiles & widget de progression.
+export {
+  MarketStatePill,
+  MARKET_STATES,
+  MARKET_STATE_ORDER,
+  type MarketState,
+  type MarketStatePillProps,
+} from './components/MarketStatePill';
+export { StatTile, type StatTileProps } from './components/StatTile';
+export { ProgressWidget, type ProgressWidgetProps } from './components/ProgressWidget';

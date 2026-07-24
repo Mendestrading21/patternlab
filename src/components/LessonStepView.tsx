@@ -1,30 +1,33 @@
 import { useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
-import { Text, Card, Button, Flashcard, theme } from '@/design-system';
+import {
+  Text,
+  Card,
+  Button,
+  Flashcard,
+  TrademyIcon,
+  theme,
+} from '@/design-system';
 import { CharacterScene } from '@/characters';
 import { PatternChart, generateCandles } from '@/engines/pattern';
 import { VisualCard } from '@/engines/visual';
 import { conceptBySlug, V5_CONCEPTS } from '@/data';
 import { LessonReplay } from './LessonReplay';
-import type { LessonStep, LessonStepKind } from '@/engines/learning';
+import { STEP_META, type LessonStepMeta } from './lessonStepMeta';
+import type { LessonStep } from '@/engines/learning';
 
-type Meta = { label: string; color: string; accent?: string };
+export { STEP_META } from './lessonStepMeta';
 
-/** Métadonnées d'affichage par type d'étape de leçon (label + couleur sémantique). */
-export const STEP_META: Record<LessonStepKind, Meta> = {
-  intro: { label: '✨ Pour commencer', color: theme.colors.primaryBright },
-  explain: { label: 'Explication', color: theme.colors.textMuted },
-  observe: { label: '👀 Observe', color: theme.colors.technical },
-  example: { label: 'Exemple', color: theme.colors.textMuted },
-  chart: { label: '📈 Graphique', color: theme.colors.technical },
-  visual: { label: '🕯️ Le visuel', color: theme.colors.technical },
-  hypothesis: { label: '⚖️ Hypothèse — Toto / Bobo', color: theme.colors.advanced, accent: theme.colors.advanced },
-  interaction: { label: 'À toi', color: theme.colors.primary },
-  warning: { label: '⚠️ Attention', color: theme.colors.warning, accent: theme.colors.warning },
-  falseSignal: { label: '🚩 Faux signal / limite', color: theme.colors.bearish, accent: theme.colors.bearish },
-  summary: { label: '🎯 À retenir', color: theme.colors.primary, accent: theme.colors.primary },
-  flashcard: { label: '', color: '' },
-};
+function StepLabel({ meta }: { meta: LessonStepMeta }) {
+  return (
+    <View style={styles.labelRow}>
+      {meta.icon ? <TrademyIcon name={meta.icon} size={16} color={meta.color} /> : null}
+      <Text variant="label" color={meta.color}>
+        {meta.label}
+      </Text>
+    </View>
+  );
+}
 
 /**
  * Rendu d'une étape de leçon (texte, flashcard, visuel SVG, graphique bougies, hypothèse Toto/Bobo).
@@ -66,9 +69,7 @@ export function LessonStepView({ step }: { step: LessonStep }) {
     }
     return (
       <Card>
-        <Text variant="label" color={theme.colors.technical}>
-          {STEP_META.visual.label}
-        </Text>
+        <StepLabel meta={STEP_META.visual} />
         {step.body ? <Text variant="body">{step.body}</Text> : null}
       </Card>
     );
@@ -80,9 +81,7 @@ export function LessonStepView({ step }: { step: LessonStep }) {
     const bear = concept?.bearishScenario?.conditions?.[0] ?? concept?.falseSignals?.[0];
     return (
       <Card style={styles.hypothesis}>
-        <Text variant="label" color={theme.colors.advanced}>
-          {STEP_META.hypothesis.label}
-        </Text>
+        <StepLabel meta={STEP_META.hypothesis} />
         {step.body ? (
           <Text variant="body" color={theme.colors.textSecondary}>
             {step.body}
@@ -110,9 +109,7 @@ export function LessonStepView({ step }: { step: LessonStep }) {
   if (step.kind === 'chart') {
     return (
       <Card>
-        <Text variant="label" color={theme.colors.technical}>
-          {STEP_META.chart.label}
-        </Text>
+        <StepLabel meta={STEP_META.chart} />
         <View style={styles.chart}>
           <PatternChart candles={generateCandles(step.chartSeed ?? 1, 30)} width={300} height={150} />
         </View>
@@ -145,9 +142,7 @@ export function LessonStepView({ step }: { step: LessonStep }) {
   const elevated = step.kind === 'intro';
   return (
     <Card elevated={elevated} style={meta.accent ? { borderColor: meta.accent } : undefined}>
-      <Text variant="label" color={meta.color}>
-        {meta.label}
-      </Text>
+      <StepLabel meta={meta} />
       {step.body ? <Text variant="body">{step.body}</Text> : null}
     </Card>
   );
@@ -158,4 +153,5 @@ const styles = StyleSheet.create({
   stepStack: { gap: theme.spacing.sm },
   hypothesis: { borderColor: theme.colors.advanced },
   debate: { gap: theme.spacing.md, marginTop: theme.spacing.sm },
+  labelRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
 });
