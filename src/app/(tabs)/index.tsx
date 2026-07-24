@@ -57,7 +57,7 @@ export default function Home() {
 
   return (
     <Screen>
-      <Text variant="h1">{greeting}, apprenti ! 👋</Text>
+      <Text variant="h1">{greeting}, apprenti !</Text>
       <Text variant="body" color={theme.colors.textSecondary}>
         {objectiveLabel
           ? `Objectif : ${objectiveLabel} · ${minutes} min aujourd’hui.`
@@ -66,9 +66,12 @@ export default function Home() {
 
       {/* Action principale unique : la mission du jour (progression compacte incluse) */}
       <Card elevated>
-        <Text variant="label" color={theme.colors.primaryBright}>
-          🎯 MISSION DU JOUR
-        </Text>
+        <View style={styles.sectionLabel}>
+          <TrademyIcon name="target" size={16} color={theme.colors.primaryBright} />
+          <Text variant="label" color={theme.colors.primaryBright}>
+            MISSION DU JOUR
+          </Text>
+        </View>
         <Text variant="h2">{mission.skillName || 'Module terminé'}</Text>
         <View style={styles.missionMascot}>
           <MascotFigure name="toto-think" gesture="idle" height={104} decorative />
@@ -78,7 +81,7 @@ export default function Home() {
         </Text>
         {mission.skillId ? (
           <View style={styles.missionMeta}>
-            <Chip icon="⏱️" label={`~${minutes} min`} color={theme.colors.technical} />
+            <Chip iconName="timer" label={`~${minutes} min`} color={theme.colors.technical} />
             <Chip iconName="book" label={`${sessionCount} exercice${sessionCount > 1 ? 's' : ''}`} color={theme.colors.neutral} />
           </View>
         ) : null}
@@ -89,7 +92,7 @@ export default function Home() {
           <View style={styles.chips}>
             <Chip iconName="star" label={`Niv. ${state.level}`} color={theme.colors.primary} />
             <Chip iconName="flame" label={`${state.streakDays} j`} color={theme.colors.warning} />
-            <Chip icon="🪙" label={`${state.coins}`} color={theme.colors.reward} />
+            <Chip iconName="coin" label={`${state.coins}`} color={theme.colors.reward} />
           </View>
           <ProgressBar value={xpInLevel / 100} accessibilityLabel={`${xpInLevel} sur 100 XP`} />
           <Text variant="caption" color={theme.colors.textMuted}>
@@ -147,9 +150,12 @@ export default function Home() {
           onPress={() => router.push(`/concept/${featured.slug}`)}
         >
           <Card style={styles.conceptCard}>
-            <Text variant="label" color={theme.colors.advanced}>
-              💡 CONCEPT DU JOUR
-            </Text>
+            <View style={styles.sectionLabel}>
+              <TrademyIcon name="hint" size={16} color={theme.colors.advanced} />
+              <Text variant="label" color={theme.colors.advanced}>
+                CONCEPT DU JOUR
+              </Text>
+            </View>
             <Text variant="h2">{featured.title}</Text>
             {featured.visualSpec ? (
               <View style={styles.conceptVisual}>
@@ -179,6 +185,7 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
+  sectionLabel: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs },
   missionMascot: { alignItems: 'center', marginVertical: theme.spacing.sm },
   conceptCard: { borderColor: theme.colors.advanced, gap: theme.spacing.xs },
   conceptVisual: { alignItems: 'center', marginVertical: theme.spacing.xs },
