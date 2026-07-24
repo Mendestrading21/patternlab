@@ -19,7 +19,7 @@ pas rendue, si une erreur console est relevée, ou si un débordement horizontal
 | Fichier | Ce qu'il prouve |
 |---|---|
 | `pilot-practice-{320,390,430,web,reduced}.png` | Phase pratique — responsive, aucun débordement horizontal ; `reduced` = équivalent statique. |
-| `pilot-result-{320,390,430,web,reduced}.png` | **Écran de résultat corrigé (LOT 4-A)** : icône de résultat de la FAMILLE Trademy (aucun emoji), **Maîtrise en violet de marque** (jamais le vert du marché), tuiles `StatTile` + séparateur `SignatureMark`, **scène de mascotte vectorielle sans damier**. Responsive + reduced-motion. |
+| `pilot-result-{320,390,430,web,reduced}.png` | **Écran de résultat corrigé (LOT 4-A)** : icône de résultat de la FAMILLE Trademy (aucun emoji), accents du **canon d'apprentissage** (XP violet, précision bleu-info, Maîtrise violet — jamais une couleur de marché/technique), tuiles `StatTile`, **scène de mascotte vectorielle sans damier**. Responsive + reduced-motion. |
 | `pilot-feedback-390.png` | Feedback contextualisé + mascotte (scène de production). |
 | `pilot-place-line-390.png` | 4e mécanique : placement continu d'une ligne (`place_invalidation`) — ↑/↓ clavier. |
 | `pilot-error-remediation-390.png` | Erreur → Bobo + bouton **« Réessayer autrement »** (remédiation déclenchée par l'erreur). |
@@ -41,10 +41,26 @@ comptée **une seule fois**), la **reprise pendant une remédiation**, la **repr
 d'ordre inachevée**, la **reprise d'un checkpoint interrompu**, et la **célébration proportionnelle**
 (état de mascotte `celebrate-big`), toutes **sans double comptage**.
 
+## Déterminisme du script
+
+Le script déclare un **manifeste exact** (22 captures), nettoie les PNG gérés avant lancement, et exige
+une égalité stricte `produced == manifeste == PNG du dossier`. Il **échoue (code 1)** sur : erreur
+console, pageerror, débordement horizontal > 0, mesure d'overflow impossible, route incorrecte (pathname
++ marqueur STABLE propre à l'écran), état obligatoire non atteint, capture manquante ou inattendue.
+
 ## Contrôles mesurés à la capture
 
-- **Débordement horizontal = 0 px** à 320 / 390 / 430 / 1280 px (le script échoue sinon).
-- **Erreurs console = 0** (le script échoue sinon).
+- **Débordement horizontal = 0 px** à 320 / 390 / 430 / 1280 px.
+- **Erreurs console / pageerror = 0.**
 - Cibles tactiles des flèches : 44 × 44 px. « Découvrir la notion » : cible ≥ 44 px.
-- **Aucun emoji système** sur les écrans pilote modifiés (verrou `src/integration/pilotNoEmoji.test.ts`).
+- **Aucun emoji système** dans le parcours pilote — écrans + contenu rendu, y compris toutes les
+  variantes de `characterLine` (verrou `src/integration/pilotNoEmoji.test.ts`).
 - **Aucun artefact** de transparence derrière les mascottes (asset PNG défectueux retiré du rendu).
+
+## Portée honnête des preuves
+
+- **CI GitHub** (`quality`) : lint + typecheck + tests (dont les verrous ci-dessus) + build web. Elle
+  **n'exécute PAS** ce script de captures — les captures sont un contrôle **local**.
+- **Texte agrandi (200 %)** : le plafond de dynamic type (cap 1,8) est vérifié par test, mais une preuve
+  réelle de reflow à 200 % exige un appareil/simulateur natif (indisponible en environnement web+jest).
+  Cette limite est documentée, non déduite d'un simple `maxFontSizeMultiplier`.

@@ -34,7 +34,6 @@ vertical pilote**, sans réécrire ni fragiliser le LOT 3.
 | `MarketStatePill` | *nouveau* `components/` | **Ajouter** |
 | `StatTile` partagé | *nouveau* `components/` | **Ajouter** |
 | `ProgressWidget` | *nouveau* `components/` | **Ajouter** |
-| `SignatureMark` | *nouveau* `brand/` | **Ajouter** |
 | Personnages Toto/Bobo (`vector/`, `motionPlan`, `orchestrator`) | `src/characters/` | **Conserver** (rôles inchangés) |
 | Graphiques (`candleGeometry`, `PatternChart`, `chartEngine`) | `src/engines/` | **Conserver** (source sémantique unique LOT 3) |
 
@@ -57,8 +56,8 @@ Une seule famille (24×24, trait 2, terminaisons rondes). Concepts couverts : na
 **apprentissage** (review/unlocked/progression/checkpoint/mastery/hint/success/error/warning),
 **marché** (market-up/market-down/volume/support/resistance/confirmation/invalidation/false-signal/
 risk/psychology). Séparation stricte (LOT 4-A) : `progression` = apprentissage ; les DIRECTIONS de
-marché utilisent des flèches neutres (`market-up`/`market-down`), jamais `progression` ni un glyphe
-moralisant (`decline` retiré). Source de vérité et exhaustivité : `TRADEMY_ICON_NAMES` + `icons.test.ts`.
+marché utilisent des flèches neutres (`market-up`/`market-down`), jamais l'icône `progression` ni un
+glyphe moralisant. Source de vérité et exhaustivité : `TRADEMY_ICON_NAMES` + `icons.test.ts`.
 
 ## 5. Règles des widgets « data premium »
 
@@ -78,14 +77,14 @@ questionne). **Jamais** Toto = haussier / Bobo = baissier ; un marché baissier 
 Le mouvement EXPLIQUE, jamais de boucle décorative permanente ; reduced-motion pleinement informatif.
 Le sous-lot 4-A **n'ajoute aucune animation**.
 
-## 8. Références : principes retenus / rejetés
+## 8. Source visuelle : canon retenu / anti-patterns rejetés
 
-**Retenus (intention)** : univers sombre premium ; famille d'icônes outline cohérente ; widgets sombres
-vitrés lisibles ; signature dérivée des chandeliers ; 3D noir/or **réservée** aux récompenses.
+**Source unique** : le canon initial **TradeMy Learning Glass** — univers nuit bleutée/anthracite, verre
+subtil ; famille d'icônes outline cohérente ; violet = apprentissage/progression/maîtrise ; vert/rouge =
+directions de marché ; cyan = annotation technique ; or = zones importantes ; Toto & Bobo.
 
-**Rejetés** : copier un asset ; néon partout ; casino visuel ; verre/ombres sur chaque carte ;
-illustration bitmap à la place d'un graphique exact ; alphabet chandelier littéral ; toute image
-filigranée ou stock non licenciée.
+**Rejetés (anti-patterns)** : néon partout ; casino visuel ; verre/ombres sur chaque carte ; illustration
+bitmap à la place d'un graphique exact ; toute image stock ou filigranée.
 
 ## 9. Guide de migration progressive
 
@@ -93,5 +92,5 @@ filigranée ou stock non licenciée.
 2. Remplacer un emoji-icône par `TrademyIcon` au fil des écrans (pas d'un coup).
 3. Pour un état de marché, utiliser `MarketStatePill` (jamais une puce couleur seule).
 4. Étendre l'application verticale écran par écran ; ne jamais toucher la logique pédagogique du LOT 3.
-5. Sous-lot **4-B** (différé) : famille C (récompenses 3D noir/or), finition glass sur d'autres écrans,
-   jeu de captures élargi, éventuelle intégration des références fournies.
+5. Sous-lot **4-B** : **non défini ici** — il sera cadré séparément depuis le canon initial TradeMy
+   Learning Glass, après validation humaine.
