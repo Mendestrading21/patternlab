@@ -11,7 +11,7 @@
  * feedback ou du texte lecteur d'écran — la réponse est calculée depuis la série réellement rendue.
  */
 import { generateCandles } from '../pattern/demoChart';
-import { candleTrend, describeCandles } from '../pattern/chartA11y';
+import { describeCandles } from '../pattern/chartA11y';
 import type { Candle } from '../pattern/types';
 import type {
   Exercise,
@@ -22,7 +22,7 @@ import type {
   OrderExercise,
   FindErrorExercise,
 } from './types';
-import { buildDirectionExercise, DIRECTION_CANDLE_COUNT } from './semanticExercise';
+import { buildDirectionExercise } from './semanticExercise';
 
 /** Nombre de bougies rendu pour les scénarios graphiques (aligné sur les players). */
 export const SCENARIO_CANDLE_COUNT = 30;
@@ -253,13 +253,10 @@ export function scenarioInteractionTypes(scenarios: LearningScenario[]): Scenari
   return [...new Set(scenarios.map((s) => s.interaction))];
 }
 
-/** L'exercice résultant expose bien une seule vérité graphique — utilisé par le test de cohérence. */
+/** Index d'option attendu selon la tendance dérivée — utilisé par le test de cohérence. */
 export const DIRECTION_INDEX_BY_TREND = DIRECTION_INDEX;
-export { DIRECTION_CANDLE_COUNT };
 
-/** Ré-exposé pour les tests de cohérence (mêmes bougies que les players). */
+/** Mêmes bougies que celles rendues par les players d'un scénario graphique (tests de cohérence). */
 export function scenarioCandles(scenario: DirectionScenario | ExtremeZoneScenario | LabelExtremeScenario): Candle[] {
   return generateCandles(scenario.chartSeed, SCENARIO_CANDLE_COUNT);
 }
-
-export { candleTrend };
