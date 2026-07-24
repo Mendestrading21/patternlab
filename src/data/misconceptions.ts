@@ -13,6 +13,7 @@ export interface Misconception {
 
 export const MISCONCEPTIONS: Misconception[] = [
   { id: 'couleur-seule', label: 'Lire la couleur seule', hint: 'La couleur d’une bougie = sens ouverture → clôture, pas une règle magique.' },
+  { id: 'corps-meche', label: 'Confondre corps et mèches', hint: 'Le corps donne le sens (ouverture ↔ clôture) ; les mèches montrent les extrêmes atteints, pas le sens.' },
   { id: 'tendance-une-bougie', label: 'Conclure sur une seule bougie', hint: 'La tendance se lit sur la structure d’ensemble, pas sur une bougie isolée.' },
   { id: 'niveau-certitude', label: 'Prendre un niveau pour une certitude', hint: 'Un support/résistance est un repère, jamais une garantie.' },
   { id: 'figure-anticipee', label: 'Anticiper une figure', hint: 'Attends la cassure ou la confirmation avant de conclure.' },
@@ -29,6 +30,13 @@ export const MISCONCEPTION_BY_EXERCISE: Record<string, string> = {
   'ex.actions.green-candle': 'couleur-seule',
   'ex.actions.dividende': 'valorisation',
   'ex.actions.per': 'valorisation',
+  // Unité pilote « Comprendre un chandelier » : chaque erreur pointe l'idée fausse RÉELLE
+  // (pas le repli générique de compétence). Bobo pointe donc la bonne confusion à la remédiation.
+  'ex.candles.direction': 'tendance-une-bougie', // lire le sens sur une seule bougie, pas la structure
+  'ex.candles.label-high': 'corps-meche', // ce que marque une mèche (l'extrême atteint)
+  'ex.candles.zone-high': 'corps-meche', // où le plus haut a été atteint (mèche haute)
+  'ex.candles.read-order': 'couleur-seule', // lire la couleur avant le corps et les mèches
+  'ex.candles.false-signal': 'couleur-seule', // « la couleur prédit la suivante »
 };
 
 /** Défaut par compétence (extrait du préfixe « ex.<skill>.… » de l'id d'exercice). */

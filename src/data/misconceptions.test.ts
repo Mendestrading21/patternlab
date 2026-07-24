@@ -15,6 +15,15 @@ describe('misconceptions — erreurs typées', () => {
     expect(misconceptionIdForExercise('ex.inconnu.x')).toBe('a-revoir');
   });
 
+  it('unité pilote : chaque erreur pointe une misconception RÉELLE (pas le repli de compétence)', () => {
+    // direction = lire le sens sur une seule bougie ; corps/mèches = ce que marque un extrême.
+    expect(misconceptionIdForExercise('ex.candles.direction')).toBe('tendance-une-bougie');
+    expect(misconceptionIdForExercise('ex.candles.label-high')).toBe('corps-meche');
+    expect(misconceptionIdForExercise('ex.candles.zone-high')).toBe('corps-meche');
+    expect(misconceptionIdForExercise('ex.candles.read-order')).toBe('couleur-seule');
+    expect(misconceptionIdForExercise('ex.candles.false-signal')).toBe('couleur-seule');
+  });
+
   it('agrège les errorTags par misconception, triés par fréquence', () => {
     const summary = summarizeMisconceptions({
       'ex.actions.dividende': 2,

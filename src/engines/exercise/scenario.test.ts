@@ -91,6 +91,12 @@ describe('scenario — vérité unique dérivée du graphique (cohérence par co
     expect(buildScenarioExercise(ZONE)).toEqual(buildScenarioExercise(ZONE));
   });
 
+  it('chaque exercice dérivé PORTE le résumé accessible canonique (une seule vérité)', () => {
+    for (const s of [DIRECTION, ZONE, LABEL, ORDER, FALSE]) {
+      expect(buildScenarioExercise(s).accessibilitySummary).toBe(scenarioA11ySummary(s));
+    }
+  });
+
   it('diversité : au moins 4 interactions réellement différentes', () => {
     const kinds = scenarioInteractionTypes([DIRECTION, ZONE, LABEL, ORDER, FALSE]);
     expect(kinds.length).toBeGreaterThanOrEqual(4);

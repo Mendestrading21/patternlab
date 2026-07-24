@@ -3,8 +3,9 @@ import { View, TextInput, Pressable, StyleSheet } from 'react-native';
 import Svg, { Line, Rect, Polygon } from 'react-native-svg';
 import { Text, Button, AnswerOption, theme } from '../../design-system';
 import type { AnswerState } from '../../design-system';
-import { PatternChart, InteractiveChart, generateCandles, priceScale } from '../pattern';
+import { PatternChart, InteractiveChart, generateCandles, priceScale, describeCandles } from '../pattern';
 import { VisualCard } from '../visual';
+import { scrambledDisplayOrder } from './reorder';
 import type { VisualSpec } from '../../data/learningConcept';
 import type {
   Exercise,
@@ -79,7 +80,8 @@ function IdentifyPatternPlayer({
   return (
     <View style={styles.stack}>
       <View style={styles.chartWrap}>
-        <PatternChart candles={candles} width={300} height={150} />
+        {/* Résumé accessible = celui porté par l'exercice (vérité canonique du scénario), sinon dérivé. */}
+        <PatternChart candles={candles} width={300} height={150} accessibilityLabel={exercise.accessibilitySummary} />
       </View>
       <ChoicePlayer
         options={exercise.options}
@@ -179,7 +181,8 @@ function ZonePlayer({
   return (
     <View style={styles.stack}>
       <View style={[styles.chartWrap, styles.zoneWrap, { width: W }]}>
-        <PatternChart candles={candles} width={W} height={H} />
+        {/* Une seule annonce du graphique (résumé canonique de l'exercice) ; les zones sont des boutons distincts. */}
+        <PatternChart candles={candles} width={W} height={H} accessibilityLabel={exercise.accessibilitySummary} />
         <View style={[StyleSheet.absoluteFill, styles.zoneRow]}>
           {exercise.zones.map((z, i) => {
             const active = picked === i || (locked && i === exercise.validation.correctZone);
@@ -300,7 +303,13 @@ function LabelChartPlayer({
   return (
     <View style={styles.stack}>
       <View style={styles.chartWrap}>
-        <Svg width={W} height={H} accessibilityLabel={`Graphique en chandeliers ; un repère marque la bougie numéro ${mi + 1}.`}>
+        {/* Lecteur d'écran : description de la série (résumé canonique) + PRÉSENCE et position du repère,
+            SANS révéler ce qu'il représente (la réponse) avant validation. */}
+        <Svg
+          width={W}
+          height={H}
+          accessibilityLabel={`${exercise.accessibilitySummary ?? describeCandles(candles)} Un repère marque la bougie numéro ${mi + 1}.`}
+        >
           {candles.map((c, i) => {
             const x = i * slot + slot / 2;
             const up = c.c >= c.o;
@@ -340,10 +349,16 @@ function SequencePlayer({
     <View style={styles.stack}>
       {exercise.chartSeed != null ? (
         <View style={styles.chartWrap}>
-          <PatternChart candles={generateCandles(exercise.chartSeed, 30)} width={300} height={140} />
+          <PatternChart candles={generateCandles(exercise.chartSeed, 30)} width={300} height={140} accessibilityLabel={exercise.accessibilitySummary} />
         </View>
       ) : null}
-      <ReorderList items={exercise.steps} locked={locked} validateLabel="Valider la séquence" onValidate={onValidate} />
+      <ReorderList
+        items={exercise.steps}
+        locked={locked}
+        validateLabel="Valider la séquence"
+        onValidate={onValidate}
+        initialOrder={scrambledDisplayOrder(exercise.validation.correctOrder)}
+      />
     </View>
   );
 }
@@ -353,13 +368,18 @@ function ReorderList({
   locked,
   validateLabel,
   onValidate,
+  initialOrder,
 }: {
   items: string[];
   locked: boolean;
   validateLabel: string;
   onValidate: (order: number[]) => void;
+  /** Ordre d'affichage initial (déterministe, jamais la solution). Défaut : ordre naturel des items. */
+  initialOrder?: number[];
 }) {
-  const [order, setOrder] = useState<number[]>(items.map((_, i) => i));
+  // Lazy initializer : l'ordre d'affichage n'est posé QU'UNE fois (les déplacements de l'utilisateur
+  // ne sont jamais réinitialisés par un re-rendu).
+  const [order, setOrder] = useState<number[]>(() => initialOrder ?? items.map((_, i) => i));
 
   const move = (pos: number, dir: -1 | 1) => {
     const next = pos + dir;
@@ -369,16 +389,28 @@ function ReorderList({
     setOrder(copy);
   };
 
+  const n = order.length;
   return (
     <>
       {order.map((itemIndex, pos) => (
         <View key={itemIndex} style={styles.orderRow}>
+          {/* Le préfixe « pos. » énonce la position courante (lue telle quelle par le lecteur d'écran). */}
           <Text variant="body" style={styles.orderLabel}>
             {pos + 1}. {items[itemIndex]}
           </Text>
           <View style={styles.orderBtns}>
-            <ArrowBtn label="↑" disabled={locked || pos === 0} onPress={() => move(pos, -1)} />
-            <ArrowBtn label="↓" disabled={locked || pos === order.length - 1} onPress={() => move(pos, 1)} />
+            <ArrowBtn
+              label="↑"
+              disabled={locked || pos === 0}
+              onPress={() => move(pos, -1)}
+              accessibilityLabel={`Monter « ${items[itemIndex]} » (position ${pos + 1} sur ${n})`}
+            />
+            <ArrowBtn
+              label="↓"
+              disabled={locked || pos === n - 1}
+              onPress={() => move(pos, 1)}
+              accessibilityLabel={`Descendre « ${items[itemIndex]} » (position ${pos + 1} sur ${n})`}
+            />
           </View>
         </View>
       ))}
@@ -477,7 +509,14 @@ function OrderPlayer({
 }) {
   return (
     <View style={styles.stack}>
-      <ReorderList items={exercise.items} locked={locked} validateLabel="Valider l’ordre" onValidate={onValidate} />
+      {/* Ordre d'affichage mélangé (déterministe, jamais la solution) : on valide APRÈS avoir reconstitué. */}
+      <ReorderList
+        items={exercise.items}
+        locked={locked}
+        validateLabel="Valider l’ordre"
+        onValidate={onValidate}
+        initialOrder={scrambledDisplayOrder(exercise.validation.correctOrder)}
+      />
     </View>
   );
 }
@@ -534,13 +573,25 @@ function MatchPlayer({
   );
 }
 
-function ArrowBtn({ label, disabled, onPress }: { label: string; disabled: boolean; onPress: () => void }) {
+function ArrowBtn({
+  label,
+  disabled,
+  onPress,
+  accessibilityLabel,
+}: {
+  label: string;
+  disabled: boolean;
+  onPress: () => void;
+  /** Libellé accessible explicite (défaut : Monter/Descendre selon la flèche). */
+  accessibilityLabel?: string;
+}) {
   return (
     <Pressable
       disabled={disabled}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={label === '↑' ? 'Monter' : 'Descendre'}
+      accessibilityState={{ disabled }}
+      accessibilityLabel={accessibilityLabel ?? (label === '↑' ? 'Monter' : 'Descendre')}
       style={[styles.arrow, disabled && styles.arrowDisabled]}
     >
       <Text variant="title">{label}</Text>
@@ -604,8 +655,9 @@ const styles = StyleSheet.create({
   orderLabel: { flex: 1 },
   orderBtns: { flexDirection: 'row', gap: theme.spacing.xs },
   arrow: {
-    width: 40,
-    height: 40,
+    // Cible tactile ≥ 44 px (recommandation d'accessibilité mobile).
+    width: 44,
+    height: 44,
     borderRadius: theme.radius.sm,
     borderWidth: 1,
     borderColor: theme.colors.borderStrong,

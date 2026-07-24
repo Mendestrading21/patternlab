@@ -218,7 +218,7 @@ const LESSONS: Record<string, Lesson[]> = {
       estimatedMinutes: 4,
       steps: [
         { id: 's1', kind: 'explain', body: 'Corps = distance ouverture↔clôture. Mèche haute = plus haut. Mèche basse = plus bas.' },
-        { id: 's2', kind: 'summary', body: 'Une longue mèche montre un rejet de prix : le marché y est allé puis en est revenu.' },
+        { id: 's2', kind: 'summary', body: 'Une longue mèche traduit souvent un rejet de prix : le marché y est allé puis en est revenu — à confirmer avec le contexte.' },
       ],
       sources: ['WMB — Analyse technique : Chandeliers'],
       status: 'approved',

@@ -84,7 +84,7 @@ export const CANDLE_PILOT_SCENARIOS: LearningScenario[] = [
     prompt: 'Repère l’affirmation FAUSSE sur les bougies.',
     statements: [
       'Le corps relie l’ouverture et la clôture.',
-      'Une longue mèche indique un rejet de prix.',
+      'Une longue mèche peut traduire un rejet de prix, à confirmer avec le contexte et les bougies voisines.',
       'La couleur d’une bougie prédit la bougie suivante.',
     ],
     errorIndex: 2,

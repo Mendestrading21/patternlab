@@ -137,19 +137,26 @@ export function scenarioA11ySummary(scenario: LearningScenario): string {
  * et l'accessibilité dérivent de la même vérité que le graphique rendu.
  */
 export function buildScenarioExercise(scenario: LearningScenario): Exercise {
+  // Résumé accessible CANONIQUE — même vérité que le graphique/la réponse/le feedback. Porté sur
+  // l'exercice pour être AFFICHÉ tel quel par les players (jamais recalculé en parallèle).
+  const accessibilitySummary = scenarioA11ySummary(scenario);
+
   switch (scenario.interaction) {
     case 'read-direction':
-      return buildDirectionExercise({
-        id: scenario.id,
-        skillId: scenario.skillId,
-        target: scenario.target,
-        chartSeed: scenario.chartSeed,
-        prompt: scenario.prompt,
-        options: scenario.options,
-        difficulty: scenario.difficulty,
-        rule: scenario.rule,
-        whenItFails: scenario.whenItFails,
-      });
+      return {
+        ...buildDirectionExercise({
+          id: scenario.id,
+          skillId: scenario.skillId,
+          target: scenario.target,
+          chartSeed: scenario.chartSeed,
+          prompt: scenario.prompt,
+          options: scenario.options,
+          difficulty: scenario.difficulty,
+          rule: scenario.rule,
+          whenItFails: scenario.whenItFails,
+        }),
+        accessibilitySummary,
+      };
 
     case 'touch-extreme-zone': {
       const candles = generateCandles(scenario.chartSeed, SCENARIO_CANDLE_COUNT);
@@ -166,6 +173,7 @@ export function buildScenarioExercise(scenario: LearningScenario): Exercise {
         zones: [...THIRD_LABELS],
         validation: { correctZone },
         difficulty: scenario.difficulty ?? 'medium',
+        accessibilitySummary,
         feedback: {
           correct: `Bien vu : le plus haut de la période est dans le ${label.toLowerCase()}. ${summary}`,
           incorrect: `Le plus haut de la période est dans le ${label.toLowerCase()} : compare les mèches hautes tiers par tiers. ${summary}`,
@@ -191,6 +199,7 @@ export function buildScenarioExercise(scenario: LearningScenario): Exercise {
         options: [...scenario.options],
         validation: { correctIndex: scenario.correctIndex },
         difficulty: scenario.difficulty ?? 'medium',
+        accessibilitySummary,
         feedback: {
           correct: `Exact : le repère marque le plus haut atteint (la mèche haute). ${summary}`,
           incorrect: `Le repère est posé sur le plus haut de la période (la mèche haute), pas ailleurs. ${summary}`,
@@ -211,6 +220,7 @@ export function buildScenarioExercise(scenario: LearningScenario): Exercise {
         items: [...scenario.steps],
         validation: { correctOrder: [...scenario.correctOrder] },
         difficulty: scenario.difficulty ?? 'medium',
+        accessibilitySummary,
         feedback: {
           correct: 'Bien vu : corps (sens), puis mèches (extrêmes), puis contexte.',
           incorrect: `Ordre attendu : ${scenario.correctOrder.map((i) => scenario.steps[i]).join(' → ')}.`,
@@ -231,6 +241,7 @@ export function buildScenarioExercise(scenario: LearningScenario): Exercise {
         statements: [...scenario.statements],
         validation: { errorIndex: scenario.errorIndex },
         difficulty: scenario.difficulty ?? 'medium',
+        accessibilitySummary,
         feedback: {
           correct: `Exact : « ${scenario.statements[scenario.errorIndex]} » est faux.`,
           incorrect: `L’affirmation fausse est : « ${scenario.statements[scenario.errorIndex]} ».`,

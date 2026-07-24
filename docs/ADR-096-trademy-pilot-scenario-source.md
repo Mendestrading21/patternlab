@@ -53,6 +53,47 @@ différente.
 - Hors périmètre (assumé) : les 14 autres unités guidées, les 500+ concepts, le premium — le pilote
   est le gabarit à répliquer.
 
+## Corrections de revue (PR #10) — parcours réellement rendu, manipulé, démontré
+
+La revue a demandé de prouver le parcours par le RENDU et la MANIPULATION, pas seulement par des
+fonctions pures. Corrections apportées (uniquement les lacunes démontrées ; aucune reconstruction de
+ce qui fonctionnait) :
+
+1. **Exercice d'ordre jamais pré-résolu** — `ReorderList` partait de l'ordre identité `[0,1,2,3]`
+   alors que `correctOrder` valait aussi `[0,1,2,3]` : on validait sans rien reconstituer.
+   `scrambledDisplayOrder` (`engines/exercise/reorder.ts`, pure, **déterministe**, garantie
+   `≠ solution` — miroir de la solution) fournit l'ordre d'affichage initial de tout exercice `order`
+   / `sequence_market_structure`. Flèches accessibles (libellé « Monter/Descendre « <étape> »
+   (position X sur N) », état désactivé annoncé), cibles tactiles **44 px**.
+2. **Résumé accessible canonique porté et consommé** — `BaseExercise.accessibilitySummary` est dérivé
+   par `buildScenarioExercise` (= `scenarioA11ySummary`) et AFFICHÉ par les players : `PatternChart`
+   (accepte un `accessibilityLabel` — une seule annonce), donc `identify_pattern`, `select_chart_zone`
+   et `sequence` ; `label_chart` annonce la série + la **présence/position** du repère **sans révéler
+   la réponse**. Graphique = réponse = feedback = lecteur d'écran : une seule vérité, affichée.
+3. **Test d'intégration RENDU** (`data/pilotJourneyUI.test.tsx`, react-test-renderer fourni par
+   jest-expo — **aucune dépendance ajoutée**) : monte `ExercisePlayer`, CLIQUE les contrôles réels →
+   exercice affiché → mauvaise réponse → feedback contextualisé + **Bobo (misconception réelle)** →
+   continuer → **variante (même cible, présentation différente)** → bonne réponse → checkpoint →
+   progression affichée. Aucun bouton mort (un clic sans `onPress` échoue le test).
+4. **Remédiation par variante vérifiée** — la variante partage `target.objectiveId` (la cible EST le
+   groupe de variantes — pas de seconde source de vérité), avec une présentation réellement différente
+   (type d'interaction distinct). Les misconceptions pilotes deviennent **précises** (`misconceptions.ts`):
+   `direction → tendance-une-bougie`, `label-high`/`zone-high → corps-meche` (misconception ajoutée),
+   `read-order`/`false-signal → couleur-seule`. Bobo pointe donc la vraie confusion.
+5. **Vérité pédagogique** — « Une longue mèche indique un rejet de prix. » → « … **peut traduire** un
+   rejet de prix, à confirmer avec le contexte et les bougies voisines. » (idem `lesson.candle-anatomy`).
+   Audit des textes pilotes : les « garantit/prédit » restants sont les affirmations FAUSSES à repérer.
+
+**Vérifications** : `npm run check` verte (lint, typecheck strict, 92 suites / 727 tests `--runInBand`,
+validate:content, release:check, build:web) ; `git diff --check` propre. Captures Chromium du parcours
+pilote à 320 / 390 / 430 / 1280 px + reduced-motion + hors-ligne : **aucun débordement horizontal**
+(0 px partout), l'ordre est visiblement mélangé. **Limite connue** (pré-existante, non introduite) : les
+routes dynamiques du build statique expo-router (`/session/[skillId]`, `/lesson/[id]` — y compris les
+compétences non touchées) émettent au boot un avertissement d'hydratation React #418 ; la page se rend
+correctement (récupération côté client). Le sprite animé de la mascotte et la coquille expo-router ne
+sont pas montés sous jest (worklets Reanimated 4 absents) : la navigation accueil→monde→unité reste
+couverte par `pilotJourney.test.ts` (buildLearningPath).
+
 ## Rollback
 
 Lot purement additif. `skill.candles` peut revenir à ses exercices précédents en réinsérant l'ancien
